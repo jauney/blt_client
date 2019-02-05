@@ -1,5 +1,11 @@
 import { stringify } from 'qs';
 import request from '@/utils/request';
+import ApolloClient from 'apollo-boost';
+import gql from 'graphql-tag';
+import { async } from 'q';
+const client = new ApolloClient({
+  uri: 'http://127.0.0.1:3002/graphql',
+});
 
 export async function queryProjectNotice() {
   return request('/api/project/notice');
@@ -123,4 +129,39 @@ export async function queryNotices(params = {}) {
 
 export async function getFakeCaptcha(mobile) {
   return request(`/api/captcha?mobile=${mobile}`);
+}
+
+export async function addCustomer(params = {}) {
+  return {};
+}
+
+export async function queryCustomerList(params) {
+  return client
+    .query({
+      query: gql`
+        query getCustomers($pageNo: Int, $pageSize: Int, $filter: CustomerInput, $type: Int) {
+          getCustomers(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, type: $type) {
+            total
+            customers {
+              customer_id
+              customer_name
+              customer_mobile
+              bank_account
+              company_id
+              customer_mobile
+              mobiles {
+                mobile
+              }
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getCustomers;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
 }

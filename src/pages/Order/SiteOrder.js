@@ -50,7 +50,7 @@ const CreateForm = Form.create()(props => {
   return (
     <Modal
       destroyOnClose
-      title="新建规则"
+      title="新建托运单"
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
@@ -273,8 +273,9 @@ class UpdateForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ rule, loading }) => ({
+@connect(({ rule, customer, loading }) => ({
   rule,
+  customer,
   loading: loading.models.rule,
 }))
 @Form.create()
@@ -353,6 +354,10 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'rule/fetch',
+    });
+    dispatch({
+      type: 'customer/fetch',
+      payload: { type: 2, pageNo: 1, pageSize: 20, filter: {} },
     });
   }
 
