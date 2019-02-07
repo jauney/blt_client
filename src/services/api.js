@@ -1,10 +1,34 @@
 import { stringify } from 'qs';
 import request from '@/utils/request';
-import ApolloClient from 'apollo-boost';
+// import ApolloClient from 'apollo-boost';
+
+// import { async } from 'q';
+// const client = new ApolloClient({
+//   uri: 'http://127.0.0.1:3002/graphql',
+// });
+
+import { HttpLink } from 'apollo-link-http';
+import { ApolloClient } from 'apollo-client';
+import { ApolloLink, concat } from 'apollo-link';
 import gql from 'graphql-tag';
-import { async } from 'q';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+
+const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3002/graphql' });
+
+const authMiddleware = new ApolloLink((operation, forward) => {
+  // add the authorization to the headers
+  operation.setContext({
+    headers: {
+      authorization: localStorage.getItem('token') || null,
+    },
+  });
+
+  return forward(operation);
+});
+
 const client = new ApolloClient({
-  uri: 'http://127.0.0.1:3002/graphql',
+  link: concat(authMiddleware, httpLink),
+  cache: new InMemoryCache(),
 });
 
 export async function queryProjectNotice() {
@@ -110,10 +134,36 @@ export async function updateFakeList(params) {
 }
 
 export async function fakeAccountLogin(params) {
-  return request('/api/login/account', {
-    method: 'POST',
-    body: params,
-  });
+  return client
+    .query({
+      query: gql`
+        query login($userName: String, $password: String) {
+          login(user_name: $userName, user_pass: $password) {
+            token
+            user {
+              user_id
+              user_name
+            }
+            site {
+              site_id
+              site_name
+            }
+            company {
+              company_id
+              company_name
+              company_type
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.login;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
 }
 
 export async function fakeRegister(params) {

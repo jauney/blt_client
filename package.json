@@ -105,7 +105,10 @@
     "react-fittext": "^1.0.0",
     "react-media": "^1.8.0",
     "react-router-dom": "^4.3.1",
-    "apollo-boost": "^0.1.27",
+    "apollo-link-http":"^1.5.11",
+    "apollo-client":"^2.4.12",
+    "apollo-cache-inmemory":"^1.4.2",
+    "apollo-link":"^1.2.8",
     "graphql-tag": "^2.10.1",
     "graphql": "^14.1.1"
   },

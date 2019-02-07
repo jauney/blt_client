@@ -40,6 +40,7 @@ class LoginPage extends Component {
     });
 
   handleSubmit = (err, values) => {
+    console.log(values);
     const { type } = this.state;
     if (!err) {
       const { dispatch } = this.props;

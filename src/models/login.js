@@ -15,16 +15,18 @@ export default {
   effects: {
     *login({ payload }, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
+      console.log(response);
       yield put({
         type: 'changeLoginStatus',
         payload: response,
       });
       // Login successfully
-      if (response.status === 'ok') {
+      if (response.token) {
         reloadAuthorized();
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params;
+        console.log('redirect', redirect);
         if (redirect) {
           const redirectUrlParams = new URL(redirect);
           if (redirectUrlParams.origin === urlParams.origin) {
@@ -67,11 +69,10 @@ export default {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      setAuthority(payload.currentAuthority);
+      setAuthority(payload);
       return {
         ...state,
-        status: payload.status,
-        type: payload.type,
+        status: payload.token.length > 0,
       };
     },
   },

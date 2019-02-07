@@ -40,12 +40,65 @@ const status = ['关闭', '运行中', '已上线', '异常'];
 
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, handleAdd, handleModalVisible } = props;
+  const {
+    form: { getFieldDecorator },
+  } = props;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
       handleAdd(fieldsValue);
     });
+  };
+  const formItemLayout = {
+    labelCol: {
+      xs: { span: 24 },
+      sm: { span: 8 },
+    },
+    wrapperCol: {
+      xs: { span: 24 },
+      sm: { span: 16 },
+    },
+  };
+  // label列可以放下4个字
+  const formItemSmallLayout = {
+    labelCol: {
+      xs: { span: 25 },
+      sm: { span: 9 },
+    },
+    wrapperCol: {
+      xs: { span: 23 },
+      sm: { span: 15 },
+    },
+  };
+
+  const colLayout = {
+    md: 8,
+    sm: 24,
+  };
+
+  const colSmallLayout = {
+    md: 4,
+    sm: 20,
+  };
+  const col2Layout = {
+    md: 10,
+    sm: 26,
+  };
+  // colLargeLayout && formItemMiniLayout
+  const colLargeLayout = {
+    md: 16,
+    sm: 32,
+  };
+  const formItemMiniLayout = {
+    labelCol: {
+      xs: { span: 22 },
+      sm: { span: 6 },
+    },
+    wrapperCol: {
+      xs: { span: 26 },
+      sm: { span: 18 },
+    },
   };
   return (
     <Modal
@@ -54,12 +107,237 @@ const CreateForm = Form.create()(props => {
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
+      width={710}
     >
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="描述">
-        {form.getFieldDecorator('desc', {
-          rules: [{ required: true, message: '请输入至少五个字符的规则描述！', min: 5 }],
-        })(<Input placeholder="请输入" />)}
-      </FormItem>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...colLayout}>
+          <FormItem {...formItemLayout} label="分公司">
+            {getFieldDecorator('company')(
+              <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Option value="0">关闭</Option>
+                <Option value="1">运行中</Option>
+              </Select>
+            )}
+          </FormItem>
+        </Col>
+        <Col {...colLayout}>
+          <FormItem {...formItemLayout} label="站点">
+            {getFieldDecorator('site')(
+              <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Option value="0" sele>
+                  关闭
+                </Option>
+              </Select>
+            )}
+          </FormItem>
+        </Col>
+        <Col {...colLayout}>
+          <FormItem {...formItemLayout} label="运单号">
+            {getFieldDecorator('orderCode')(<Input placeholder="请输入运费" />)}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="收货人电话">
+            {getFieldDecorator('getCustomerMobile')(<Input placeholder="请输入" />)}
+          </FormItem>
+        </Col>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="收货人姓名">
+            {getFieldDecorator('getCustomerName')(
+              <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Option value="0" sele>
+                  关闭
+                </Option>
+              </Select>
+            )}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="发货人电话">
+            {getFieldDecorator('sendCustomerMobile')(<Input placeholder="请输入" />)}
+          </FormItem>
+        </Col>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="发货人姓名">
+            {getFieldDecorator('sendCustomerName')(
+              <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Option value="0" sele>
+                  关闭
+                </Option>
+              </Select>
+            )}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...colLayout}>
+          <FormItem {...formItemLayout} label="运费">
+            {getFieldDecorator('trans_amount', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="请输入运费" />)}
+          </FormItem>
+        </Col>
+        <Col {...colSmallLayout}>
+          <FormItem label="">
+            {getFieldDecorator('sendCustomerName')(
+              <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Option value="0">提付</Option>
+                <Option value="0">垫付</Option>
+              </Select>
+            )}
+          </FormItem>
+        </Col>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="折后运费">
+            {getFieldDecorator('trans_discount', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="" />)}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...colLayout}>
+          <FormItem {...formItemLayout} label="货款">
+            {getFieldDecorator('order_amount', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="请输入货款" />)}
+          </FormItem>
+        </Col>
+        <Col {...colLayout}>
+          <FormItem label="">
+            {getFieldDecorator('bank_account')(<Input placeholder="请输入银行账号" />)}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="保价金额">
+            {getFieldDecorator('insurance_amount', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="" />)}
+          </FormItem>
+        </Col>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="保价费">
+            {getFieldDecorator('insurance_fee', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="" />)}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="送货费">
+            {getFieldDecorator('deliver_amount', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="" />)}
+          </FormItem>
+        </Col>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="垫付金额">
+            {getFieldDecorator('order_advancepay_amount', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="" />)}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...colLargeLayout}>
+          <FormItem {...formItemMiniLayout} label="货物名称">
+            {form.getFieldDecorator('order_name', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="请输入" style={{ width: '400' }} />)}
+          </FormItem>
+        </Col>
+        <Col {...colSmallLayout}>
+          <FormItem {...formItemLayout} label="">
+            {getFieldDecorator('order_num')(
+              <InputNumber placeholder="件数" style={{ width: '200' }} />
+            )}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="转进/转出">
+            {getFieldDecorator('transfer_type')(
+              <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Option value="1" sele>
+                  转出
+                </Option>
+                <Option value="2" sele>
+                  转进
+                </Option>
+              </Select>
+            )}
+          </FormItem>
+        </Col>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="中转费">
+            {form.getFieldDecorator('transfer_amount', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="请输入" />)}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="中转地址">
+            {form.getFieldDecorator('transfer_address', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="请输入" />)}
+          </FormItem>
+        </Col>
+
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="中转物流">
+            {getFieldDecorator('transfer_company_name')(<Input placeholder="请输入" />)}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="中转单号">
+            {form.getFieldDecorator('transfer_order_code', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="请输入" />)}
+          </FormItem>
+        </Col>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="中转电话">
+            {form.getFieldDecorator('transfer_company_mobile', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="请输入" />)}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="实收货款">
+            {getFieldDecorator('order_real')(<Input placeholder="请输入" />)}
+          </FormItem>
+        </Col>
+        <Col {...col2Layout}>
+          <FormItem {...formItemLayout} label="实收运费">
+            {form.getFieldDecorator('trans_real', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="请输入" />)}
+          </FormItem>
+        </Col>
+      </Row>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col {...colLargeLayout}>
+          <FormItem {...formItemMiniLayout} label="备注">
+            {form.getFieldDecorator('remark', {
+              rules: [{ required: true, message: '', min: 5 }],
+            })(<Input placeholder="请输入" />)}
+          </FormItem>
+        </Col>
+      </Row>
     </Modal>
   );
 });
