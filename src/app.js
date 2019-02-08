@@ -30,7 +30,7 @@ export function patchRoutes(routes) {
 }
 // TODO: api url , cros
 export function render(oldRender) {
-  fetch('https://tp-pay.snssdk.com/api/auth_routes')
+  fetch('/api/auth_routes')
     .then(res => res.json())
     .then(
       ret => {

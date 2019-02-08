@@ -5,7 +5,7 @@ export async function query() {
 }
 
 export async function queryCurrent() {
-  return request('https://tp-pay.snssdk.com/gateway-u', {
+  return request('/gateway-u', {
     method: 'POST',
     body: JSON.stringify({ name: 222 }),
   });

@@ -12,6 +12,7 @@ import { ApolloClient } from 'apollo-client';
 import { ApolloLink, concat } from 'apollo-link';
 import gql from 'graphql-tag';
 import { InMemoryCache } from 'apollo-cache-inmemory';
+import { async } from 'q';
 
 const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3002/graphql' });
 
@@ -25,10 +26,21 @@ const authMiddleware = new ApolloLink((operation, forward) => {
 
   return forward(operation);
 });
-
+// 加上这个配置，可以发送多次相同请求，否则，前端会将相同请求缓存，不发送
+const defaultOptions = {
+  watchQuery: {
+    fetchPolicy: 'network-only',
+    errorPolicy: 'ignore',
+  },
+  query: {
+    fetchPolicy: 'network-only',
+    errorPolicy: 'all',
+  },
+};
 const client = new ApolloClient({
   link: concat(authMiddleware, httpLink),
   cache: new InMemoryCache(),
+  //defaultOptions,
 });
 
 export async function queryProjectNotice() {
@@ -181,6 +193,59 @@ export async function getFakeCaptcha(mobile) {
   return request(`/api/captcha?mobile=${mobile}`);
 }
 
+// company
+export async function queryCompanyList(params) {
+  return client
+    .query({
+      query: gql`
+        query getCompanys($pageNo: Int, $pageSize: Int, $filter: CompanyInput) {
+          getCompanys(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            companys {
+              company_id
+              company_name
+              company_address
+              company_type
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getCompanys;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function addCompany(params) {
+  return client
+    .query({
+      query: gql`
+        query getCompanys($pageNo: Int, $pageSize: Int, $filter: CompanyInput) {
+          getCompanys(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            companys {
+              company_id
+              company_name
+              company_address
+              company_type
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getCompanys;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
 export async function addCustomer(params = {}) {
   return {};
 }
@@ -189,8 +254,8 @@ export async function queryCustomerList(params) {
   return client
     .query({
       query: gql`
-        query getCustomers($pageNo: Int, $pageSize: Int, $filter: CustomerInput, $type: Int) {
-          getCustomers(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, type: $type) {
+        query getCustomers($pageNo: Int, $pageSize: Int, $type: Int) {
+          getCustomers(pageNo: $pageNo, pageSize: $pageSize, type: $type) {
             total
             customers {
               customer_id
@@ -199,7 +264,7 @@ export async function queryCustomerList(params) {
               bank_account
               company_id
               customer_mobile
-              mobiles {
+              customerMobiles {
                 mobile
               }
             }
@@ -210,6 +275,113 @@ export async function queryCustomerList(params) {
     })
     .then(data => {
       return data.data.getCustomers;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// site
+export async function querySiteList(params) {
+  return client
+    .query({
+      query: gql`
+        query getSites($pageNo: Int, $pageSize: Int, $filter: SiteInput) {
+          getSites(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            sites {
+              site_id
+              site_name
+              site_mobile
+              site_type
+              company_id
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getSites;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// site
+export async function addSite(params) {
+  return client
+    .query({
+      query: gql`
+        query getSites($pageNo: Int, $pageSize: Int, $filter: SiteInput) {
+          getSites(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            sites {
+              site_id
+              site_name
+              site_mobile
+              site_type
+              company_id
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getSites;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// site
+export async function updateSite(params) {
+  return client
+    .query({
+      query: gql`
+        query getSites($pageNo: Int, $pageSize: Int, $filter: SiteInput) {
+          getSites(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            sites {
+              site_id
+              site_name
+              site_mobile
+              site_type
+              company_id
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getSites;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// order
+export async function getOrderCode(params) {
+  return client
+    .query({
+      query: gql`
+        query getOrderCode($site_id: Int) {
+          getOrderCode(site_id: $site_id) {
+            order_code
+            site_id
+            site_orderprefix
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getOrderCode;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };

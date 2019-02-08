@@ -25,6 +25,7 @@ import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
 import styles from './SiteOrder.less';
+import { element } from 'prop-types';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -38,18 +39,80 @@ const getValue = obj =>
 const statusMap = ['default', 'processing', 'success', 'error'];
 const status = ['关闭', '运行中', '已上线', '异常'];
 
+const site = JSON.parse(localStorage.getItem('site') || '{}');
+
 const CreateForm = Form.create()(props => {
-  const { modalVisible, form, handleAdd, handleModalVisible } = props;
+  const {
+    modalVisible,
+    form,
+    handleAdd,
+    handleModalVisible,
+    branchCompanyList,
+    sendCustomerList,
+    getCustomerList,
+    orderCode,
+    handleUpdateGetCustomer,
+  } = props;
   const {
     form: { getFieldDecorator },
   } = props;
+
+  console.log('createform sendcustomer', sendCustomerList);
+  console.log('createform getcustomer', getCustomerList);
+  // 缓存收货人列表，筛选的时候可以动态调整
+  let optionGetCustomer = [...getCustomerList];
+  let optionSendCustomer = [...sendCustomerList];
+
   const okHandle = () => {
+    form.setFieldsValue({ orderCode: orderCode.order_code });
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
       handleAdd(fieldsValue);
     });
   };
+
+  // 分公司改变时响应函数
+  function handlerCompanyChange(company_id) {
+    handleUpdateGetCustomer(company_id);
+  }
+
+  function handleSendCustomerSerach(keyWords) {
+    console.log('send search', keyWords);
+    const options = sendCustomerList.filter(item => {
+      if (item.customer_name.indexOf(keyWords) >= 0) {
+        return true;
+      }
+      return false;
+    });
+
+    if (options.length <= 0) {
+      optionSendCustomer = sendCustomerList;
+    }
+    optionSendCustomer = options;
+  }
+
+  function handleGetCustomerSerach(keyWords) {
+    console.log('get search', keyWords);
+    const options = getCustomerList.filter(item => {
+      if (item.customer_name.indexOf(keyWords) >= 0) {
+        return true;
+      }
+      return false;
+    });
+
+    if (options.length <= 0) {
+      optionGetCustomer = getCustomerList;
+    }
+    optionGetCustomer = options;
+    console.log(optionGetCustomer);
+  }
+
+  function loadOption(keyWords, type) {
+    if (type == 1) {
+    }
+  }
+
   const formItemLayout = {
     labelCol: {
       xs: { span: 24 },
@@ -100,6 +163,12 @@ const CreateForm = Form.create()(props => {
       sm: { span: 18 },
     },
   };
+
+  let companyOption = {};
+  if (branchCompanyList.length > 0) {
+    companyOption['initialValue'] = branchCompanyList[0].company_id;
+  }
+
   return (
     <Modal
       destroyOnClose
@@ -110,32 +179,43 @@ const CreateForm = Form.create()(props => {
       width={710}
     >
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...colLayout}>
+        <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="分公司">
-            {getFieldDecorator('company')(
-              <Select placeholder="请选择" style={{ width: '100%' }}>
-                <Option value="0">关闭</Option>
-                <Option value="1">运行中</Option>
+            {getFieldDecorator('company', companyOption)(
+              <Select
+                placeholder="请选择"
+                onChange={handlerCompanyChange}
+                style={{ width: '100%' }}
+              >
+                {branchCompanyList.map(ele => {
+                  return (
+                    <Option key={ele.company_id} value={ele.company_id}>
+                      {ele.company_name}
+                    </Option>
+                  );
+                })}
               </Select>
             )}
           </FormItem>
         </Col>
-        <Col {...colLayout}>
+        <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="站点">
-            {getFieldDecorator('site')(
+            {getFieldDecorator('site', { initialValue: site.site_id })(
               <Select placeholder="请选择" style={{ width: '100%' }}>
-                <Option value="0" sele>
-                  关闭
+                <Option value={site.site_id} selected>
+                  {site.site_name}
                 </Option>
               </Select>
             )}
           </FormItem>
         </Col>
-        <Col {...colLayout}>
+        {/* <Col {...colLayout}>
           <FormItem {...formItemLayout} label="运单号">
-            {getFieldDecorator('orderCode')(<Input placeholder="请输入运费" />)}
+            {getFieldDecorator('orderCode', { initialValue: orderCode.order_code })(
+              <Input placeholder="" />
+            )}
           </FormItem>
-        </Col>
+        </Col> */}
       </Row>
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
         <Col {...col2Layout}>
@@ -146,10 +226,19 @@ const CreateForm = Form.create()(props => {
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="收货人姓名">
             {getFieldDecorator('getCustomerName')(
-              <Select placeholder="请选择" style={{ width: '100%' }}>
-                <Option value="0" sele>
-                  关闭
-                </Option>
+              <Select
+                placeholder="请选择"
+                showSearch
+                onSearch={handleGetCustomerSerach}
+                style={{ width: '100%' }}
+              >
+                {optionGetCustomer.map(ele => {
+                  return (
+                    <Option key={ele.customer_id} value={ele.customer_id}>
+                      {ele.customer_name}
+                    </Option>
+                  );
+                })}
               </Select>
             )}
           </FormItem>
@@ -164,10 +253,19 @@ const CreateForm = Form.create()(props => {
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="发货人姓名">
             {getFieldDecorator('sendCustomerName')(
-              <Select placeholder="请选择" style={{ width: '100%' }}>
-                <Option value="0" sele>
-                  关闭
-                </Option>
+              <Select
+                placeholder="请选择"
+                showSearch
+                onSearch={handleSendCustomerSerach}
+                style={{ width: '100%' }}
+              >
+                {optionSendCustomer.map(ele => {
+                  return (
+                    <Option key={ele.customer_id} value={ele.customer_id}>
+                      {ele.customer_name}
+                    </Option>
+                  );
+                })}
               </Select>
             )}
           </FormItem>
@@ -177,13 +275,13 @@ const CreateForm = Form.create()(props => {
         <Col {...colLayout}>
           <FormItem {...formItemLayout} label="运费">
             {getFieldDecorator('trans_amount', {
-              rules: [{ required: true, message: '', min: 5 }],
+              rules: [{ required: true }],
             })(<Input placeholder="请输入运费" />)}
           </FormItem>
         </Col>
         <Col {...colSmallLayout}>
           <FormItem label="">
-            {getFieldDecorator('sendCustomerName')(
+            {getFieldDecorator('order_advancepay_amount')(
               <Select placeholder="请选择" style={{ width: '100%' }}>
                 <Option value="0">提付</Option>
                 <Option value="0">垫付</Option>
@@ -194,7 +292,7 @@ const CreateForm = Form.create()(props => {
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="折后运费">
             {getFieldDecorator('trans_discount', {
-              rules: [{ required: true, message: '', min: 5 }],
+              rules: [{ required: true }],
             })(<Input placeholder="" />)}
           </FormItem>
         </Col>
@@ -203,7 +301,7 @@ const CreateForm = Form.create()(props => {
         <Col {...colLayout}>
           <FormItem {...formItemLayout} label="货款">
             {getFieldDecorator('order_amount', {
-              rules: [{ required: true, message: '', min: 5 }],
+              rules: [{ required: true }],
             })(<Input placeholder="请输入货款" />)}
           </FormItem>
         </Col>
@@ -216,41 +314,33 @@ const CreateForm = Form.create()(props => {
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="保价金额">
-            {getFieldDecorator('insurance_amount', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="" />)}
+            {getFieldDecorator('insurance_amount', {})(<Input placeholder="" />)}
           </FormItem>
         </Col>
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="保价费">
-            {getFieldDecorator('insurance_fee', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="" />)}
+            {getFieldDecorator('insurance_fee', {})(<Input placeholder="" />)}
           </FormItem>
         </Col>
       </Row>
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="送货费">
-            {getFieldDecorator('deliver_amount', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="" />)}
+            {getFieldDecorator('deliver_amount', {})(<Input placeholder="" />)}
           </FormItem>
         </Col>
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="垫付金额">
-            {getFieldDecorator('order_advancepay_amount', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="" />)}
+            {getFieldDecorator('order_advancepay_amount', {})(<Input placeholder="" />)}
           </FormItem>
         </Col>
       </Row>
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
         <Col {...colLargeLayout}>
           <FormItem {...formItemMiniLayout} label="货物名称">
-            {form.getFieldDecorator('order_name', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="请输入" style={{ width: '400' }} />)}
+            {form.getFieldDecorator('order_name', {})(
+              <Input placeholder="请输入" style={{ width: '400' }} />
+            )}
           </FormItem>
         </Col>
         <Col {...colSmallLayout}>
@@ -278,18 +368,14 @@ const CreateForm = Form.create()(props => {
         </Col>
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="中转费">
-            {form.getFieldDecorator('transfer_amount', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="请输入" />)}
+            {form.getFieldDecorator('transfer_amount', {})(<Input placeholder="请输入" />)}
           </FormItem>
         </Col>
       </Row>
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="中转地址">
-            {form.getFieldDecorator('transfer_address', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="请输入" />)}
+            {form.getFieldDecorator('transfer_address', {})(<Input placeholder="请输入" />)}
           </FormItem>
         </Col>
 
@@ -302,16 +388,12 @@ const CreateForm = Form.create()(props => {
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="中转单号">
-            {form.getFieldDecorator('transfer_order_code', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="请输入" />)}
+            {form.getFieldDecorator('transfer_order_code', {})(<Input placeholder="请输入" />)}
           </FormItem>
         </Col>
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="中转电话">
-            {form.getFieldDecorator('transfer_company_mobile', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="请输入" />)}
+            {form.getFieldDecorator('transfer_company_mobile', {})(<Input placeholder="请输入" />)}
           </FormItem>
         </Col>
       </Row>
@@ -323,18 +405,14 @@ const CreateForm = Form.create()(props => {
         </Col>
         <Col {...col2Layout}>
           <FormItem {...formItemLayout} label="实收运费">
-            {form.getFieldDecorator('trans_real', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="请输入" />)}
+            {form.getFieldDecorator('trans_real', {})(<Input placeholder="请输入" />)}
           </FormItem>
         </Col>
       </Row>
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
         <Col {...colLargeLayout}>
           <FormItem {...formItemMiniLayout} label="备注">
-            {form.getFieldDecorator('remark', {
-              rules: [{ required: true, message: '', min: 5 }],
-            })(<Input placeholder="请输入" />)}
+            {form.getFieldDecorator('remark', {})(<Input placeholder="请输入" />)}
           </FormItem>
         </Col>
       </Row>
@@ -551,11 +629,16 @@ class UpdateForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ rule, customer, loading }) => ({
-  rule,
-  customer,
-  loading: loading.models.rule,
-}))
+@connect(({ rule, customer, company, order, site, loading }) => {
+  return {
+    rule,
+    customer,
+    company,
+    site,
+    order,
+    loading: loading.models.rule,
+  };
+})
 @Form.create()
 class TableList extends PureComponent {
   state = {
@@ -628,15 +711,35 @@ class TableList extends PureComponent {
     },
   ];
 
-  componentDidMount() {
+  async componentDidMount() {
     const { dispatch } = this.props;
-    dispatch({
-      type: 'rule/fetch',
+
+    const branchCompanyList = await dispatch({
+      type: 'company/getCompanyList',
+      payload: {},
     });
+
     dispatch({
-      type: 'customer/fetch',
-      payload: { type: 2, pageNo: 1, pageSize: 20, filter: {} },
+      type: 'site/getSiteList',
+      payload: {},
     });
+
+    dispatch({
+      type: 'customer/sendCustomerListAction',
+      payload: { pageNo: 1, pageSize: 100 },
+    });
+    // dispatch({
+    //   type: 'order/getOrderCodeAction',
+    //   payload: { site_id: site.site_id },
+    // });
+
+    // 初始渲染的是否，先加载第一个分公司的收货人信息
+    if (branchCompanyList.length > 0) {
+      dispatch({
+        type: 'customer/getCustomerListAction',
+        payload: { pageNo: 1, pageSize: 100, company_id: branchCompanyList[0].company_id },
+      });
+    }
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -751,17 +854,36 @@ class TableList extends PureComponent {
     });
   };
 
+  // 添加托运单
   handleAdd = fields => {
     const { dispatch } = this.props;
+    // 更新订单号
     dispatch({
-      type: 'rule/add',
-      payload: {
-        desc: fields.desc,
-      },
+      type: 'order/getOrderCodeAction',
+      payload: { site_id: site.site_id },
     });
 
     message.success('添加成功');
-    this.handleModalVisible();
+    //this.handleModalVisible();
+  };
+
+  // 更新收货人信息
+  handleUpdateGetCustomer = company_id => {
+    // const { dispatch } = this.props;
+    // dispatch({
+    //   type: 'customer/getCustomerListAction',
+    //   payload: { company_id },
+    // });
+    console.log('updated get customers');
+  };
+
+  handleUpdateOrderCode = fields => {
+    const { dispatch } = this.props;
+    // dispatch({
+    //   type: 'order/getOrderCodeAction',
+    //   payload: { site_id: site.site_id },
+    // });
+    console.log('^^^^^^^^^^^^');
   };
 
   handleUpdate = fields => {
@@ -905,8 +1027,13 @@ class TableList extends PureComponent {
   render() {
     const {
       rule: { data },
+      company: { branchCompanyList },
+      customer: { getCustomerList, sendCustomerList },
+      order: { orderCode },
       loading,
+      dispatch,
     } = this.props;
+
     const { selectedRows, modalVisible, updateModalVisible, stepFormValues } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
@@ -918,6 +1045,7 @@ class TableList extends PureComponent {
     const parentMethods = {
       handleAdd: this.handleAdd,
       handleModalVisible: this.handleModalVisible,
+      handleUpdateGetCustomer: this.handleUpdateGetCustomer,
     };
     const updateMethods = {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
@@ -953,7 +1081,14 @@ class TableList extends PureComponent {
             />
           </div>
         </Card>
-        <CreateForm {...parentMethods} modalVisible={modalVisible} />
+        <CreateForm
+          {...parentMethods}
+          branchCompanyList={branchCompanyList}
+          sendCustomerList={sendCustomerList}
+          getCustomerList={getCustomerList}
+          orderCode={orderCode}
+          modalVisible={modalVisible}
+        />
         {stepFormValues && Object.keys(stepFormValues).length ? (
           <UpdateForm
             {...updateMethods}

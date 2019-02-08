@@ -9,12 +9,21 @@ export default {
   },
 
   effects: {
-    *fetch({ payload }, { call, put }) {
+    *getCustomerListAction({ payload }, { call, put }) {
+      payload.type = 2;
       const response = yield call(queryCustomerList, payload);
       const list = response.customers;
-      const actionName = payload.type === 1 ? 'querySendCustomerList' : 'queryGetCustomerList';
       yield put({
-        type: actionName,
+        type: 'queryGetCustomerList',
+        payload: Array.isArray(list) ? list : [],
+      });
+    },
+    *sendCustomerListAction({ payload }, { call, put }) {
+      payload.type = 1;
+      const response = yield call(queryCustomerList, payload);
+      const list = response.customers;
+      yield put({
+        type: 'querySendCustomerList',
         payload: Array.isArray(list) ? list : [],
       });
     },

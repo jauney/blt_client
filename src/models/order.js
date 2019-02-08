@@ -1,13 +1,28 @@
-import { queryFakeList, removeFakeList, addFakeList, updateFakeList } from '@/services/api';
+import {
+  getOrderCode,
+  queryFakeList,
+  removeFakeList,
+  addFakeList,
+  updateFakeList,
+} from '@/services/api';
 
 export default {
   namespace: 'order',
 
   state: {
     list: [],
+    orderCode: {},
   },
 
   effects: {
+    *getOrderCodeAction({ payload }, { call, put }) {
+      const response = yield call(getOrderCode, payload);
+      console.log('******', response, payload);
+      yield put({
+        type: 'getOrderCodeReducer',
+        payload: response,
+      });
+    },
     *fetch({ payload }, { call, put }) {
       const response = yield call(queryFakeList, payload);
       yield put({
@@ -38,6 +53,12 @@ export default {
   },
 
   reducers: {
+    getOrderCodeReducer(state, action) {
+      return {
+        ...state,
+        orderCode: action.payload,
+      };
+    },
     queryList(state, action) {
       return {
         ...state,
