@@ -275,6 +275,9 @@ export async function getOrderCode(params) {
 }
 
 export async function createOrder(params) {
+  params.getcustomer_id = Number(params.getcustomer_id);
+  params.sendcustomer_id = Number(params.sendcustomer_id);
+  params.trans_discount = Number(params.trans_discount);
   return client
     .mutate({
       mutation: gql`
@@ -296,7 +299,7 @@ export async function createOrder(params) {
               sendcustomer_mobile
               order_amount
               order_real
-              order_bank_account
+              bank_account
               getcustomer_address
               sendcustomer_address
               pay_type

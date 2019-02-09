@@ -7,6 +7,7 @@ import {
   Card,
   Form,
   Input,
+  AutoComplete,
   Select,
   Icon,
   Button,
@@ -122,10 +123,42 @@ class CreateForm extends PureComponent {
   handleUpdateGetCustomer = () => {};
 
   okHandle = () => {
-    const { form, handleAdd } = this.props;
+    const { form, handleAdd, branchCompanyList, getCustomerList, sendCustomerList } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+
       form.resetFields();
+      // 完善公司信息
+      const company = branchCompanyList.find(item => {
+        return item.company_id == fieldsValue.company_id;
+      });
+
+      const getCustomer = getCustomerList.find(item => {
+        return item.customer_id == fieldsValue.getcustomer_id;
+      });
+
+      const sendCustomer = sendCustomerList.find(item => {
+        return item.customer_id == fieldsValue.sendcustomer_id;
+      });
+
+      fieldsValue.company_name = company.company_name;
+      console.log(getCustomer);
+      if (getCustomer) {
+        fieldsValue.getcustomer_name = getCustomer.customer_name;
+      } else {
+        fieldsValue.getcustomer_name = fieldsValue.getcustomer_id;
+        fieldsValue.getcustomer_id = 0;
+      }
+
+      if (sendCustomer) {
+        fieldsValue.sendcustomer_name = sendCustomer.customer_name;
+      } else {
+        fieldsValue.sendcustomer_name = fieldsValue.sendcustomer_id;
+        fieldsValue.sendcustomer_id = 0;
+      }
+
+      fieldsValue.site_name = site.site_name;
+
       handleAdd(fieldsValue);
     });
   };
@@ -142,26 +175,33 @@ class CreateForm extends PureComponent {
       },
     });
   };
+
   // 分公司改变时响应函数
   onCompanySelect = async company_id => {
-    const { handleUpdateGetCustomer, branchCompanyList } = this.props;
+    const { branchCompanyList } = this.props;
     // 获取当前公司的客户列表
     this.fetchGetCustomerList(company_id);
 
     // 重新计算折后运费
-    for (let c of branchCompanyList) {
+    let company;
+    for (let i = 0; i < branchCompanyList.length; i++) {
+      let c = branchCompanyList[i];
       if (c.company_id == company_id) {
-        await this.setState({
-          currentCompany: c,
-        });
+        company = c;
         break;
       }
     }
-
+    if (company) {
+      await this.setState({
+        currentCompany: company,
+      });
+    }
     this.computeTransDiscount();
   };
 
-  onSendCustomerBlur = event => {};
+  onSendCustomerBlur = event => {
+    console.log(event);
+  };
 
   onGetCustomerBlur = keyWords => {};
 
@@ -169,7 +209,7 @@ class CreateForm extends PureComponent {
   setSelectedCustomer = async (fieldName, customer) => {
     const { form } = this.props;
     const fieldObject = {};
-    fieldObject[fieldName] = customer.customer_id;
+    fieldObject[fieldName] = customer.customer_name; // customer.customer_id;
     form.setFieldsValue(fieldObject);
     // setFieldsValue不会触发select的onSelect事件，因此需要手动再触发一次计算：
     // 1）是否VIP 2）计算折后运费 3）发货人银行账号
@@ -188,14 +228,17 @@ class CreateForm extends PureComponent {
   };
 
   onSendCustomerMobileBlur = event => {
-    const { sendCustomerList, form } = this.props;
-    for (let customer of sendCustomerList) {
-      let mobiles = customer.customerMobiles || [];
+    const { sendCustomerList } = this.props;
+    for (let i = 0; i < sendCustomerList.length; i++) {
+      const customer = sendCustomerList[i];
+      const mobiles = customer.customerMobiles || [];
       let flag = false;
       if (event.target.value == customer.customer_mobile) {
         this.setSelectedCustomer('sendcustomer_id', customer);
+        break;
       } else {
-        for (let mobile of mobiles) {
+        for (let j = 0; j < mobiles.length; j++) {
+          const mobile = mobiles[j];
           if (event.target.value == mobile.mobile) {
             this.setSelectedCustomer('sendcustomer_id', customer);
             flag = true;
@@ -210,16 +253,17 @@ class CreateForm extends PureComponent {
   };
 
   onGetCustomerMobileBlur = event => {
-    const { getCustomerList, form } = this.props;
-    for (let customer of getCustomerList) {
-      let mobiles = customer.customerMobiles || [];
+    const { getCustomerList } = this.props;
+    for (let i = 0; i < getCustomerList.length; i++) {
+      const customer = getCustomerList[i];
+      const mobiles = customer.customerMobiles || [];
       let flag = false;
       if (event.target.value == customer.customer_mobile) {
         this.setSelectedCustomer('getcustomer_id', customer);
-        console.log('###', customer, event.target.value);
         break;
       } else {
-        for (let mobile of mobiles) {
+        for (let j = 0; j < mobiles.length; j++) {
+          const mobile = mobiles[j];
           if (event.target.value == mobile.mobile) {
             this.setSelectedCustomer('getcustomer_id', customer);
             flag = true;
@@ -233,46 +277,58 @@ class CreateForm extends PureComponent {
     }
   };
 
-  onSendCustomerNameSelect = value => {
+  onSendCustomerSelect = async (value, option) => {
+    const { props } = option;
     const { sendCustomerList, form } = this.props;
-    console.log(sendCustomerList);
-    for (let customer of sendCustomerList) {
-      if (customer.customer_id == value) {
+    let customer;
+    for (let i = 0; i < sendCustomerList.length; i++) {
+      customer = sendCustomerList[i];
+      if (customer.customer_id == props.customerid) {
         form.setFieldsValue({
           sendcustomer_mobile: customer.customer_mobile,
         });
-        // 设置发货人账号
-        form.setFieldsValue({
-          bank_account: customer.bank_account,
-        });
-        this.setState({
-          currentSendCustomer: customer,
-        });
+
         break;
       }
     }
+    if (customer) {
+      // 设置发货人账号
+      form.setFieldsValue({
+        bank_account: customer.bank_account,
+      });
+      await this.setState({
+        currentSendCustomer: customer,
+      });
+    }
   };
 
-  onGetCustomerNameSelect = async value => {
+  onGetCustomerSelect = async (value, option) => {
+    const { props } = option;
     const { getCustomerList, form } = this.props;
-    for (let customer of getCustomerList) {
-      if (customer.customer_id == value) {
+    let customer;
+    for (let i = 0; i < getCustomerList.length; i++) {
+      customer = getCustomerList[i];
+      if (customer.customer_id == props.customerid) {
         form.setFieldsValue({
           getcustomer_mobile: customer.customer_mobile,
         });
-        await this.setState({
-          currentGetCustomer: customer,
-        });
-        // 计算折后运费
-        this.computeTransDiscount();
+
         break;
       }
     }
+    if (customer) {
+      await this.setState({
+        currentGetCustomer: customer,
+      });
+
+      // 计算折后运费
+      this.computeTransDiscount();
+    }
   };
 
-  onGetCustomerNameChange = async value => {
-    console.log('select change', value);
-  };
+  onGetCustomerSearch = async value => {};
+
+  onSendCustomerSearch = async value => {};
 
   computeTransDiscount = () => {
     const { branchCompanyList } = this.props;
@@ -308,6 +364,16 @@ class CreateForm extends PureComponent {
 
   onGetCustomerFilter = (inputValue, option) => {
     console.log(inputValue, option);
+  };
+
+  // 渲染autocomplete的option
+  renderCustomerOption = item => {
+    const AutoOption = AutoComplete.Option;
+    return (
+      <AutoOption key={item.customer_id} customerid={item.customer_id} text={item.customer_name}>
+        {item.customer_name}
+      </AutoOption>
+    );
   };
 
   render() {
@@ -404,23 +470,21 @@ class CreateForm extends PureComponent {
               {form.getFieldDecorator('getcustomer_id', {
                 rules: [{ required: true, message: '请填写收货人姓名' }],
               })(
-                <Select
-                  placeholder="请选择"
-                  showSearch
-                  onBlur={this.onGetCustomerBlur}
-                  onSelect={this.onGetCustomerNameSelect}
-                  filterOption={this.onGetCustomerFilter}
-                  optionFilterProp="children"
+                <AutoComplete
+                  size="large"
                   style={{ width: '100%' }}
+                  dataSource={getCustomerList.map(this.renderCustomerOption)}
+                  onSelect={this.onGetCustomerSelect}
+                  onSearch={this.onGetCustomerSearch}
+                  onBlur={this.onGetCustomerBlur}
+                  placeholder="请输入"
+                  optionLabelProp="text"
+                  filterOption={(inputValue, option) =>
+                    option.props.children.indexOf(inputValue) !== -1
+                  }
                 >
-                  {getCustomerList.map(ele => {
-                    return (
-                      <Option key={ele.customer_id} value={ele.customer_id}>
-                        {ele.customer_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
+                  {' '}
+                </AutoComplete>
               )}
             </FormItem>
           </Col>
@@ -448,22 +512,21 @@ class CreateForm extends PureComponent {
               {form.getFieldDecorator('sendcustomer_id', {
                 rules: [{ required: true, message: '请填写发货人姓名' }],
               })(
-                <Select
-                  placeholder="请选择"
-                  showSearch
-                  onBlur={this.onSendCustomerBlur}
-                  onSelect={this.onSendCustomerNameSelect}
-                  optionFilterProp="children"
+                <AutoComplete
+                  size="large"
                   style={{ width: '100%' }}
+                  dataSource={sendCustomerList.map(this.renderCustomerOption)}
+                  onSelect={this.onSendCustomerSelect}
+                  onSearch={this.onSendCustomerSearch}
+                  onBlur={this.onSendCustomerBlur}
+                  placeholder="请输入"
+                  optionLabelProp="text"
+                  filterOption={(inputValue, option) =>
+                    option.props.children.indexOf(inputValue) !== -1
+                  }
                 >
-                  {sendCustomerList.map(ele => {
-                    return (
-                      <Option key={ele.customer_id} value={ele.customer_id}>
-                        {ele.customer_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
+                  {' '}
+                </AutoComplete>
               )}
             </FormItem>
           </Col>
