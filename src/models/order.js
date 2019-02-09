@@ -1,34 +1,28 @@
-import {
-  getOrderCode,
-  queryFakeList,
-  removeFakeList,
-  addFakeList,
-  updateFakeList,
-} from '@/services/api';
+import { getOrderCode, createOrder } from '@/services/api';
 
 export default {
   namespace: 'order',
 
   state: {
-    list: [],
+    orderList: [],
     orderCode: {},
   },
 
   effects: {
     *getOrderCodeAction({ payload }, { call, put }) {
-      const response = yield call(getOrderCode, payload);
-      console.log('******', response, payload);
+      const response = yield call(getOrderCode, { order: payload });
       yield put({
         type: 'getOrderCodeReducer',
         payload: response,
       });
     },
-    *fetch({ payload }, { call, put }) {
-      const response = yield call(queryFakeList, payload);
+    *createOrderAction({ payload }, { call, put }) {
+      const response = yield call(createOrder, payload);
       yield put({
-        type: 'queryList',
-        payload: Array.isArray(response) ? response : [],
+        type: 'appendListReducer',
+        payload: response,
       });
+      return response;
     },
     *appendFetch({ payload }, { call, put }) {
       const response = yield call(queryFakeList, payload);
@@ -59,16 +53,20 @@ export default {
         orderCode: action.payload,
       };
     },
-    queryList(state, action) {
+    appendListReducer(state, action) {
+      let newList = state.orderList;
+      if (action.data && action.data.order_id) {
+        newList = newList.concat([action.data]);
+      }
       return {
         ...state,
-        list: action.payload,
+        orderList: newList,
       };
     },
-    appendList(state, action) {
+    queryListReducer(state, action) {
       return {
         ...state,
-        list: state.list.concat(action.payload),
+        orderList: action.payload,
       };
     },
   },

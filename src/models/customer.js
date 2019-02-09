@@ -11,6 +11,7 @@ export default {
   effects: {
     *getCustomerListAction({ payload }, { call, put }) {
       payload.type = 2;
+
       const response = yield call(queryCustomerList, payload);
       const list = response.customers;
       yield put({

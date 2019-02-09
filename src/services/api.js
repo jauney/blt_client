@@ -40,110 +40,8 @@ const defaultOptions = {
 const client = new ApolloClient({
   link: concat(authMiddleware, httpLink),
   cache: new InMemoryCache(),
-  //defaultOptions,
+  defaultOptions,
 });
-
-export async function queryProjectNotice() {
-  return request('/api/project/notice');
-}
-
-export async function queryActivities() {
-  return request('/api/activities');
-}
-
-export async function queryRule(params) {
-  return request(`/api/rule?${stringify(params)}`);
-}
-
-export async function removeRule(params) {
-  return request('/api/rule', {
-    method: 'POST',
-    body: {
-      ...params,
-      method: 'delete',
-    },
-  });
-}
-
-export async function addRule(params) {
-  return request('/api/rule', {
-    method: 'POST',
-    body: {
-      ...params,
-      method: 'post',
-    },
-  });
-}
-
-export async function updateRule(params = {}) {
-  return request(`/api/rule?${stringify(params.query)}`, {
-    method: 'POST',
-    body: {
-      ...params.body,
-      method: 'update',
-    },
-  });
-}
-
-export async function fakeSubmitForm(params) {
-  return request('/api/forms', {
-    method: 'POST',
-    body: params,
-  });
-}
-
-export async function fakeChartData() {
-  return request('/api/fake_chart_data');
-}
-
-export async function queryTags() {
-  return request('/api/tags');
-}
-
-export async function queryBasicProfile() {
-  return request('/api/profile/basic');
-}
-
-export async function queryAdvancedProfile() {
-  return request('/api/profile/advanced');
-}
-
-export async function queryFakeList(params) {
-  return request(`/api/fake_list?${stringify(params)}`);
-}
-
-export async function removeFakeList(params) {
-  const { count = 5, ...restParams } = params;
-  return request(`/api/fake_list?count=${count}`, {
-    method: 'POST',
-    body: {
-      ...restParams,
-      method: 'delete',
-    },
-  });
-}
-
-export async function addFakeList(params) {
-  const { count = 5, ...restParams } = params;
-  return request(`/api/fake_list?count=${count}`, {
-    method: 'POST',
-    body: {
-      ...restParams,
-      method: 'post',
-    },
-  });
-}
-
-export async function updateFakeList(params) {
-  const { count = 5, ...restParams } = params;
-  return request(`/api/fake_list?count=${count}`, {
-    method: 'POST',
-    body: {
-      ...restParams,
-      method: 'update',
-    },
-  });
-}
 
 export async function fakeAccountLogin(params) {
   return client
@@ -178,21 +76,6 @@ export async function fakeAccountLogin(params) {
     });
 }
 
-export async function fakeRegister(params) {
-  return request('/api/register', {
-    method: 'POST',
-    body: params,
-  });
-}
-
-export async function queryNotices(params = {}) {
-  return request(`/api/notices?${stringify(params)}`);
-}
-
-export async function getFakeCaptcha(mobile) {
-  return request(`/api/captcha?mobile=${mobile}`);
-}
-
 // company
 export async function queryCompanyList(params) {
   return client
@@ -206,6 +89,7 @@ export async function queryCompanyList(params) {
               company_name
               company_address
               company_type
+              trans_regional_ratio
             }
           }
         }
@@ -254,8 +138,8 @@ export async function queryCustomerList(params) {
   return client
     .query({
       query: gql`
-        query getCustomers($pageNo: Int, $pageSize: Int, $type: Int) {
-          getCustomers(pageNo: $pageNo, pageSize: $pageSize, type: $type) {
+        query getCustomers($pageNo: Int, $pageSize: Int, $type: Int, $filter: CustomerInput) {
+          getCustomers(pageNo: $pageNo, pageSize: $pageSize, type: $type, filter: $filter) {
             total
             customers {
               customer_id
@@ -264,6 +148,8 @@ export async function queryCustomerList(params) {
               bank_account
               company_id
               customer_mobile
+              trans_vip_ratio
+              customer_type
               customerMobiles {
                 mobile
               }
@@ -382,6 +268,100 @@ export async function getOrderCode(params) {
     })
     .then(data => {
       return data.data.getOrderCode;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function createOrder(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation createOrder($order: OrderInput) {
+          createOrder(order: $order) {
+            code
+            msg
+            data {
+              order_id
+              company_id
+              company_name
+              order_code
+              car_code
+              getcustomer_name
+              getcustomer_id
+              getcustomer_mobile
+              sendcustomer_id
+              sendcustomer_name
+              sendcustomer_mobile
+              order_amount
+              order_real
+              order_bank_account
+              getcustomer_address
+              sendcustomer_address
+              pay_type
+              trans_amount
+              trans_real
+              trans_discount
+              trans_type
+              deliver_amount
+              insurance_amount
+              insurance_fee
+              order_name
+              create_date
+              depart_date
+              pay_date
+              settle_date
+              site_id
+              site_name
+              shipsite_name
+              shipsite_id
+              operator_name
+              operator_id
+              sender_name
+              sender_id
+              receiver_name
+              receiver_id
+              settle_user_name
+              pay_user_name
+              settle_user_id
+              pay_user_id
+              late_fee
+              getcustomer_type
+              sendcustomer_type
+              order_advancepay_amount
+              order_num
+              order_label_num
+              transfer_amount
+              transfer_type
+              transfer_order_code
+              transfer_address
+              transfer_company_name
+              transfer_company_mobile
+              order_status
+              remark
+              bonus_amount
+              abnormal_type
+              abnormal_amount
+              abnormal_resolve_type
+              abnormal_remark
+              abnormal_type_id
+              abnormal_status
+              sign_status
+              trans_status
+              create_user_id
+              create_user_name
+              trans_show_amount
+              pay_abnormal
+            }
+          }
+        }
+      `,
+      variables: { order: params },
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.createOrder;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };

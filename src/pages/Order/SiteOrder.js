@@ -20,6 +20,7 @@ import {
   Divider,
   Steps,
   Radio,
+  Tag,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -41,30 +42,87 @@ const status = ['关闭', '运行中', '已上线', '异常'];
 
 const site = JSON.parse(localStorage.getItem('site') || '{}');
 
-const CreateForm = Form.create()(props => {
-  const {
-    modalVisible,
-    form,
-    handleAdd,
-    handleModalVisible,
-    branchCompanyList,
-    sendCustomerList,
-    getCustomerList,
-    orderCode,
-    handleUpdateGetCustomer,
-  } = props;
-  const {
-    form: { getFieldDecorator },
-  } = props;
+/* eslint react/no-multi-comp:0 */
+@connect(({ customer }) => {
+  return {
+    customer,
+  };
+})
+@Form.create()
+class CreateForm extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      // 缓存收货人列表，筛选的时候可以动态调整
+      optionGetCustomer: [...props.getCustomerList],
+      optionSendCustomer: [...props.sendCustomerList],
+      selectedGetCustomerMobile: '',
+      selectedSendCustomerMobile: '',
+      currentSendCustomer: {},
+      currentGetCustomer: {},
+      currentCompany: props.branchCompanyList[0],
+    };
+    this.formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 8 },
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 16 },
+      },
+    };
+    // label列可以放下4个字
+    this.formItemSmallLayout = {
+      labelCol: {
+        xs: { span: 25 },
+        sm: { span: 9 },
+      },
+      wrapperCol: {
+        xs: { span: 23 },
+        sm: { span: 15 },
+      },
+    };
 
-  console.log('createform sendcustomer', sendCustomerList);
-  console.log('createform getcustomer', getCustomerList);
-  // 缓存收货人列表，筛选的时候可以动态调整
-  let optionGetCustomer = [...getCustomerList];
-  let optionSendCustomer = [...sendCustomerList];
+    this.colLayout = {
+      md: 8,
+      sm: 24,
+    };
 
-  const okHandle = () => {
-    form.setFieldsValue({ orderCode: orderCode.order_code });
+    this.colSmallLayout = {
+      md: 4,
+      sm: 20,
+    };
+    this.col2Layout = {
+      md: 10,
+      sm: 26,
+    };
+    // colLargeLayout && formItemMiniLayout
+    this.colLargeLayout = {
+      md: 16,
+      sm: 32,
+    };
+    this.formItemMiniLayout = {
+      labelCol: {
+        xs: { span: 22 },
+        sm: { span: 6 },
+      },
+      wrapperCol: {
+        xs: { span: 26 },
+        sm: { span: 18 },
+      },
+    };
+
+    this.formLayout = {
+      labelCol: { span: 7 },
+      wrapperCol: { span: 13 },
+    };
+  }
+
+  handleUpdateGetCustomer = () => {};
+
+  okHandle = () => {
+    const { form, handleAdd } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
@@ -72,353 +130,491 @@ const CreateForm = Form.create()(props => {
     });
   };
 
+  fetchGetCustomerList = async companyId => {
+    const { dispatch } = this.props;
+    const { currentCompany } = this.state;
+    dispatch({
+      type: 'customer/getCustomerListAction',
+      payload: {
+        pageNo: 1,
+        pageSize: 100,
+        filter: { company_id: companyId },
+      },
+    });
+  };
   // 分公司改变时响应函数
-  function handlerCompanyChange(company_id) {
-    handleUpdateGetCustomer(company_id);
-  }
+  onCompanySelect = async company_id => {
+    const { handleUpdateGetCustomer, branchCompanyList } = this.props;
+    // 获取当前公司的客户列表
+    this.fetchGetCustomerList(company_id);
 
-  function handleSendCustomerSerach(keyWords) {
-    console.log('send search', keyWords);
-    const options = sendCustomerList.filter(item => {
-      if (item.customer_name.indexOf(keyWords) >= 0) {
-        return true;
+    // 重新计算折后运费
+    for (let c of branchCompanyList) {
+      if (c.company_id == company_id) {
+        await this.setState({
+          currentCompany: c,
+        });
+        break;
       }
-      return false;
-    });
-
-    if (options.length <= 0) {
-      optionSendCustomer = sendCustomerList;
     }
-    optionSendCustomer = options;
-  }
 
-  function handleGetCustomerSerach(keyWords) {
-    console.log('get search', keyWords);
-    const options = getCustomerList.filter(item => {
-      if (item.customer_name.indexOf(keyWords) >= 0) {
-        return true;
+    this.computeTransDiscount();
+  };
+
+  onSendCustomerBlur = event => {};
+
+  onGetCustomerBlur = keyWords => {};
+
+  // 设置选中的客户
+  setSelectedCustomer = async (fieldName, customer) => {
+    const { form } = this.props;
+    const fieldObject = {};
+    fieldObject[fieldName] = customer.customer_id;
+    form.setFieldsValue(fieldObject);
+    // setFieldsValue不会触发select的onSelect事件，因此需要手动再触发一次计算：
+    // 1）是否VIP 2）计算折后运费 3）发货人银行账号
+    if (fieldName == 'sendcustomer_id') {
+      // update bankaccoount
+      // 设置发货人账号
+      form.setFieldsValue({
+        bank_account: customer.bank_account,
+      });
+    } else {
+      await this.setState({
+        currentGetCustomer: customer,
+      });
+      this.computeTransDiscount();
+    }
+  };
+
+  onSendCustomerMobileBlur = event => {
+    const { sendCustomerList, form } = this.props;
+    for (let customer of sendCustomerList) {
+      let mobiles = customer.customerMobiles || [];
+      let flag = false;
+      if (event.target.value == customer.customer_mobile) {
+        this.setSelectedCustomer('sendcustomer_id', customer);
+      } else {
+        for (let mobile of mobiles) {
+          if (event.target.value == mobile.mobile) {
+            this.setSelectedCustomer('sendcustomer_id', customer);
+            flag = true;
+            break;
+          }
+        }
       }
-      return false;
-    });
-
-    if (options.length <= 0) {
-      optionGetCustomer = getCustomerList;
+      if (flag) {
+        break;
+      }
     }
-    optionGetCustomer = options;
-    console.log(optionGetCustomer);
-  }
+  };
 
-  function loadOption(keyWords, type) {
-    if (type == 1) {
+  onGetCustomerMobileBlur = event => {
+    const { getCustomerList, form } = this.props;
+    for (let customer of getCustomerList) {
+      let mobiles = customer.customerMobiles || [];
+      let flag = false;
+      if (event.target.value == customer.customer_mobile) {
+        this.setSelectedCustomer('getcustomer_id', customer);
+        console.log('###', customer, event.target.value);
+        break;
+      } else {
+        for (let mobile of mobiles) {
+          if (event.target.value == mobile.mobile) {
+            this.setSelectedCustomer('getcustomer_id', customer);
+            flag = true;
+            break;
+          }
+        }
+      }
+      if (flag) {
+        break;
+      }
     }
-  }
-
-  const formItemLayout = {
-    labelCol: {
-      xs: { span: 24 },
-      sm: { span: 8 },
-    },
-    wrapperCol: {
-      xs: { span: 24 },
-      sm: { span: 16 },
-    },
-  };
-  // label列可以放下4个字
-  const formItemSmallLayout = {
-    labelCol: {
-      xs: { span: 25 },
-      sm: { span: 9 },
-    },
-    wrapperCol: {
-      xs: { span: 23 },
-      sm: { span: 15 },
-    },
   };
 
-  const colLayout = {
-    md: 8,
-    sm: 24,
+  onSendCustomerNameSelect = value => {
+    const { sendCustomerList, form } = this.props;
+    console.log(sendCustomerList);
+    for (let customer of sendCustomerList) {
+      if (customer.customer_id == value) {
+        form.setFieldsValue({
+          sendcustomer_mobile: customer.customer_mobile,
+        });
+        // 设置发货人账号
+        form.setFieldsValue({
+          bank_account: customer.bank_account,
+        });
+        this.setState({
+          currentSendCustomer: customer,
+        });
+        break;
+      }
+    }
   };
 
-  const colSmallLayout = {
-    md: 4,
-    sm: 20,
-  };
-  const col2Layout = {
-    md: 10,
-    sm: 26,
-  };
-  // colLargeLayout && formItemMiniLayout
-  const colLargeLayout = {
-    md: 16,
-    sm: 32,
-  };
-  const formItemMiniLayout = {
-    labelCol: {
-      xs: { span: 22 },
-      sm: { span: 6 },
-    },
-    wrapperCol: {
-      xs: { span: 26 },
-      sm: { span: 18 },
-    },
+  onGetCustomerNameSelect = async value => {
+    const { getCustomerList, form } = this.props;
+    for (let customer of getCustomerList) {
+      if (customer.customer_id == value) {
+        form.setFieldsValue({
+          getcustomer_mobile: customer.customer_mobile,
+        });
+        await this.setState({
+          currentGetCustomer: customer,
+        });
+        // 计算折后运费
+        this.computeTransDiscount();
+        break;
+      }
+    }
   };
 
-  let companyOption = {};
-  if (branchCompanyList.length > 0) {
-    companyOption['initialValue'] = branchCompanyList[0].company_id;
-  }
+  onGetCustomerNameChange = async value => {
+    console.log('select change', value);
+  };
 
-  return (
-    <Modal
-      destroyOnClose
-      title="新建托运单"
-      visible={modalVisible}
-      onOk={okHandle}
-      onCancel={() => handleModalVisible()}
-      width={710}
-    >
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="分公司">
-            {getFieldDecorator('company', companyOption)(
-              <Select
-                placeholder="请选择"
-                onChange={handlerCompanyChange}
-                style={{ width: '100%' }}
-              >
-                {branchCompanyList.map(ele => {
-                  return (
-                    <Option key={ele.company_id} value={ele.company_id}>
-                      {ele.company_name}
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
-          </FormItem>
-        </Col>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="站点">
-            {getFieldDecorator('site', { initialValue: site.site_id })(
-              <Select placeholder="请选择" style={{ width: '100%' }}>
-                <Option value={site.site_id} selected>
-                  {site.site_name}
-                </Option>
-              </Select>
-            )}
-          </FormItem>
-        </Col>
-        {/* <Col {...colLayout}>
-          <FormItem {...formItemLayout} label="运单号">
+  computeTransDiscount = () => {
+    const { branchCompanyList } = this.props;
+    let { currentCompany, currentGetCustomer } = this.state;
+    const { form } = this.props;
+
+    if (!currentCompany) {
+      currentCompany = branchCompanyList[0];
+      this.setState({
+        currentCompany,
+      });
+    }
+    let transAmount = form.getFieldValue('trans_amount') || '';
+    let transVipRatio = currentGetCustomer.trans_vip_ratio || 1;
+    let transRegionalRatio = currentCompany.trans_regional_ratio || 1;
+    let transDiscount = transAmount;
+    console.log('transamount', transAmount);
+    if (transVipRatio && transRegionalRatio) {
+      // 折后运费=地域系数*客户VIP*小票费
+      transDiscount = Number(transAmount) * Number(transVipRatio) * Number(transRegionalRatio);
+      form.setFieldsValue({
+        trans_discount: transDiscount || '',
+      });
+    }
+  };
+
+  // 运费变更，自动计算折后运费
+  onTransBlur = event => {
+    this.computeTransDiscount();
+  };
+
+  onOrderPrint = () => {};
+
+  onGetCustomerFilter = (inputValue, option) => {
+    console.log(inputValue, option);
+  };
+
+  render() {
+    const {
+      form,
+      modalVisible,
+      handleModalVisible,
+      branchCompanyList,
+      getCustomerList,
+      sendCustomerList,
+    } = this.props;
+    const {
+      selectedGetCustomerMobile,
+      selectedSendCustomerMobile,
+      currentGetCustomer,
+    } = this.state;
+
+    const companyOption = {
+      rules: [{ required: true, message: '请选择分公司' }],
+    };
+    // 默认勾选第一个公司
+    if (branchCompanyList.length > 0) {
+      companyOption.initialValue = branchCompanyList[0].company_id || '';
+    }
+
+    return (
+      <Modal
+        destroyOnClose
+        title="新建托运单"
+        visible={modalVisible}
+        footer={[
+          <Button key="btn-cancel" onClick={() => handleModalVisible()}>
+            取 消
+          </Button>,
+          <Button key="btn-print" onClick={this.onOrderPrint}>
+            打 印
+          </Button>,
+          <Button key="btn-save" type="primary" onClick={this.okHandle}>
+            保 存
+          </Button>,
+        ]}
+        width={800}
+      >
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="分公司">
+              {form.getFieldDecorator('company_id', companyOption)(
+                <Select
+                  placeholder="请选择"
+                  onSelect={this.onCompanySelect}
+                  style={{ width: '100%' }}
+                >
+                  {branchCompanyList.map(ele => {
+                    return (
+                      <Option key={ele.company_id} value={ele.company_id}>
+                        {ele.company_name}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              )}
+            </FormItem>
+          </Col>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="站点">
+              {form.getFieldDecorator('site_id', { initialValue: site.site_id })(
+                <Select placeholder="请选择" style={{ width: '100%' }}>
+                  <Option value={site.site_id} selected>
+                    {site.site_name}
+                  </Option>
+                </Select>
+              )}
+            </FormItem>
+          </Col>
+          {/* <Col {...this.colLayout}>
+          <FormItem {...this.formItemLayout} label="运单号">
             {getFieldDecorator('orderCode', { initialValue: orderCode.order_code })(
               <Input placeholder="" />
             )}
           </FormItem>
         </Col> */}
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="收货人电话">
-            {getFieldDecorator('getCustomerMobile')(<Input placeholder="请输入" />)}
-          </FormItem>
-        </Col>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="收货人姓名">
-            {getFieldDecorator('getCustomerName')(
-              <Select
-                placeholder="请选择"
-                showSearch
-                onSearch={handleGetCustomerSerach}
-                style={{ width: '100%' }}
-              >
-                {optionGetCustomer.map(ele => {
-                  return (
-                    <Option key={ele.customer_id} value={ele.customer_id}>
-                      {ele.customer_name}
-                    </Option>
-                  );
-                })}
-              </Select>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="收货人电话">
+              {form.getFieldDecorator('getcustomer_mobile', {
+                initialValue: selectedGetCustomerMobile,
+                rules: [{ required: true, message: '请填写收货人电话' }],
+              })(<Input onBlur={this.onGetCustomerMobileBlur} placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="收货人姓名">
+              {form.getFieldDecorator('getcustomer_id', {
+                rules: [{ required: true, message: '请填写收货人姓名' }],
+              })(
+                <Select
+                  placeholder="请选择"
+                  showSearch
+                  onBlur={this.onGetCustomerBlur}
+                  onSelect={this.onGetCustomerNameSelect}
+                  filterOption={this.onGetCustomerFilter}
+                  optionFilterProp="children"
+                  style={{ width: '100%' }}
+                >
+                  {getCustomerList.map(ele => {
+                    return (
+                      <Option key={ele.customer_id} value={ele.customer_id}>
+                        {ele.customer_name}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              )}
+            </FormItem>
+          </Col>
+          <Col>
+            {currentGetCustomer.customer_type == 1 ? (
+              <Tag color="orange" style={{ marginTop: 10 }}>
+                VIP
+              </Tag>
+            ) : (
+              ''
             )}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="发货人电话">
-            {getFieldDecorator('sendCustomerMobile')(<Input placeholder="请输入" />)}
-          </FormItem>
-        </Col>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="发货人姓名">
-            {getFieldDecorator('sendCustomerName')(
-              <Select
-                placeholder="请选择"
-                showSearch
-                onSearch={handleSendCustomerSerach}
-                style={{ width: '100%' }}
-              >
-                {optionSendCustomer.map(ele => {
-                  return (
-                    <Option key={ele.customer_id} value={ele.customer_id}>
-                      {ele.customer_name}
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...colLayout}>
-          <FormItem {...formItemLayout} label="运费">
-            {getFieldDecorator('trans_amount', {
-              rules: [{ required: true }],
-            })(<Input placeholder="请输入运费" />)}
-          </FormItem>
-        </Col>
-        <Col {...colSmallLayout}>
-          <FormItem label="">
-            {getFieldDecorator('order_advancepay_amount')(
-              <Select placeholder="请选择" style={{ width: '100%' }}>
-                <Option value="0">提付</Option>
-                <Option value="0">垫付</Option>
-              </Select>
-            )}
-          </FormItem>
-        </Col>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="折后运费">
-            {getFieldDecorator('trans_discount', {
-              rules: [{ required: true }],
-            })(<Input placeholder="" />)}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...colLayout}>
-          <FormItem {...formItemLayout} label="货款">
-            {getFieldDecorator('order_amount', {
-              rules: [{ required: true }],
-            })(<Input placeholder="请输入货款" />)}
-          </FormItem>
-        </Col>
-        <Col {...colLayout}>
-          <FormItem label="">
-            {getFieldDecorator('bank_account')(<Input placeholder="请输入银行账号" />)}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="保价金额">
-            {getFieldDecorator('insurance_amount', {})(<Input placeholder="" />)}
-          </FormItem>
-        </Col>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="保价费">
-            {getFieldDecorator('insurance_fee', {})(<Input placeholder="" />)}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="送货费">
-            {getFieldDecorator('deliver_amount', {})(<Input placeholder="" />)}
-          </FormItem>
-        </Col>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="垫付金额">
-            {getFieldDecorator('order_advancepay_amount', {})(<Input placeholder="" />)}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...colLargeLayout}>
-          <FormItem {...formItemMiniLayout} label="货物名称">
-            {form.getFieldDecorator('order_name', {})(
-              <Input placeholder="请输入" style={{ width: '400' }} />
-            )}
-          </FormItem>
-        </Col>
-        <Col {...colSmallLayout}>
-          <FormItem {...formItemLayout} label="">
-            {getFieldDecorator('order_num')(
-              <InputNumber placeholder="件数" style={{ width: '200' }} />
-            )}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="转进/转出">
-            {getFieldDecorator('transfer_type')(
-              <Select placeholder="请选择" style={{ width: '100%' }}>
-                <Option value="1" sele>
-                  转出
-                </Option>
-                <Option value="2" sele>
-                  转进
-                </Option>
-              </Select>
-            )}
-          </FormItem>
-        </Col>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="中转费">
-            {form.getFieldDecorator('transfer_amount', {})(<Input placeholder="请输入" />)}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="中转地址">
-            {form.getFieldDecorator('transfer_address', {})(<Input placeholder="请输入" />)}
-          </FormItem>
-        </Col>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="发货人电话">
+              {form.getFieldDecorator('sendcustomer_mobile', {
+                initialValue: selectedSendCustomerMobile,
+                rules: [{ required: true, message: '请填写发货人电话' }],
+              })(<Input onBlur={this.onSendCustomerMobileBlur} placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="发货人姓名">
+              {form.getFieldDecorator('sendcustomer_id', {
+                rules: [{ required: true, message: '请填写发货人姓名' }],
+              })(
+                <Select
+                  placeholder="请选择"
+                  showSearch
+                  onBlur={this.onSendCustomerBlur}
+                  onSelect={this.onSendCustomerNameSelect}
+                  optionFilterProp="children"
+                  style={{ width: '100%' }}
+                >
+                  {sendCustomerList.map(ele => {
+                    return (
+                      <Option key={ele.customer_id} value={ele.customer_id}>
+                        {ele.customer_name}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              )}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.colLayout}>
+            <FormItem {...this.formItemLayout} label="运费">
+              {form.getFieldDecorator('trans_amount', {})(
+                <Input placeholder="请输入运费" onBlur={this.onTransBlur} />
+              )}
+            </FormItem>
+          </Col>
+          <Col {...this.colSmallLayout}>
+            <FormItem label="">
+              {form.getFieldDecorator('trans_type')(
+                <Select placeholder="请选择" style={{ width: '100%' }}>
+                  <Option value="1">提付</Option>
+                  <Option value="2">垫付</Option>
+                </Select>
+              )}
+            </FormItem>
+          </Col>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="折后运费">
+              {form.getFieldDecorator('trans_discount', {})(<Input placeholder="" />)}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.colLayout}>
+            <FormItem {...this.formItemLayout} label="货款">
+              {form.getFieldDecorator('order_amount', {})(<Input placeholder="请输入货款" />)}
+            </FormItem>
+          </Col>
+          <Col {...this.colLayout}>
+            <FormItem label="">
+              {form.getFieldDecorator('bank_account')(<Input placeholder="请输入银行账号" />)}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="保价金额">
+              {form.getFieldDecorator('insurance_amount', {})(<Input placeholder="" />)}
+            </FormItem>
+          </Col>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="保价费">
+              {form.getFieldDecorator('insurance_fee', {})(<Input placeholder="" />)}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="送货费">
+              {form.getFieldDecorator('deliver_amount', {})(<Input placeholder="" />)}
+            </FormItem>
+          </Col>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="垫付金额">
+              {form.getFieldDecorator('order_advancepay_amount', {})(<Input placeholder="" />)}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.colLargeLayout}>
+            <FormItem {...this.formItemMiniLayout} label="货物名称">
+              {form.getFieldDecorator('order_name', {})(
+                <Input placeholder="请输入" style={{ width: '400' }} />
+              )}
+            </FormItem>
+          </Col>
+          <Col {...this.colSmallLayout}>
+            <FormItem {...this.formItemLayout} label="">
+              {form.getFieldDecorator('order_num')(
+                <InputNumber placeholder="件数" style={{ width: '200' }} />
+              )}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="转进/转出">
+              {form.getFieldDecorator('transfer_type')(
+                <Select placeholder="请选择" style={{ width: '100%' }}>
+                  <Option value="1" sele>
+                    转出
+                  </Option>
+                  <Option value="2" sele>
+                    转进
+                  </Option>
+                </Select>
+              )}
+            </FormItem>
+          </Col>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="中转费">
+              {form.getFieldDecorator('transfer_amount', {})(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="中转地址">
+              {form.getFieldDecorator('transfer_address', {})(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
 
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="中转物流">
-            {getFieldDecorator('transfer_company_name')(<Input placeholder="请输入" />)}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="中转单号">
-            {form.getFieldDecorator('transfer_order_code', {})(<Input placeholder="请输入" />)}
-          </FormItem>
-        </Col>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="中转电话">
-            {form.getFieldDecorator('transfer_company_mobile', {})(<Input placeholder="请输入" />)}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="实收货款">
-            {getFieldDecorator('order_real')(<Input placeholder="请输入" />)}
-          </FormItem>
-        </Col>
-        <Col {...col2Layout}>
-          <FormItem {...formItemLayout} label="实收运费">
-            {form.getFieldDecorator('trans_real', {})(<Input placeholder="请输入" />)}
-          </FormItem>
-        </Col>
-      </Row>
-      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-        <Col {...colLargeLayout}>
-          <FormItem {...formItemMiniLayout} label="备注">
-            {form.getFieldDecorator('remark', {})(<Input placeholder="请输入" />)}
-          </FormItem>
-        </Col>
-      </Row>
-    </Modal>
-  );
-});
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="中转物流">
+              {form.getFieldDecorator('transfer_company_name')(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="中转单号">
+              {form.getFieldDecorator('transfer_order_code', {})(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="中转电话">
+              {form.getFieldDecorator('transfer_company_mobile', {})(
+                <Input placeholder="请输入" />
+              )}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="实收货款">
+              {form.getFieldDecorator('order_real')(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+          <Col {...this.col2Layout}>
+            <FormItem {...this.formItemLayout} label="实收运费">
+              {form.getFieldDecorator('trans_real', {})(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col {...this.colLargeLayout}>
+            <FormItem {...this.formItemMiniLayout} label="备注">
+              {form.getFieldDecorator('remark', {})(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+        </Row>
+      </Modal>
+    );
+  }
+}
 
 @Form.create()
 class UpdateForm extends PureComponent {
@@ -737,7 +933,11 @@ class TableList extends PureComponent {
     if (branchCompanyList.length > 0) {
       dispatch({
         type: 'customer/getCustomerListAction',
-        payload: { pageNo: 1, pageSize: 100, company_id: branchCompanyList[0].company_id },
+        payload: {
+          pageNo: 1,
+          pageSize: 100,
+          filter: { company_id: branchCompanyList[0].company_id },
+        },
       });
     }
   }
@@ -857,10 +1057,11 @@ class TableList extends PureComponent {
   // 添加托运单
   handleAdd = fields => {
     const { dispatch } = this.props;
+    console.log(fields);
     // 更新订单号
     dispatch({
-      type: 'order/getOrderCodeAction',
-      payload: { site_id: site.site_id },
+      type: 'order/createOrderAction',
+      payload: fields,
     });
 
     message.success('添加成功');
@@ -1086,7 +1287,6 @@ class TableList extends PureComponent {
           branchCompanyList={branchCompanyList}
           sendCustomerList={sendCustomerList}
           getCustomerList={getCustomerList}
-          orderCode={orderCode}
           modalVisible={modalVisible}
         />
         {stepFormValues && Object.keys(stepFormValues).length ? (
