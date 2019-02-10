@@ -277,7 +277,20 @@ export async function getOrderCode(params) {
 export async function createOrder(params) {
   params.getcustomer_id = Number(params.getcustomer_id);
   params.sendcustomer_id = Number(params.sendcustomer_id);
-  params.trans_discount = Number(params.trans_discount);
+  params.trans_amount = Number(params.trans_amount || 0);
+  params.trans_real = Number(params.trans_real || 0);
+  params.trans_type = Number(params.trans_type || 0);
+  params.trans_discount = Number(params.trans_discount || 0);
+  params.deliver_amount = Number(params.deliver_amount || 0);
+  params.insurance_amount = Number(params.insurance_amount || 0);
+  params.insurance_fee = Number(params.insurance_fee || 0);
+  params.order_advancepay_amount = Number(params.order_advancepay_amount || 0);
+  params.order_amount = Number(params.order_amount || 0);
+  params.order_num = Number(params.order_num || 1);
+  params.order_real = Number(params.order_real || 0);
+  params.transfer_amount = Number(params.transfer_amount || 0);
+  params.transfer_type = Number(params.transfer_type || 0);
+
   return client
     .mutate({
       mutation: gql`
@@ -365,6 +378,98 @@ export async function createOrder(params) {
     .then(data => {
       console.log(data);
       return data.data.createOrder;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function getOrderList(params) {
+  return client
+    .query({
+      query: gql`
+        query getOrders($pageNo: Int, $pageSize: Int, $filter: OrderInput) {
+          getOrders(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            orders {
+              order_id
+              company_id
+              company_name
+              order_code
+              car_code
+              getcustomer_name
+              getcustomer_id
+              getcustomer_mobile
+              sendcustomer_id
+              sendcustomer_name
+              sendcustomer_mobile
+              order_amount
+              order_real
+              bank_account
+              getcustomer_address
+              sendcustomer_address
+              pay_type
+              trans_amount
+              trans_real
+              trans_discount
+              trans_type
+              deliver_amount
+              insurance_amount
+              insurance_fee
+              order_name
+              create_date
+              depart_date
+              pay_date
+              settle_date
+              site_id
+              site_name
+              shipsite_name
+              shipsite_id
+              operator_name
+              operator_id
+              sender_name
+              sender_id
+              receiver_name
+              receiver_id
+              settle_user_name
+              pay_user_name
+              settle_user_id
+              pay_user_id
+              late_fee
+              getcustomer_type
+              sendcustomer_type
+              order_advancepay_amount
+              order_num
+              order_label_num
+              transfer_amount
+              transfer_type
+              transfer_order_code
+              transfer_address
+              transfer_company_name
+              transfer_company_mobile
+              order_status
+              remark
+              bonus_amount
+              abnormal_type
+              abnormal_amount
+              abnormal_resolve_type
+              abnormal_remark
+              abnormal_type_id
+              abnormal_status
+              sign_status
+              trans_status
+              create_user_id
+              create_user_name
+              trans_show_amount
+              pay_abnormal
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getOrders;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };

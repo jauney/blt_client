@@ -1,4 +1,4 @@
-import { getOrderCode, createOrder } from '@/services/api';
+import { getOrderCode, createOrder, getOrderList } from '@/services/api';
 
 export default {
   namespace: 'order',
@@ -6,6 +6,7 @@ export default {
   state: {
     orderList: [],
     orderCode: {},
+    total: 0,
   },
 
   effects: {
@@ -24,11 +25,11 @@ export default {
       });
       return response;
     },
-    *appendFetch({ payload }, { call, put }) {
-      const response = yield call(queryFakeList, payload);
+    *getOrderListAction({ payload }, { call, put }) {
+      const response = yield call(getOrderList, payload);
       yield put({
-        type: 'appendList',
-        payload: Array.isArray(response) ? response : [],
+        type: 'getOrderListReducer',
+        payload: response,
       });
     },
     *submit({ payload }, { call, put }) {
@@ -53,14 +54,15 @@ export default {
         orderCode: action.payload,
       };
     },
-    appendListReducer(state, action) {
-      let newList = state.orderList;
-      if (action.data && action.data.order_id) {
-        newList = newList.concat([action.data]);
+    getOrderListReducer(state, action) {
+      let newList = state.orderList || [];
+      if (Array.isArray(action.payload.orders)) {
+        newList = newList.concat(action.payload.orders);
       }
       return {
         ...state,
         orderList: newList,
+        total: action.payload.total,
       };
     },
     queryListReducer(state, action) {
