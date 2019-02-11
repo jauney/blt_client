@@ -1,4 +1,10 @@
-import { getOrderCode, createOrder, getOrderList, deleteOrder } from '@/services/api';
+import {
+  getOrderCode,
+  createOrder,
+  getOrderList,
+  deleteOrder,
+  getSiteOrderStatistic,
+} from '@/services/api';
 
 export default {
   namespace: 'order',
@@ -7,6 +13,9 @@ export default {
     orderList: [],
     orderCode: {},
     total: 0,
+    totalOrderAmount: 0,
+    totalTransAmount: 0,
+    totalInsurancefee: 0,
   },
 
   effects: {
@@ -37,6 +46,13 @@ export default {
       payload.is_delete = 1;
       return yield call(deleteOrder, payload); // post
     },
+    *getSiteOrderStatisticAction({ payload }, { call, put }) {
+      const response = yield call(getSiteOrderStatistic, payload);
+      yield put({
+        type: 'getSiteOrderStatisticReducer',
+        payload: response,
+      });
+    },
   },
 
   reducers: {
@@ -47,14 +63,20 @@ export default {
       };
     },
     getOrderListReducer(state, action) {
-      let newList = state.orderList || [];
-      if (Array.isArray(action.payload.orders)) {
-        newList = newList.concat(action.payload.orders);
-      }
+      // let newList = state.orderList || [];
+      // if (Array.isArray(action.payload.orders)) {
+      //   newList = newList.concat(action.payload.orders);
+      // }
       return {
         ...state,
-        orderList: newList,
+        orderList: action.payload.orders,
         total: action.payload.total,
+      };
+    },
+    getSiteOrderStatisticReducer(state, action) {
+      return {
+        ...state,
+        ...action.payload,
       };
     },
   },

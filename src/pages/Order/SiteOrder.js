@@ -347,7 +347,11 @@ class CreateForm extends PureComponent {
     console.log('transamount', transAmount);
     if (transVipRatio && transRegionalRatio) {
       // 折后运费=地域系数*客户VIP*小票费
-      transDiscount = Number(transAmount) * Number(transVipRatio) * Number(transRegionalRatio);
+      transDiscount = (
+        Number(transAmount) *
+        Number(transVipRatio) *
+        Number(transRegionalRatio)
+      ).toFixed(2);
       form.setFieldsValue({
         trans_discount: transDiscount || '',
       });
@@ -917,6 +921,11 @@ class TableList extends PureComponent {
         type: 'order/getOrderListAction',
         payload: { pageNo: 1, pageSize: 20, filter: values },
       });
+
+      dispatch({
+        type: 'order/getSiteOrderStatisticAction',
+        payload: { company_id: fieldsValue.company_id, site_id: fieldsValue.site_id },
+      });
     });
   };
 
@@ -1032,7 +1041,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      order: { orderList, total },
+      order: { orderList, total, totalOrderAmount, totalTransAmount, totalInsurancefee },
       company: { branchCompanyList },
       customer: { getCustomerList, sendCustomerList },
       loading,
@@ -1076,7 +1085,7 @@ class TableList extends PureComponent {
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              footer={() => 'Footer'}
+              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
             />
           </div>
         </Card>

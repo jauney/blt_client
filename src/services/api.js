@@ -498,3 +498,40 @@ export async function deleteOrder(params) {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };
     });
 }
+
+export async function getSiteOrderStatistic(params) {
+  return client
+    .query({
+      query: gql`
+        query getSiteOrderStatistic(
+          $company_id: Int
+          $site_id: Int
+          $operator_id: Int
+          $shipsite_id: Int
+          $car_code: String
+          $receiver_id: Int
+        ) {
+          getSiteOrderStatistic(
+            company_id: $company_id
+            site_id: $site_id
+            operator_id: $operator_id
+            shipsite_id: $shipsite_id
+            car_code: $car_code
+            receiver_id: $receiver_id
+          ) {
+            totalOrderAmount
+            totalTransAmount
+            totalInsurancefee
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getSiteOrderStatistic;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
