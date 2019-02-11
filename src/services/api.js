@@ -290,6 +290,7 @@ export async function createOrder(params) {
   params.order_real = Number(params.order_real || 0);
   params.transfer_amount = Number(params.transfer_amount || 0);
   params.transfer_type = Number(params.transfer_type || 0);
+  params.is_delete = 0;
 
   return client
     .mutate({
@@ -470,6 +471,28 @@ export async function getOrderList(params) {
     })
     .then(data => {
       return data.data.getOrders;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function deleteOrder(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation deleteOrder($orderId: [Int], $isDelete: Int) {
+          deleteOrder(order_id: $orderId, is_delete: $isDelete) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.createOrder;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };

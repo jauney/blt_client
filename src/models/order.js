@@ -1,4 +1,4 @@
-import { getOrderCode, createOrder, getOrderList } from '@/services/api';
+import { getOrderCode, createOrder, getOrderList, deleteOrder } from '@/services/api';
 
 export default {
   namespace: 'order',
@@ -26,24 +26,16 @@ export default {
       return response;
     },
     *getOrderListAction({ payload }, { call, put }) {
+      payload.order_status = 0;
       const response = yield call(getOrderList, payload);
       yield put({
         type: 'getOrderListReducer',
         payload: response,
       });
     },
-    *submit({ payload }, { call, put }) {
-      let callback;
-      if (payload.id) {
-        callback = Object.keys(payload).length === 1 ? removeFakeList : updateFakeList;
-      } else {
-        callback = addFakeList;
-      }
-      const response = yield call(callback, payload); // post
-      yield put({
-        type: 'queryList',
-        payload: response,
-      });
+    *deleteOrderAction({ payload }, { call, put }) {
+      payload.is_delete = 1;
+      return yield call(deleteOrder, payload); // post
     },
   },
 
@@ -63,12 +55,6 @@ export default {
         ...state,
         orderList: newList,
         total: action.payload.total,
-      };
-    },
-    queryListReducer(state, action) {
-      return {
-        ...state,
-        orderList: action.payload,
       };
     },
   },

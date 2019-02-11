@@ -942,7 +942,15 @@ class TableList extends PureComponent {
 
   onDelete = () => {
     const { selectedRows } = this.state;
-
+    const { dispatch } = this.props;
+    const orderIds = [];
+    selectedRows.forEach(item => {
+      orderIds.push(item.order_id);
+    });
+    dispatch({
+      type: 'order/deleteOrderAction',
+      payload: { orderId: orderIds, isDelete: 1 },
+    });
     console.log('delete', selectedRows);
   };
 
