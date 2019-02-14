@@ -492,7 +492,7 @@ export async function deleteOrder(params) {
     })
     .then(data => {
       console.log(data);
-      return data.data.createOrder;
+      return data.data.deleteOrder;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };
@@ -530,6 +530,188 @@ export async function getSiteOrderStatistic(params) {
     .then(data => {
       console.log(data);
       return data.data.getSiteOrderStatistic;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function shipOrder(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation shipOrder(
+          $order_id: [Int]
+          $shipsite_id: Int
+          $shipsite_name: String
+          $receiver_id: Int
+          $receiver_name: String
+        ) {
+          shipOrder(
+            order_id: $order_id
+            shipsite_id: $shipsite_id
+            receiver_id: $receiver_id
+            shipsite_name: $shipsite_name
+            receiver_name: $receiver_name
+          ) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.shipOrder;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function cancelShipOrder(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation cancelShipOrder($order_id: [Int]) {
+          cancelShipOrder(order_id: $order_id) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.cancelShipOrder;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function entrunkOrder(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation entrunkOrder($order_id: [Int], $car: CarInput) {
+          entrunkOrder(order_id: $order_id, car: $car) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.entrunkOrder;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function changeOrderReceiver(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation changeOrderReceiver($order_id: [Int], $receiver_id: Int, $receiver_name: String) {
+          changeOrderReceiver(
+            order_id: $order_id
+            receiver_id: $receiver_id
+            receiver_name: $receiver_name
+          ) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.changeOrderReceiver;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// 接货人
+export async function queryReceiverList(params) {
+  return client
+    .query({
+      query: gql`
+        query getCouriers($pageNo: Int, $pageSize: Int, $filter: CourierInput, $type: Int) {
+          getCouriers(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, type: $type) {
+            total
+            couriers {
+              courier_id
+              courier_name
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getCouriers;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// car
+export async function queryCarList(params) {
+  return client
+    .query({
+      query: gql`
+        query getCars($pageNo: Int, $pageSize: Int, $company_id: Int) {
+          getCars(pageNo: $pageNo, pageSize: $pageSize, company_id: $company_id) {
+            total
+            cars {
+              car_id
+              car_no
+              car_fee
+              car_code
+              car_date
+              driver_name
+              driver_mobile
+              confirm
+              company_id
+              shipsite_id
+              car_status
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getCars;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function getCarCode(params) {
+  return client
+    .query({
+      query: gql`
+        query getCarCode($company_id: Int) {
+          getCarCode(company_id: $company_id)
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getCarCode;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };

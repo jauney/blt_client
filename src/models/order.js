@@ -4,6 +4,8 @@ import {
   getOrderList,
   deleteOrder,
   getSiteOrderStatistic,
+  shipOrder,
+  cancelShipOrder,
 } from '@/services/api';
 
 export default {
@@ -35,7 +37,8 @@ export default {
       return response;
     },
     *getOrderListAction({ payload }, { call, put }) {
-      payload.order_status = 0;
+      payload.filter = payload.filter || {};
+      payload.filter.order_status = 0;
       const response = yield call(getOrderList, payload);
       yield put({
         type: 'getOrderListReducer',
@@ -47,11 +50,18 @@ export default {
       return yield call(deleteOrder, payload); // post
     },
     *getSiteOrderStatisticAction({ payload }, { call, put }) {
+      payload.order_status = 0;
       const response = yield call(getSiteOrderStatistic, payload);
       yield put({
         type: 'getSiteOrderStatisticReducer',
         payload: response,
       });
+    },
+    *shipOrderAction({ payload }, { call, put }) {
+      return yield call(shipOrder, payload); // post
+    },
+    *cancelShipAction({ payload }, { call, put }) {
+      return yield call(cancelShipOrder, payload); // post
     },
   },
 

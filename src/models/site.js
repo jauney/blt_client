@@ -1,4 +1,4 @@
-import { querySiteList, addSite, updateSite } from '@/services/api';
+import { querySiteList, addSite } from '@/services/api';
 
 export default {
   namespace: 'site',
@@ -6,15 +6,33 @@ export default {
   state: {
     // site_type: 1 普通站点， 2 装载站点
     siteList: [],
+    entrunkSiteList: [],
+    normalSiteList: [],
     site: {},
   },
 
   effects: {
-    *getSiteList({ payload }, { call, put }) {
+    *getSiteListAction({ payload }, { call, put }) {
       const response = yield call(querySiteList, payload);
       const list = response.sites;
       yield put({
-        type: 'querySiteList',
+        type: 'getSiteListReducer',
+        payload: Array.isArray(list) ? list : [],
+      });
+    },
+    *getEntrunkSiteListAction({ payload }, { call, put }) {
+      const response = yield call(querySiteList, payload);
+      const list = response.sites;
+      yield put({
+        type: 'getEntrunkSiteListReducer',
+        payload: Array.isArray(list) ? list : [],
+      });
+    },
+    *getNormalSiteListAction({ payload }, { call, put }) {
+      const response = yield call(querySiteList, payload);
+      const list = response.sites;
+      yield put({
+        type: 'getNormalSiteListReducer',
         payload: Array.isArray(list) ? list : [],
       });
     },
@@ -29,11 +47,35 @@ export default {
   },
 
   reducers: {
-    querySiteList(state, action) {
+    getSiteListReducer(state, action) {
+      const entrunkSiteList = action.payload.filter(item => {
+        if (item.site_type == 2) {
+          return item;
+        }
+      });
+      const normalSiteList = action.payload.filter(item => {
+        if (item.site_type != 2) {
+          return item;
+        }
+      });
       return {
         ...state,
         siteList: action.payload,
+        normalSiteList,
+        entrunkSiteList,
         site: JSON.parse(localStorage.getItem('site') || '{}'),
+      };
+    },
+    getEntrunkSiteListReducer(state, action) {
+      return {
+        ...state,
+        entrunkSiteList: action.payload,
+      };
+    },
+    getNormalSiteListReducer(state, action) {
+      return {
+        ...state,
+        normalSiteList: action.payload,
       };
     },
     addSite(state, action) {

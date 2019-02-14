@@ -6,6 +6,7 @@ import {
   Col,
   Card,
   Form,
+  Alert,
   Input,
   AutoComplete,
   Select,
@@ -41,7 +42,7 @@ const getValue = obj =>
 const statusMap = ['default', 'processing', 'success', 'error'];
 const status = ['关闭', '运行中', '已上线', '异常'];
 
-const site = JSON.parse(localStorage.getItem('site') || '{}');
+const CacheSite = JSON.parse(localStorage.getItem('site') || '{}');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 
 /* eslint react/no-multi-comp:0 */
@@ -156,7 +157,7 @@ class CreateForm extends PureComponent {
         fieldsValue.sendcustomer_id = 0;
       }
 
-      fieldsValue.site_name = site.site_name;
+      fieldsValue.site_name = CacheSite.site_name;
 
       handleAdd(fieldsValue);
     });
@@ -184,7 +185,7 @@ class CreateForm extends PureComponent {
     // 重新计算折后运费
     let company;
     for (let i = 0; i < branchCompanyList.length; i++) {
-      let c = branchCompanyList[i];
+      const c = branchCompanyList[i];
       if (c.company_id == company_id) {
         company = c;
         break;
@@ -279,10 +280,11 @@ class CreateForm extends PureComponent {
   onSendCustomerSelect = async (value, option) => {
     const { props } = option;
     const { sendCustomerList, form } = this.props;
-    let customer;
+    let currentCustomer;
     for (let i = 0; i < sendCustomerList.length; i++) {
-      customer = sendCustomerList[i];
+      const customer = sendCustomerList[i];
       if (customer.customer_id == props.customerid) {
+        currentCustomer = customer;
         form.setFieldsValue({
           sendcustomer_mobile: customer.customer_mobile,
         });
@@ -290,13 +292,13 @@ class CreateForm extends PureComponent {
         break;
       }
     }
-    if (customer) {
+    if (currentCustomer) {
       // 设置发货人账号
       form.setFieldsValue({
-        bank_account: customer.bank_account,
+        bank_account: currentCustomer.bank_account,
       });
       await this.setState({
-        currentSendCustomer: customer,
+        currentSendCustomer: currentCustomer,
       });
     }
   };
@@ -304,10 +306,11 @@ class CreateForm extends PureComponent {
   onGetCustomerSelect = async (value, option) => {
     const { props } = option;
     const { getCustomerList, form } = this.props;
-    let customer;
+    let currentCustomer;
     for (let i = 0; i < getCustomerList.length; i++) {
-      customer = getCustomerList[i];
+      const customer = getCustomerList[i];
       if (customer.customer_id == props.customerid) {
+        currentCustomer = customer;
         form.setFieldsValue({
           getcustomer_mobile: customer.customer_mobile,
         });
@@ -315,9 +318,9 @@ class CreateForm extends PureComponent {
         break;
       }
     }
-    if (customer) {
+    if (currentCustomer) {
       await this.setState({
-        currentGetCustomer: customer,
+        currentGetCustomer: currentCustomer,
       });
 
       // 计算折后运费
@@ -407,6 +410,7 @@ class CreateForm extends PureComponent {
         destroyOnClose
         title="新建托运单"
         visible={modalVisible}
+        onCancel={() => handleModalVisible()}
         footer={[
           <Button key="btn-cancel" onClick={() => handleModalVisible()}>
             取 消
@@ -442,10 +446,10 @@ class CreateForm extends PureComponent {
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="站点">
-              {form.getFieldDecorator('site_id', { initialValue: site.site_id })(
+              {form.getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value={site.site_id} selected>
-                    {site.site_name}
+                  <Option value={CacheSite.site_id} selected>
+                    {CacheSite.site_name}
                   </Option>
                 </Select>
               )}
@@ -683,12 +687,145 @@ class CreateForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, order, loading }) => {
+@connect(({ site, order }) => {
+  return {
+    site,
+    order,
+  };
+})
+@Form.create()
+class CreateEntrunkForm extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  getEntrunkModalContent = () => {
+    const {
+      form: { getFieldDecorator },
+      receiverList,
+      entrunkSiteList,
+      selectedRows,
+    } = this.props;
+
+    const getSelectRowText = () => {
+      let totalOrders = 0;
+      selectedRows.forEach(order => {
+        totalOrders += order.order_num;
+      });
+      return `合计 ${selectedRows.length} 票，共计 ${totalOrders} 件`;
+    };
+    return (
+      <Form layout="inline">
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col md={12} sm={24}>
+            <FormItem label="装回">
+              {getFieldDecorator('shipsite_id', {})(
+                <Select placeholder="请选择" style={{ width: '150px' }}>
+                  {entrunkSiteList.map(ele => {
+                    return (
+                      <Option key={ele.site_id} value={ele.site_id}>
+                        {ele.site_name}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              )}
+            </FormItem>
+          </Col>
+          <Col md={12} sm={24}>
+            <FormItem label="接货人">
+              {getFieldDecorator('receiver_id', {})(
+                <Select placeholder="请选择" style={{ width: '150px' }}>
+                  {receiverList.map(ele => {
+                    return (
+                      <Option key={ele.courier_id} value={ele.courier_id}>
+                        {ele.courier_name}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              )}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col md={24} sm={24}>
+            <Alert message={getSelectRowText()} type="info" />
+          </Col>
+        </Row>
+      </Form>
+    );
+  };
+
+  onEntruck = e => {
+    e.preventDefault();
+    const {
+      dispatch,
+      form,
+      selectedRows,
+      receiverList,
+      entrunkSiteList,
+      onEntrunkModalCancel,
+    } = this.props;
+    form.validateFields(async (err, fieldsValue, options) => {
+      if (err) return;
+      const orderIds = selectedRows.map(item => {
+        return item.order_id;
+      });
+      const receivers = receiverList.filter(item => {
+        if (item.courier_id == fieldsValue.receiver_id) {
+          return item;
+        }
+      });
+      const shipSites = entrunkSiteList.filter(item => {
+        if (item.site_id == fieldsValue.shipsite_id) {
+          return item;
+        }
+      });
+
+      fieldsValue.order_id = orderIds;
+      fieldsValue.shipsite_name = shipSites[0] && shipSites[0].site_name;
+      fieldsValue.receiver_name = receivers[0] && receivers[0].courier_name;
+      console.log(fieldsValue, options);
+      const result = await dispatch({
+        type: 'order/shipOrderAction',
+        payload: fieldsValue,
+      });
+
+      console.log(result);
+      if (result.code == 0) {
+        onEntrunkModalCancel();
+      }
+    });
+  };
+
+  render() {
+    const { modalVisible, onEntrunkModalCancel } = this.props;
+    return (
+      <Modal
+        title="装回配载部"
+        className={styles.standardListForm}
+        width={640}
+        destroyOnClose
+        visible={modalVisible}
+        onOk={this.onEntruck}
+        onCancel={onEntrunkModalCancel}
+      >
+        {this.getEntrunkModalContent()}
+      </Modal>
+    );
+  }
+}
+
+/* eslint react/no-multi-comp:0 */
+@connect(({ customer, company, order, site, receiver, loading }) => {
   return {
     customer,
     company,
     site,
     order,
+    receiver,
     loading: loading.models.rule,
   };
 })
@@ -700,6 +837,7 @@ class TableList extends PureComponent {
     formValues: {},
     current: 1,
     pageSize: 20,
+    entrunkModalVisible: false,
   };
 
   columns = [
@@ -810,8 +948,8 @@ class TableList extends PureComponent {
     });
 
     dispatch({
-      type: 'site/getSiteList',
-      payload: {},
+      type: 'site/getSiteListAction',
+      payload: { pageNo: 1, pageSize: 100 },
     });
 
     dispatch({
@@ -819,8 +957,13 @@ class TableList extends PureComponent {
       payload: { pageNo: 1, pageSize: 100 },
     });
 
+    dispatch({
+      type: 'receiver/getReceiverListAction',
+      payload: { pageNo: 1, pageSize: 100, type: 1, filter: {} },
+    });
+
     // 初始渲染的是否，先加载第一个分公司的收货人信息
-    if (branchCompanyList.length > 0) {
+    if (branchCompanyList && branchCompanyList.length > 0) {
       dispatch({
         type: 'customer/getCustomerListAction',
         payload: {
@@ -963,10 +1106,25 @@ class TableList extends PureComponent {
     console.log('delete', selectedRows);
   };
 
-  onEntruck = () => {
-    const { selectedRows } = this.state;
+  showEntruckModal = () => {
+    this.setState({
+      entrunkModalVisible: true,
+    });
+  };
 
-    console.log('entrunk', selectedRows);
+  hideEntrunckModal = () => {
+    // setTimeout(() => this.addBtn.blur(), 0);
+    this.setState({
+      entrunkModalVisible: false,
+    });
+  };
+
+  onEntrunkModalCancel = () => {
+    this.hideEntrunckModal();
+  };
+
+  onEntruckModalShow = () => {
+    this.showEntruckModal();
   };
 
   renderSimpleForm() {
@@ -1003,10 +1161,10 @@ class TableList extends PureComponent {
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="站点">
-              {getFieldDecorator('site_id', { initialValue: site.site_id })(
+              {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value={site.site_id} selected>
-                    {site.site_name}
+                  <Option value={CacheSite.site_id} selected>
+                    {CacheSite.site_name}
                   </Option>
                 </Select>
               )}
@@ -1041,13 +1199,15 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      order: { orderList, total, totalOrderAmount, totalTransAmount, totalInsurancefee },
+      order: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },
       customer: { getCustomerList, sendCustomerList },
+      receiver: { receiverList },
+      site: { entrunkSiteList },
       loading,
     } = this.props;
 
-    const { selectedRows, modalVisible, current, pageSize } = this.state;
+    const { selectedRows, modalVisible, current, pageSize, entrunkModalVisible } = this.state;
 
     const parentMethods = {
       handleAdd: this.handleAdd,
@@ -1066,7 +1226,7 @@ class TableList extends PureComponent {
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onDelete}>删除托运单</Button>
-                  <Button onClick={this.onEntruck}>装回配载部</Button>
+                  <Button onClick={this.onEntruckModalShow}>装回配载部</Button>
                 </span>
               )}
             </div>
@@ -1095,6 +1255,14 @@ class TableList extends PureComponent {
           sendCustomerList={sendCustomerList}
           getCustomerList={getCustomerList}
           modalVisible={modalVisible}
+        />
+
+        <CreateEntrunkForm
+          receiverList={receiverList}
+          entrunkSiteList={entrunkSiteList}
+          modalVisible={entrunkModalVisible}
+          selectedRows={selectedRows}
+          onEntrunkModalCancel={this.onEntrunkModalCancel}
         />
       </div>
     );
