@@ -705,13 +705,103 @@ export async function getCarCode(params) {
     .query({
       query: gql`
         query getCarCode($company_id: Int) {
-          getCarCode(company_id: $company_id)
+          getCarCode(company_id: $company_id) {
+            car_code
+            order_status
+          }
         }
       `,
       variables: params,
     })
     .then(data => {
       return data.data.getCarCode;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function getLastCarCode(params) {
+  return client
+    .query({
+      query: gql`
+        query getLastCarCode($company_id: Int, $car_code: String) {
+          getLastCarCode(company_id: $company_id, car_code: $car_code) {
+            car_id
+            car_fee
+            car_code
+            car_date
+            driver_name
+            driver_mobile
+            driver_plate
+            confirm
+            company_id
+            shipsite_id
+            car_status
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getLastCarCode;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function getCarInfo(params) {
+  return client
+    .query({
+      query: gql`
+        query getCarInfo($company_id: Int, $car_code: String) {
+          getCarInfo(company_id: $company_id, car_code: $car_code) {
+            car_id
+            car_fee
+            car_code
+            car_date
+            driver_name
+            driver_mobile
+            driver_plate
+            confirm
+            company_id
+            shipsite_id
+            car_status
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.getCarInfo;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+// driver
+export async function queryDriverList(params) {
+  return client
+    .query({
+      query: gql`
+        query getDrivers($pageNo: Int, $pageSize: Int, $company_id: Int) {
+          getDrivers(pageNo: $pageNo, pageSize: $pageSize, company_id: $company_id) {
+            total
+            drivers {
+              driver_id
+              driver_name
+              driver_mobile
+              driver_plate
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getDrivers;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };

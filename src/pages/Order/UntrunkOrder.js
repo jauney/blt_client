@@ -160,7 +160,7 @@ class CreateEntrunkForm extends PureComponent {
 
     // 重新获取货车编号
     dispatch({
-      type: 'car/getCarCodeAction',
+      type: 'car/getLastCarCodeAction',
       payload: {
         company_id: value,
       },
@@ -169,22 +169,22 @@ class CreateEntrunkForm extends PureComponent {
 
   onCarSelect = (value, option) => {
     const { props } = option;
-    const { carList, form } = this.props;
-    let currentCar;
-    for (let i = 0; i < carList.length; i++) {
-      const car = carList[i];
-      if (car.car_id == props.carid) {
-        currentCar = car;
+    const { driverList, form } = this.props;
+    let currentDriver;
+    for (let i = 0; i < driverList.length; i++) {
+      const driver = driverList[i];
+      if (driver.driver_id == props.driverid) {
+        currentDriver = driver;
 
         break;
       }
     }
-    if (currentCar) {
+    if (currentDriver) {
       // 设置发货人账号
       form.setFieldsValue({
-        car_no: currentCar.car_no,
-        driver_name: currentCar.driver_name,
-        driver_mobile: currentCar.driver_mobile,
+        driver_plate: currentDriver.driver_plate,
+        driver_name: currentDriver.driver_name,
+        driver_mobile: currentDriver.driver_mobile,
       });
     }
   };
@@ -193,8 +193,8 @@ class CreateEntrunkForm extends PureComponent {
   renderCustomerOption = item => {
     const AutoOption = AutoComplete.Option;
     return (
-      <AutoOption key={item.car_id} carid={item.car_id} text={item.car_no}>
-        {item.car_no}
+      <AutoOption key={item.driver_id} driverid={item.driver_id} text={item.driver_plate}>
+        {item.driver_plate}
       </AutoOption>
     );
   };
@@ -204,8 +204,8 @@ class CreateEntrunkForm extends PureComponent {
       form: { getFieldDecorator },
       branchCompanyList,
       currentCompany,
-      carList,
-      carCode,
+      driverList,
+      lastCar,
     } = this.props;
 
     return (
@@ -235,13 +235,13 @@ class CreateEntrunkForm extends PureComponent {
           </Col>
           <Col md={12} sm={24}>
             <FormItem label="车牌号">
-              {getFieldDecorator('car_id', {
+              {getFieldDecorator('driver_id', {
                 rules: [{ required: true, message: '请填写收车牌号' }],
               })(
                 <AutoComplete
                   size="large"
                   style={{ width: '100%' }}
-                  dataSource={carList.map(this.renderCustomerOption)}
+                  dataSource={driverList.map(this.renderCustomerOption)}
                   onSelect={this.onCarSelect}
                   placeholder="请输入"
                   optionLabelProp="text"
@@ -271,7 +271,7 @@ class CreateEntrunkForm extends PureComponent {
           <Col md={12} sm={24}>
             <FormItem label="货车编号">
               {getFieldDecorator('car_code', {
-                initialValue: carCode,
+                initialValue: lastCar.order_status > 2 ? lastCar.car_code + 1 : lastCar.car_code,
                 rules: [{ required: true, message: '请填写货车编号' }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
@@ -303,7 +303,7 @@ class CreateEntrunkForm extends PureComponent {
       form,
       selectedRows,
       onEntrunkModalCancel,
-      carList = [],
+      driverList = [],
       onSearch,
     } = this.props;
     form.validateFields(async (err, fieldsValue) => {
@@ -314,19 +314,22 @@ class CreateEntrunkForm extends PureComponent {
       if (fieldsValue.car_date && fieldsValue.car_date.valueOf) {
         fieldsValue.car_date = fieldsValue.car_date.valueOf() + '';
       }
-      const cars = carList.filter(item => {
-        if (item.car_id == fieldsValue.car_id) {
+      const drivers = driverList.filter(item => {
+        if (item.driver_id == fieldsValue.driver_id) {
           return item;
         }
       });
-      if (cars.length <= 0) {
-        fieldsValue.car_no = fieldsValue.car_id;
-        fieldsValue.car_id = 0;
+
+      if (drivers.length <= 0) {
+        fieldsValue.driver_plate = fieldsValue.driver_id;
+        fieldsValue.driver_id = 0;
       } else {
-        fieldsValue.car_no = cars[0].car_no;
-        fieldsValue.car_id = Number(fieldsValue.car_id);
+        fieldsValue.driver_plate = drivers[0].driver_plate;
+        fieldsValue.driver_id = Number(fieldsValue.driver_id);
       }
+
       fieldsValue.car_fee = Number(fieldsValue.car_fee || 0);
+      fieldsValue.shipsite_id = CacheSite.site_id;
 
       console.log(fieldsValue);
       const result = await dispatch({
@@ -360,13 +363,14 @@ class CreateEntrunkForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, untrunkorder, site, car, receiver, loading }) => {
+@connect(({ customer, company, untrunkorder, site, car, driver, receiver, loading }) => {
   return {
     customer,
     company,
     untrunkorder,
     site,
     car,
+    driver,
     receiver,
     loading: loading.models.rule,
   };
@@ -459,6 +463,16 @@ class TableList extends PureComponent {
       sorter: true,
     },
     {
+      title: '接货人',
+      dataIndex: 'receiver_name',
+      sorter: true,
+    },
+    {
+      title: '装配站',
+      dataIndex: 'shipsite_name',
+      sorter: true,
+    },
+    {
       title: '站点',
       dataIndex: 'site_name',
       sorter: true,
@@ -521,7 +535,7 @@ class TableList extends PureComponent {
       });
 
       dispatch({
-        type: 'car/getCarListAction',
+        type: 'driver/getDriverListAction',
         payload: {
           pageNo: 1,
           pageSize: 500,
@@ -792,7 +806,8 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       receiver: { receiverList },
       site: { entrunkSiteList },
-      car: { carList, carCode },
+      car: { carCode },
+      driver: { driverList },
       loading,
     } = this.props;
 
@@ -847,8 +862,8 @@ class TableList extends PureComponent {
           branchCompanyList={branchCompanyList}
           currentCompany={currentCompany}
           onEntrunkModalCancel={this.onEntrunkModalCancel}
-          carList={carList}
-          carCode={carCode}
+          driverList={driverList}
+          lastCar={carCode}
           onSearch={this.handleSearch}
         />
         <CreateReceiverForm

@@ -1,11 +1,13 @@
-import { queryCarList, getCarCode } from '@/services/api';
+import { queryCarList, getCarCode, getLastCarCode, getCarInfo } from '@/services/api';
 
 export default {
   namespace: 'car',
 
   state: {
+    carCode: {},
+    carInfo: {},
     carList: [],
-    carCode: 1,
+    lastCar: {},
   },
 
   effects: {
@@ -15,6 +17,22 @@ export default {
         type: 'getCarCodeReducer',
         payload: response,
       });
+    },
+    *getCarInfoAction({ payload }, { call, put }) {
+      const response = yield call(getCarInfo, payload);
+      yield put({
+        type: 'getCarInfoReducer',
+        payload: response,
+      });
+      return response;
+    },
+    *getLastCarCodeAction({ payload }, { call, put }) {
+      const response = yield call(getLastCarCode, payload);
+      yield put({
+        type: 'getLastCarCodeReducer',
+        payload: response,
+      });
+      return response;
     },
     *getCarListAction({ payload }, { call, put }) {
       const response = yield call(queryCarList, payload);
@@ -37,6 +55,18 @@ export default {
       return {
         ...state,
         carCode: action.payload,
+      };
+    },
+    getLastCarCodeReducer(state, action) {
+      return {
+        ...state,
+        lastCar: action.payload,
+      };
+    },
+    getCarInfoReducer(state, action) {
+      return {
+        ...state,
+        carInfo: action.payload,
       };
     },
   },
