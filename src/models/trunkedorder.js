@@ -1,11 +1,9 @@
 import {
   getOrderList,
   getTrunkedOrderStatistic,
-  cancelTrunkedOrder,
-  departCar,
-  cancelDepartCar,
-  arriveCar,
-  cancelArriceCar,
+  updateCarFee,
+  updateCarStatus,
+  cancelEntrunk,
 } from '@/services/api';
 
 export default {
@@ -32,20 +30,23 @@ export default {
     },
     *getUntrunkOrderStatisticAction({ payload }, { call, put }) {
       payload.order_status = 0;
-      const response = yield call(getUntrunkOrderStatistic, payload);
+      const response = yield call(getTrunkedOrderStatistic, payload);
       yield put({
         type: 'getUntrunkOrderStatisticReducer',
         payload: response,
       });
     },
-    *cancelShipAction({ payload }, { call, put }) {
-      return yield call(cancelShipOrder, payload); // post
+    *updateCarFeeAction({ payload }, { call, put }) {
+      console.log(payload);
+      return yield call(updateCarFee, payload); // post
     },
-    *entrunkOrderAction({ payload }, { call, put }) {
-      return yield call(entrunkOrder, payload); // post
+    *updateCarStatusAction({ payload }, { call, put }) {
+      console.log(payload);
+      return yield call(updateCarStatus, payload); // post
     },
-    *changeOrderReceiverAction({ payload }, { call, put }) {
-      return yield call(changeOrderReceiver, payload); // post
+    *cancelEntrunkAction({ payload }, { call, put }) {
+      console.log(payload);
+      return yield call(cancelEntrunk, payload); // post
     },
   },
 

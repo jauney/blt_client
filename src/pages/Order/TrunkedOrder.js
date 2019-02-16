@@ -51,35 +51,20 @@ const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
   };
 })
 @Form.create()
-class CreateReceiverForm extends PureComponent {
+class CreateDepartForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {};
   }
 
   getModalContent = () => {
-    const {
-      form: { getFieldDecorator },
-      receiverList,
-    } = this.props;
+    const { lastCar, currentCompany } = this.props;
 
     return (
       <Form layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={12} sm={24}>
-            <FormItem label="接货人">
-              {getFieldDecorator('receiver_id', {})(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
-                  {receiverList.map(ele => {
-                    return (
-                      <Option key={ele.courier_id} value={ele.courier_id}>
-                        {ele.courier_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
+            {`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}
           </Col>
         </Row>
       </Form>
@@ -88,43 +73,31 @@ class CreateReceiverForm extends PureComponent {
 
   onOkHandler = e => {
     e.preventDefault();
-    const { dispatch, form, receiverList, selectedRows, onReceiverModalCancel } = this.props;
+    const { dispatch, form, onDepartModalCancel, lastCar, onSearch } = this.props;
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-      const orderIds = selectedRows.map(item => {
-        return item.order_id;
-      });
-      const receivers = receiverList.filter(item => {
-        if (item.courier_id == fieldsValue.receiver_id) {
-          return item;
-        }
-      });
-
-      fieldsValue.order_id = orderIds;
-      fieldsValue.receiver_name = receivers[0] && receivers[0].courier_name;
-      console.log(fieldsValue);
       const result = await dispatch({
-        type: 'trunkedorder/changeOrderReceiverAction',
+        type: 'trunkedorder/departCarAction',
         payload: fieldsValue,
       });
 
       if (result.code == 0) {
-        onReceiverModalCancel();
+        onDepartModalCancel();
+        onSearch();
       }
     });
   };
 
   render() {
-    const { modalVisible, onReceiverModalCancel } = this.props;
+    const { modalVisible, onDepartModalCancel } = this.props;
     return (
       <Modal
-        title="更改接货人"
+        title="发车"
         className={styles.standardListForm}
         width={640}
         destroyOnClose
         visible={modalVisible}
         onOk={this.onOkHandler}
-        onCancel={onReceiverModalCancel}
+        onCancel={onDepartModalCancel}
       >
         {this.getModalContent()}
       </Modal>
@@ -190,40 +163,15 @@ class CreateEntrunkForm extends PureComponent {
 
   onOkHandler = e => {
     e.preventDefault();
-    const {
-      dispatch,
-      form,
-      selectedRows,
-      onEntrunkModalCancel,
-      carList = [],
-      onSearch,
-    } = this.props;
+    const { dispatch, form, onEntrunkModalCancel, lastCar, onSearch } = this.props;
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
-      const orderIds = selectedRows.map(item => {
-        return item.order_id;
-      });
-      if (fieldsValue.car_date && fieldsValue.car_date.valueOf) {
-        fieldsValue.car_date = fieldsValue.car_date.valueOf() + '';
-      }
-      const cars = carList.filter(item => {
-        if (item.car_id == fieldsValue.car_id) {
-          return item;
-        }
-      });
-      if (cars.length <= 0) {
-        fieldsValue.car_no = fieldsValue.car_id;
-        fieldsValue.car_id = 0;
-      } else {
-        fieldsValue.car_no = cars[0].car_no;
-        fieldsValue.car_id = Number(fieldsValue.car_id);
-      }
-      fieldsValue.car_fee = Number(fieldsValue.car_fee || 0);
 
       console.log(fieldsValue);
+      fieldsValue.car_fee = Number(fieldsValue.car_fee);
       const result = await dispatch({
-        type: 'trunkedorder/entrunkOrderAction',
-        payload: { order_id: orderIds, car: fieldsValue },
+        type: 'trunkedorder/updateCarFeeAction',
+        payload: Object.assign(lastCar, fieldsValue),
       });
 
       if (result.code == 0) {
@@ -270,11 +218,13 @@ class TableList extends PureComponent {
     formValues: {},
     current: 1,
     pageSize: 20,
-    receiverModalVisible: false,
     entrunkModalVisible: false,
-    cancelShipModalVisible: false,
+    departModalVisible: false,
+    cancelDepartModalVisible: false,
+    arriveModalVisible: false,
+    cancelArriveModalVisible: false,
+    cancelEntrunkModalVisible: false,
     currentCompany: {},
-    currentCar: {},
   };
 
   columns = [
@@ -424,11 +374,6 @@ class TableList extends PureComponent {
     if (sorter.field) {
       params.sorter = `${sorter.field}_${sorter.order}`;
     }
-
-    dispatch({
-      type: 'rule/fetch',
-      payload: params,
-    });
   };
 
   handleFormReset = () => {
@@ -449,18 +394,24 @@ class TableList extends PureComponent {
     });
   };
 
-  onCompanySelect = (value, option) => {
+  onCompanySelect = async (value, option) => {
     const {
       dispatch,
       company: { branchCompanyList },
+      form,
+      car: { lastCar },
     } = this.props;
 
     // 自动更新货车编号
-    dispatch({
+    const carInfo = await dispatch({
       type: 'car/getLastCarCodeAction',
       payload: {
         company_id: value,
       },
+    });
+    console.log(carInfo);
+    form.setFieldsValue({
+      car_code: carInfo.car_code,
     });
 
     const currentCompany = branchCompanyList.filter(item => {
@@ -513,40 +464,215 @@ class TableList extends PureComponent {
     });
   };
 
-  // 取消装回
-  onCancelShipOk = async () => {
-    const { selectedRows } = this.state;
-    const { dispatch } = this.props;
-    const orderIds = [];
-    selectedRows.forEach(item => {
-      orderIds.push(item.order_id);
+  // 取消装车
+  onCancelEntrunkOk = async () => {
+    const {
+      dispatch,
+      selectedRows,
+      car: { lastCar },
+    } = this.props;
+    const orderIds = selectedRows.map(item => {
+      return item.order_id;
     });
-
-    const result = await dispatch({
-      type: 'trunkedorder/cancelShipAction',
-      payload: { order_id: orderIds },
+    let result = await dispatch({
+      type: 'trunkedorder/cancelEntrunkAction',
+      payload: { order_id: orderIds, car: lastCar },
     });
-
     if (result.code == 0) {
-      this.handleSearch();
-      message.success('取消装回成功');
-      this.onCancelShipCancel();
+      message.success('取消装车成功！');
+      this.onCancelEntrunkCancel();
+    } else {
+      message.error(result.msg);
     }
   };
 
-  onCancelShipCancel = () => {
+  onCancelEntrunk = async () => {
     this.setState({
-      cancelShipModalVisible: false,
+      cancelEntrunkModalVisible: true,
     });
   };
 
-  onCancelShip = () => {
+  onCancelEntrunkCancel = async () => {
     this.setState({
-      cancelShipModalVisible: true,
+      cancelEntrunkModalVisible: false,
     });
   };
 
-  onChangeReceiver = () => {};
+  // 发车
+  onDepark = async () => {
+    this.setState({
+      departModalVisible: true,
+    });
+  };
+
+  onDepartCancel = async () => {
+    this.setState({
+      departModalVisible: false,
+    });
+  };
+
+  onDepartOk = async () => {
+    const {
+      dispatch,
+      car: { lastCar },
+    } = this.props;
+    const { currentCompany } = this.state;
+    let result = await dispatch({
+      type: 'trunkedorder/updateCarStatusAction',
+      payload: {
+        car_id: lastCar.car_id,
+        car_status: 3,
+        car_code: lastCar.car_code,
+        company_id: currentCompany.company_id,
+      },
+    });
+    if (result.code == 0) {
+      message.success('发车成功！');
+
+      // 自动更新货车编号
+      await dispatch({
+        type: 'car/getLastCarCodeAction',
+        payload: {
+          company_id: currentCompany.company_id,
+        },
+      });
+      this.onDepartCancel();
+    } else {
+      message.error(result.msg);
+    }
+  };
+
+  // 取消发车
+  onCancelDepark = async () => {
+    this.setState({
+      cancelDepartModalVisible: true,
+    });
+  };
+
+  onCancelDepartCancel = async () => {
+    this.setState({
+      cancelDepartModalVisible: false,
+    });
+  };
+
+  onCancelDepartOk = async () => {
+    const {
+      dispatch,
+      car: { lastCar },
+    } = this.props;
+    const { currentCompany } = this.state;
+    let result = await dispatch({
+      type: 'trunkedorder/updateCarStatusAction',
+      payload: {
+        car_id: lastCar.car_id,
+        car_status: 2,
+        car_code: lastCar.car_code,
+        company_id: currentCompany.company_id,
+      },
+    });
+    if (result.code == 0) {
+      message.success('取消发车成功！');
+
+      // 自动更新货车编号
+      await dispatch({
+        type: 'car/getLastCarCodeAction',
+        payload: {
+          company_id: currentCompany.company_id,
+        },
+      });
+      this.onCancelDepartCancel();
+    } else {
+      message.error(result.msg);
+    }
+  };
+
+  // 到车
+  onArrive = async () => {
+    this.setState({
+      arriveModalVisible: true,
+    });
+  };
+
+  onArriveCancel = async () => {
+    this.setState({
+      arriveModalVisible: false,
+    });
+  };
+
+  onArriveOk = async () => {
+    const {
+      dispatch,
+      car: { lastCar },
+    } = this.props;
+    const { currentCompany } = this.state;
+    let result = await dispatch({
+      type: 'trunkedorder/updateCarStatusAction',
+      payload: {
+        car_id: lastCar.car_id,
+        car_status: 4,
+        car_code: lastCar.car_code,
+        company_id: currentCompany.company_id,
+      },
+    });
+    if (result.code == 0) {
+      message.success('到车确认成功！');
+
+      // 自动更新货车编号
+      await dispatch({
+        type: 'car/getLastCarCodeAction',
+        payload: {
+          company_id: currentCompany.company_id,
+        },
+      });
+      this.onArriveCancel();
+    } else {
+      message.error(result.msg);
+    }
+  };
+
+  // 取消到车
+  onCancelArrive = async () => {
+    this.setState({
+      cancelArriveModalVisible: true,
+    });
+  };
+
+  onCancelArriveCancel = async () => {
+    this.setState({
+      cancelArriveModalVisible: false,
+    });
+  };
+
+  onCancelArriveOk = async () => {
+    const {
+      dispatch,
+      car: { lastCar },
+    } = this.props;
+    const { currentCompany } = this.state;
+    let result = await dispatch({
+      type: 'trunkedorder/updateCarStatusAction',
+      payload: {
+        car_id: lastCar.car_id,
+        car_status: 3,
+        car_code: lastCar.car_code,
+        company_id: currentCompany.company_id,
+      },
+    });
+    if (result.code == 0) {
+      message.success('取消到车成功！');
+
+      // 自动更新货车编号
+      await dispatch({
+        type: 'car/getLastCarCodeAction',
+        payload: {
+          company_id: currentCompany.company_id,
+        },
+      });
+      this.onCancelArriveCancel();
+    } else {
+      message.error(result.msg);
+    }
+  };
 
   /**
    * 装车弹窗
@@ -564,27 +690,11 @@ class TableList extends PureComponent {
     });
   };
 
-  /**
-   * 接货人弹窗
-   */
-  onReceiverModalCancel = () => {
-    this.setState({
-      receiverModalVisible: false,
-    });
-  };
-
-  onReceiverModalShow = () => {
-    this.setState({
-      receiverModalVisible: true,
-    });
-  };
-
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
       site: { entrunkSiteList, normalSiteList },
-      receiver: { receiverList },
       car: { lastCar },
     } = this.props;
     const companyOption = {};
@@ -671,20 +781,21 @@ class TableList extends PureComponent {
     const {
       trunkedorder: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },
-      receiver: { receiverList },
-      site: { entrunkSiteList },
       car: { carList, lastCar },
       loading,
     } = this.props;
 
     const {
       selectedRows,
-      receiverModalVisible,
       current,
       pageSize,
       entrunkModalVisible,
       currentCompany,
-      cancelShipModalVisible,
+      departModalVisible,
+      cancelDepartModalVisible,
+      arriveModalVisible,
+      cancelArriveModalVisible,
+      cancelEntrunkModalVisible,
     } = this.state;
 
     return (
@@ -696,10 +807,11 @@ class TableList extends PureComponent {
               <Button type="primary" onClick={this.onEntrunkModalShow}>
                 货车信息
               </Button>
-              <Button onClick={this.onDepark}>发车</Button>
-              <Button onClick={this.onCancelDepark}>取消发车</Button>
-              <Button onClick={this.onArrive}>到车确认</Button>
-              <Button onClick={this.onCancelArrive}>取消到车</Button>
+              {lastCar.car_status < 3 && <Button onClick={this.onDepark}>发车</Button>}
+              {lastCar.car_status == 3 && <Button onClick={this.onCancelDepark}>取消发车</Button>}
+              {lastCar.car_status == 3 && <Button onClick={this.onArrive}>到车确认</Button>}
+              {lastCar.car_status == 4 && <Button onClick={this.onCancelArrive}>取消到车</Button>}
+
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onCancelEntrunk}>取消货物装车</Button>
@@ -737,21 +849,49 @@ class TableList extends PureComponent {
           lastCar={lastCar}
           onSearch={this.handleSearch}
         />
-        <CreateReceiverForm
-          receiverList={receiverList}
-          entrunkSiteList={entrunkSiteList}
-          modalVisible={receiverModalVisible}
-          selectedRows={selectedRows}
-          currentCompany={currentCompany}
-          onReceiverModalCancel={this.onReceiverModalCancel}
-        />
         <Modal
           title="确认"
-          visible={cancelShipModalVisible}
-          onOk={this.onCancelShipOk}
-          onCancel={this.onCancelShipCancel}
+          visible={departModalVisible}
+          onOk={this.onDepartOk}
+          onCancel={this.onDepartCancel}
         >
-          <p>您确认要取消装回么？</p>
+          <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
+          <p>您确认发车么？</p>
+        </Modal>
+        <Modal
+          title="确认"
+          visible={cancelDepartModalVisible}
+          onOk={this.onCancelDepartOk}
+          onCancel={this.onCancelDepartCancel}
+        >
+          <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
+          <p>您确认取消发车么？</p>
+        </Modal>
+        <Modal
+          title="确认"
+          visible={arriveModalVisible}
+          onOk={this.onArriveOk}
+          onCancel={this.onArriveCancel}
+        >
+          <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
+          <p>您确认该车已经抵达了么？</p>
+        </Modal>
+        <Modal
+          title="确认"
+          visible={cancelArriveModalVisible}
+          onOk={this.onCancelArriveOk}
+          onCancel={this.onCancelArriveCancel}
+        >
+          <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
+          <p>您确认取消该车抵达状态么？</p>
+        </Modal>
+        <Modal
+          title="确认"
+          visible={cancelEntrunkModalVisible}
+          onOk={this.onCancelEntrunkOk}
+          onCancel={this.onCancelEntrunkCancel}
+        >
+          <p>您确认要取消勾选的 {`${selectedRows.length}`}单 货物装车么？</p>
         </Modal>
       </div>
     );

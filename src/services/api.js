@@ -614,6 +614,28 @@ export async function entrunkOrder(params) {
     });
 }
 
+export async function cancelEntrunk(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation cancelEntrunk($order_id: [Int], $car: CarInput) {
+          cancelEntrunk(order_id: $order_id, car: $car) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.cancelEntrunk;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
 export async function changeOrderReceiver(params) {
   return client
     .mutate({
@@ -639,6 +661,57 @@ export async function changeOrderReceiver(params) {
     });
 }
 
+export async function updateCarFee(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation updateCarFee($car_id: Int, $car_fee: Float) {
+          updateCarFee(car_id: $car_id, car_fee: $car_fee) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.updateCarFee;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function updateCarStatus(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation updateCarStatus(
+          $car_id: Int
+          $car_status: Int
+          $car_code: String
+          $company_id: Int
+        ) {
+          updateCarStatus(
+            car_id: $car_id
+            car_status: $car_status
+            car_code: $car_code
+            company_id: $company_id
+          ) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.updateCarStatus;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
 // 接货人
 export async function queryReceiverList(params) {
   return client
