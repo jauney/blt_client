@@ -27,7 +27,7 @@ import {
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
-import styles from './UntrunkOrder.less';
+import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { async } from 'q';
 

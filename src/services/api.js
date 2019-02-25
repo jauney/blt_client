@@ -14,7 +14,7 @@ import gql from 'graphql-tag';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { async } from 'q';
 
-const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3002/graphql' });
+const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3008/graphql' });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
   // add the authorization to the headers
@@ -379,6 +379,56 @@ export async function createOrder(params) {
     .then(data => {
       console.log(data);
       return data.data.createOrder;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function updateOrder(params) {
+  if (params.order && params.order.trans_real) {
+    params.order.trans_real = Number(params.order.trans_real || 0);
+  }
+  if (params.order && params.order.order_real) {
+    params.order.order_real = Number(params.order.order_real || 0);
+  }
+  return client
+    .mutate({
+      mutation: gql`
+        mutation updateOrder($order_id: Int, $order: OrderInput) {
+          updateOrder(order_id: $order_id, order: $order) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.updateOrder;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function settleOrder(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation settleOrder($order_id: [Int]) {
+          settleOrder(order_id: $order_id) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.settleOrder;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };

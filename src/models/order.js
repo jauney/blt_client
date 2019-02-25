@@ -1,6 +1,7 @@
 import {
   getOrderCode,
   createOrder,
+  updateOrder,
   getOrderList,
   deleteOrder,
   getSiteOrderStatistic,
@@ -34,6 +35,12 @@ export default {
         type: 'appendListReducer',
         payload: response,
       });
+      return response;
+    },
+    *updateOrderAction({ payload }, { call, put }) {
+      console.log('update', payload);
+      const response = yield call(updateOrder, payload);
+
       return response;
     },
     *getOrderListAction({ payload }, { call, put }) {

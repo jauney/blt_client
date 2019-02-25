@@ -27,7 +27,7 @@ import {
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
-import styles from './SiteOrder.less';
+import styles from './OrderList.less';
 import { element } from 'prop-types';
 
 const FormItem = Form.Item;
@@ -165,7 +165,6 @@ class CreateForm extends PureComponent {
 
   fetchGetCustomerList = async companyId => {
     const { dispatch } = this.props;
-    const { currentCompany } = this.state;
     dispatch({
       type: 'customer/getCustomerListAction',
       payload: {
