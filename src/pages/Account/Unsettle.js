@@ -431,10 +431,10 @@ class TableList extends PureComponent {
     record: {},
     orderModalVisible: false,
     settleModalVisible: false,
-    cancelDepartModalVisible: false,
-    arriveModalVisible: false,
-    cancelArriveModalVisible: false,
-    cancelEntrunkModalVisible: false,
+    signModalVisible: false,
+    cancelSignModalVisible: false,
+    downloadModalVisible: false,
+    printModalVisible: false,
     currentCompany: {},
   };
 
@@ -694,41 +694,39 @@ class TableList extends PureComponent {
     });
   };
 
-  // 取消装车
-  onCancelEntrunkOk = async () => {
-    const {
-      dispatch,
-      selectedRows,
-      car: { lastCar },
-    } = this.props;
+  // 签字
+  onSignOk = async () => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
     let result = await dispatch({
-      type: 'trunkedorder/cancelEntrunkAction',
-      payload: { order_id: orderIds, car: lastCar },
+      type: 'unsettle/signAction',
+      payload: { order_id: orderIds },
     });
     if (result.code == 0) {
-      message.success('取消装车成功！');
-      this.onCancelEntrunkCancel();
+      message.success('签字成功！');
+      this.handleSearch();
+      this.onSignCancel();
     } else {
       message.error(result.msg);
     }
   };
 
-  onCancelEntrunk = async () => {
+  onSign = async () => {
     this.setState({
-      cancelEntrunkModalVisible: true,
+      signModalVisible: true,
     });
   };
 
-  onCancelEntrunkCancel = async () => {
+  onSignCancel = async () => {
     this.setState({
-      cancelEntrunkModalVisible: false,
+      signModalVisible: false,
     });
   };
 
-  // 发车
+  // 账户核对
   onSettle = async () => {
     const { selectedRows } = this.state;
     let accountStatistic = getSelectedAccount(selectedRows);
@@ -762,140 +760,108 @@ class TableList extends PureComponent {
     }
   };
 
-  // 取消发车
-  onCancelDepark = async () => {
+  // 取消签字
+  onCancelSign = async () => {
     this.setState({
-      cancelDepartModalVisible: true,
+      cancelSignModalVisible: true,
     });
   };
 
-  onCancelDepartCancel = async () => {
+  onCancelSignCancel = async () => {
     this.setState({
-      cancelDepartModalVisible: false,
+      cancelSignModalVisible: false,
     });
   };
 
-  onCancelDepartOk = async () => {
-    const {
-      dispatch,
-      car: { lastCar },
-    } = this.props;
-    const { currentCompany } = this.state;
+  onCancelSignOk = async () => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
+    const orderIds = selectedRows.map(item => {
+      return item.order_id;
+    });
     let result = await dispatch({
-      type: 'trunkedorder/updateCarStatusAction',
+      type: 'unsettle/cancelSignAction',
       payload: {
-        car_id: lastCar.car_id,
-        car_status: 2,
-        car_code: lastCar.car_code,
-        company_id: currentCompany.company_id,
+        order_id: orderIds,
       },
     });
     if (result.code == 0) {
-      message.success('取消发车成功！');
-
-      // 自动更新货车编号
-      await dispatch({
-        type: 'car/getLastCarCodeAction',
-        payload: {
-          company_id: currentCompany.company_id,
-        },
-      });
-      this.onCancelDepartCancel();
+      message.success('取消签字成功！');
+      this.handleSearch();
+      this.onCancelSignCancel();
     } else {
       message.error(result.msg);
     }
   };
 
-  // 到车
-  onArrive = async () => {
+  // 打印
+  onPrint = async () => {
     this.setState({
-      arriveModalVisible: true,
+      printModalVisible: true,
     });
   };
 
-  onArriveCancel = async () => {
+  onPrintCancel = async () => {
     this.setState({
-      arriveModalVisible: false,
+      printModalVisible: false,
     });
   };
 
-  onArriveOk = async () => {
-    const {
-      dispatch,
-      car: { lastCar },
-    } = this.props;
-    const { currentCompany } = this.state;
+  onPrintOk = async () => {
+    const { selectedRows } = this.state;
+    const orderIds = selectedRows.map(item => {
+      return item.order_id;
+    });
     let result = await dispatch({
-      type: 'trunkedorder/updateCarStatusAction',
+      type: 'unsettle/printAction',
       payload: {
-        car_id: lastCar.car_id,
-        car_status: 4,
-        car_code: lastCar.car_code,
-        company_id: currentCompany.company_id,
+        order_id: orderIds,
       },
     });
     if (result.code == 0) {
-      message.success('到车确认成功！');
+      message.success('打印成功！');
 
-      // 自动更新货车编号
-      await dispatch({
-        type: 'car/getLastCarCodeAction',
-        payload: {
-          company_id: currentCompany.company_id,
-        },
-      });
-      this.onArriveCancel();
+      this.onPrintCancel();
     } else {
       message.error(result.msg);
     }
   };
 
-  // 取消到车
-  onCancelArrive = async () => {
+  // 下载
+  onDownload = async () => {
     this.setState({
-      cancelArriveModalVisible: true,
+      downloadModalVisible: true,
     });
   };
 
-  onCancelArriveCancel = async () => {
+  onDownloadCancel = async () => {
     this.setState({
-      cancelArriveModalVisible: false,
+      downloadModalVisible: false,
     });
   };
 
-  onCancelArriveOk = async () => {
-    const {
-      dispatch,
-      car: { lastCar },
-    } = this.props;
-    const { currentCompany } = this.state;
+  onDownloadOk = async () => {
+    const { selectedRows } = this.state;
+    const orderIds = selectedRows.map(item => {
+      return item.order_id;
+    });
     let result = await dispatch({
-      type: 'trunkedorder/updateCarStatusAction',
+      type: 'unsettle/downloadAction',
       payload: {
-        car_id: lastCar.car_id,
-        car_status: 3,
-        car_code: lastCar.car_code,
-        company_id: currentCompany.company_id,
+        order_id: orderIds,
       },
     });
     if (result.code == 0) {
-      message.success('取消到车成功！');
+      message.success('下载成功！');
 
-      // 自动更新货车编号
-      await dispatch({
-        type: 'car/getLastCarCodeAction',
-        payload: {
-          company_id: currentCompany.company_id,
-        },
-      });
-      this.onCancelArriveCancel();
+      this.onDownloadCancel();
     } else {
       message.error(result.msg);
     }
   };
 
   /**
-   * 装车弹窗
+   * 修改订单信息弹窗
    */
   onEntrunkModalShow = () => {
     this.setState({
@@ -1075,12 +1041,11 @@ class TableList extends PureComponent {
       current,
       pageSize,
       orderModalVisible,
-      currentCompany,
       settleModalVisible,
-      cancelDepartModalVisible,
-      arriveModalVisible,
-      cancelArriveModalVisible,
-      cancelEntrunkModalVisible,
+      signModalVisible,
+      cancelSignModalVisible,
+      downloadModalVisible,
+      printModalVisible,
       record,
     } = this.state;
 
@@ -1095,8 +1060,8 @@ class TableList extends PureComponent {
                   <Button onClick={this.onSettle}>账目核对</Button>
                   <Button onClick={this.onSign}>签字</Button>
                   <Button onClick={this.onCancelSign}>取消签字</Button>
-                  <Button onClick={this.onConfirmSettle}>结账打印</Button>
-                  <Button onClick={this.onSettleDownload}>下载</Button>
+                  <Button onClick={this.onPrint}>结账打印</Button>
+                  <Button onClick={this.onDownload}>下载</Button>
                 </span>
               )}
             </div>
@@ -1125,6 +1090,9 @@ class TableList extends PureComponent {
                   },
                 };
               }}
+              rowClassName={(record, index) => {
+                return record.sign_status == 1 ? styles.signColor : '';
+              }}
               footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
             />
           </div>
@@ -1146,38 +1114,35 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
-          visible={cancelDepartModalVisible}
-          onOk={this.onCancelDepartOk}
-          onCancel={this.onCancelDepartCancel}
+          visible={signModalVisible}
+          onOk={this.onSignOk}
+          onCancel={this.onSignCancel}
         >
-          <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
-          <p>您确认取消发车么？</p>
+          <p>您确认签字么？</p>
         </Modal>
         <Modal
           title="确认"
-          visible={arriveModalVisible}
-          onOk={this.onArriveOk}
-          onCancel={this.onArriveCancel}
+          visible={cancelSignModalVisible}
+          onOk={this.onCancelSignOk}
+          onCancel={this.onCancelSignCancel}
         >
-          <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
-          <p>您确认该车已经抵达了么？</p>
+          <p>您确认取消签字么？</p>
         </Modal>
         <Modal
           title="确认"
-          visible={cancelArriveModalVisible}
-          onOk={this.onCancelArriveOk}
-          onCancel={this.onCancelArriveCancel}
+          visible={printModalVisible}
+          onOk={this.onPrintOk}
+          onCancel={this.onPrintCancel}
         >
-          <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
-          <p>您确认取消该车抵达状态么？</p>
+          <p>您确认结账打印么？</p>
         </Modal>
         <Modal
           title="确认"
-          visible={cancelEntrunkModalVisible}
-          onOk={this.onCancelEntrunkOk}
-          onCancel={this.onCancelEntrunkCancel}
+          visible={downloadModalVisible}
+          onOk={this.onDownloadOk}
+          onCancel={this.onDownloadCancel}
         >
-          <p>您确认要取消勾选的 {`${selectedRows.length}`}单 货物装车么？</p>
+          <p>您确认要下载么？</p>
         </Modal>
       </div>
     );

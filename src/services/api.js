@@ -435,6 +435,29 @@ export async function settleOrder(params) {
     });
 }
 
+// 签字、取消签字
+export async function updateOrderSign(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation updateOrderSign($order_id: [Int], $sign_status: Int) {
+          updateOrderSign(order_id: $order_id, sign_status: $sign_status) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.updateOrderSign;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
 export async function getOrderList(params) {
   return client
     .query({

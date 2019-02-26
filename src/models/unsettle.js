@@ -4,6 +4,7 @@ import {
   settleOrder,
   updateCarStatus,
   cancelEntrunk,
+  updateOrderSign,
 } from '@/services/api';
 
 export default {
@@ -40,13 +41,13 @@ export default {
       console.log(payload);
       return yield call(settleOrder, payload); // post
     },
-    *updateCarStatusAction({ payload }, { call, put }) {
-      console.log(payload);
-      return yield call(updateCarStatus, payload); // post
+    *signAction({ payload }, { call, put }) {
+      payload.sign_status = 1;
+      return yield call(updateOrderSign, payload); // post
     },
-    *cancelEntrunkAction({ payload }, { call, put }) {
-      console.log(payload);
-      return yield call(cancelEntrunk, payload); // post
+    *cancelSignAction({ payload }, { call, put }) {
+      payload.sign_status = 0;
+      return yield call(updateOrderSign, payload); // post
     },
   },
 
