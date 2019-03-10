@@ -1,5 +1,9 @@
-// 获取当前列表中勾选的信息 包含记录总数，货款、运费总额等
-// type:cancelsettle 获取取消结算的统计数据
+/**
+ * 获取当前列表中勾选的信息 包含记录总数，货款、运费总额等
+ * type:cancelsettle 获取取消结算的统计数据
+ * @param {*} sltDatas
+ * @param {*} type
+ */
 export function getSelectedAccount(sltDatas, type) {
   let accountData = {};
 
@@ -43,143 +47,42 @@ export function getSelectedAccount(sltDatas, type) {
 }
 
 //获取当前列表中勾选下账信息 包含记录总数，货款、运费总额等
-function getSelectedDownAccount(id, type) {
-  var accountData = {};
+export function getSelectedDownAccount(sltDatas = []) {
+  const accountData = {};
 
-  var sltDatas = getGridSelectRows(id);
-  var totalActualGoodsFunds = 0;
-  var totalTransFunds = 0;
-  var ids = '',
-    checkCodes = '';
-  var result = true;
-  var msg = '';
-  var customerName = '',
-    changed = false,
-    searchCondition = 'customer'; //记录每行的客户姓名是否一样，不一样则查询条件为运单号，一样则查询条件为客户姓名
-  accountData.recordNum = sltDatas.length;
-  var sendCustomerName = '',
-    sendCustomerMobiles = '',
-    bankName = '',
-    bankAccount = '',
-    fixBankAccount = '';
-  var downDialogTable = '';
+  let totalActualGoodsFunds = 0;
+  let totalTransFunds = 0;
+  let sendCustomerId = '';
+  let isSameSendCustomer = true;
   for (var i = 0; i < sltDatas.length; i++) {
     if (i == 0) {
-      sendCustomerName = sltDatas[i]['SendCustomer.customer_name'];
-      bankAccount = sltDatas[i]['bank_account'];
-      bankName = sendCustomerName;
-      fixBankAccount = sltDatas[i]['SendCustomer.customer_bankcode'];
-    } else if (id != 'checkedlist' && bankAccount != sltDatas[i]['bank_account']) {
-      result = false;
-      msg = '勾选的下账记录不属于同一个银行账号，不能同时下账！';
-      break;
-    } else if (id == 'checkedlist' && bankAccount != sltDatas[i]['bank_account']) {
-      bankAccount += ',' + sltDatas[i]['bank_account'];
-      bankName += ',' + sltDatas[i]['SendCustomer.customer_name'];
-    }
-
-    if (customerName === '') {
-      customerName = sltDatas[i]['GetCustomer.customer_name'];
-    }
-
-    if (sendCustomerMobiles.length > 0) {
-      sendCustomerMobiles += ',';
-    }
-
-    sendCustomerMobiles += sltDatas[i]['SendCustomer.customer_mobile'];
-
-    if (
-      customerName !== '' &&
-      changed === false &&
-      sltDatas[i]['GetCustomer.customer_name'] != customerName
-    ) {
-      changed = true;
-      searchCondition = 'checkcode';
-    }
-
-    if (type && type == 'canceldown') {
-      if (sltDatas[i].is_downaccount != 1) {
-        result = false;
-        msg = '您勾选的记录有些没下账，请重新勾选';
-        break;
-      }
-    } else if (sltDatas[i].is_downaccount != 0) {
-      result = false;
-      msg = '您勾选的记录有些已经下完账，请重新勾选';
+      sendCustomerId = sltDatas[i]['sendcustomer_id'];
+    } else if (sendCustomerId && sendCustomerId != sltDatas[i]['sendcustomer_id']) {
+      isSameSendCustomer = false;
       break;
     }
 
     //是否“回付”运费
     if (
-      sltDatas[i].transpay_advance &&
-      sltDatas[i].transpay_advance.indexOf('回') >= 0 &&
-      parseInt(sltDatas[i].should_goodsfund) > 0
+      sltDatas[i].trans_type &&
+      sltDatas[i].trans_type == 3 &&
+      parseInt(sltDatas[i].order_amount) > 0
     ) {
-      totalTransFunds += parseInt(sltDatas[i].should_transfund);
+      totalTransFunds += parseInt(sltDatas[i].trans_discount || sltDatas[i].trans_amount);
     }
 
-    if (
-      sltDatas[i].is_settleaccount == 1 ||
-      (sltDatas[i].is_settleaccount == 0 && sltDatas[i].goodspay_advance == '网')
-    ) {
-      if (
-        /^[0-9]*$/.test(sltDatas[i].actual_goodsfund) &&
-        $.trim(sltDatas[i].actual_goodsfund).length > 0
-      ) {
-        totalActualGoodsFunds += parseInt(sltDatas[i].actual_goodsfund);
+    if (sltDatas[i].order_status == 6) {
+      if (Number(sltDatas[i].order_real) > 0) {
+        totalActualGoodsFunds += parseInt(sltDatas[i].order_real);
       } else {
-        totalActualGoodsFunds += parseInt(sltDatas[i].should_goodsfund);
+        totalActualGoodsFunds += parseInt(sltDatas[i].order_amount);
       }
-    }
-
-    //下账对话框中的详细列表
-    downDialogTable +=
-      '<tr><td style="border:solid 1px #ccc;padding-left:3px;">' +
-      sltDatas[i].check_code +
-      '</td><td style="border:solid 1px #ccc;padding-left:3px;">' +
-      sltDatas[i].actual_goodsfund +
-      '</td><td style="border:solid 1px #ccc;padding-left:3px;">' +
-      sltDatas[i].should_goodsfund +
-      '</td></tr>';
-
-    if (sltDatas[i].check_id) {
-      if (ids.length > 0) {
-        ids += ',';
-      }
-      ids += sltDatas[i].check_id;
-    }
-
-    if (sltDatas[i].check_code) {
-      if (checkCodes.length > 0) {
-        checkCodes += ',';
-      }
-      checkCodes += sltDatas[i].check_code;
-    }
-  }
-
-  if (accountData.recordNum == 0) {
-    result = false;
-    if (type && type == 'canceldown') {
-      msg = '请选择需要取消下账的货物清单！';
-    } else {
-      msg = '请选择需要下账的货物清单！';
     }
   }
 
   accountData.totalActualGoodsFund = totalActualGoodsFunds;
   accountData.totalTransFunds = totalTransFunds;
-  accountData.ids = ids;
-  accountData.checkCodes = checkCodes;
-  accountData.result = result;
-  accountData.msg = msg;
-  accountData.searchCondition = searchCondition;
-  accountData.customerName = customerName;
-  accountData.sendCustomerName = sendCustomerName;
-  accountData.bankAccount = bankAccount;
-  accountData.bankName = bankName;
-  accountData.fixBankAccount = fixBankAccount;
-  accountData.downDialogTable = downDialogTable;
-  accountData.sendCustomerMobiles = sendCustomerMobiles;
+  accountData.isSameSendCustomer = isSameSendCustomer;
 
   return accountData;
 }

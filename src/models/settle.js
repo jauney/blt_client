@@ -1,14 +1,14 @@
 import {
   getOrderList,
   getTrunkedOrderStatistic,
-  settleOrder,
+  cancelSettleOrder,
   updateCarStatus,
   cancelEntrunk,
   updateOrderSign,
 } from '@/services/api';
 
 export default {
-  namespace: 'unsettle',
+  namespace: 'settle',
 
   state: {
     orderList: [],
@@ -21,7 +21,7 @@ export default {
   effects: {
     *getOrderListAction({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
-      payload.filter.order_status = [3, 5];
+      payload.filter.order_status = [6];
 
       const response = yield call(getOrderList, payload);
       yield put({
@@ -37,9 +37,9 @@ export default {
         payload: response,
       });
     },
-    *settleOrderAction({ payload }, { call, put }) {
+    *cancelSettleOrderAction({ payload }, { call, put }) {
       console.log(payload);
-      return yield call(settleOrder, payload); // post
+      return yield call(cancelSettleOrder, payload); // post
     },
     *signAction({ payload }, { call, put }) {
       payload.sign_status = 1;

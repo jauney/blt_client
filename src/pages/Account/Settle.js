@@ -24,9 +24,10 @@ import {
   Radio,
   Tag,
 } from 'antd';
-import { getSelectedAccount } from '@/utils/account';
+import { getSelectedAccount, getSelectedDownAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import styles from './Account.less';
+import { async } from 'q';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -38,6 +39,121 @@ const getValue = obj =>
 const CacheSite = JSON.parse(localStorage.getItem('site') || '{}');
 const CacheCompany = JSON.parse(localStorage.getItem('company') || '{}');
 const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+class DownAccountForm extends PureComponent {
+  state = {
+    agencyFee: 0,
+  };
+
+  onAgencyFeeSelect = (value, option) => {
+    this.setState({
+      agencyFee: value,
+    });
+    console.log(value);
+    console.log(this.state);
+  };
+
+  render() {
+    const { modalVisible, downAccountHandle, downCancel, selectedRows } = this.props;
+    const accountData = getSelectedDownAccount(selectedRows);
+    const record = selectedRows.length > 0 ? selectedRows[0] : {};
+    const { agencyFee } = this.state;
+
+    return (
+      <Modal
+        destroyOnClose
+        title="下账"
+        visible={modalVisible}
+        onCancel={() => downCancel()}
+        footer={[
+          <Button key="btn-cancel" onClick={() => downCancel()}>
+            取 消
+          </Button>,
+          <Button key="btn-save" type="primary" onClick={downAccountHandle}>
+            保 存
+          </Button>,
+        ]}
+        width={800}
+        className={styles.modalForm}
+      >
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col>
+            <FormItem labelCol={{ span: 3, offset: 2 }} label="下账条数">
+              {selectedRows.length}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col>
+            <FormItem labelCol={{ span: 3, offset: 2 }} label="下账总金额">
+              {accountData.totalActualGoodsFund || '0'} - 代办费 *
+              <Select
+                placeholder="请选择"
+                defaultValue="0"
+                onSelect={this.onAgencyFeeSelect}
+                style={{ width: '80px' }}
+              >
+                <Option value="0">0‰</Option>
+                <Option value="1">1‰</Option>
+                <Option value="2">2‰</Option>
+                <Option value="3">3‰</Option>
+                <Option value="4">4‰</Option>
+                <Option value="5">5‰</Option>
+              </Select>
+              {accountData.totalTransFunds ? (
+                <span> `- (运费) ${accountData.totalTransFunds}`</span>
+              ) : (
+                <span />
+              )}
+              ={' '}
+              {accountData.totalActualGoodsFund -
+                Number((accountData.totalActualGoodsFund * agencyFee) / 1000).toFixed(2) -
+                accountData.totalTransFunds || 0}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col>
+            <FormItem labelCol={{ span: 3, offset: 2 }} label="户主">
+              {record.getcustomer_name || ''}
+            </FormItem>
+          </Col>
+          <Col>
+            <FormItem labelCol={{ span: 3, offset: 2 }} label="账户">
+              {record.bank_account || ''}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col>
+            <FormItem labelCol={{ span: 3, offset: 2 }} className={styles.tableDetail} label="明细">
+              <table>
+                <thead>
+                  <tr>
+                    <th>运单号</th>
+                    <th>实收货款</th>
+                    <th>应收货款</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedRows.map(item => {
+                    return (
+                      <tr>
+                        <td>{item.order_code}</td>
+                        <td>{item.order_real}</td>
+                        <td>{item.order_amount}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </FormItem>
+          </Col>
+        </Row>
+      </Modal>
+    );
+  }
+}
 
 @Form.create()
 class CreateForm extends PureComponent {
@@ -409,11 +525,11 @@ class CreateEntrunkForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, unsettle, site, car, receiver, loading }) => {
+@connect(({ customer, company, settle, site, car, receiver, loading }) => {
   return {
     customer,
     company,
-    unsettle,
+    settle,
     site,
     car,
     receiver,
@@ -431,6 +547,7 @@ class TableList extends PureComponent {
     record: {},
     orderModalVisible: false,
     settleModalVisible: false,
+    downModalVisible: false,
     signModalVisible: false,
     cancelSignModalVisible: false,
     downloadModalVisible: false,
@@ -683,50 +800,37 @@ class TableList extends PureComponent {
       });
 
       dispatch({
-        type: 'unsettle/getOrderListAction',
+        type: 'settle/getOrderListAction',
         payload: { pageNo: 1, pageSize: 20, filter: values },
       });
 
       dispatch({
-        type: 'unsettle/getSiteOrderStatisticAction',
+        type: 'settle/getSiteOrderStatisticAction',
         payload: { company_id: fieldsValue.company_id, site_id: fieldsValue.site_id },
       });
     });
   };
 
   // 签字
-  onSignOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'unsettle/signAction',
-      payload: { order_id: orderIds },
-    });
-    if (result.code == 0) {
-      message.success('签字成功！');
-      this.handleSearch();
-      this.onSignCancel();
-    } else {
-      message.error(result.msg);
-    }
+
+  downAccountHandle = async () => {
+    // 下账
   };
 
-  onSign = async () => {
+  // 打开下账对话框
+  onDownAccount = async () => {
     this.setState({
-      signModalVisible: true,
+      downModalVisible: true,
     });
   };
 
-  onSignCancel = async () => {
+  onDownCancel = async () => {
     this.setState({
-      signModalVisible: false,
+      downModalVisible: false,
     });
   };
 
-  // 账户核对
+  // 取消账户核对
   onSettle = async () => {
     const { selectedRows } = this.state;
     let accountStatistic = getSelectedAccount(selectedRows);
@@ -746,13 +850,13 @@ class TableList extends PureComponent {
       return item.order_id;
     });
     let result = await dispatch({
-      type: 'unsettle/settleOrderAction',
+      type: 'settle/cancelSettleOrderAction',
       payload: {
         order_id: orderIds,
       },
     });
     if (result.code == 0) {
-      message.success('核对成功！');
+      message.success('取消核对成功！');
 
       this.onSettleCancel();
     } else {
@@ -780,7 +884,7 @@ class TableList extends PureComponent {
       return item.order_id;
     });
     let result = await dispatch({
-      type: 'unsettle/cancelSignAction',
+      type: 'settle/cancelSignAction',
       payload: {
         order_id: orderIds,
       },
@@ -813,7 +917,7 @@ class TableList extends PureComponent {
       return item.order_id;
     });
     let result = await dispatch({
-      type: 'unsettle/printAction',
+      type: 'settle/printAction',
       payload: {
         order_id: orderIds,
       },
@@ -846,7 +950,7 @@ class TableList extends PureComponent {
       return item.order_id;
     });
     let result = await dispatch({
-      type: 'unsettle/downloadAction',
+      type: 'settle/downloadAction',
       payload: {
         order_id: orderIds,
       },
@@ -1029,9 +1133,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      unsettle: { orderList, total, totalOrderAmount, totalTransAmount },
-      company: { branchCompanyList },
-      car: { carList, lastCar },
+      settle: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,
     } = this.props;
 
@@ -1042,6 +1144,7 @@ class TableList extends PureComponent {
       pageSize,
       orderModalVisible,
       settleModalVisible,
+      downModalVisible,
       signModalVisible,
       cancelSignModalVisible,
       downloadModalVisible,
@@ -1057,11 +1160,10 @@ class TableList extends PureComponent {
             <div className={styles.tableListOperator}>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button onClick={this.onSettle}>账目核对</Button>
-                  <Button onClick={this.onSign}>签字</Button>
-                  <Button onClick={this.onCancelSign}>取消签字</Button>
-                  <Button onClick={this.onPrint}>结账打印</Button>
-                  <Button onClick={this.onDownload}>下载</Button>
+                  <Button onClick={this.onSettle}>取消结算</Button>
+                  <Button onClick={this.onDownAccount}>下账</Button>
+                  <Button onClick={this.onCancelSign}>取消下账</Button>
+                  <Button onClick={this.onPrint}>打印</Button>
                 </span>
               )}
             </div>
@@ -1103,13 +1205,21 @@ class TableList extends PureComponent {
           onCancelModal={this.onEntrunkModalCancel}
           onUpdateOrder={this.onUpdateOrder}
         />
+        <DownAccountForm
+          modalVisible={downModalVisible}
+          downAccountHandle={this.downAccountHandle}
+          downCancel={this.onDownCancel}
+          selectedRows={selectedRows}
+        />
         <Modal
-          title="确认结账"
+          title="取消结账"
           visible={settleModalVisible}
           onOk={this.onSettleOk}
           onCancel={this.onSettleCancel}
         >
-          <p>{`结算货款条数${selectedRows.length}，结算总额 ${accountStatistic.totalAccount} `}</p>
+          <p>{`取消结算货款条数${selectedRows.length}，取消结算总额 ${
+            accountStatistic.totalAccount
+          } `}</p>
           <p>您确认结账么？</p>
         </Modal>
         <Modal
