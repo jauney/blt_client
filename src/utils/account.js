@@ -66,16 +66,16 @@ export function getSelectedDownAccount(sltDatas = []) {
     if (
       sltDatas[i].trans_type &&
       sltDatas[i].trans_type == 3 &&
-      parseInt(sltDatas[i].order_amount) > 0
+      Number(sltDatas[i].order_amount) > 0
     ) {
-      totalTransFunds += parseInt(sltDatas[i].trans_discount || sltDatas[i].trans_amount);
+      totalTransFunds += Number(sltDatas[i].trans_discount || sltDatas[i].trans_amount);
     }
 
     if (sltDatas[i].order_status == 6) {
       if (Number(sltDatas[i].order_real) > 0) {
-        totalActualGoodsFunds += parseInt(sltDatas[i].order_real);
+        totalActualGoodsFunds += Number(sltDatas[i].order_real);
       } else {
-        totalActualGoodsFunds += parseInt(sltDatas[i].order_amount);
+        totalActualGoodsFunds += Number(sltDatas[i].order_amount);
       }
     }
   }

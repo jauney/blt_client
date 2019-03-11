@@ -2,8 +2,7 @@ import {
   getOrderList,
   getTrunkedOrderStatistic,
   cancelSettleOrder,
-  updateCarStatus,
-  cancelEntrunk,
+  downAccount,
   updateOrderSign,
 } from '@/services/api';
 
@@ -41,9 +40,8 @@ export default {
       console.log(payload);
       return yield call(cancelSettleOrder, payload); // post
     },
-    *signAction({ payload }, { call, put }) {
-      payload.sign_status = 1;
-      return yield call(updateOrderSign, payload); // post
+    *downAccountAction({ payload }, { call, put }) {
+      return yield call(downAccount, payload); // post
     },
     *cancelSignAction({ payload }, { call, put }) {
       payload.sign_status = 0;

@@ -53,8 +53,14 @@ class DownAccountForm extends PureComponent {
     console.log(this.state);
   };
 
+  onDownAccountHandler = () => {
+    const { downAccountHandle } = this.props;
+    const { agencyFee } = this.state;
+    downAccountHandle(agencyFee);
+  };
+
   render() {
-    const { modalVisible, downAccountHandle, downCancel, selectedRows } = this.props;
+    const { modalVisible, downCancel, selectedRows } = this.props;
     const accountData = getSelectedDownAccount(selectedRows);
     const record = selectedRows.length > 0 ? selectedRows[0] : {};
     const { agencyFee } = this.state;
@@ -69,7 +75,7 @@ class DownAccountForm extends PureComponent {
           <Button key="btn-cancel" onClick={() => downCancel()}>
             取 消
           </Button>,
-          <Button key="btn-save" type="primary" onClick={downAccountHandle}>
+          <Button key="btn-save" type="primary" onClick={this.onDownAccountHandler}>
             保 存
           </Button>,
         ]}
@@ -774,8 +780,6 @@ class TableList extends PureComponent {
   };
 
   handleSearch = e => {
-    e && e.preventDefault();
-
     const { dispatch, form } = this.props;
     const { currentCompany } = this.state;
 
@@ -811,10 +815,10 @@ class TableList extends PureComponent {
     });
   };
 
-  // 签字
+  // 下账
 
-  downAccountHandle = async () => {
-    // 下账
+  downAccountHandle = async rate => {
+    const { dispatch, form } = this.props;
   };
 
   // 打开下账对话框

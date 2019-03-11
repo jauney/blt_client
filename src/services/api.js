@@ -456,6 +456,48 @@ export async function cancelSettleOrder(params) {
     });
 }
 
+export async function downAccount(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation downAccountOrder($order_id: [Int], $rate: Float) {
+          downAccountOrder(order_id: $order_id, rate: $rate) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.downAccountOrder;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function cancelDownAccountOrder(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation cancelDownAccountOrder($order_id: [Int]) {
+          cancelDownAccountOrder(order_id: $order_id) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.cancelDownAccountOrder;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
 // 签字、取消签字
 export async function updateOrderSign(params) {
   return client
