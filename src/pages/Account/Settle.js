@@ -40,10 +40,14 @@ const CacheSite = JSON.parse(localStorage.getItem('site') || '{}');
 const CacheCompany = JSON.parse(localStorage.getItem('company') || '{}');
 const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
 
+@Form.create()
 class DownAccountForm extends PureComponent {
-  state = {
-    agencyFee: 0,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      agencyFee: 0,
+    };
+  }
 
   onAgencyFeeSelect = (value, option) => {
     this.setState({
@@ -54,17 +58,21 @@ class DownAccountForm extends PureComponent {
   };
 
   onDownAccountHandler = () => {
-    const { downAccountHandle } = this.props;
+    const { downAccountHandle, form } = this.props;
     const { agencyFee } = this.state;
-    downAccountHandle(agencyFee);
+    form.validateFields((err, fieldsValue) => {
+      console.log(fieldsValue);
+      if (err) return;
+
+      downAccountHandle({ rate: agencyFee, bank_account: fieldsValue.bank_account });
+    });
   };
 
   render() {
-    const { modalVisible, downCancel, selectedRows } = this.props;
+    const { modalVisible, downCancel, selectedRows, form } = this.props;
     const accountData = getSelectedDownAccount(selectedRows);
     const record = selectedRows.length > 0 ? selectedRows[0] : {};
     const { agencyFee } = this.state;
-
     return (
       <Modal
         destroyOnClose
@@ -82,80 +90,88 @@ class DownAccountForm extends PureComponent {
         width={800}
         className={styles.modalForm}
       >
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col>
-            <FormItem labelCol={{ span: 3, offset: 2 }} label="下账条数">
-              {selectedRows.length}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col>
-            <FormItem labelCol={{ span: 3, offset: 2 }} label="下账总金额">
-              {accountData.totalActualGoodsFund || '0'} - 代办费 *
-              <Select
-                placeholder="请选择"
-                defaultValue="0"
-                onSelect={this.onAgencyFeeSelect}
-                style={{ width: '80px' }}
+        <Form>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="下账条数">
+                {selectedRows.length}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="下账总金额">
+                {accountData.totalActualGoodsFund || '0'} - 代办费 *
+                <Select
+                  placeholder="请选择"
+                  defaultValue="0"
+                  onSelect={this.onAgencyFeeSelect}
+                  style={{ width: '80px' }}
+                >
+                  <Option value="0">0‰</Option>
+                  <Option value="1">1‰</Option>
+                  <Option value="2">2‰</Option>
+                  <Option value="3">3‰</Option>
+                  <Option value="4">4‰</Option>
+                  <Option value="5">5‰</Option>
+                </Select>
+                {accountData.totalTransFunds ? (
+                  <span> `- (运费) ${accountData.totalTransFunds}`</span>
+                ) : (
+                  <span />
+                )}
+                ={' '}
+                {accountData.totalActualGoodsFund -
+                  Number((accountData.totalActualGoodsFund * agencyFee) / 1000).toFixed(2) -
+                  accountData.totalTransFunds || 0}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="户主">
+                {record.getcustomer_name || ''}
+              </FormItem>
+            </Col>
+            <Col>
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="账户">
+                {form.getFieldDecorator('bank_account', { initialValue: record.bank_account })(
+                  <Input placeholder="请输入" style={{ width: '280px' }} />
+                )}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem
+                labelCol={{ span: 3, offset: 2 }}
+                className={styles.tableDetail}
+                label="明细"
               >
-                <Option value="0">0‰</Option>
-                <Option value="1">1‰</Option>
-                <Option value="2">2‰</Option>
-                <Option value="3">3‰</Option>
-                <Option value="4">4‰</Option>
-                <Option value="5">5‰</Option>
-              </Select>
-              {accountData.totalTransFunds ? (
-                <span> `- (运费) ${accountData.totalTransFunds}`</span>
-              ) : (
-                <span />
-              )}
-              ={' '}
-              {accountData.totalActualGoodsFund -
-                Number((accountData.totalActualGoodsFund * agencyFee) / 1000).toFixed(2) -
-                accountData.totalTransFunds || 0}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col>
-            <FormItem labelCol={{ span: 3, offset: 2 }} label="户主">
-              {record.getcustomer_name || ''}
-            </FormItem>
-          </Col>
-          <Col>
-            <FormItem labelCol={{ span: 3, offset: 2 }} label="账户">
-              {record.bank_account || ''}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col>
-            <FormItem labelCol={{ span: 3, offset: 2 }} className={styles.tableDetail} label="明细">
-              <table>
-                <thead>
-                  <tr>
-                    <th>运单号</th>
-                    <th>实收货款</th>
-                    <th>应收货款</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedRows.map(item => {
-                    return (
-                      <tr>
-                        <td>{item.order_code}</td>
-                        <td>{item.order_real}</td>
-                        <td>{item.order_amount}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </FormItem>
-          </Col>
-        </Row>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>运单号</th>
+                      <th>实收货款</th>
+                      <th>应收货款</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedRows.map(item => {
+                      return (
+                        <tr>
+                          <td>{item.order_code}</td>
+                          <td>{item.order_real}</td>
+                          <td>{item.order_amount}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </FormItem>
+            </Col>
+          </Row>
+        </Form>
       </Modal>
     );
   }
@@ -780,17 +796,10 @@ class TableList extends PureComponent {
   };
 
   handleSearch = e => {
-    const { dispatch, form } = this.props;
-    const { currentCompany } = this.state;
+    e && e.preventDefault();
 
-    // 获取当前货车编号信息
-    dispatch({
-      type: 'car/getLastCarCodeAction',
-      payload: {
-        company_id: currentCompany.company_id,
-        car_code: form.getFieldValue('car_code') || '',
-      },
-    });
+    const { dispatch, form } = this.props;
+
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
@@ -816,9 +825,28 @@ class TableList extends PureComponent {
   };
 
   // 下账
+  downAccountHandle = async data => {
+    console.log(data);
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
+    const orderIds = selectedRows.map(item => {
+      return item.order_id;
+    });
+    const result = await dispatch({
+      type: 'settle/downAccountAction',
+      payload: {
+        order_id: orderIds,
+        rate: data.rate,
+        bank_account: data.bank_account,
+      },
+    });
+    if (result.code == 0) {
+      message.success('下账成功！');
 
-  downAccountHandle = async rate => {
-    const { dispatch, form } = this.props;
+      this.onDownCancel();
+    } else {
+      message.error(result.msg);
+    }
   };
 
   // 打开下账对话框

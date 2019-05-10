@@ -457,11 +457,12 @@ export async function cancelSettleOrder(params) {
 }
 
 export async function downAccount(params) {
+  console.log('api.... ', params);
   return client
     .mutate({
       mutation: gql`
-        mutation downAccountOrder($order_id: [Int], $rate: Float) {
-          downAccountOrder(order_id: $order_id, rate: $rate) {
+        mutation downAccountOrder($order_id: [Int], $rate: Float, $bank_account: String) {
+          downAccountOrder(order_id: $order_id, rate: $rate, bank_account: $bank_account) {
             code
             msg
           }

@@ -660,16 +660,7 @@ class TableList extends PureComponent {
     e && e.preventDefault();
 
     const { dispatch, form } = this.props;
-    const { currentCompany } = this.state;
 
-    // 获取当前货车编号信息
-    dispatch({
-      type: 'car/getLastCarCodeAction',
-      payload: {
-        company_id: currentCompany.company_id,
-        car_code: form.getFieldValue('car_code') || '',
-      },
-    });
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
