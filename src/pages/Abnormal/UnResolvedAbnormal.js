@@ -26,8 +26,10 @@ import {
 } from 'antd';
 import { getSelectedAccount, getSelectedDownAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
-import styles from './Account.less';
+import styles from './Abnormal.less';
 import { async } from 'q';
+import { fileToObject } from 'antd/lib/upload/utils';
+const { RangePicker } = DatePicker;
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -45,38 +47,75 @@ class DownAccountForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      agencyFee: 0,
+      abnormal_type_id: '',
+      abnormal_type: '',
+    };
+    this.formItemLayout = {
+      labelCol: {
+        xs: { span: 18 },
+        sm: { span: 5 },
+      },
+      wrapperCol: {
+        xs: { span: 18 },
+        sm: { span: 8 },
+      },
     };
   }
 
-  onAgencyFeeSelect = (value, option) => {
+  onAbnormalSelect = (value, option) => {
+    console.log('####', option.props.abnormal_type_id);
     this.setState({
-      agencyFee: parseFloat(value),
+      abnormal_type_id: option.props.abnormal_type_id,
+      abnormal_type: option.props.text,
     });
-    console.log(value);
+    console.log(value, option);
     console.log(this.state);
   };
 
   onDownAccountHandler = () => {
     const { downAccountHandle, form } = this.props;
-    const { agencyFee } = this.state;
+    let { abnormal_type, abnormal_type_id } = this.state;
     form.validateFields((err, fieldsValue) => {
       console.log(fieldsValue);
       if (err) return;
-
-      downAccountHandle({ rate: agencyFee, bank_account: fieldsValue.bank_account });
+      if (fieldsValue.abnormal_type != abnormal_type) {
+        abnormal_type = fieldsValue.abnormal_type;
+        abnormal_type_id = 0;
+      }
+      downAccountHandle({
+        abnormal_status: 2,
+        abnormal_reason: fieldsValue.abnormal_reason,
+        abnormal_amount: fieldsValue.abnormal_amount,
+        abnormal_resolve_type: fieldsValue.abnormal_resolve_type,
+        abnormal_remark: fieldsValue.abnormal_remark,
+        abnormal_type,
+        abnormal_type_id,
+      });
     });
   };
 
+  renderCustomerOption = item => {
+    const AutoOption = AutoComplete.Option;
+    return (
+      <AutoOption
+        key={item.abnormal_type_id}
+        abnormal_type_id={item.abnormal_type_id}
+        text={item.abnormal_type}
+      >
+        {item.abnormal_type}
+      </AutoOption>
+    );
+  };
+
   render() {
-    const { modalVisible, downCancel, selectedRows, form } = this.props;
+    const { modalVisible, downCancel, selectedRows, form, abnormalTypes } = this.props;
     const accountData = getSelectedDownAccount(selectedRows);
     const record = selectedRows.length > 0 ? selectedRows[0] : {};
     const { agencyFee } = this.state;
     return (
       <Modal
         destroyOnClose
-        title="下账"
+        title="处理异常"
         visible={modalVisible}
         onCancel={() => downCancel()}
         footer={[
@@ -93,49 +132,36 @@ class DownAccountForm extends PureComponent {
         <Form>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="下账条数">
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="异常单号">
                 {selectedRows.length}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="下账总金额">
-                {accountData.totalActualGoodsFund || '0'} - 代办费 *
-                <Select
-                  placeholder="请选择"
-                  defaultValue="0"
-                  onSelect={this.onAgencyFeeSelect}
-                  style={{ width: '80px' }}
-                >
-                  <Option value="0">0‰</Option>
-                  <Option value="1">1‰</Option>
-                  <Option value="2">2‰</Option>
-                  <Option value="3">3‰</Option>
-                  <Option value="4">4‰</Option>
-                  <Option value="5">5‰</Option>
-                </Select>
-                {accountData.totalTransFunds ? (
-                  <span> `- (运费) ${accountData.totalTransFunds}`</span>
-                ) : (
-                  <span />
+              <FormItem {...this.formItemLayout} label="异常类型">
+                {form.getFieldDecorator('abnormal_type', {
+                  rules: [{ required: true, message: '请填写异常类型' }],
+                })(
+                  <AutoComplete
+                    size="large"
+                    style={{ width: '100%' }}
+                    dataSource={abnormalTypes.map(this.renderCustomerOption)}
+                    onSelect={this.onAbnormalSelect}
+                    placeholder="请输入"
+                    optionLabelProp="text"
+                    filterOption={(inputValue, option) =>
+                      option.props.children.indexOf(inputValue) !== -1
+                    }
+                  />
                 )}
-                ={' '}
-                {accountData.totalActualGoodsFund -
-                  Number((accountData.totalActualGoodsFund * agencyFee) / 1000).toFixed(2) -
-                  accountData.totalTransFunds || 0}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="户主">
-                {record.getcustomer_name || ''}
-              </FormItem>
-            </Col>
-            <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="账户">
-                {form.getFieldDecorator('bank_account', { initialValue: record.bank_account })(
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="异常原因">
+                {form.getFieldDecorator('abnormal_reason', { initialValue: '' })(
                   <Input placeholder="请输入" style={{ width: '280px' }} />
                 )}
               </FormItem>
@@ -143,31 +169,28 @@ class DownAccountForm extends PureComponent {
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem
-                labelCol={{ span: 3, offset: 2 }}
-                className={styles.tableDetail}
-                label="明细"
-              >
-                <table>
-                  <thead>
-                    <tr>
-                      <th>运单号</th>
-                      <th>实收货款</th>
-                      <th>应收货款</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedRows.map(item => {
-                      return (
-                        <tr>
-                          <td>{item.order_code}</td>
-                          <td>{item.order_real}</td>
-                          <td>{item.order_amount}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="产生金额">
+                {form.getFieldDecorator('abnormal_amount', { initialValue: '' })(
+                  <Input placeholder="请输入" style={{ width: '280px' }} />
+                )}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="处理方式">
+                {form.getFieldDecorator('abnormal_resolve_type', { initialValue: '' })(
+                  <Input placeholder="请输入" style={{ width: '280px' }} />
+                )}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="备注">
+                {form.getFieldDecorator('abnormal_remark', { initialValue: '' })(
+                  <Input placeholder="请输入" style={{ width: '280px' }} />
+                )}
               </FormItem>
             </Col>
           </Row>
@@ -514,7 +537,6 @@ class CreateEntrunkForm extends PureComponent {
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
 
-      console.log(fieldsValue);
       fieldsValue.car_fee = Number(fieldsValue.car_fee);
       const result = await dispatch({
         type: 'trunkedorder/updateCarFeeAction',
@@ -547,11 +569,11 @@ class CreateEntrunkForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, settle, site, car, receiver, loading }) => {
+@connect(({ customer, company, abnormal, site, car, receiver, loading }) => {
   return {
     customer,
     company,
-    settle,
+    abnormal,
     site,
     car,
     receiver,
@@ -574,7 +596,6 @@ class TableList extends PureComponent {
     cancelSignModalVisible: false,
     downloadModalVisible: false,
     printModalVisible: false,
-    currentCompany: {},
   };
 
   columns = [
@@ -710,13 +731,12 @@ class TableList extends PureComponent {
       this.setState({
         currentCompany: branchCompanyList[0],
       });
-
-      dispatch({
-        type: 'customer/getCustomerListAction',
+      await dispatch({
+        type: 'abnormal/getAbnormalTypeListAction',
         payload: {
           pageNo: 1,
           pageSize: 100,
-          filter: { company_id: branchCompanyList[0].company_id },
+          company_id: branchCompanyList[0].company_id,
         },
       });
     }
@@ -805,43 +825,44 @@ class TableList extends PureComponent {
 
       const values = {
         ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
       };
 
-      this.setState({
-        formValues: values,
-      });
+      values.abnormal_status = 1;
+      // TODO: 后续放开时间查询，目前方便测试，暂时关闭
+      if (fieldsValue.entrunk_date && fieldsValue.entrunk_date.length > 0) {
+        // values.entrunk_date = fieldsValue.entrunk_date.map(item => {
+        //   return `${item.valueOf()}`;
+        // });
+      }
 
       dispatch({
-        type: 'settle/getOrderListAction',
+        type: 'abnormal/getOrderListAction',
         payload: { pageNo: 1, pageSize: 20, filter: values },
       });
 
       dispatch({
-        type: 'settle/getSiteOrderStatisticAction',
+        type: 'abnormal/getOrderStatisticAction',
         payload: { company_id: fieldsValue.company_id, site_id: fieldsValue.site_id },
       });
     });
   };
 
-  // 下账
+  // 添加异常
   downAccountHandle = async data => {
-    console.log(data);
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
     const result = await dispatch({
-      type: 'settle/downAccountAction',
+      type: 'abnormal/addAbnormalAction',
       payload: {
         order_id: orderIds,
-        rate: data.rate,
-        bank_account: data.bank_account,
+        ...data,
       },
     });
     if (result.code == 0) {
-      message.success('下账成功！');
+      message.success('处理异常成功！');
 
       this.onDownCancel();
     } else {
@@ -1045,7 +1066,7 @@ class TableList extends PureComponent {
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
-      customer: { getCustomerList, sendCustomerList },
+      site: { entrunkSiteList, normalSiteList },
       company: { branchCompanyList },
     } = this.props;
     const companyOption = {};
@@ -1081,29 +1102,13 @@ class TableList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="货车编号">
-              {getFieldDecorator('car_code', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="收货人姓名">
-              {getFieldDecorator('getcustomer_id')(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onGetCustomerSelect}
-                  style={{ width: '100%' }}
-                  allowClear
-                  showSearch
-                  optionLabelProp="children"
-                  onPopupScroll={this.onGetCustomerScroll}
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                >
-                  {getCustomerList.map(ele => {
+            <FormItem label="站点">
+              {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
+                <Select placeholder="请选择" style={{ width: '100%' }}>
+                  {normalSiteList.map(ele => {
                     return (
-                      <Option key={ele.customer_id} value={ele.customer_id}>
-                        {ele.customer_name}
+                      <Option key={ele.site_id} value={ele.site_id}>
+                        {ele.site_name}
                       </Option>
                     );
                   })}
@@ -1112,39 +1117,17 @@ class TableList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="收货人电话">
-              {getFieldDecorator('getcustomer_mobile', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="发货人姓名">
-              {getFieldDecorator('sendcustomer_id')(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onSendCustomerSelect}
-                  style={{ width: '100%' }}
-                  allowClear
-                  showSearch
-                  optionLabelProp="children"
-                  onPopupScroll={this.onSendCustomerScroll}
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                >
-                  {sendCustomerList.map(ele => {
-                    return (
-                      <Option key={ele.get} value={ele.customer_id}>
-                        {ele.customer_name}
-                      </Option>
-                    );
-                  })}
+            <FormItem label="异常状态">
+              {getFieldDecorator('abnormal_status')(
+                <Select placeholder="请选择" style={{ width: '150px' }}>
+                  <Option value="1">异常</Option>
                 </Select>
               )}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="收货人电话">
-              {getFieldDecorator('sendcustomer_mobile', {})(<Input placeholder="请输入" />)}
+            <FormItem label="托运日期">
+              {getFieldDecorator('entrunk_date', {})(<RangePicker />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -1165,10 +1148,11 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      settle: { orderList, total, totalOrderAmount, totalTransAmount },
+      abnormal: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,
+      abnormal: { abnormalTypes },
     } = this.props;
-
+    console.log(orderList);
     const {
       selectedRows,
       accountStatistic,
@@ -1192,10 +1176,8 @@ class TableList extends PureComponent {
             <div className={styles.tableListOperator}>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button onClick={this.onSettle}>取消结算</Button>
-                  <Button onClick={this.onDownAccount}>下账</Button>
-                  <Button onClick={this.onCancelSign}>取消下账</Button>
-                  <Button onClick={this.onPrint}>打印</Button>
+                  <Button onClick={this.onDownAccount}>添加为异常</Button>
+                  <Button onClick={this.onSettle}>取消异常</Button>
                 </span>
               )}
             </div>
@@ -1248,6 +1230,7 @@ class TableList extends PureComponent {
           downAccountHandle={this.downAccountHandle}
           downCancel={this.onDownCancel}
           selectedRows={selectedRows}
+          abnormalTypes={abnormalTypes}
         />
         <Modal
           title="取消结账"

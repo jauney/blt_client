@@ -64,10 +64,10 @@ export default [
             component: './Account/Settle',
           },
           {
-            path: '/account/unsettlelist',
-            name: 'unsettlelist',
+            path: '/account/unpaylist',
+            name: 'unpaylist',
             authority: ['admin'],
-            component: './Account/UnsettleList',
+            component: './Account/UnPayList',
           },
           {
             path: '/account/accountlist',
@@ -77,52 +77,26 @@ export default [
           },
         ],
       },
-      // list
+      // abnormal
       {
-        path: '/list',
+        path: '/abnormal',
         icon: 'table',
-        name: 'list',
+        name: 'abnormal',
         routes: [
           {
-            path: '/list/table-list',
-            name: 'searchtable',
-            component: './List/TableList',
+            path: '/abnormal/addabnormal',
+            name: 'addabnormal',
+            component: './Abnormal/AddAbnormal',
           },
           {
-            path: '/list/basic-list',
-            name: 'basiclist',
-            component: './List/BasicList',
+            path: '/abnormal/unresolvedabnormal',
+            name: 'unresolvedabnormal',
+            component: './Abnormal/UnResolvedAbnormal',
           },
           {
-            path: '/list/card-list',
-            name: 'cardlist',
-            component: './List/CardList',
-          },
-          {
-            path: '/list/search',
-            name: 'searchlist',
-            component: './List/List',
-            routes: [
-              {
-                path: '/list/search',
-                redirect: '/list/search/articles',
-              },
-              {
-                path: '/list/search/articles',
-                name: 'articles',
-                component: './List/Articles',
-              },
-              {
-                path: '/list/search/projects',
-                name: 'projects',
-                component: './List/Projects',
-              },
-              {
-                path: '/list/search/applications',
-                name: 'applications',
-                component: './List/Applications',
-              },
-            ],
+            path: '/abnormal/resolvedabnormal',
+            name: 'resolvedabnormal',
+            component: './Abnormal/ResolvedAbnormal',
           },
         ],
       },

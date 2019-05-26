@@ -7,7 +7,7 @@ import {
 } from '@/services/api';
 
 export default {
-  namespace: 'settle',
+  namespace: 'unpaylist',
 
   state: {
     orderList: [],
@@ -20,7 +20,7 @@ export default {
   effects: {
     *getOrderListAction({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
-      payload.filter.order_status = [6, 7];
+      payload.filter.order_status = [6];
 
       const response = yield call(getOrderList, payload);
       yield put({

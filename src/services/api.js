@@ -1020,3 +1020,84 @@ export async function queryDriverList(params) {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };
     });
 }
+
+export async function addAbnormal(params) {
+  console.log('api.... ', params);
+  if (typeof params.abnormal_type_id == 'undefined') {
+    params.abnormal_type_id = 0;
+  }
+  if (typeof params.abnormal_reason == 'undefined') {
+    params.abnormal_reason = '';
+  }
+  if (typeof params.abnormal_resolve_type == 'undefined') {
+    params.abnormal_resolve_type = '';
+  }
+  if (typeof params.abnormal_amount == 'undefined') {
+    params.abnormal_amount = '';
+  }
+  if (typeof params.abnormal_remark == 'undefined') {
+    params.abnormal_remark = '';
+  }
+  return client
+    .mutate({
+      mutation: gql`
+        mutation addAbnormal(
+          $order_id: [Int]
+          $abnormal_type: String
+          $abnormal_type_id: Int
+          $abnormal_reason: String
+          $abnormal_status: Int
+          $abnormal_resolve_type: String
+          $abnormal_amount: String
+          $abnormal_remark: String
+        ) {
+          addAbnormal(
+            order_id: $order_id
+            abnormal_type: $abnormal_type
+            abnormal_type_id: $abnormal_type_id
+            abnormal_reason: $abnormal_reason
+            abnormal_status: $abnormal_status
+            abnormal_resolve_type: $abnormal_resolve_type
+            abnormal_amount: $abnormal_amount
+            abnormal_remark: $abnormal_remark
+          ) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.addAbnormal;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function getAbnormalTypes(params) {
+  return client
+    .query({
+      query: gql`
+        query getAbnormalTypes($pageNo: Int, $pageSize: Int, $company_id: Int) {
+          getAbnormalTypes(pageNo: $pageNo, pageSize: $pageSize, company_id: $company_id) {
+            total
+            abnormal_types {
+              abnormal_type_id
+              abnormal_type
+              company_id
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getAbnormalTypes;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}

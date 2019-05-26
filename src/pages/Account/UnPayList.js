@@ -51,7 +51,7 @@ class DownAccountForm extends PureComponent {
 
   onAgencyFeeSelect = (value, option) => {
     this.setState({
-      agencyFee: value,
+      agencyFee: parseFloat(value),
     });
     console.log(value);
     console.log(this.state);
@@ -547,11 +547,11 @@ class CreateEntrunkForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, settle, site, car, receiver, loading }) => {
+@connect(({ customer, company, unpaylist, site, car, receiver, loading }) => {
   return {
     customer,
     company,
-    settle,
+    unpaylist,
     site,
     car,
     receiver,
@@ -813,12 +813,12 @@ class TableList extends PureComponent {
       });
 
       dispatch({
-        type: 'settle/getOrderListAction',
+        type: 'unpaylist/getOrderListAction',
         payload: { pageNo: 1, pageSize: 20, filter: values },
       });
 
       dispatch({
-        type: 'settle/getSiteOrderStatisticAction',
+        type: 'unpaylist/getSiteOrderStatisticAction',
         payload: { company_id: fieldsValue.company_id, site_id: fieldsValue.site_id },
       });
     });
@@ -1165,7 +1165,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      settle: { orderList, total, totalOrderAmount, totalTransAmount },
+      unpaylist: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,
     } = this.props;
 

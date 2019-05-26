@@ -4,10 +4,12 @@ import {
   cancelSettleOrder,
   downAccount,
   updateOrderSign,
+  addAbnormal,
+  getAbnormalTypes,
 } from '@/services/api';
 
 export default {
-  namespace: 'settle',
+  namespace: 'abnormal',
 
   state: {
     orderList: [],
@@ -15,6 +17,8 @@ export default {
     totalOrderAmount: 0,
     totalTransAmount: 0,
     totalInsurancefee: 0,
+    abnormalTypes: [],
+    abnormalTotal: 0,
   },
 
   effects: {
@@ -28,11 +32,21 @@ export default {
         payload: response,
       });
     },
-    *getUntrunkOrderStatisticAction({ payload }, { call, put }) {
+    *addAbnormalAction({ payload }, { call, put }) {
+      return yield call(addAbnormal, payload); // post
+    },
+    *getAbnormalTypeListAction({ payload }, { call, put }) {
+      const response = yield call(getAbnormalTypes, payload); // post
+      yield put({
+        type: 'getAbnormalTypeListReducer',
+        payload: response,
+      });
+    },
+    *getOrderStatisticAction({ payload }, { call, put }) {
       payload.order_status = 0;
       const response = yield call(getTrunkedOrderStatistic, payload);
       yield put({
-        type: 'getUntrunkOrderStatisticReducer',
+        type: 'getOrderStatisticReducer',
         payload: response,
       });
     },
@@ -50,6 +64,13 @@ export default {
   },
 
   reducers: {
+    getAbnormalTypeListReducer(state, action) {
+      return {
+        ...state,
+        abnormalTypes: action.payload.abnormal_types,
+        abnormalTotal: action.payload.total,
+      };
+    },
     getOrderListReducer(state, action) {
       return {
         ...state,
@@ -57,7 +78,7 @@ export default {
         total: action.payload.total,
       };
     },
-    getUntrunkOrderStatisticReducer(state, action) {
+    getOrderStatisticReducer(state, action) {
       return {
         ...state,
         ...action.payload,

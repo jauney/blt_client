@@ -78,7 +78,7 @@ class StandardTable extends PureComponent {
         disabled: record.disabled,
       }),
     };
-
+    console.log('$$$$$$$$$', rowKey);
     return (
       <div className={styles.standardTable}>
         <div className={styles.tableAlert}>
