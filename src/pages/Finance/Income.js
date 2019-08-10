@@ -26,9 +26,9 @@ import {
 } from 'antd';
 import { getSelectedAccount, getSelectedDownAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
-import styles from './Abnormal.less';
-import { async } from 'q';
+import styles from './Finance.less';
 import { fileToObject } from 'antd/lib/upload/utils';
+import { async } from 'q';
 const { RangePicker } = DatePicker;
 
 const FormItem = Form.Item;
@@ -139,23 +139,7 @@ class DownAccountForm extends PureComponent {
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="异常类型">
-                {form.getFieldDecorator('abnormal_type', {
-                  rules: [{ required: true, message: '请填写异常类型' }],
-                })(
-                  <AutoComplete
-                    size="large"
-                    style={{ width: '100%' }}
-                    dataSource={abnormalTypes.map(this.renderCustomerOption)}
-                    onSelect={this.onAbnormalSelect}
-                    placeholder="请输入"
-                    optionLabelProp="text"
-                    filterOption={(inputValue, option) =>
-                      option.props.children.indexOf(inputValue) !== -1
-                    }
-                  />
-                )}
-              </FormItem>
+              <FormItem {...this.formItemLayout} label="异常类型" />
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
@@ -569,11 +553,11 @@ class CreateEntrunkForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, abnormal, site, car, receiver, loading }) => {
+@connect(({ customer, company, income, site, car, receiver, loading }) => {
   return {
     customer,
     company,
-    abnormal,
+    income,
     site,
     car,
     receiver,
@@ -600,85 +584,23 @@ class TableList extends PureComponent {
 
   columns = [
     {
-      title: '货单号',
-      dataIndex: 'order_code',
-      sorter: true,
-      align: 'right',
-      render: val => `${val}`,
-      // mark to display a total number
-      needTotal: true,
-    },
-    {
-      title: '发货客户',
-      dataIndex: 'sendcustomer_name',
-    },
-    {
-      title: '收获客户',
-      dataIndex: 'getcustomer_name',
-      sorter: true,
-    },
-    {
-      title: '应收货款',
-      dataIndex: 'order_amount',
-      sorter: true,
-    },
-    {
-      title: '实收货款',
-      dataIndex: 'order_real',
-      sorter: true,
-    },
-    {
-      title: '实收运费',
-      dataIndex: 'trans_real',
-      sorter: true,
-    },
-    {
-      title: '折后运费',
-      dataIndex: 'trans_discount',
-      sorter: true,
-    },
-    {
-      title: '运费方式',
-      dataIndex: 'trans_type',
-      sorter: true,
-      render: val => {
-        if (val == 1) {
-          return '现付';
-        } else if (val == 2) {
-          return '回付';
-        }
-        return '';
-      },
-    },
-    {
-      title: '垫付',
-      dataIndex: 'order_advancepay_amount',
-      sorter: true,
-    },
-    {
-      title: '送货费',
-      dataIndex: 'deliver_amount',
-      sorter: true,
-    },
-    {
-      title: '保价费',
-      dataIndex: 'insurance_fee',
-      sorter: true,
-    },
-    {
-      title: '货物名称',
-      dataIndex: 'order_name',
-      sorter: true,
-    },
-    {
-      title: '录票时间',
+      title: '收入日期',
       dataIndex: 'create_date',
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: '发车时间',
-      dataIndex: 'depart_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      title: '收入金额',
+      dataIndex: 'income_money',
+    },
+    {
+      title: '收入类型',
+      dataIndex: 'income_type',
+      sorter: true,
+    },
+    {
+      title: '收入原因',
+      dataIndex: 'income_reason',
+      sorter: true,
     },
     {
       title: '站点',
@@ -686,18 +608,14 @@ class TableList extends PureComponent {
       sorter: true,
     },
     {
-      title: '中转',
-      dataIndex: 'transfer_type',
+      title: '分公司',
+      dataIndex: 'company_name',
       sorter: true,
-      render: val => {
-        let $transferType = '';
-        if (val == 1) {
-          $transferType = '转出';
-        } else if (val == 2) {
-          $transferType = '转入';
-        }
-        return $transferType;
-      },
+    },
+    {
+      title: '操作用户',
+      dataIndex: 'record_user',
+      sorter: true,
     },
     {
       title: '备注',
@@ -716,30 +634,23 @@ class TableList extends PureComponent {
       });
     }
 
-    dispatch({
-      type: 'site/getSiteListAction',
-      payload: {},
-    });
-
-    dispatch({
-      type: 'customer/sendCustomerListAction',
-      payload: { pageNo: 1, pageSize: 100 },
-    });
-
+    let currentCompany;
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (branchCompanyList && branchCompanyList.length > 0) {
+      currentCompany = branchCompanyList[0];
       this.setState({
         currentCompany: branchCompanyList[0],
       });
-      await dispatch({
-        type: 'abnormal/getAbnormalTypeListAction',
-        payload: {
-          pageNo: 1,
-          pageSize: 100,
-          company_id: branchCompanyList[0].company_id,
-        },
-      });
     }
+
+    this.fetchCompanySiteList(currentCompany.company_id);
+
+    this.fetchIncomeTypeList(currentCompany.company_id);
+
+    dispatch({
+      type: 'income/getIncomeDetailsAction',
+      payload: {},
+    });
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -781,6 +692,22 @@ class TableList extends PureComponent {
     });
   };
 
+  fetchIncomeTypeList = async ({ companyId, siteId }) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'income/getIncomeTypesAction',
+      payload: { company_id: companyId, site_id: siteId },
+    });
+  };
+
+  fetchCompanySiteList = async companyId => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'site/getSiteListAction',
+      payload: { pageNo: 1, pageSize: 100, filter: { company_id: companyId } },
+    });
+  };
+
   fetchGetCustomerList = async companyId => {
     const { dispatch } = this.props;
     dispatch({
@@ -795,13 +722,24 @@ class TableList extends PureComponent {
 
   onCompanySelect = async (value, option) => {
     const {
-      dispatch,
       company: { branchCompanyList },
-      form,
-      car: { lastCar },
     } = this.props;
     // 获取当前公司的客户列表
-    this.fetchGetCustomerList(company_id);
+    // this.fetchGetCustomerList(value);
+
+    // 获取当前公司的站点
+    this.fetchCompanySiteList(value);
+    // 清空勾选的站点
+    this.props.form.setFieldsValue({
+      site: '',
+    });
+
+    // 重新获取收入类型
+    this.fetchIncomeTypeList({ companyId: value });
+    // 清空勾选的收入类型
+    this.props.form.setFieldsValue({
+      income_type: '',
+    });
 
     const currentCompany = branchCompanyList.filter(item => {
       if (item.company_id == value) {
@@ -813,6 +751,11 @@ class TableList extends PureComponent {
         currentCompany: currentCompany[0],
       });
     }
+  };
+
+  onSiteSelect = async (value, option) => {
+    // 重新获取收入类型
+    this.fetchIncomeTypeList({ siteId: value });
   };
 
   handleSearch = e => {
@@ -827,23 +770,16 @@ class TableList extends PureComponent {
         ...fieldsValue,
       };
 
-      values.abnormal_status = 2;
-
       // TODO: 后续放开时间查询，目前方便测试，暂时关闭
       if (fieldsValue.entrunk_date && fieldsValue.entrunk_date.length > 0) {
-        // values.entrunk_date = fieldsValue.entrunk_date.map(item => {
-        //   return `${item.valueOf()}`;
-        // });
+        values.entrunk_date = fieldsValue.entrunk_date.map(item => {
+          return `${item.valueOf()}`;
+        });
       }
 
       dispatch({
-        type: 'abnormal/getOrderListAction',
+        type: 'income/getIncomesAction',
         payload: { pageNo: 1, pageSize: 20, filter: values },
-      });
-
-      dispatch({
-        type: 'abnormal/getOrderStatisticAction',
-        payload: { company_id: fieldsValue.company_id, site_id: fieldsValue.site_id },
       });
     });
   };
@@ -1067,8 +1003,9 @@ class TableList extends PureComponent {
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
-      site: { entrunkSiteList, normalSiteList },
-      company: { branchCompanyList },
+      site: { entrunkSiteList = [], normalSiteList = [] },
+      company: { branchCompanyList = [] },
+      income: { incomeTypes = [] },
     } = this.props;
     const companyOption = {};
     // 默认勾选第一个公司
@@ -1085,6 +1022,7 @@ class TableList extends PureComponent {
                   placeholder="请选择"
                   onSelect={this.onCompanySelect}
                   style={{ width: '100%' }}
+                  allowClear
                 >
                   {branchCompanyList.map(ele => {
                     return (
@@ -1098,14 +1036,9 @@ class TableList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="运单号">
-              {getFieldDecorator('order_code', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
             <FormItem label="站点">
-              {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
+              {getFieldDecorator('site', {})(
+                <Select placeholder="请选择" style={{ width: '100%' }} allowClear>
                   {normalSiteList.map(ele => {
                     return (
                       <Option key={ele.site_id} value={ele.site_id}>
@@ -1118,17 +1051,23 @@ class TableList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="异常状态">
-              {getFieldDecorator('abnormal_status')(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
-                  <Option value="1">异常</Option>
-                </Select>
-              )}
+            <FormItem label="托运日期">
+              {getFieldDecorator('entrunk_date', {})(<RangePicker />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="托运日期">
-              {getFieldDecorator('entrunk_date', {})(<RangePicker />)}
+            <FormItem label="一级分类">
+              {getFieldDecorator('income_type')(
+                <Select placeholder="请选择" style={{ width: '100%' }} allowClear>
+                  {incomeTypes.map(ele => {
+                    return (
+                      <Option key={ele.incometype_id} value={ele.incometype_id}>
+                        {ele.incometype}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              )}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -1149,11 +1088,10 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      abnormal: { orderList, total, totalOrderAmount, totalTransAmount },
+      income: { incomeList, total, totalOrderAmount, totalTransAmount },
       loading,
-      abnormal: { abnormalTypes },
     } = this.props;
-    console.log(orderList);
+
     const {
       selectedRows,
       accountStatistic,
@@ -1187,7 +1125,7 @@ class TableList extends PureComponent {
               loading={loading}
               rowKey="order_id"
               data={{
-                list: orderList,
+                list: incomeList,
                 pagination: {
                   total,
                   pageSize,
@@ -1223,7 +1161,6 @@ class TableList extends PureComponent {
           downAccountHandle={this.downAccountHandle}
           downCancel={this.onDownCancel}
           selectedRows={selectedRows}
-          abnormalTypes={abnormalTypes}
         />
         <Modal
           title="取消结账"

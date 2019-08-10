@@ -993,6 +993,7 @@ export async function getCarInfo(params) {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };
     });
 }
+
 // driver
 export async function queryDriverList(params) {
   return client
@@ -1096,6 +1097,72 @@ export async function getAbnormalTypes(params) {
     .then(data => {
       console.log(data);
       return data.data.getAbnormalTypes;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// incomes
+export async function getIncomes(params) {
+  return client
+    .query({
+      query: gql`
+        query getIncomes($pageNo: Int, $pageSize: Int, $filter: IncomeInput) {
+          getIncomes(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            incomes {
+              income_id
+              company_id
+              company_name
+              incometype_id
+              incometype
+              site_id
+              site_name
+              incomedetail_id
+              incomedetail
+              income_date
+              income_money
+              income_reason
+              remark
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getIncomes;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// income types
+export async function getIncomeTypes(params) {
+  return client
+    .query({
+      query: gql`
+        query getIncomeTypes($pageNo: Int, $pageSize: Int, $company_id: Int) {
+          getIncomeTypes(pageNo: $pageNo, pageSize: $pageSize, company_id: $company_id) {
+            total
+            incomeTypes {
+              incometype_id
+              company_id
+              incometype
+              site_id
+              site_name
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getIncomeTypes;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };

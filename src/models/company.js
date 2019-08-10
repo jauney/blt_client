@@ -20,7 +20,7 @@ export default {
       }
       const response = yield call(queryCompanyList, payload);
       const list = response.companys;
-
+      console.log('########', response);
       const action = companyType === 2 ? 'queryBranchCompanyList' : 'queryCompanyList';
       yield put({
         type: action,

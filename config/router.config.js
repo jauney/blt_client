@@ -100,6 +100,29 @@ export default [
           },
         ],
       },
+      // finance
+      {
+        path: '/finance',
+        icon: 'table',
+        name: 'finance',
+        routes: [
+          {
+            path: '/finance/income',
+            name: 'income',
+            component: './Finance/Income',
+          },
+          {
+            path: '/finance/expense',
+            name: 'expense',
+            component: './Finance/Expense',
+          },
+          {
+            path: '/finance/debt',
+            name: 'debt',
+            component: './Finance/Debt',
+          },
+        ],
+      },
       {
         path: '/profile',
         name: 'profile',
