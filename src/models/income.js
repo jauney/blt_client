@@ -46,16 +46,8 @@ export default {
         payload: response,
       });
     },
-    *cancelSettleOrderAction({ payload }, { call, put }) {
-      console.log(payload);
-      return yield call(cancelSettleOrder, payload); // post
-    },
-    *downAccountAction({ payload }, { call, put }) {
-      return yield call(downAccount, payload); // post
-    },
-    *cancelSignAction({ payload }, { call, put }) {
-      payload.sign_status = 0;
-      return yield call(updateOrderSign, payload); // post
+    *addIncomeAction({ payload }, { call, put }) {
+      return yield call(addIncome, payload); // post
     },
   },
 

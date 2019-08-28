@@ -1168,3 +1168,178 @@ export async function getIncomeTypes(params) {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };
     });
 }
+
+export async function addIncome(params) {
+  console.log('api.... ', params);
+  params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
+  params.incometype_id = isNaN(Number(params.incometype_id)) ? 0 : Number(params.incometype_id);
+  params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
+
+  return client
+    .mutate({
+      mutation: gql`
+        mutation addIncome($income: IncomeInput) {
+          addIncome(income: $income) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: { income: params },
+    })
+    .then(data => {
+      return data.data.addIncome;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// expenses
+export async function getExpenses(params) {
+  return client
+    .query({
+      query: gql`
+        query getExpenses($pageNo: Int, $pageSize: Int, $filter: ExpenseInput) {
+          getExpenses(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            expenses {
+              expense_id
+              company_id
+              company_name
+              expensetype_id
+              expensetype
+              site_id
+              site_name
+              expensedetail_id
+              expensedetail
+              expense_date
+              expense_money
+              expense_reason
+              remark
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getExpenses;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// expense types
+export async function getExpenseTypes(params) {
+  return client
+    .query({
+      query: gql`
+        query getExpenseTypes($pageNo: Int, $pageSize: Int, $company_id: Int) {
+          getExpenseTypes(pageNo: $pageNo, pageSize: $pageSize, company_id: $company_id) {
+            total
+            expenseTypes {
+              expensetype_id
+              company_id
+              expensetype
+              site_id
+              site_name
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getExpenseTypes;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function addExpense(params) {
+  console.log('api.... ', params);
+  params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
+  params.expensetype_id = isNaN(Number(params.expensetype_id)) ? 0 : Number(params.expensetype_id);
+  params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
+
+  return client
+    .mutate({
+      mutation: gql`
+        mutation addExpense($expense: ExpenseInput) {
+          addExpense(expense: $expense) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: { expense: params },
+    })
+    .then(data => {
+      return data.data.addExpense;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+// debts
+export async function getDebts(params) {
+  return client
+    .query({
+      query: gql`
+        query getDebts($pageNo: Int, $pageSize: Int, $filter: DebtInput) {
+          getDebts(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            debts {
+              debt_id
+              company_id
+              debt_type
+              site_id
+              debt_money
+              debt_date
+              remark
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getDebts;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function addDebt(params) {
+  console.log('api.... ', params);
+  params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
+  params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
+  params.debt_money = isNaN(Number(params.debt_money)) ? 0 : Number(params.debt_money);
+
+  return client
+    .mutate({
+      mutation: gql`
+        mutation addDebt($debt: DebtInput) {
+          addDebt(debt: $debt) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: { debt: params },
+    })
+    .then(data => {
+      return data.data.addDebt;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}

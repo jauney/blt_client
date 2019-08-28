@@ -43,7 +43,7 @@ const CacheCompany = JSON.parse(localStorage.getItem('company') || '{}');
 const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
 
 @Form.create()
-class DownAccountForm extends PureComponent {
+class AddFormDialog extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -72,24 +72,26 @@ class DownAccountForm extends PureComponent {
     console.log(this.state);
   };
 
-  onDownAccountHandler = () => {
-    const { downAccountHandle, form } = this.props;
-    let { abnormal_type, abnormal_type_id } = this.state;
+  onAddHandler = () => {
+    const { addFormDataHandle, form, incomeTypes = [] } = this.props;
     form.validateFields((err, fieldsValue) => {
       console.log(fieldsValue);
       if (err) return;
-      if (fieldsValue.abnormal_type != abnormal_type) {
-        abnormal_type = fieldsValue.abnormal_type;
-        abnormal_type_id = 0;
-      }
-      downAccountHandle({
-        abnormal_status: 2,
-        abnormal_reason: fieldsValue.abnormal_reason,
-        abnormal_amount: fieldsValue.abnormal_amount,
-        abnormal_resolve_type: fieldsValue.abnormal_resolve_type,
-        abnormal_remark: fieldsValue.abnormal_remark,
-        abnormal_type,
-        abnormal_type_id,
+      let newIncomeType = true;
+      let incomeType = '';
+      incomeTypes.forEach(item => {
+        if (item.incometype_id == fieldsValue['incometype_id']) {
+          newIncomeType = false;
+          incomeType = item.incometype;
+        }
+      });
+
+      addFormDataHandle({
+        income_money: fieldsValue.income_money,
+        incometype_id: newIncomeType ? '' : fieldsValue.incometype_id,
+        incometype: newIncomeType ? fieldsValue.incometype_id : incomeType,
+        income_reason: fieldsValue.income_reason,
+        remark: fieldsValue.income_reason,
       });
     });
   };
@@ -98,31 +100,28 @@ class DownAccountForm extends PureComponent {
     const AutoOption = AutoComplete.Option;
     return (
       <AutoOption
-        key={item.abnormal_type_id}
-        abnormal_type_id={item.abnormal_type_id}
-        text={item.abnormal_type}
+        key={item.incometype_id}
+        incometype_id={item.incometype_id}
+        text={item.incometype}
       >
-        {item.abnormal_type}
+        {item.incometype}
       </AutoOption>
     );
   };
 
   render() {
-    const { modalVisible, downCancel, selectedRows, form, abnormalTypes } = this.props;
-    const accountData = getSelectedDownAccount(selectedRows);
-    const record = selectedRows.length > 0 ? selectedRows[0] : {};
-    const { agencyFee } = this.state;
+    const { modalVisible, onCancelHandler, selectedRows, form, incomeTypes = [] } = this.props;
     return (
       <Modal
         destroyOnClose
-        title="处理异常"
+        title="添加收入"
         visible={modalVisible}
-        onCancel={() => downCancel()}
+        onCancel={() => onCancelHandler()}
         footer={[
-          <Button key="btn-cancel" onClick={() => downCancel()}>
+          <Button key="btn-cancel" onClick={() => onCancelHandler()}>
             取 消
           </Button>,
-          <Button key="btn-save" type="primary" onClick={this.onDownAccountHandler}>
+          <Button key="btn-save" type="primary" onClick={this.onAddHandler}>
             保 存
           </Button>,
         ]}
@@ -132,38 +131,52 @@ class DownAccountForm extends PureComponent {
         <Form>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="异常单号">
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="公司">
                 {selectedRows.length}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="异常类型" />
+              <FormItem labelCol={{ span: 3, offset: 2 }} label="站点">
+                {selectedRows.length}
+              </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="异常原因">
-                {form.getFieldDecorator('abnormal_reason', { initialValue: '' })(
-                  <Input placeholder="请输入" style={{ width: '280px' }} />
+              <FormItem {...this.formItemLayout} label="收入金额">
+                {form.getFieldDecorator('income_money', {
+                  initialValue: '',
+                  rules: [{ required: true, message: '请填写收入金额' }],
+                })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem {...this.formItemLayout} label="收入类型">
+                {form.getFieldDecorator('incometype_id', {
+                  rules: [{ required: true, message: '请填写收入类型' }],
+                })(
+                  <AutoComplete
+                    size="large"
+                    style={{ width: '280px' }}
+                    dataSource={incomeTypes.map(this.renderCustomerOption)}
+                    placeholder="请输入"
+                    optionLabelProp="text"
+                    allowClear
+                  >
+                    {' '}
+                  </AutoComplete>
                 )}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="产生金额">
-                {form.getFieldDecorator('abnormal_amount', { initialValue: '' })(
-                  <Input placeholder="请输入" style={{ width: '280px' }} />
-                )}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="处理方式">
-                {form.getFieldDecorator('abnormal_resolve_type', { initialValue: '' })(
+              <FormItem {...this.formItemLayout} label="收入原因">
+                {form.getFieldDecorator('income_reason', { initialValue: '' })(
                   <Input placeholder="请输入" style={{ width: '280px' }} />
                 )}
               </FormItem>
@@ -172,7 +185,7 @@ class DownAccountForm extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem labelCol={{ span: 3, offset: 2 }} label="备注">
-                {form.getFieldDecorator('abnormal_remark', { initialValue: '' })(
+                {form.getFieldDecorator('remark', { initialValue: '' })(
                   <Input placeholder="请输入" style={{ width: '280px' }} />
                 )}
               </FormItem>
@@ -573,9 +586,11 @@ class TableList extends PureComponent {
     current: 1,
     pageSize: 20,
     record: {},
+    currentCompany: {},
+    currentSite: {},
     orderModalVisible: false,
     settleModalVisible: false,
-    downModalVisible: false,
+    addIncomeModalVisible: false,
     signModalVisible: false,
     cancelSignModalVisible: false,
     downloadModalVisible: false,
@@ -634,7 +649,7 @@ class TableList extends PureComponent {
       });
     }
 
-    let currentCompany;
+    let currentCompany = {};
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (branchCompanyList && branchCompanyList.length > 0) {
       currentCompany = branchCompanyList[0];
@@ -645,7 +660,7 @@ class TableList extends PureComponent {
 
     this.fetchCompanySiteList(currentCompany.company_id);
 
-    this.fetchIncomeTypeList(currentCompany.company_id);
+    this.fetchIncomeTypeList({ companyId: currentCompany.company_id });
 
     dispatch({
       type: 'income/getIncomeDetailsAction',
@@ -754,6 +769,20 @@ class TableList extends PureComponent {
   };
 
   onSiteSelect = async (value, option) => {
+    const {
+      site: { normalSiteList = [] },
+    } = this.props;
+    console.log(normalSiteList, value);
+    const currentSite = normalSiteList.filter(item => {
+      if (item.site_id == value) {
+        return item;
+      }
+    });
+    if (currentSite.length > 0) {
+      this.setState({
+        currentSite: currentSite[0],
+      });
+    }
     // 重新获取收入类型
     this.fetchIncomeTypeList({ siteId: value });
   };
@@ -771,8 +800,8 @@ class TableList extends PureComponent {
       };
 
       // TODO: 后续放开时间查询，目前方便测试，暂时关闭
-      if (fieldsValue.entrunk_date && fieldsValue.entrunk_date.length > 0) {
-        values.entrunk_date = fieldsValue.entrunk_date.map(item => {
+      if (fieldsValue.income_date && fieldsValue.income_date.length > 0) {
+        values.income_date = fieldsValue.income_date.map(item => {
           return `${item.valueOf()}`;
         });
       }
@@ -784,39 +813,39 @@ class TableList extends PureComponent {
     });
   };
 
-  // 添加异常
-  downAccountHandle = async data => {
+  // 添加收入
+  addFormDataHandle = async data => {
     const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
+
+    const { currentCompany = {}, currentSite = {} } = this.state;
+    console.log(currentCompany, currentSite);
     const result = await dispatch({
-      type: 'abnormal/addAbnormalAction',
+      type: 'income/addIncomeAction',
       payload: {
-        order_id: orderIds,
         ...data,
+        company_id: currentCompany.company_id,
+        site_id: currentSite.site_id,
       },
     });
     if (result.code == 0) {
-      message.success('处理异常成功！');
+      message.success('添加成功！');
 
-      this.onDownCancel();
+      this.onCancelIncomeClick();
     } else {
       message.error(result.msg);
     }
   };
 
-  // 打开下账对话框
-  onDownAccount = async () => {
+  // 打开添加收入对话框
+  onAddIncomeClick = async () => {
     this.setState({
-      downModalVisible: true,
+      addIncomeModalVisible: true,
     });
   };
 
-  onDownCancel = async () => {
+  onCancelIncomeClick = async () => {
     this.setState({
-      downModalVisible: false,
+      addIncomeModalVisible: false,
     });
   };
 
@@ -1038,7 +1067,12 @@ class TableList extends PureComponent {
           <Col md={8} sm={24}>
             <FormItem label="站点">
               {getFieldDecorator('site', {})(
-                <Select placeholder="请选择" style={{ width: '100%' }} allowClear>
+                <Select
+                  placeholder="请选择"
+                  onSelect={this.onSiteSelect}
+                  style={{ width: '100%' }}
+                  allowClear
+                >
                   {normalSiteList.map(ele => {
                     return (
                       <Option key={ele.site_id} value={ele.site_id}>
@@ -1051,8 +1085,8 @@ class TableList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="托运日期">
-              {getFieldDecorator('entrunk_date', {})(<RangePicker />)}
+            <FormItem label="收入日期">
+              {getFieldDecorator('income_date', {})(<RangePicker />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -1088,7 +1122,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      income: { incomeList, total, totalOrderAmount, totalTransAmount },
+      income: { incomeList, total, incomeTypes, totalOrderAmount, totalTransAmount },
       loading,
     } = this.props;
 
@@ -1099,7 +1133,7 @@ class TableList extends PureComponent {
       pageSize,
       orderModalVisible,
       settleModalVisible,
-      downModalVisible,
+      addIncomeModalVisible,
       signModalVisible,
       cancelSignModalVisible,
       downloadModalVisible,
@@ -1113,6 +1147,9 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
+              <Button icon="plus" type="primary" onClick={() => this.onAddIncomeClick(true)}>
+                添加
+              </Button>
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onDownAccount}>添加为异常</Button>
@@ -1156,10 +1193,11 @@ class TableList extends PureComponent {
           onCancelModal={this.onEntrunkModalCancel}
           onUpdateOrder={this.onUpdateOrder}
         />
-        <DownAccountForm
-          modalVisible={downModalVisible}
-          downAccountHandle={this.downAccountHandle}
-          downCancel={this.onDownCancel}
+        <AddFormDialog
+          modalVisible={addIncomeModalVisible}
+          addFormDataHandle={this.addFormDataHandle}
+          onCancelHandler={this.onCancelIncomeClick}
+          incomeTypes={incomeTypes}
           selectedRows={selectedRows}
         />
         <Modal
