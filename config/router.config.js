@@ -124,21 +124,20 @@ export default [
         ],
       },
       {
-        path: '/profile',
-        name: 'profile',
+        path: '/transfer',
+        name: 'transfer',
         icon: 'profile',
         routes: [
-          // profile
+          // transfer
           {
-            path: '/profile/basic',
-            name: 'basic',
-            component: './Profile/BasicProfile',
+            path: '/transfer/company',
+            name: 'company',
+            component: './Transfer/Company',
           },
           {
-            path: '/profile/advanced',
-            name: 'advanced',
-            authority: ['admin'],
-            component: './Profile/AdvancedProfile',
+            path: '/transfer/site',
+            name: 'site',
+            component: './Transfer/Site',
           },
         ],
       },

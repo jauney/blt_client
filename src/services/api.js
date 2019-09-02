@@ -1343,3 +1343,60 @@ export async function addDebt(params) {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };
     });
 }
+
+// getTransfers
+export async function getTransfers(params) {
+  return client
+    .query({
+      query: gql`
+        query getTransfers($pageNo: Int, $pageSize: Int, $filter: DebtInput) {
+          getTransfers(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            transfers {
+              debt_id
+              company_id
+              debt_type
+              site_id
+              debt_money
+              debt_date
+              remark
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      return data.data.getTransfers;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function addTransfer(params) {
+  console.log('api.... ', params);
+  params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
+  params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
+  params.transfer_money = isNaN(Number(params.transfer_money)) ? 0 : Number(params.transfer_money);
+
+  return client
+    .mutate({
+      mutation: gql`
+        mutation addTransfer($transfer: TransferInput) {
+          addTransfer(transfer: $transfer) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: { transfer: params },
+    })
+    .then(data => {
+      return data.data.addTransfer;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
