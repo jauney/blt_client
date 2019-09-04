@@ -801,9 +801,10 @@ class TableList extends PureComponent {
     });
   };
 
-  // 取消账户核对
-  onSettle = async () => {
+  // 确认打款
+  onConfirmTransfer = async () => {
     const { selectedRows } = this.state;
+
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, settleModalVisible: true });
   };
@@ -818,16 +819,16 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
-      return item.order_id;
+      return item.transfer_id;
     });
     let result = await dispatch({
-      type: 'settle/cancelSettleOrderAction',
+      type: 'transfer/confirmTransferAction',
       payload: {
-        order_id: orderIds,
+        transfer_id: orderIds,
       },
     });
     if (result.code == 0) {
-      message.success('取消核对成功！');
+      message.success('确认打款成功！');
 
       this.onSettleCancel();
     } else {
@@ -1018,7 +1019,7 @@ class TableList extends PureComponent {
           <Col md={8} sm={24}>
             <FormItem label="确认打款">
               {getFieldDecorator('site', {})(
-                <Select placeholder="请选择" style={{ width: '100%' }} allowClear>
+                <Select placeholder="请选择" style={{ width: '200px' }} allowClear>
                   <Option value="1">已确认打款</Option>
                   <Option value="2">未确认打款</Option>
                 </Select>
@@ -1078,8 +1079,9 @@ class TableList extends PureComponent {
               </Button>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button onClick={this.onDownAccount}>添加为异常</Button>
-                  <Button onClick={this.onSettle}>取消异常</Button>
+                  <Button onClick={this.onConfirmTransfer}>打款确认</Button>
+                  <Button onClick={this.onCancelConfirm}>取消确认</Button>
+                  <Button onClick={this.onDelTransfer}>删除打款</Button>
                 </span>
               )}
             </div>
@@ -1126,15 +1128,12 @@ class TableList extends PureComponent {
           selectedRows={selectedRows}
         />
         <Modal
-          title="取消结账"
+          title="确认打款"
           visible={settleModalVisible}
           onOk={this.onSettleOk}
           onCancel={this.onSettleCancel}
         >
-          <p>{`取消结算货款条数${selectedRows.length}，取消结算总额 ${
-            accountStatistic.totalAccount
-          } `}</p>
-          <p>您确认结账么？</p>
+          <p>{`您确定要对${selectedRows.length}条记录确认打款么？ `}</p>
         </Modal>
         <Modal
           title="确认"

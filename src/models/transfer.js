@@ -16,6 +16,9 @@ export default {
         payload: response,
       });
     },
+    *confirmTransferAction({ payload }, { call, put }) {
+      return yield call(confirmTransfer, payload); // post
+    },
     *addTransferAction({ payload }, { call, put }) {
       return yield call(addTransfer, payload); // post
     },

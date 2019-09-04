@@ -1349,16 +1349,19 @@ export async function getTransfers(params) {
   return client
     .query({
       query: gql`
-        query getTransfers($pageNo: Int, $pageSize: Int, $filter: DebtInput) {
+        query getTransfers($pageNo: Int, $pageSize: Int, $filter: TransferInput) {
           getTransfers(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
             total
             transfers {
-              debt_id
+              transfer_id
               company_id
-              debt_type
-              site_id
-              debt_money
-              debt_date
+              company_name
+              transfer_money
+              transfer_date
+              transfer_type
+              transfer_user
+              confirm_opetrator_name
+              confirm_date
               remark
             }
           }
@@ -1395,6 +1398,27 @@ export async function addTransfer(params) {
     })
     .then(data => {
       return data.data.addTransfer;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function confirmTransfer(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation confirmTransfer($transfer_id: [Int]) {
+          confirmTransfer(transfer_id: $transfer_id) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      return data.data.confirmTransfer;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };

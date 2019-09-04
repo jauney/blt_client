@@ -19,15 +19,16 @@ function createWindow() {
   //   })
   // );
 
-  const startUrl = url.format({
-    pathname: path.join(__dirname, './dist/index.html'),
-    protocol: 'file:',
-    slashes: true,
-  });
-  mainWindow.loadURL(startUrl);
+  // 本地资源
+  // const startUrl = url.format({
+  //   pathname: path.join(__dirname, './dist/index.html'),
+  //   protocol: 'file:',
+  //   slashes: true,
+  // });
+  // mainWindow.loadURL(startUrl);
 
   // dev 加载应用----适用于 react 项目
-  // mainWindow.loadURL('http://localhost:8000/');
+  mainWindow.loadURL('http://localhost:8000/');
 
   // 打开开发者工具，默认不打开
   mainWindow.webContents.openDevTools();
