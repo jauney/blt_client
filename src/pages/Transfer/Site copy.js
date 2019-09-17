@@ -547,8 +547,6 @@ class TableList extends PureComponent {
     currentSite: {},
     orderModalVisible: false,
     settleModalVisible: false,
-    cancelConfirmTransferModalVisible: false,
-    delTransferModalVisible: false,
     addIncomeModalVisible: false,
     signModalVisible: false,
     cancelSignModalVisible: false,
@@ -595,16 +593,31 @@ class TableList extends PureComponent {
   async componentDidMount() {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
-    await dispatch({
-      type: 'company/getBranchCompanyList',
-      payload: CacheCompany,
-    });
+    let branchCompanyList = [CacheCompany];
+    if (CacheCompany.company_type != 2) {
+      branchCompanyList = await dispatch({
+        type: 'company/getCompanyList',
+        payload: {},
+      });
+    }
 
-    this.setState({
-      currentCompany: CacheCompany,
-    });
+    let currentCompany = {};
+    // 初始渲染的是否，先加载第一个分公司的收货人信息
+    if (branchCompanyList && branchCompanyList.length > 0) {
+      currentCompany = branchCompanyList[0];
+      this.setState({
+        currentCompany: branchCompanyList[0],
+      });
+    }
 
-    this.fetchCompanySiteList(CacheCompany.company_id);
+    this.fetchCompanySiteList(currentCompany.company_id);
+
+    this.fetchIncomeTypeList({ companyId: currentCompany.company_id });
+
+    dispatch({
+      type: 'income/getIncomeDetailsAction',
+      payload: {},
+    });
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -823,75 +836,6 @@ class TableList extends PureComponent {
     }
   };
 
-  // 取消确认打款
-  onCancelConfirmTransfer = async () => {
-    const { selectedRows } = this.state;
-
-    let accountStatistic = getSelectedAccount(selectedRows);
-    this.setState({ accountStatistic, cancelConfirmTransferModalVisible: true });
-  };
-
-  onCancelConfirmTransferCancel = async () => {
-    this.setState({
-      cancelConfirmTransferModalVisible: false,
-    });
-  };
-
-  onCancelConfirmTransferOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.transfer_id;
-    });
-    let result = await dispatch({
-      type: 'transfer/cancelConfirmTransferAction',
-      payload: {
-        transfer_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('取消确认打款成功！');
-
-      this.onCancelConfirmTransferCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  onDelTransfer = async () => {
-    const { selectedRows } = this.state;
-
-    let accountStatistic = getSelectedAccount(selectedRows);
-    this.setState({ accountStatistic, delTransferModalVisible: true });
-  };
-
-  onDelConfirmTransferCancel = async () => {
-    this.setState({
-      delTransferModalVisible: false,
-    });
-  };
-
-  onDelConfirmTransferOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.transfer_id;
-    });
-    let result = await dispatch({
-      type: 'transfer/delTransferAction',
-      payload: {
-        transfer_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('删除确认打款成功！');
-
-      this.onDelConfirmTransferCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
   // 取消签字
   onCancelSign = async () => {
     this.setState({
@@ -1044,11 +988,7 @@ class TableList extends PureComponent {
       site: { entrunkSiteList = [], normalSiteList = [] },
       company: { branchCompanyList = [] },
     } = this.props;
-    const companyOption = {};
-    // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
-    }
+
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
@@ -1083,7 +1023,7 @@ class TableList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={6} sm={24}>
-            <FormItem label="打款日期">
+            <FormItem label="收入日期">
               {getFieldDecorator('transfer_date', {})(<RangePicker />)}
             </FormItem>
           </Col>
@@ -1116,8 +1056,6 @@ class TableList extends PureComponent {
       pageSize,
       orderModalVisible,
       settleModalVisible,
-      cancelConfirmTransferModalVisible,
-      delTransferModalVisible,
       addIncomeModalVisible,
       signModalVisible,
       cancelSignModalVisible,
@@ -1138,7 +1076,7 @@ class TableList extends PureComponent {
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onConfirmTransfer}>打款确认</Button>
-                  <Button onClick={this.onCancelConfirmTransfer}>取消确认</Button>
+                  <Button onClick={this.onCancelConfirm}>取消确认</Button>
                   <Button onClick={this.onDelTransfer}>删除打款</Button>
                 </span>
               )}
@@ -1192,22 +1130,6 @@ class TableList extends PureComponent {
           onCancel={this.onSettleCancel}
         >
           <p>{`您确定要对${selectedRows.length}条记录确认打款么？ `}</p>
-        </Modal>
-        <Modal
-          title="取消确认打款"
-          visible={cancelConfirmTransferModalVisible}
-          onOk={this.onCancelConfirmTransferOk}
-          onCancel={this.onCancelConfirmTransferCancel}
-        >
-          <p>{`您确定要对${selectedRows.length}条记录取消确认打款么？ `}</p>
-        </Modal>
-        <Modal
-          title="删除确认打款"
-          visible={delTransferModalVisible}
-          onOk={this.onDelConfirmTransferOk}
-          onCancel={this.onDelConfirmTransferCancel}
-        >
-          <p>{`您确定要删除${selectedRows.length}条确认打款记录么？ `}</p>
         </Modal>
         <Modal
           title="确认"

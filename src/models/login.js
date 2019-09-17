@@ -26,6 +26,7 @@ export default {
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params;
+        console.log('#$$$$$$$$', redirect);
         if (redirect) {
           const redirectUrlParams = new URL(redirect);
           if (redirectUrlParams.origin === urlParams.origin) {
@@ -38,6 +39,8 @@ export default {
             return;
           }
         }
+
+        console.log('#$$$77777', redirect);
         yield put(routerRedux.replace(redirect || '/'));
       }
     },

@@ -195,22 +195,13 @@ export default class GlobalHeaderRight extends PureComponent {
             {...loadMoreProps}
           />
         </NoticeIcon>
-        {currentUser.name ? (
-          <HeaderDropdown overlay={menu}>
-            <span className={`${styles.action} ${styles.account}`}>
-              <Avatar
-                size="small"
-                className={styles.avatar}
-                src={currentUser.avatar}
-                alt="avatar"
-              />
-              <span className={styles.name}>{currentUser.name}</span>
-            </span>
-          </HeaderDropdown>
-        ) : (
-          <Spin size="small" style={{ marginLeft: 8, marginRight: 8 }} />
-        )}
-        <SelectLang className={styles.action} />
+        <HeaderDropdown overlay={menu} placement="bottomRight">
+          <span className="">
+            <Icon type="global" title={formatMessage({ id: 'navBar.lang' })} />
+          </span>
+        </HeaderDropdown>
+        {/*
+        <SelectLang className={styles.action} /> */}
       </div>
     );
   }

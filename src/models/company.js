@@ -1,5 +1,6 @@
 import { queryCompanyList, addCompany, updateCompany } from '@/services/api';
 
+const CacheCompany = JSON.parse(localStorage.getItem('company') || '{}');
 export default {
   namespace: 'company',
 
@@ -24,6 +25,21 @@ export default {
       const action = companyType === 2 ? 'queryBranchCompanyList' : 'queryCompanyList';
       yield put({
         type: action,
+        payload: Array.isArray(list) ? list : [],
+      });
+
+      return list;
+    },
+    *getBranchCompanyList({ payload }, { call, put }) {
+      let list = [payload];
+      if (payload.company_type == 1) {
+        payload = { filter: { company_type: 2 } };
+        const response = yield call(queryCompanyList, payload);
+        list = response.companys;
+      }
+
+      yield put({
+        type: 'queryBranchCompanyList',
         payload: Array.isArray(list) ? list : [],
       });
 

@@ -6,6 +6,7 @@ export function getAuthority(str) {
   let authority;
   try {
     authority = JSON.parse(authorityString);
+    authority = authority.map(item => item.role_name);
   } catch (e) {
     authority = authorityString;
   }
@@ -17,7 +18,7 @@ export function getAuthority(str) {
 
 export function setAuthority(loginData) {
   // TODO: 登录后，同时获取当前用户的角色，用于权限控制
-  localStorage.setItem('role', loginData.role || ['admin']);
+  localStorage.setItem('role', JSON.stringify(loginData.roles || []));
   localStorage.setItem('user', JSON.stringify(loginData.user || {}));
   localStorage.setItem('site', JSON.stringify(loginData.site || {}));
   localStorage.setItem('company', JSON.stringify(loginData.company || {}));

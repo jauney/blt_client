@@ -6,7 +6,7 @@
   "main": "main.js",
   "scripts": {
     "presite": "cd functions && npm install",
-    "start": "cross-env APP_TYPE=site umi dev",
+    "start": "cross-env APP_TYPE=site PROGRESS=none umi dev",
     "start:no-mock": "cross-env MOCK=none umi dev",
     "build": "umi build",
     "site": "npm run presite && cross-env APP_TYPE=site npm run build && firebase deploy && npm run docker:push",
@@ -76,15 +76,21 @@
     }
   },
   "dependencies": {
-    "@antv/data-set": "^0.10.0",
+    "@antv/data-set": "^0.10.2",
     "@babel/runtime": "^7.2.0",
-    "antd": "^3.11.6",
+    "antd": "^3.23.3",
+    "apollo-cache-inmemory": "^1.4.2",
+    "apollo-client": "^2.4.12",
+    "apollo-link": "^1.2.8",
+    "apollo-link-http": "^1.5.11",
     "bizcharts": "^3.4.2",
     "bizcharts-plugin-slider": "^2.1.1-beta.1",
     "chalk": "^2.4.2",
     "classnames": "^2.2.6",
-    "dva": "^2.4.0",
+    "dva": "^2.4.1",
     "enquire-js": "^0.2.1",
+    "graphql": "^14.1.1",
+    "graphql-tag": "^2.10.1",
     "hash.js": "^1.1.5",
     "lodash": "^4.17.10",
     "lodash-decorators": "^6.0.0",
@@ -104,13 +110,7 @@
     "react-dom": "^16.6.3",
     "react-fittext": "^1.0.0",
     "react-media": "^1.8.0",
-    "react-router-dom": "^4.3.1",
-    "apollo-link-http":"^1.5.11",
-    "apollo-client":"^2.4.12",
-    "apollo-cache-inmemory":"^1.4.2",
-    "apollo-link":"^1.2.8",
-    "graphql-tag": "^2.10.1",
-    "graphql": "^14.1.1"
+    "react-router-dom": "^4.3.1"
   },
   "devDependencies": {
     "@types/react": "^16.7.7",
@@ -121,8 +121,8 @@
     "check-prettier": "^1.0.1",
     "cross-env": "^5.1.1",
     "cross-port-killer": "^1.0.1",
-    "electron": "^4.0.1",
-    "electron-builder": "^20.38.5",
+    "electron": "^6.0.9",
+    "electron-builder": "^21.2.0",
     "enzyme": "3.7.0",
     "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.0.0",
@@ -148,12 +148,12 @@
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.10.0",
     "tslint-react": "^3.6.0",
-    "umi": "^2.4.2",
-    "umi-plugin-ga": "^1.1.3",
-    "umi-plugin-react": "^1.3.4"
+    "umi": "^2.9.5",
+    "umi-plugin-ga": "^1.1.5",
+    "umi-plugin-react": "^1.10.1"
   },
   "optionalDependencies": {
-    "puppeteer": "^1.10.0"
+    "puppeteer": "^1.20.0"
   },
   "engines": {
     "node": ">=8.0.0"

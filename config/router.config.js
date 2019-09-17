@@ -15,11 +15,8 @@ export default [
     path: '/',
     component: '../layouts/BasicLayout',
     Routes: ['src/pages/Authorized'],
-    authority: ['admin', 'user'],
     routes: [
-      // dashboard
-
-      { path: '/', redirect: '/order/siteorder' },
+      { path: '/', component: './Index' },
       {
         path: '/order',
         name: 'order',
@@ -29,16 +26,19 @@ export default [
             path: '/order/siteorder',
             name: 'siteorder',
             component: './Order/SiteOrder',
+            authority: ['admin', 'site_user', 'site_admin', 'site_account'],
           },
           {
             path: '/order/untrunkorder',
             name: 'untrunkorder',
             component: './Order/UntrunkOrder',
+            authority: ['admin', 'site_user', 'site_admin', 'site_account'],
           },
           {
             path: '/order/trunkedorder',
             name: 'trunkedorder',
             component: './Order/TrunkedOrder',
+            authority: ['admin', 'site_user', 'site_admin', 'site_account'],
           },
           {
             path: '/order/orderlist',
@@ -138,6 +138,7 @@ export default [
             path: '/transfer/site',
             name: 'site',
             component: './Transfer/Site',
+            authority: ['admin1'],
           },
         ],
       },

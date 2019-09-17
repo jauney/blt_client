@@ -1,4 +1,4 @@
-import { getTransfers, addTransfer, confirmTransfer } from '@/services/api';
+import { getTransfers, addTransfer, updateTransfer, delTransfer } from '@/services/api';
 
 export default {
   namespace: 'transfer',
@@ -17,7 +17,13 @@ export default {
       });
     },
     *confirmTransferAction({ payload }, { call, put }) {
-      return yield call(confirmTransfer, payload); // post
+      return yield call(updateTransfer, Object.assign(payload, { transfer_type: 1 })); // post
+    },
+    *cancelConfirmTransferAction({ payload }, { call, put }) {
+      return yield call(updateTransfer, Object.assign(payload, { transfer_type: 0 })); // post
+    },
+    *delTransferAction({ payload }, { call, put }) {
+      return yield call(delTransfer, payload); // post
     },
     *addTransferAction({ payload }, { call, put }) {
       return yield call(addTransfer, payload); // post

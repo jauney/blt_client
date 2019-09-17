@@ -1,5 +1,6 @@
 import { stringify } from 'qs';
 import request from '@/utils/request';
+import router from 'umi/router';
 // import ApolloClient from 'apollo-boost';
 
 // import { async } from 'q';
@@ -43,6 +44,18 @@ const client = new ApolloClient({
   defaultOptions,
 });
 
+/**
+ * 登录校验跳转。后端接口没登录，则跳转到登录
+ * @param {*} data
+ */
+function gotoLogin(data) {
+  if (data.errors && data.errors.length > 0 && data.errors[0].message == 'login') {
+    router.push('/User/Login');
+    return false;
+  }
+  return true;
+}
+
 export async function fakeAccountLogin(params) {
   return client
     .query({
@@ -63,12 +76,18 @@ export async function fakeAccountLogin(params) {
               company_name
               company_type
             }
+            roles {
+              role_id
+              role_name
+              role_desc
+            }
           }
         }
       `,
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.login;
     })
     .catch(error => {
@@ -97,6 +116,7 @@ export async function queryCompanyList(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getCompanys;
     })
     .catch(error => {
@@ -123,6 +143,7 @@ export async function addCompany(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getCompanys;
     })
     .catch(error => {
@@ -160,6 +181,7 @@ export async function queryCustomerList(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getCustomers;
     })
     .catch(error => {
@@ -188,6 +210,7 @@ export async function querySiteList(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getSites;
     })
     .catch(error => {
@@ -216,6 +239,7 @@ export async function addSite(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getSites;
     })
     .catch(error => {
@@ -244,6 +268,7 @@ export async function updateSite(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getSites;
     })
     .catch(error => {
@@ -267,6 +292,7 @@ export async function getOrderCode(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getOrderCode;
     })
     .catch(error => {
@@ -378,6 +404,7 @@ export async function createOrder(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.createOrder;
     })
     .catch(error => {
@@ -406,6 +433,7 @@ export async function updateOrder(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.updateOrder;
     })
     .catch(error => {
@@ -428,6 +456,7 @@ export async function settleOrder(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.settleOrder;
     })
     .catch(error => {
@@ -449,6 +478,7 @@ export async function cancelSettleOrder(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.cancelSettleOrder;
     })
     .catch(error => {
@@ -471,6 +501,7 @@ export async function downAccount(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.downAccountOrder;
     })
     .catch(error => {
@@ -492,6 +523,7 @@ export async function cancelDownAccountOrder(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.cancelDownAccountOrder;
     })
     .catch(error => {
@@ -515,6 +547,7 @@ export async function updateOrderSign(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.updateOrderSign;
     })
     .catch(error => {
@@ -610,6 +643,7 @@ export async function getOrderList(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getOrders;
     })
     .catch(error => {
@@ -632,6 +666,7 @@ export async function deleteOrder(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.deleteOrder;
     })
     .catch(error => {
@@ -669,6 +704,7 @@ export async function getSiteOrderStatistic(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.getSiteOrderStatistic;
     })
     .catch(error => {
@@ -703,6 +739,7 @@ export async function shipOrder(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.shipOrder;
     })
     .catch(error => {
@@ -725,6 +762,7 @@ export async function cancelShipOrder(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.cancelShipOrder;
     })
     .catch(error => {
@@ -747,6 +785,7 @@ export async function entrunkOrder(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.entrunkOrder;
     })
     .catch(error => {
@@ -769,6 +808,7 @@ export async function cancelEntrunk(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.cancelEntrunk;
     })
     .catch(error => {
@@ -794,6 +834,7 @@ export async function changeOrderReceiver(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.changeOrderReceiver;
     })
     .catch(error => {
@@ -815,6 +856,7 @@ export async function updateCarFee(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.updateCarFee;
     })
     .catch(error => {
@@ -846,6 +888,7 @@ export async function updateCarStatus(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.updateCarStatus;
     })
     .catch(error => {
@@ -871,6 +914,7 @@ export async function queryReceiverList(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.getCouriers;
     })
     .catch(error => {
@@ -906,6 +950,7 @@ export async function queryCarList(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.getCars;
     })
     .catch(error => {
@@ -927,6 +972,7 @@ export async function getCarCode(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getCarCode;
     })
     .catch(error => {
@@ -957,6 +1003,7 @@ export async function getLastCarCode(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getLastCarCode;
     })
     .catch(error => {
@@ -987,6 +1034,7 @@ export async function getCarInfo(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.getCarInfo;
     })
     .catch(error => {
@@ -1015,6 +1063,7 @@ export async function queryDriverList(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.getDrivers;
     })
     .catch(error => {
@@ -1070,6 +1119,7 @@ export async function addAbnormal(params) {
       variables: params,
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.addAbnormal;
     })
     .catch(error => {
@@ -1096,6 +1146,7 @@ export async function getAbnormalTypes(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.getAbnormalTypes;
     })
     .catch(error => {
@@ -1133,6 +1184,7 @@ export async function getIncomes(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.getIncomes;
     })
     .catch(error => {
@@ -1162,6 +1214,7 @@ export async function getIncomeTypes(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.getIncomeTypes;
     })
     .catch(error => {
@@ -1188,6 +1241,7 @@ export async function addIncome(params) {
       variables: { income: params },
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.addIncome;
     })
     .catch(error => {
@@ -1225,6 +1279,7 @@ export async function getExpenses(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.getExpenses;
     })
     .catch(error => {
@@ -1254,6 +1309,7 @@ export async function getExpenseTypes(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.getExpenseTypes;
     })
     .catch(error => {
@@ -1280,6 +1336,7 @@ export async function addExpense(params) {
       variables: { expense: params },
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.addExpense;
     })
     .catch(error => {
@@ -1311,6 +1368,7 @@ export async function getDebts(params) {
     })
     .then(data => {
       console.log(data);
+      gotoLogin(data);
       return data.data.getDebts;
     })
     .catch(error => {
@@ -1337,6 +1395,7 @@ export async function addDebt(params) {
       variables: { debt: params },
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.addDebt;
     })
     .catch(error => {
@@ -1346,6 +1405,9 @@ export async function addDebt(params) {
 
 // getTransfers
 export async function getTransfers(params) {
+  if (params.filter && params.filter.transfer_type) {
+    params.filter.transfer_type = Number(params.filter.transfer_type);
+  }
   return client
     .query({
       query: gql`
@@ -1370,7 +1432,7 @@ export async function getTransfers(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+      gotoLogin(data);
       return data.data.getTransfers;
     })
     .catch(error => {
@@ -1397,6 +1459,7 @@ export async function addTransfer(params) {
       variables: { transfer: params },
     })
     .then(data => {
+      gotoLogin(data);
       return data.data.addTransfer;
     })
     .catch(error => {
@@ -1404,12 +1467,12 @@ export async function addTransfer(params) {
     });
 }
 
-export async function confirmTransfer(params) {
+export async function updateTransfer(params) {
   return client
     .mutate({
       mutation: gql`
-        mutation confirmTransfer($transfer_id: [Int]) {
-          confirmTransfer(transfer_id: $transfer_id) {
+        mutation updateTransfer($transfer_id: [Int], $transfer_type: Int) {
+          updateTransfer(transfer_id: $transfer_id, transfer_type: $transfer_type) {
             code
             msg
           }
@@ -1418,7 +1481,30 @@ export async function confirmTransfer(params) {
       variables: params,
     })
     .then(data => {
-      return data.data.confirmTransfer;
+      gotoLogin(data);
+      return data.data.updateTransfer;
+    })
+    .catch(error => {
+      return { code: 9999, msg: '系统繁忙，请稍后再试' };
+    });
+}
+
+export async function delTransfer(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation delTransfer($transfer_id: [Int]) {
+          delTransfer(transfer_id: $transfer_id) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.delTransfer;
     })
     .catch(error => {
       return { code: 9999, msg: '系统繁忙，请稍后再试' };
