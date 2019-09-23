@@ -25,6 +25,7 @@
     "electron-start": "electron .",
     "package-all": "electron-builder -mwl",
     "package-build-mac": "yarn run build && electron-builder --mac",
+    "package-build-win": "yarn run build && electron-builder --win",
     "package-mac": "electron-builder --mac"
   },
   "build": {
