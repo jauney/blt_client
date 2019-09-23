@@ -74,7 +74,7 @@ export default {
       setAuthority(payload);
       return {
         ...state,
-        status: payload.token.length > 0,
+        status: payload.token && payload.token.length > 0,
       };
     },
   },

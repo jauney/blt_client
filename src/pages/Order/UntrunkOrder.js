@@ -142,10 +142,41 @@ class CreateReceiverForm extends PureComponent {
 class CreateEntrunkForm extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      lastCar: {},
+    };
   }
 
-  onCompanySelect = (value, option) => {
+  /**
+   * 编辑的时候初始化赋值表单
+   */
+  componentDidMount() {
+    const { currentCompany } = this.props;
+    if (!currentCompany.company_id) {
+      return;
+    }
+    this.getLastCar(currentCompany.company_id);
+  }
+
+  getLastCar = async companyId => {
+    const { dispatch } = this.props;
+    if (!companyId) {
+      return;
+    }
+    // 重新获取货车编号
+    const result = await dispatch({
+      type: 'car/getLastCarCodeAction',
+      payload: {
+        company_id: companyId,
+      },
+    });
+    console.log('88888', result);
+    this.setState({
+      lastCar: result,
+    });
+  };
+
+  onCompanySelect = async (value, option) => {
     const { dispatch, form } = this.props;
     dispatch({
       type: 'car/getCarListAction',
@@ -158,13 +189,28 @@ class CreateEntrunkForm extends PureComponent {
     // 清空勾选的货车信息
     form.resetFields(['car_id', 'driver_name', 'driver_mobile', 'car_code', 'car_date', 'car_fee']);
 
-    // 重新获取货车编号
-    dispatch({
-      type: 'car/getLastCarCodeAction',
-      payload: {
-        company_id: value,
-      },
-    });
+    this.getLastCar(value);
+  };
+
+  onCarChange = value => {
+    const { driverList, form } = this.props;
+    let currentDriver;
+    for (let i = 0; i < driverList.length; i++) {
+      const driver = driverList[i];
+      if (driver.driver_plate == value) {
+        currentDriver = driver;
+        break;
+      }
+    }
+    if (!currentDriver) {
+      // 设置发货人账号
+      form.setFieldsValue({
+        // driver_plate: currentDriver.driver_plate,
+        driver_id: '',
+        driver_name: '',
+        driver_mobile: '',
+      });
+    }
   };
 
   onCarSelect = (value, option) => {
@@ -182,7 +228,7 @@ class CreateEntrunkForm extends PureComponent {
     if (currentDriver) {
       // 设置发货人账号
       form.setFieldsValue({
-        driver_plate: currentDriver.driver_plate,
+        // driver_plate: currentDriver.driver_plate,
         driver_name: currentDriver.driver_name,
         driver_mobile: currentDriver.driver_mobile,
       });
@@ -205,9 +251,9 @@ class CreateEntrunkForm extends PureComponent {
       branchCompanyList,
       currentCompany,
       driverList,
-      lastCar,
     } = this.props;
-
+    const { lastCar } = this.state;
+    console.log(lastCar);
     return (
       <Form layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
@@ -243,6 +289,7 @@ class CreateEntrunkForm extends PureComponent {
                   style={{ width: '100%' }}
                   dataSource={driverList.map(this.renderCustomerOption)}
                   onSelect={this.onCarSelect}
+                  onChange={this.onCarChange}
                   placeholder="请输入"
                   optionLabelProp="text"
                   filterOption={(inputValue, option) =>
@@ -271,7 +318,10 @@ class CreateEntrunkForm extends PureComponent {
           <Col md={12} sm={24}>
             <FormItem label="货车编号">
               {getFieldDecorator('car_code', {
-                initialValue: lastCar.order_status > 2 ? lastCar.car_code + 1 : lastCar.car_code,
+                initialValue:
+                  lastCar.car_status && lastCar.car_status >= 2
+                    ? Number(lastCar.car_code) + 1
+                    : lastCar.car_code,
                 rules: [{ required: true, message: '请填写货车编号' }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
@@ -308,36 +358,37 @@ class CreateEntrunkForm extends PureComponent {
     } = this.props;
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
+      const formValues = fieldsValue;
       const orderIds = selectedRows.map(item => {
         return item.order_id;
       });
-      if (fieldsValue.car_date && fieldsValue.car_date.valueOf) {
-        fieldsValue.car_date = fieldsValue.car_date.valueOf() + '';
+      if (formValues.car_date && formValues.car_date.valueOf) {
+        formValues.car_date = `${formValues.car_date.valueOf()}`;
       }
       const drivers = driverList.filter(item => {
-        if (item.driver_id == fieldsValue.driver_id) {
+        if (item.driver_id == formValues.driver_id) {
           return item;
         }
       });
 
       if (drivers.length <= 0) {
-        fieldsValue.driver_plate = fieldsValue.driver_id;
-        fieldsValue.driver_id = 0;
+        formValues.driver_plate = formValues.driver_id;
+        formValues.driver_id = 0;
       } else {
-        fieldsValue.driver_plate = drivers[0].driver_plate;
-        fieldsValue.driver_id = Number(fieldsValue.driver_id);
+        formValues.driver_plate = drivers[0].driver_plate;
+        formValues.driver_id = Number(formValues.driver_id);
       }
 
-      fieldsValue.car_fee = Number(fieldsValue.car_fee || 0);
-      fieldsValue.shipsite_id = CacheSite.site_id;
+      formValues.car_fee = Number(formValues.car_fee || 0);
+      formValues.shipsite_id = CacheSite.site_id;
 
-      console.log(fieldsValue);
       const result = await dispatch({
         type: 'untrunkorder/entrunkOrderAction',
-        payload: { order_id: orderIds, car: fieldsValue },
+        payload: { order_id: orderIds, car: formValues },
       });
 
       if (result.code == 0) {
+        message.success('装车成功');
         onSearch();
         onEntrunkModalCancel();
       }
@@ -379,7 +430,6 @@ class CreateEntrunkForm extends PureComponent {
 class TableList extends PureComponent {
   state = {
     selectedRows: [],
-    formValues: {},
     current: 1,
     pageSize: 20,
     receiverModalVisible: false,
@@ -552,42 +602,9 @@ class TableList extends PureComponent {
     }
   }
 
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
-    const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters,
-    };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
-
-    dispatch({
-      type: 'rule/fetch',
-      payload: params,
-    });
-  };
-
   handleFormReset = () => {
     const { form, dispatch } = this.props;
     form.resetFields();
-    this.setState({
-      formValues: {},
-    });
-    dispatch({
-      type: 'rule/fetch',
-      payload: {},
-    });
   };
 
   handleSelectRows = rows => {
@@ -600,7 +617,6 @@ class TableList extends PureComponent {
     e && e.preventDefault();
 
     const {
-      dispatch,
       form,
       company: { branchCompanyList },
     } = this.props;
@@ -623,20 +639,56 @@ class TableList extends PureComponent {
           currentCompany: currentCompany[0],
         });
       }
-      this.setState({
-        formValues: values,
-      });
 
-      dispatch({
-        type: 'untrunkorder/getOrderListAction',
-        payload: { pageNo: 1, pageSize: 20, filter: values },
-      });
-
-      dispatch({
-        type: 'untrunkorder/getSiteOrderStatisticAction',
-        payload: { company_id: fieldsValue.company_id, site_id: fieldsValue.site_id },
-      });
+      this.getOrderList({ filter: values }, 1);
     });
+  };
+
+  /**
+   * 获取订单信息
+   */
+  getOrderList = (data, pageNo) => {
+    const { dispatch } = this.props;
+    const { current, pageSize } = this.state;
+    dispatch({
+      type: 'untrunkorder/getOrderListAction',
+      payload: { pageNo: pageNo || current, pageSize, ...data },
+    });
+
+    dispatch({
+      type: 'untrunkorder/getSiteOrderStatisticAction',
+      payload: { ...data },
+    });
+  };
+
+  /**
+   * 表格排序、分页响应
+   */
+  handleStandardTableChange = async (pagination, filtersArg, sorter) => {
+    const { pageSize } = this.state;
+
+    let sort = {};
+    let current = 1;
+    // 变更排序
+    if (sorter.field) {
+      sort = { sorter: `${sorter.field}|${sorter.order}` };
+    }
+    // 变更pageSize
+    if (pagination && pagination.pageSize != pageSize) {
+      current = 1;
+
+      await this.setState({
+        pageSize: pagination.pageSize,
+      });
+    }
+    // 切换页数
+    else if (pagination && pagination.current) {
+      current = pagination.current;
+    }
+    await this.setState({
+      current,
+    });
+    this.getOrderList(sort, current);
   };
 
   // 取消装回
@@ -742,7 +794,7 @@ class TableList extends PureComponent {
           <Col md={8} sm={24}>
             <FormItem label="站点">
               {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Select placeholder="请选择" style={{ width: '100%' }} allowClear>
                   {normalSiteList.map(ele => {
                     return (
                       <Option key={ele.site_id} value={ele.site_id}>
@@ -757,7 +809,7 @@ class TableList extends PureComponent {
           <Col md={8} sm={24}>
             <FormItem label="配载部">
               {getFieldDecorator('shipsite_id', {})(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
+                <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
                   {(entrunkSiteList || []).map(ele => {
                     return (
                       <Option key={ele.site_id} value={ele.site_id}>
@@ -772,7 +824,7 @@ class TableList extends PureComponent {
           <Col md={8} sm={24}>
             <FormItem label="接货人">
               {getFieldDecorator('receiver_id', {})(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
+                <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
                   {receiverList.map(ele => {
                     return (
                       <Option key={ele.courier_id} value={ele.courier_id}>
@@ -856,16 +908,18 @@ class TableList extends PureComponent {
             />
           </div>
         </Card>
-        <CreateEntrunkForm
-          modalVisible={entrunkModalVisible}
-          selectedRows={selectedRows}
-          branchCompanyList={branchCompanyList}
-          currentCompany={currentCompany}
-          onEntrunkModalCancel={this.onEntrunkModalCancel}
-          driverList={driverList}
-          lastCar={carCode}
-          onSearch={this.handleSearch}
-        />
+        {entrunkModalVisible && (
+          <CreateEntrunkForm
+            modalVisible={entrunkModalVisible}
+            selectedRows={selectedRows}
+            branchCompanyList={branchCompanyList}
+            currentCompany={currentCompany}
+            onEntrunkModalCancel={this.onEntrunkModalCancel}
+            driverList={driverList}
+            lastCar={carCode}
+            onSearch={this.handleSearch}
+          />
+        )}
         <CreateReceiverForm
           receiverList={receiverList}
           entrunkSiteList={entrunkSiteList}

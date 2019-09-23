@@ -13,9 +13,11 @@ export default {
   namespace: 'order',
 
   state: {
+    orderListMap: {},
     orderList: [],
     orderCode: {},
     total: 0,
+    current: 1,
     totalOrderAmount: 0,
     totalTransAmount: 0,
     totalInsurancefee: 0,
@@ -50,6 +52,7 @@ export default {
       yield put({
         type: 'getOrderListReducer',
         payload: response,
+        params: payload,
       });
     },
     *deleteOrderAction({ payload }, { call, put }) {
@@ -80,13 +83,25 @@ export default {
       };
     },
     getOrderListReducer(state, action) {
-      // let newList = state.orderList || [];
-      // if (Array.isArray(action.payload.orders)) {
-      //   newList = newList.concat(action.payload.orders);
-      // }
+      const orders = action.payload.orders;
+      if (action.params && action.params.pageNo == 1) {
+        return {
+          ...state,
+          orderList: orders,
+          total: action.payload.total,
+        };
+      }
+      const orderMap = state.orderListMap;
+      const orderList = state.orderList;
+      orders.forEach(item => {
+        if (!orderMap[item.order_id]) {
+          orderMap[item.order_id] = item;
+          orderList.push(item);
+        }
+      });
       return {
         ...state,
-        orderList: action.payload.orders,
+        orderList: orders,
         total: action.payload.total,
       };
     },

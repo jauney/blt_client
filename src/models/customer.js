@@ -5,24 +5,37 @@ export default {
 
   state: {
     getCustomerList: [],
+    getCustomerMap: {},
+    getCustomerPageNo: 1,
     sendCustomerList: [],
+    sendCustomerMap: {},
+    sendCustomerPageNo: 1,
   },
 
   effects: {
-    *getCustomerListAction({ payload }, { call, put }) {
+    *getCustomerListAction({ payload }, { call, put, select }) {
+      const customerState = yield select(state => state.customer);
       payload.type = 2;
+      payload.pageNo = customerState.getCustomerPageNo;
+      payload.pageSize = 20;
 
       const response = yield call(queryCustomerList, payload);
       const list = response.customers;
+
       yield put({
         type: 'queryGetCustomerList',
         payload: Array.isArray(list) ? list : [],
       });
     },
-    *sendCustomerListAction({ payload }, { call, put }) {
+    *sendCustomerListAction({ payload }, { call, put, select }) {
+      const customerState = yield select(state => state.customer);
       payload.type = 1;
+      payload.pageNo = customerState.sendCustomerPageNo;
+      payload.pageSize = 20;
+
       const response = yield call(queryCustomerList, payload);
       const list = response.customers;
+
       yield put({
         type: 'querySendCustomerList',
         payload: Array.isArray(list) ? list : [],
@@ -36,25 +49,73 @@ export default {
         payload: response ? [response] : [],
       });
     },
+    *resetCustomerPageNoAction({ payload }, { call, put }) {
+      yield put({
+        type: 'resetCustomerPageNo',
+        payload,
+      });
+    },
   },
 
   reducers: {
     queryGetCustomerList(state, action) {
+      const customers = action.payload;
+      const customerMap = state.getCustomerMap;
+      const customerList = state.getCustomerList;
+      customers.forEach(item => {
+        if (!customerMap[item.customer_id]) {
+          customerMap[item.customer_id] = item;
+          customerList.push(item);
+        }
+      });
       return {
         ...state,
-        getCustomerList: action.payload,
+        getCustomerPageNo:
+          action.payload.length > 0 ? state.getCustomerPageNo + 1 : state.getCustomerPageNo,
+        getCustomerMap: customerMap,
+        getCustomerList: customerList,
       };
     },
     querySendCustomerList(state, action) {
       return {
         ...state,
-        sendCustomerList: action.payload,
+        sendCustomerPageNo:
+          action.payload.length > 0 ? state.sendCustomerPageNo + 1 : state.sendCustomerPageNo,
+        sendCustomerList: state.sendCustomerList.concat(action.payload),
       };
     },
     appendGetCustomer(state, action) {
       return {
         ...state,
+        sendCustomerPageNo: state.sendCustomerPageNo + 1,
         getCustomerList: state.getCustomerList.concat(action.payload),
+      };
+    },
+    resetCustomerPageNo(state, action) {
+      if (action.payload.type == 'Get') {
+        return {
+          ...state,
+          getCustomerPageNo: 1,
+          getCustomerList: [],
+          getCustomerMap: {},
+        };
+      } else if (action.payload.type == 'Send') {
+        return {
+          ...state,
+          sendCustomerPageNo: 1,
+          sendCustomerList: [],
+          sendCustomerMap: {},
+        };
+      }
+
+      return {
+        ...state,
+        getCustomerPageNo: 1,
+        sendCustomerPageNo: 1,
+        sendCustomerList: [],
+        sendCustomerMap: {},
+        getCustomerList: [],
+        getCustomerMap: {},
       };
     },
   },
