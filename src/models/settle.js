@@ -3,7 +3,7 @@ import {
   getTrunkedOrderStatistic,
   cancelSettleOrder,
   downAccount,
-  updateOrderSign,
+  cancelDownAccountOrder,
 } from '@/services/api';
 
 export default {
@@ -43,9 +43,9 @@ export default {
     *downAccountAction({ payload }, { call, put }) {
       return yield call(downAccount, payload); // post
     },
-    *cancelSignAction({ payload }, { call, put }) {
+    *cancelDownAccountAction({ payload }, { call, put }) {
       payload.sign_status = 0;
-      return yield call(updateOrderSign, payload); // post
+      return yield call(cancelDownAccountOrder, payload); // post
     },
   },
 

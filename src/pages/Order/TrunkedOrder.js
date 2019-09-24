@@ -167,7 +167,6 @@ class CreateEntrunkForm extends PureComponent {
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
 
-      console.log(fieldsValue);
       fieldsValue.car_fee = Number(fieldsValue.car_fee);
       const result = await dispatch({
         type: 'trunkedorder/updateCarFeeAction',
@@ -175,6 +174,7 @@ class CreateEntrunkForm extends PureComponent {
       });
 
       if (result.code == 0) {
+        message.success('运费结算成功');
         onSearch();
         onEntrunkModalCancel();
       }
@@ -215,7 +215,6 @@ class CreateEntrunkForm extends PureComponent {
 class TableList extends PureComponent {
   state = {
     selectedRows: [],
-    formValues: {},
     current: 1,
     pageSize: 20,
     entrunkModalVisible: false,
@@ -821,13 +820,12 @@ class TableList extends PureComponent {
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
               <Button type="primary" onClick={this.onEntrunkModalShow}>
-                货车信息
+                货车运费结算
               </Button>
               {lastCar.car_status < 3 && <Button onClick={this.onDepark}>发车</Button>}
               {lastCar.car_status == 3 && <Button onClick={this.onCancelDepark}>取消发车</Button>}
               {lastCar.car_status == 3 && <Button onClick={this.onArrive}>到车确认</Button>}
               {lastCar.car_status == 4 && <Button onClick={this.onCancelArrive}>取消到车</Button>}
-
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onCancelEntrunk}>取消货物装车</Button>

@@ -46,11 +46,11 @@ const CacheSite = JSON.parse(localStorage.getItem('site') || '{}');
 const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, trunkedorder, site, car, receiver, loading }) => {
+@connect(({ customer, company, orderlist, site, car, receiver, loading }) => {
   return {
     customer,
     company,
-    trunkedorder,
+    orderlist,
     site,
     car,
     receiver,
@@ -196,25 +196,35 @@ class TableList extends PureComponent {
     }
   }
 
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
+  /**
+   * 表格排序、分页响应
+   */
+  handleStandardTableChange = async (pagination, filtersArg, sorter) => {
     const { dispatch } = this.props;
-    const { formValues } = this.state;
+    const { formValues, pageSize } = this.state;
 
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
-    const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters,
-    };
+    let sort = {};
+    let current = 1;
+    // 变更排序
     if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
+      sort = { sorter: `${sorter.field}|${sorter.order}` };
     }
+    // 变更pageSize
+    if (pagination && pagination.pageSize != pageSize) {
+      current = 1;
+
+      await this.setState({
+        pageSize: pagination.pageSize,
+      });
+    }
+    // 切换页数
+    else if (pagination && pagination.current) {
+      current = pagination.current;
+    }
+    await this.setState({
+      current,
+    });
+    this.getOrderList(sort, current);
   };
 
   handleFormReset = () => {
@@ -281,6 +291,17 @@ class TableList extends PureComponent {
         car_code: form.getFieldValue('car_code') || '',
       },
     });
+
+    this.getOrderList();
+  };
+
+  /**
+   * 获取订单信息
+   */
+  getOrderList = (data = {}, pageNo = 1) => {
+    const { dispatch, form } = this.props;
+    const { current, pageSize } = this.state;
+    let searchParams = {};
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
@@ -310,25 +331,19 @@ class TableList extends PureComponent {
           return `${item.valueOf()}`;
         });
       }
-      console.log(fieldsValue, filter);
-      const values = {
-        ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-      };
 
-      this.setState({
-        formValues: values,
-      });
+      filter.order_status = [3, 10];
+      searchParams = filter;
+    });
+    searchParams = Object.assign({ filter: searchParams }, data);
+    dispatch({
+      type: 'orderlist/getOrderListAction',
+      payload: { pageNo: pageNo || current, pageSize, ...searchParams },
+    });
 
-      dispatch({
-        type: 'trunkedorder/getOrderListAction',
-        payload: { pageNo: 1, pageSize: 20, filter },
-      });
-
-      dispatch({
-        type: 'trunkedorder/getOrderListStatisticAction',
-        payload: { company_id: fieldsValue.company_id, site_id: fieldsValue.site_id },
-      });
+    dispatch({
+      type: 'orderlist/getSiteOrderStatisticAction',
+      payload: { ...searchParams },
     });
   };
 
@@ -354,6 +369,7 @@ class TableList extends PureComponent {
                   placeholder="请选择"
                   onSelect={this.onCompanySelect}
                   style={{ width: '100%' }}
+                  allowClear
                 >
                   {branchCompanyList.map(ele => {
                     return (
@@ -369,7 +385,7 @@ class TableList extends PureComponent {
           <Col md={8} sm={24}>
             <FormItem label="站点">
               {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Select placeholder="请选择" style={{ width: '100%' }} allowClear>
                   {normalSiteList.map(ele => {
                     return (
                       <Option key={ele.site_id} value={ele.site_id}>
@@ -384,7 +400,7 @@ class TableList extends PureComponent {
           <Col md={8} sm={24}>
             <FormItem label="配载部">
               {getFieldDecorator('shipsite_id', {})(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
+                <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
                   {(entrunkSiteList || []).map(ele => {
                     return (
                       <Option key={ele.site_id} value={ele.site_id}>
@@ -399,7 +415,7 @@ class TableList extends PureComponent {
           <Col md={8} sm={24}>
             <FormItem label="异常状态">
               {getFieldDecorator('abnormal_status')(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
+                <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
                   <Option value="1">异常</Option>
                 </Select>
               )}
@@ -435,7 +451,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      trunkedorder: { orderList, total, totalOrderAmount, totalTransAmount },
+      orderlist: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,
     } = this.props;
 

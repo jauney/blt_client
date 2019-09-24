@@ -10,3 +10,9 @@ form.setFieldsValue({
 setFieldsValue的时候，driver_plate在form中没有。即设置了getFieldDecorator中没有的字段时，就会报该错误
 
 
+
+2、打包到windows7无法启动
+需要设置参数：
+```
+"package-build-win": "yarn run build && electron-builder --win",
+```

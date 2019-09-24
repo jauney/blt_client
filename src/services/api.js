@@ -2,13 +2,6 @@ import { stringify } from 'qs';
 import { message } from 'antd';
 import request from '@/utils/request';
 import router from 'umi/router';
-// import ApolloClient from 'apollo-boost';
-
-// import { async } from 'q';
-// const client = new ApolloClient({
-//   uri: 'http://127.0.0.1:3002/graphql',
-// });
-
 import { HttpLink } from 'apollo-link-http';
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink, concat } from 'apollo-link';
@@ -16,7 +9,9 @@ import gql from 'graphql-tag';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { async } from 'q';
 
-const httpLink = new HttpLink({ uri: 'http://47.105.84.59:3008/graphql' });
+// const httpLink = new HttpLink({ uri: 'http://47.105.84.59:3008/graphql' });
+
+const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3008/graphql' });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
   // add the authorization to the headers
@@ -570,6 +565,9 @@ export async function updateOrderSign(params) {
 export async function getOrderList(params) {
   if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
     params.filter.order_status = [params.filter.order_status];
+  }
+  if (params.filter && params.filter.abnormal_status) {
+    params.filter.abnormal_status = Number(params.filter.abnormal_status);
   }
   return client
     .query({

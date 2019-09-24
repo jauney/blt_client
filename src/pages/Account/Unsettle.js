@@ -320,94 +320,6 @@ class CreateForm extends PureComponent {
     trunkedorder,
   };
 })
-@Form.create()
-class CreateEntrunkForm extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
-  getModalContent = () => {
-    const {
-      form: { getFieldDecorator },
-      currentCompany,
-      lastCar,
-    } = this.props;
-
-    return (
-      <Form layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={12} sm={24}>
-            <FormItem label="分公司">{currentCompany.company_name}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="车牌号">{lastCar.driver_plate}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="车主姓名">{lastCar.driver_name}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="联系电话">{lastCar.driver_mobile}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="货车编号">{lastCar.car_code}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="拉货日期">
-              {moment(Number(lastCar.car_date || 0)).format('YYYY-MM-DD HH:mm:ss')}
-            </FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="货车费用">
-              {getFieldDecorator('car_fee', {
-                rules: [{ required: true, message: '请填写货车费用' }],
-                initialValue: lastCar.car_fee,
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-        </Row>
-      </Form>
-    );
-  };
-
-  onOkHandler = e => {
-    e.preventDefault();
-    const { dispatch, form, onEntrunkModalCancel, lastCar, onSearch } = this.props;
-    form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-
-      console.log(fieldsValue);
-      fieldsValue.car_fee = Number(fieldsValue.car_fee);
-      const result = await dispatch({
-        type: 'trunkedorder/updateCarFeeAction',
-        payload: Object.assign(lastCar, fieldsValue),
-      });
-
-      if (result.code == 0) {
-        onSearch();
-        onEntrunkModalCancel();
-      }
-    });
-  };
-
-  render() {
-    const { modalVisible, onEntrunkModalCancel } = this.props;
-    return (
-      <Modal
-        title="货物装车"
-        className={styles.standardListForm}
-        width={700}
-        destroyOnClose
-        visible={modalVisible}
-        onOk={this.onOkHandler}
-        onCancel={onEntrunkModalCancel}
-      >
-        {this.getModalContent()}
-      </Modal>
-    );
-  }
-}
-
 /* eslint react/no-multi-comp:0 */
 @connect(({ customer, company, unsettle, site, car, receiver, loading }) => {
   return {
@@ -583,27 +495,6 @@ class TableList extends PureComponent {
     }
   }
 
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
-    const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters,
-    };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
-  };
-
   handleFormReset = () => {
     const { form, dispatch } = this.props;
     form.resetFields();
@@ -622,14 +513,40 @@ class TableList extends PureComponent {
     });
   };
 
+  onGetCustomerScroll = e => {
+    if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
+      this.fetchGetCustomerList();
+    }
+  };
+
+  onSendCustomerScroll = e => {
+    if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
+      this.fetchSendCustomerList();
+    }
+  };
+
   fetchGetCustomerList = async companyId => {
-    const { dispatch } = this.props;
+    const { dispatch, branchCompanyList } = this.props;
+    let { currentCompany } = this.state;
+    if (!currentCompany || !currentCompany.company_id) {
+      currentCompany = branchCompanyList && branchCompanyList[0];
+    }
+
     dispatch({
       type: 'customer/getCustomerListAction',
       payload: {
-        pageNo: 1,
-        pageSize: 100,
-        filter: { company_id: companyId },
+        filter: { company_id: companyId || (currentCompany && currentCompany.company_id) || 0 },
+      },
+    });
+  };
+
+  fetchSendCustomerList = async companyId => {
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'customer/sendCustomerListAction',
+      payload: {
+        filter: {},
       },
     });
   };
@@ -638,11 +555,15 @@ class TableList extends PureComponent {
     const {
       dispatch,
       company: { branchCompanyList },
-      form,
       car: { lastCar },
     } = this.props;
+    // 清空原公司收获客户
+    dispatch({
+      type: 'customer/resetCustomerPageNo',
+      payload: { type: 'Get' },
+    });
     // 获取当前公司的客户列表
-    this.fetchGetCustomerList(company_id);
+    this.fetchGetCustomerList(value);
 
     const currentCompany = branchCompanyList.filter(item => {
       if (item.company_id == value) {
@@ -658,31 +579,60 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
+    this.getOrderList();
+  };
 
+  /**
+   * 获取订单信息
+   */
+  getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
+    const { current, pageSize } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
-      const values = {
-        ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-      };
-
-      this.setState({
-        formValues: values,
-      });
-
+      const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'unsettle/getOrderListAction',
-        payload: { pageNo: 1, pageSize: 20, filter: values },
+        payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
       dispatch({
         type: 'unsettle/getSiteOrderStatisticAction',
-        payload: { company_id: fieldsValue.company_id, site_id: fieldsValue.site_id },
+        payload: { ...searchParams },
       });
     });
+  };
+
+  /**
+   * 表格排序、分页响应
+   */
+  handleStandardTableChange = async (pagination, filtersArg, sorter) => {
+    const { dispatch } = this.props;
+    const { formValues, pageSize } = this.state;
+
+    let sort = {};
+    let current = 1;
+    // 变更排序
+    if (sorter.field) {
+      sort = { sorter: `${sorter.field}|${sorter.order}` };
+    }
+    // 变更pageSize
+    if (pagination && pagination.pageSize != pageSize) {
+      current = 1;
+
+      await this.setState({
+        pageSize: pagination.pageSize,
+      });
+    }
+    // 切换页数
+    else if (pagination && pagination.current) {
+      current = pagination.current;
+    }
+    await this.setState({
+      current,
+    });
+    this.getOrderList(sort, current);
   };
 
   // 签字
@@ -736,7 +686,7 @@ class TableList extends PureComponent {
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
-    let result = await dispatch({
+    const result = await dispatch({
       type: 'unsettle/settleOrderAction',
       payload: {
         order_id: orderIds,
@@ -746,6 +696,7 @@ class TableList extends PureComponent {
       message.success('核对成功！');
 
       this.onSettleCancel();
+      this.handleSearch();
     } else {
       message.error(result.msg);
     }
@@ -770,7 +721,7 @@ class TableList extends PureComponent {
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
-    let result = await dispatch({
+    const result = await dispatch({
       type: 'unsettle/cancelSignAction',
       payload: {
         order_id: orderIds,
@@ -903,6 +854,7 @@ class TableList extends PureComponent {
       customer: { getCustomerList, sendCustomerList },
       company: { branchCompanyList },
     } = this.props;
+    const formItemLayout = {};
     const companyOption = {};
     // 默认勾选第一个公司
     if (branchCompanyList.length > 0) {
@@ -910,106 +862,92 @@ class TableList extends PureComponent {
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="分公司">
-              {getFieldDecorator('company_id', companyOption)(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onCompanySelect}
-                  style={{ width: '100%' }}
-                >
-                  {branchCompanyList.map(ele => {
-                    return (
-                      <Option key={ele.company_id} value={ele.company_id}>
-                        {ele.company_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="运单号">
-              {getFieldDecorator('order_code', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="货车编号">
-              {getFieldDecorator('car_code', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="收货人姓名">
-              {getFieldDecorator('getcustomer_id')(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onGetCustomerSelect}
-                  style={{ width: '100%' }}
-                  allowClear
-                  showSearch
-                  optionLabelProp="children"
-                  onPopupScroll={this.onGetCustomerScroll}
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                >
-                  {getCustomerList.map(ele => {
-                    return (
-                      <Option key={ele.customer_id} value={ele.customer_id}>
-                        {ele.customer_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="收货人电话">
-              {getFieldDecorator('getcustomer_mobile', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="发货人姓名">
-              {getFieldDecorator('sendcustomer_id')(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onSendCustomerSelect}
-                  style={{ width: '100%' }}
-                  allowClear
-                  showSearch
-                  optionLabelProp="children"
-                  onPopupScroll={this.onSendCustomerScroll}
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                >
-                  {sendCustomerList.map(ele => {
-                    return (
-                      <Option key={ele.get} value={ele.customer_id}>
-                        {ele.customer_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="收货人电话">
-              {getFieldDecorator('sendcustomer_mobile', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
-                查询
-              </Button>
-            </span>
-          </Col>
-        </Row>
+        <FormItem label="分公司" {...formItemLayout}>
+          {getFieldDecorator('company_id', companyOption)(
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+              {branchCompanyList.map(ele => {
+                return (
+                  <Option key={ele.company_id} value={ele.company_id}>
+                    {ele.company_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="运单号" {...formItemLayout}>
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem label="货车编号" {...formItemLayout}>
+          {getFieldDecorator('car_code', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem label="收货人姓名" {...formItemLayout}>
+          {getFieldDecorator('getcustomer_id')(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onGetCustomerSelect}
+              style={{ width: '200px' }}
+              allowClear
+              showSearch
+              optionLabelProp="children"
+              onPopupScroll={this.onGetCustomerScroll}
+              filterOption={(input, option) =>
+                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {getCustomerList.map(ele => {
+                return (
+                  <Option key={ele.customer_id} value={ele.customer_id}>
+                    {ele.customer_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="收货人电话" {...formItemLayout}>
+          {getFieldDecorator('getcustomer_mobile', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem label="发货人姓名" {...formItemLayout}>
+          {getFieldDecorator('sendcustomer_id')(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onSendCustomerSelect}
+              style={{ width: '150px' }}
+              allowClear
+              showSearch
+              optionLabelProp="children"
+              onPopupScroll={this.onSendCustomerScroll}
+              filterOption={(input, option) =>
+                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {sendCustomerList.map(ele => {
+                return (
+                  <Option key={ele.get} value={ele.customer_id}>
+                    {ele.customer_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="收货人电话" {...formItemLayout}>
+          {getFieldDecorator('sendcustomer_mobile', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <Form.Item {...formItemLayout}>
+          <Button type="primary" htmlType="submit">
+            查询
+          </Button>
+        </Form.Item>
       </Form>
     );
   }

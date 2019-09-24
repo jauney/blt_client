@@ -1055,106 +1055,92 @@ class TableList extends PureComponent {
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="分公司">
-              {getFieldDecorator('company_id', companyOption)(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onCompanySelect}
-                  style={{ width: '100%' }}
-                >
-                  {branchCompanyList.map(ele => {
-                    return (
-                      <Option key={ele.company_id} value={ele.company_id}>
-                        {ele.company_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="运单号">
-              {getFieldDecorator('order_code', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="货车编号">
-              {getFieldDecorator('car_code', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="收货人姓名">
-              {getFieldDecorator('getcustomer_id')(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onGetCustomerSelect}
-                  style={{ width: '100%' }}
-                  allowClear
-                  showSearch
-                  optionLabelProp="children"
-                  onPopupScroll={this.onGetCustomerScroll}
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                >
-                  {getCustomerList.map(ele => {
-                    return (
-                      <Option key={ele.customer_id} value={ele.customer_id}>
-                        {ele.customer_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="收货人电话">
-              {getFieldDecorator('getcustomer_mobile', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="发货人姓名">
-              {getFieldDecorator('sendcustomer_id')(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onSendCustomerSelect}
-                  style={{ width: '100%' }}
-                  allowClear
-                  showSearch
-                  optionLabelProp="children"
-                  onPopupScroll={this.onSendCustomerScroll}
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                >
-                  {sendCustomerList.map(ele => {
-                    return (
-                      <Option key={ele.get} value={ele.customer_id}>
-                        {ele.customer_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="收货人电话">
-              {getFieldDecorator('sendcustomer_mobile', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
-                查询
-              </Button>
-            </span>
-          </Col>
-        </Row>
+        <FormItem label="分公司">
+          {getFieldDecorator('company_id', companyOption)(
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+              {branchCompanyList.map(ele => {
+                return (
+                  <Option key={ele.company_id} value={ele.company_id}>
+                    {ele.company_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="运单号">
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem label="货车编号">
+          {getFieldDecorator('car_code', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem label="收货人姓名">
+          {getFieldDecorator('getcustomer_id')(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onGetCustomerSelect}
+              style={{ width: '200px' }}
+              allowClear
+              showSearch
+              optionLabelProp="children"
+              onPopupScroll={this.onGetCustomerScroll}
+              filterOption={(input, option) =>
+                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {getCustomerList.map(ele => {
+                return (
+                  <Option key={ele.customer_id} value={ele.customer_id}>
+                    {ele.customer_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="收货人电话">
+          {getFieldDecorator('getcustomer_mobile', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem label="发货人姓名">
+          {getFieldDecorator('sendcustomer_id')(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onSendCustomerSelect}
+              style={{ width: '200px' }}
+              allowClear
+              showSearch
+              optionLabelProp="children"
+              onPopupScroll={this.onSendCustomerScroll}
+              filterOption={(input, option) =>
+                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {sendCustomerList.map(ele => {
+                return (
+                  <Option key={ele.get} value={ele.customer_id}>
+                    {ele.customer_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="收货人电话">
+          {getFieldDecorator('sendcustomer_mobile', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            查询
+          </Button>
+        </Form.Item>
       </Form>
     );
   }

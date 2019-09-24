@@ -41,7 +41,8 @@ export default {
         }
 
         console.log('#$$$77777', redirect);
-        yield put(routerRedux.replace(redirect || '/'));
+        window.location.href = redirect || '/';
+        // yield put(routerRedux.replace({ pathname: redirect || '/' }));
       }
     },
 
