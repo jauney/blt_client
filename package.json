@@ -30,7 +30,7 @@
   },
   "build": {
     "asar": true,
-    "productName": "myName",
+    "productName": "bltwlgs",
     "appId": "com.bltwl",
     "extends": null,
     "files": [
