@@ -1248,56 +1248,44 @@ class TableList extends PureComponent {
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="分公司">
-              {getFieldDecorator('company_id', companyOption)(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onCompanySelect}
-                  style={{ width: '100%' }}
-                >
-                  {branchCompanyList.map(ele => {
-                    return (
-                      <Option key={ele.company_id} value={ele.company_id}>
-                        {ele.company_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="站点">
-              {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value={CacheSite.site_id} selected>
-                    {CacheSite.site_name}
+        <FormItem label="分公司">
+          {getFieldDecorator('company_id', companyOption)(
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+              {branchCompanyList.map(ele => {
+                return (
+                  <Option key={ele.company_id} value={ele.company_id}>
+                    {ele.company_name}
                   </Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="经办人">
-              {getFieldDecorator('operator_id', { initialValue: CacheUser.user_id })(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value={CacheUser.user_id} selected>
-                    {CacheUser.user_name}
-                  </Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
-                查询
-              </Button>
-            </span>
-          </Col>
-        </Row>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+
+        <FormItem label="站点">
+          {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
+            <Select placeholder="请选择" style={{ width: '150px' }}>
+              <Option value={CacheSite.site_id} selected>
+                {CacheSite.site_name}
+              </Option>
+            </Select>
+          )}
+        </FormItem>
+
+        <FormItem label="经办人">
+          {getFieldDecorator('operator_id', { initialValue: CacheUser.user_id })(
+            <Select placeholder="请选择" style={{ width: '150px' }}>
+              <Option value={CacheUser.user_id} selected>
+                {CacheUser.user_name}
+              </Option>
+            </Select>
+          )}
+        </FormItem>
+        <FormItem>
+          <Button type="primary" htmlType="submit">
+            查询
+          </Button>
+        </FormItem>
       </Form>
     );
   }

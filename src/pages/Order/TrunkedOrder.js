@@ -718,72 +718,62 @@ class TableList extends PureComponent {
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="分公司">
-              {getFieldDecorator('company_id', companyOption)(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onCompanySelect}
-                  allowClear
-                  style={{ width: '100%' }}
-                >
-                  {branchCompanyList.map(ele => {
-                    return (
-                      <Option key={ele.company_id} value={ele.company_id}>
-                        {ele.company_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="站点">
-              {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-                <Select placeholder="请选择" style={{ width: '100%' }} allowClear>
-                  {normalSiteList.map(ele => {
-                    return (
-                      <Option key={ele.site_id} value={ele.site_id}>
-                        {ele.site_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="配载部">
-              {getFieldDecorator('shipsite_id', {})(
-                <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
-                  {(entrunkSiteList || []).map(ele => {
-                    return (
-                      <Option key={ele.site_id} value={ele.site_id}>
-                        {ele.site_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="货车编号">
-              {getFieldDecorator('car_code', { initialValue: lastCar.car_code })(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
-                查询
-              </Button>
-            </span>
-          </Col>
-        </Row>
+        <FormItem label="分公司">
+          {getFieldDecorator('company_id', companyOption)(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onCompanySelect}
+              allowClear
+              style={{ width: '150px' }}
+            >
+              {branchCompanyList.map(ele => {
+                return (
+                  <Option key={ele.company_id} value={ele.company_id}>
+                    {ele.company_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="站点">
+          {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
+            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+              {normalSiteList.map(ele => {
+                return (
+                  <Option key={ele.site_id} value={ele.site_id}>
+                    {ele.site_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+
+        <FormItem label="配载部">
+          {getFieldDecorator('shipsite_id', {})(
+            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+              {(entrunkSiteList || []).map(ele => {
+                return (
+                  <Option key={ele.site_id} value={ele.site_id}>
+                    {ele.site_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+
+        <FormItem label="货车编号">
+          {getFieldDecorator('car_code', { initialValue: lastCar.car_code })(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem>
+          <Button type="primary" htmlType="submit">
+            查询
+          </Button>
+        </FormItem>
       </Form>
     );
   }
