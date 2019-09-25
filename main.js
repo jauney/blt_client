@@ -1,5 +1,5 @@
 // 引入electron并创建一个Browserwindow
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
 const path = require('path');
 const url = require('url');
 
@@ -40,7 +40,16 @@ function createWindow() {
 }
 
 // 当 Electron 完成初始化并准备创建浏览器窗口时调用此方法
-app.on('ready', createWindow);
+app.on('ready', () => {
+  if (mainWindow == null) {
+    createWindow();
+  }
+
+  globalShortcut.register('CommandOrControl+Shift+L', () => {
+    const focusWin = BrowserWindow.getFocusedWindow();
+    focusWin && focusWin.toggleDevTools();
+  });
+});
 
 // 所有窗口关闭时退出应用.
 app.on('window-all-closed', () => {
