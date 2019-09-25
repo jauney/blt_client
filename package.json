@@ -38,6 +38,17 @@
       "main.js",
       "package.json"
     ],
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "./public/icons/favicon.png",
+      "uninstallerIcon": "./public/icons/favicon.png",
+      "installerHeaderIcon": "./public/icons/favicon.png",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "宝路通物流"
+    },
     "mac": {
       "target": [
         "dmg",
@@ -68,11 +79,7 @@
       "buildResources": "resources",
       "output": "./packages"
     },
-    "compression": "normal",
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
-    }
+    "compression": "normal"
   },
   "dependencies": {
     "@antv/data-set": "^0.10.2",
