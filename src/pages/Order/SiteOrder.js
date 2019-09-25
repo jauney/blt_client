@@ -247,7 +247,6 @@ class CreateForm extends PureComponent {
     if (!curCustomer) {
       form.setFieldsValue({
         sendcustomer_id: currentSendCustomerName,
-        sendcustomer_mobile: '',
       });
     }
   };
@@ -268,7 +267,6 @@ class CreateForm extends PureComponent {
       console.log(777777777777, curCustomer, currentGetCustomerName, value);
       form.setFieldsValue({
         getcustomer_id: currentGetCustomerName,
-        getcustomer_mobile: '',
       });
     }
   };
