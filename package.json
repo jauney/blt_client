@@ -65,7 +65,8 @@
     },
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "zip"
       ]
     },
     "directories": {
