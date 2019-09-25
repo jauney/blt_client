@@ -1076,68 +1076,52 @@ class TableList extends PureComponent {
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="分公司">
-              {getFieldDecorator('company_id', companyOption)(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onCompanySelect}
-                  style={{ width: '100%' }}
-                >
-                  {branchCompanyList.map(ele => {
-                    return (
-                      <Option key={ele.company_id} value={ele.company_id}>
-                        {ele.company_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="运单号">
-              {getFieldDecorator('order_code', {})(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="站点">
-              {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  {normalSiteList.map(ele => {
-                    return (
-                      <Option key={ele.site_id} value={ele.site_id}>
-                        {ele.site_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="异常状态">
-              {getFieldDecorator('abnormal_status')(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
-                  <Option value="1">异常</Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="托运日期">
-              {getFieldDecorator('entrunk_date', {})(<RangePicker />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
-                查询
-              </Button>
-            </span>
-          </Col>
-        </Row>
+        <FormItem label="分公司">
+          {getFieldDecorator('company_id', companyOption)(
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+              {branchCompanyList.map(ele => {
+                return (
+                  <Option key={ele.company_id} value={ele.company_id}>
+                    {ele.company_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="运单号">
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem label="站点">
+          {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
+            <Select placeholder="请选择" style={{ width: '150px' }}>
+              {normalSiteList.map(ele => {
+                return (
+                  <Option key={ele.site_id} value={ele.site_id}>
+                    {ele.site_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="异常状态">
+          {getFieldDecorator('abnormal_status')(
+            <Select placeholder="请选择" style={{ width: '150px' }}>
+              <Option value="1">异常</Option>
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="托运日期">
+          {getFieldDecorator('entrunk_date', {})(<RangePicker style={{ width: '250px' }} />)}
+        </FormItem>
+        <FormItem>
+          <Button type="primary" htmlType="submit">
+            查询
+          </Button>
+        </FormItem>
       </Form>
     );
   }

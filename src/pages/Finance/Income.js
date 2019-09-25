@@ -1043,75 +1043,66 @@ class TableList extends PureComponent {
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="分公司">
-              {getFieldDecorator('company_id', companyOption)(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onCompanySelect}
-                  style={{ width: '100%' }}
-                  allowClear
-                >
-                  {branchCompanyList.map(ele => {
-                    return (
-                      <Option key={ele.company_id} value={ele.company_id}>
-                        {ele.company_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="站点">
-              {getFieldDecorator('site', {})(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onSiteSelect}
-                  style={{ width: '100%' }}
-                  allowClear
-                >
-                  {normalSiteList.map(ele => {
-                    return (
-                      <Option key={ele.site_id} value={ele.site_id}>
-                        {ele.site_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="收入日期">
-              {getFieldDecorator('income_date', {})(<RangePicker />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="一级分类">
-              {getFieldDecorator('income_type')(
-                <Select placeholder="请选择" style={{ width: '100%' }} allowClear>
-                  {incomeTypes.map(ele => {
-                    return (
-                      <Option key={ele.incometype_id} value={ele.incometype_id}>
-                        {ele.incometype}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
-                查询
-              </Button>
-            </span>
-          </Col>
-        </Row>
+        <FormItem label="分公司">
+          {getFieldDecorator('company_id', companyOption)(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onCompanySelect}
+              style={{ width: '150px' }}
+              allowClear
+            >
+              {branchCompanyList.map(ele => {
+                return (
+                  <Option key={ele.company_id} value={ele.company_id}>
+                    {ele.company_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+
+        <FormItem label="站点">
+          {getFieldDecorator('site', {})(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onSiteSelect}
+              style={{ width: '150px' }}
+              allowClear
+            >
+              {normalSiteList.map(ele => {
+                return (
+                  <Option key={ele.site_id} value={ele.site_id}>
+                    {ele.site_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+
+        <FormItem label="收入日期">
+          {getFieldDecorator('income_date', {})(<RangePicker style={{ width: '250px' }} />)}
+        </FormItem>
+
+        <FormItem label="一级分类">
+          {getFieldDecorator('income_type')(
+            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+              {incomeTypes.map(ele => {
+                return (
+                  <Option key={ele.incometype_id} value={ele.incometype_id}>
+                    {ele.incometype}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem>
+          <Button type="primary" htmlType="submit">
+            查询
+          </Button>
+        </FormItem>
       </Form>
     );
   }
