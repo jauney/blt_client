@@ -31,7 +31,7 @@ function createWindow() {
   mainWindow.loadURL('http://47.105.84.59:8000');
 
   // 打开开发者工具，默认不打开
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // 关闭window时触发下列事件.
   mainWindow.on('closed', () => {
