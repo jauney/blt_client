@@ -52,7 +52,9 @@ class CreateForm extends PureComponent {
       // 缓存收货人列表，筛选的时候可以动态调整
       selectedGetCustomerMobile: '',
       selectedSendCustomerMobile: '',
+      currentSendCustomerName: '',
       currentSendCustomer: {},
+      currentGetCustomerName: '',
       currentGetCustomer: {},
       currentCompany: {},
     };
@@ -230,11 +232,46 @@ class CreateForm extends PureComponent {
     this.computeTransDiscount();
   };
 
-  onSendCustomerBlur = event => {
-    console.log(event);
+  onSendCustomerBlur = value => {
+    const { form, sendCustomerList } = this.props;
+    const { currentSendCustomerName } = this.state;
+
+    let curCustomer;
+    for (let i = 0; i < sendCustomerList.length; i++) {
+      const customer = sendCustomerList[i];
+      if (customer.customer_name == currentSendCustomerName || customer.customer_id == value) {
+        curCustomer = customer;
+        break;
+      }
+    }
+    if (!curCustomer) {
+      form.setFieldsValue({
+        sendcustomer_id: currentSendCustomerName,
+        sendcustomer_mobile: '',
+      });
+    }
   };
 
-  onGetCustomerBlur = keyWords => {};
+  onGetCustomerBlur = value => {
+    const { form, getCustomerList } = this.props;
+    const { currentGetCustomerName } = this.state;
+
+    let curCustomer;
+    for (let i = 0; i < getCustomerList.length; i++) {
+      const customer = getCustomerList[i];
+      if (customer.customer_name == currentGetCustomerName || customer.customer_id == value) {
+        curCustomer = customer;
+        break;
+      }
+    }
+    if (!curCustomer) {
+      console.log(777777777777, curCustomer, currentGetCustomerName, value);
+      form.setFieldsValue({
+        getcustomer_id: currentGetCustomerName,
+        getcustomer_mobile: '',
+      });
+    }
+  };
 
   onGetCustomerScroll = e => {
     if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
@@ -249,10 +286,10 @@ class CreateForm extends PureComponent {
   };
 
   // 设置选中的客户
-  setSelectedCustomer = async (fieldName, customer) => {
+  setSelectedCustomer = async (fieldName, customer = {}) => {
     const { form } = this.props;
     const fieldObject = {};
-    fieldObject[fieldName] = customer.customer_name; // customer.customer_id;
+    fieldObject[fieldName] = customer.customer_name || ''; // customer.customer_id;
     form.setFieldsValue(fieldObject);
     // setFieldsValue不会触发select的onSelect事件，因此需要手动再触发一次计算：
     // 1）是否VIP 2）计算折后运费 3）发货人银行账号
@@ -260,7 +297,7 @@ class CreateForm extends PureComponent {
       // update bankaccoount
       // 设置发货人账号
       form.setFieldsValue({
-        bank_account: customer.bank_account,
+        bank_account: customer.bank_account || '',
       });
     } else {
       await this.setState({
@@ -272,59 +309,63 @@ class CreateForm extends PureComponent {
 
   onSendCustomerMobileBlur = event => {
     const { sendCustomerList } = this.props;
+    let flag = false;
+    let customer;
     for (let i = 0; i < sendCustomerList.length; i++) {
-      const customer = sendCustomerList[i];
+      customer = sendCustomerList[i];
       const mobiles = customer.customerMobiles || [];
-      let flag = false;
+
       if (event.target.value == customer.customer_mobile) {
         flag = true;
-        this.setSelectedCustomer('sendcustomer_id', customer);
         break;
       } else {
         for (let j = 0; j < mobiles.length; j++) {
           const mobile = mobiles[j];
           if (event.target.value == mobile.mobile) {
-            this.setSelectedCustomer('sendcustomer_id', customer);
             flag = true;
             break;
           }
         }
       }
-      if (flag) {
-        this.setState({
-          currentSendCustomer: customer,
-        });
-        break;
-      }
+    }
+
+    if (flag) {
+      this.setSelectedCustomer('sendcustomer_id', customer);
+      this.setState({
+        currentSendCustomer: customer,
+      });
+    } else if (event.target.value) {
+      this.setSelectedCustomer('sendcustomer_id', {});
     }
   };
 
   onGetCustomerMobileBlur = event => {
     const { getCustomerList } = this.props;
+    let flag = false;
+    let customer;
     for (let i = 0; i < getCustomerList.length; i++) {
-      const customer = getCustomerList[i];
+      customer = getCustomerList[i];
       const mobiles = customer.customerMobiles || [];
-      let flag = false;
       if (event.target.value == customer.customer_mobile) {
         flag = true;
-        this.setSelectedCustomer('getcustomer_id', customer);
         break;
       } else {
         for (let j = 0; j < mobiles.length; j++) {
           const mobile = mobiles[j];
           if (event.target.value == mobile.mobile) {
-            this.setSelectedCustomer('getcustomer_id', customer);
             flag = true;
             break;
           }
         }
       }
-      if (flag) {
-        this.setState({
-          currentGetCustomer: customer,
-        });
-        break;
-      }
+    }
+    if (flag) {
+      this.setSelectedCustomer('getcustomer_id', customer);
+      this.setState({
+        currentGetCustomer: customer,
+      });
+    } else if (event.target.value) {
+      this.setSelectedCustomer('getcustomer_id', {});
     }
   };
 
@@ -383,10 +424,20 @@ class CreateForm extends PureComponent {
    * TODO: 逻辑太复杂，暂时先不处理
    */
   onGetCustomerSearch = async value => {
-    console.log('searchget', value);
+    if (value) {
+      this.setState({
+        currentGetCustomerName: value,
+      });
+    }
   };
 
-  onSendCustomerSearch = async value => {};
+  onSendCustomerSearch = async value => {
+    if (value) {
+      this.setState({
+        currentSendCustomerName: value,
+      });
+    }
+  };
 
   /**
    * 计算运费折扣
@@ -463,7 +514,9 @@ class CreateForm extends PureComponent {
       rules: [{ required: true, message: '请选择分公司' }],
     };
     // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
+    if (currentCompany && currentCompany.company_id) {
+      companyOption.initialValue = currentCompany.company_id || '';
+    } else if (branchCompanyList.length > 0) {
       companyOption.initialValue = branchCompanyList[0].company_id || '';
     }
 
@@ -547,6 +600,7 @@ class CreateForm extends PureComponent {
                   showSearch
                   optionLabelProp="children"
                   onSearch={this.onGetCustomerSearch}
+                  onBlur={this.onGetCustomerBlur}
                   onPopupScroll={this.onGetCustomerScroll}
                   filterOption={(input, option) =>
                     option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -595,6 +649,7 @@ class CreateForm extends PureComponent {
                   showSearch
                   optionLabelProp="children"
                   onSearch={this.onSendCustomerSearch}
+                  onBlur={this.onSendCustomerBlur}
                   onPopupScroll={this.onSendCustomerScroll}
                   filterOption={(input, option) =>
                     option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
