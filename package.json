@@ -1,5 +1,6 @@
 {
-  "name": "宝路通物流",
+  "name": "bltwlgs",
+  "productName": "宝路通物流",
   "version": "2.2.1",
   "description": "An out-of-box UI solution for enterprise applications",
   "private": true,
@@ -34,8 +35,6 @@
     "appId": "com.bltwl",
     "extends": null,
     "files": [
-      "dist",
-      "node_modules/",
       "main.js",
       "package.json"
     ],
@@ -61,8 +60,7 @@
     },
     "win": {
       "target": [
-        "nsis",
-        "zip"
+        "nsis"
       ]
     },
     "directories": {

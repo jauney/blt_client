@@ -1,4 +1,19 @@
-### 常见错误
+
+## 打包
+
+1. 指定平台架构
+
+参考： https://zhuanlan.zhihu.com/p/45250432
+
+```
+# windows 64bit
+electron-builder --win --x64
+# windows and mac 32bit
+electron-builder --win --mac --ia32
+```
+
+
+## 常见错误
 1、Warning: You cannot set a form field before rendering a field associated with the value.
 ```
 form.setFieldsValue({
@@ -16,3 +31,4 @@ setFieldsValue的时候，driver_plate在form中没有。即设置了getFieldDec
 ```
 "package-build-win": "yarn run build && electron-builder --win",
 ```
+
