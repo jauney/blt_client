@@ -3,7 +3,9 @@
 
 1. 指定平台架构
 
-参考： https://zhuanlan.zhihu.com/p/45250432
+参考： 
+https://zhuanlan.zhihu.com/p/45250432
+https://juejin.im/post/5bc53aade51d453df0447927
 
 ```
 # windows 64bit

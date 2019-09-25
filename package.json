@@ -31,7 +31,7 @@
   },
   "build": {
     "asar": true,
-    "productName": "宝路通物流",
+    "productName": "bltwl",
     "appId": "com.bltwl",
     "extends": null,
     "files": [
@@ -41,13 +41,7 @@
     "nsis": {
       "oneClick": false,
       "allowElevation": true,
-      "allowToChangeInstallationDirectory": true,
-      "installerIcon": "./public/icons/favicon.png",
-      "uninstallerIcon": "./public/icons/favicon.png",
-      "installerHeaderIcon": "./public/icons/favicon.png",
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "宝路通物流"
+      "allowToChangeInstallationDirectory": true
     },
     "mac": {
       "target": [
