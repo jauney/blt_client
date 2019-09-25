@@ -24,8 +24,8 @@
     "docker:push": "npm run docker-hub:build && npm run docker:tag && docker push antdesign/ant-design-pro",
     "electron-start": "electron .",
     "package-all": "electron-builder -mwl",
-    "package-build-mac": "yarn run build && electron-builder --mac",
-    "package-build-win": "yarn run build && electron-builder --win",
+    "package-build-mac": "electron-builder --mac",
+    "package-build-win": "electron-builder --win",
     "package-mac": "electron-builder --mac"
   },
   "build": {
