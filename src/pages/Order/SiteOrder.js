@@ -145,7 +145,6 @@ class CreateForm extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
-      form.resetFields();
       // 完善公司信息
       const company = branchCompanyList.find(item => {
         return item.company_id == fieldsValue.company_id;
@@ -178,6 +177,8 @@ class CreateForm extends PureComponent {
       fieldsValue.site_name = CacheSite.site_name;
 
       handleAdd(fieldsValue, selectedOrder);
+
+      form.resetFields();
     });
   };
 

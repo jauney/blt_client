@@ -1,10 +1,10 @@
 import {
   getOrderList,
   getTrunkedOrderStatistic,
-  cancelSettleOrder,
   downAccount,
   updateOrderSign,
-  addAbnormal,
+  updateAbnormal,
+  updateOrder,
   getAbnormalTypes,
 } from '@/services/api';
 
@@ -24,7 +24,6 @@ export default {
   effects: {
     *getOrderListAction({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
-      payload.filter.order_status = [6, 7];
 
       const response = yield call(getOrderList, payload);
       yield put({
@@ -33,7 +32,7 @@ export default {
       });
     },
     *addAbnormalAction({ payload }, { call, put }) {
-      return yield call(addAbnormal, payload); // post
+      return yield call(updateAbnormal, payload); // post
     },
     *getAbnormalTypeListAction({ payload }, { call, put }) {
       const response = yield call(getAbnormalTypes, payload); // post
@@ -50,12 +49,11 @@ export default {
         payload: response,
       });
     },
-    *cancelSettleOrderAction({ payload }, { call, put }) {
-      console.log(payload);
-      return yield call(cancelSettleOrder, payload); // post
+    *cancelAbnormalAction({ payload, orderIds }, { call, put }) {
+      return yield call(updateOrder, payload, orderIds); // post
     },
-    *downAccountAction({ payload }, { call, put }) {
-      return yield call(downAccount, payload); // post
+    *resolveAbnormalAction({ payload }, { call, put }) {
+      return yield call(updateAbnormal, payload); // post
     },
     *cancelSignAction({ payload }, { call, put }) {
       payload.sign_status = 0;

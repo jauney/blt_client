@@ -24,23 +24,13 @@ import {
   Radio,
   Tag,
 } from 'antd';
-import { getSelectedAccount, getSelectedDownAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import styles from './Finance.less';
-import { fileToObject } from 'antd/lib/upload/utils';
-import { async } from 'q';
 const { RangePicker } = DatePicker;
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const getValue = obj =>
-  Object.keys(obj)
-    .map(key => obj[key])
-    .join(',');
-
-const CacheSite = JSON.parse(localStorage.getItem('site') || '{}');
-const CacheCompany = JSON.parse(localStorage.getItem('company') || '{}');
-const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
+import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
 @Form.create()
 class AddFormDialog extends PureComponent {
@@ -75,7 +65,6 @@ class AddFormDialog extends PureComponent {
   onAddHandler = () => {
     const { addFormDataHandle, form, incomeTypes = [] } = this.props;
     form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
       if (err) return;
       let newIncomeType = true;
       let incomeType = '';
@@ -131,20 +120,6 @@ class AddFormDialog extends PureComponent {
         <Form>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="公司">
-                {selectedRows.length}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="站点">
-                {selectedRows.length}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col>
               <FormItem {...this.formItemLayout} label="收入金额">
                 {form.getFieldDecorator('income_money', {
                   initialValue: '',
@@ -197,374 +172,6 @@ class AddFormDialog extends PureComponent {
   }
 }
 
-@Form.create()
-class CreateForm extends PureComponent {
-  constructor(props) {
-    super(props);
-
-    this.formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 8 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 },
-      },
-    };
-    // label列可以放下4个字
-    this.formItemSmallLayout = {
-      labelCol: {
-        xs: { span: 25 },
-        sm: { span: 9 },
-      },
-      wrapperCol: {
-        xs: { span: 23 },
-        sm: { span: 15 },
-      },
-    };
-
-    this.colLayout = {
-      md: 8,
-      sm: 24,
-    };
-
-    this.colSmallLayout = {
-      md: 4,
-      sm: 20,
-    };
-    this.col2Layout = {
-      md: 10,
-      sm: 26,
-    };
-    // colLargeLayout && formItemMiniLayout
-    this.colLargeLayout = {
-      md: 16,
-      sm: 32,
-    };
-    this.formItemMiniLayout = {
-      labelCol: {
-        xs: { span: 22 },
-        sm: { span: 6 },
-      },
-      wrapperCol: {
-        xs: { span: 26 },
-        sm: { span: 18 },
-      },
-    };
-
-    this.formLayout = {
-      labelCol: { span: 7 },
-      wrapperCol: { span: 13 },
-    };
-  }
-
-  okHandle = () => {
-    const { form, record, onUpdateOrder } = this.props;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-
-      form.resetFields();
-      onUpdateOrder(record, fieldsValue);
-    });
-  };
-
-  render() {
-    const { record, modalVisible, onCancelModal, form } = this.props;
-
-    return (
-      <Modal
-        destroyOnClose
-        title="编辑托运单"
-        visible={modalVisible}
-        onCancel={() => onCancelModal()}
-        footer={[
-          <Button key="btn-cancel" onClick={() => onCancelModal()}>
-            取 消
-          </Button>,
-          <Button key="btn-print" onClick={this.onOrderPrint}>
-            打 印
-          </Button>,
-          <Button key="btn-save" type="primary" onClick={this.okHandle}>
-            保 存
-          </Button>,
-        ]}
-        width={800}
-        className={styles.modalForm}
-      >
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="分公司">
-              {record.company_name}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="站点">
-              {record.site_name}
-            </FormItem>
-          </Col>
-          {/* <Col {...this.colLayout}>
-          <FormItem {...this.formItemLayout} label="运单号">
-            {getFieldDecorator('orderCode', { initialValue: orderCode.order_code })(
-              <Input placeholder="" />
-            )}
-          </FormItem>
-        </Col> */}
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="收货人电话">
-              {record.getcustomer_mobile}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="收货人姓名">
-              {record.getcustomer_name}
-            </FormItem>
-          </Col>
-          <Col>
-            {record.customer_type == 1 ? (
-              <Tag color="orange" style={{ marginTop: 10 }}>
-                VIP
-              </Tag>
-            ) : (
-              ''
-            )}
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="发货人电话">
-              {record.sendcustomer_mobile}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="发货人姓名">
-              {record.sendcustomer_name}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLayout}>
-            <FormItem {...this.formItemLayout} label="运费">
-              {record.trans_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.colSmallLayout}>
-            <FormItem label="">{record.trans_type == 1 ? '现付' : '回付'}</FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="折后运费">
-              {record.trans_discount}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLayout}>
-            <FormItem {...this.formItemLayout} label="货款">
-              {record.order_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.colLayout}>
-            <FormItem label="">{record.bank_account}</FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="保价金额">
-              {record.insurance_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="保价费">
-              {record.insurance_fee}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="送货费">
-              {record.deliver_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="垫付金额">
-              {record.order_advancepay_amount}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLargeLayout}>
-            <FormItem {...this.formItemMiniLayout} label="货物名称">
-              {record.order_name}
-            </FormItem>
-          </Col>
-          <Col {...this.colSmallLayout}>
-            <FormItem {...this.formItemLayout} label="">
-              {record.order_num}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="转进/转出">
-              {record.transfer_type == 1 ? '转出' : '转入'}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转费">
-              {record.transfer_amount}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转地址">
-              {record.transfer_address}
-            </FormItem>
-          </Col>
-
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转物流">
-              {record.transfer_company_name}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转单号">
-              {record.transfer_order_code}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转电话">
-              {record.transfer_company_mobile}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="实收货款">
-              {form.getFieldDecorator('order_real', { initialValue: record.order_real })(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="实收运费">
-              {form.getFieldDecorator('trans_real', { initialValue: record.trans_real })(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLargeLayout}>
-            <FormItem {...this.formItemMiniLayout} label="备注">
-              {form.getFieldDecorator('remark', { initialValue: record.remark })(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-        </Row>
-      </Modal>
-    );
-  }
-}
-
-/* eslint react/no-multi-comp:0 */
-@connect(({ trunkedorder }) => {
-  return {
-    trunkedorder,
-  };
-})
-@Form.create()
-class CreateEntrunkForm extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
-  getModalContent = () => {
-    const {
-      form: { getFieldDecorator },
-      currentCompany,
-      lastCar,
-    } = this.props;
-
-    return (
-      <Form layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={12} sm={24}>
-            <FormItem label="分公司">{currentCompany.company_name}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="车牌号">{lastCar.driver_plate}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="车主姓名">{lastCar.driver_name}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="联系电话">{lastCar.driver_mobile}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="货车编号">{lastCar.car_code}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="拉货日期">
-              {moment(Number(lastCar.car_date || 0)).format('YYYY-MM-DD HH:mm:ss')}
-            </FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="货车费用">
-              {getFieldDecorator('car_fee', {
-                rules: [{ required: true, message: '请填写货车费用' }],
-                initialValue: lastCar.car_fee,
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-        </Row>
-      </Form>
-    );
-  };
-
-  onOkHandler = e => {
-    e.preventDefault();
-    const { dispatch, form, onEntrunkModalCancel, lastCar, onSearch } = this.props;
-    form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-
-      fieldsValue.car_fee = Number(fieldsValue.car_fee);
-      const result = await dispatch({
-        type: 'trunkedorder/updateCarFeeAction',
-        payload: Object.assign(lastCar, fieldsValue),
-      });
-
-      if (result.code == 0) {
-        onSearch();
-        onEntrunkModalCancel();
-      }
-    });
-  };
-
-  render() {
-    const { modalVisible, onEntrunkModalCancel } = this.props;
-    return (
-      <Modal
-        title="货物装车"
-        className={styles.standardListForm}
-        width={700}
-        destroyOnClose
-        visible={modalVisible}
-        onOk={this.onOkHandler}
-        onCancel={onEntrunkModalCancel}
-      >
-        {this.getModalContent()}
-      </Modal>
-    );
-  }
-}
-
 /* eslint react/no-multi-comp:0 */
 @connect(({ customer, company, income, site, car, receiver, loading }) => {
   return {
@@ -600,8 +207,8 @@ class TableList extends PureComponent {
   columns = [
     {
       title: '收入日期',
-      dataIndex: 'create_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      dataIndex: 'income_date',
+      render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '收入金额',
@@ -609,7 +216,7 @@ class TableList extends PureComponent {
     },
     {
       title: '收入类型',
-      dataIndex: 'income_type',
+      dataIndex: 'incometype',
       sorter: true,
     },
     {
@@ -629,7 +236,7 @@ class TableList extends PureComponent {
     },
     {
       title: '操作用户',
-      dataIndex: 'record_user',
+      dataIndex: 'operator_name',
       sorter: true,
     },
     {
@@ -642,25 +249,21 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     let branchCompanyList = [CacheCompany];
-    if (CacheCompany.company_type != 2) {
-      branchCompanyList = await dispatch({
-        type: 'company/getCompanyList',
-        payload: {},
-      });
-    }
 
     let currentCompany = {};
     // 初始渲染的是否，先加载第一个分公司的收货人信息
-    if (branchCompanyList && branchCompanyList.length > 0) {
+    if (CacheCompany.company_type == 2 && branchCompanyList && branchCompanyList.length > 0) {
       currentCompany = branchCompanyList[0];
-      this.setState({
-        currentCompany: branchCompanyList[0],
-      });
+    } else {
+      currentCompany = CacheCompany;
     }
+    this.setState({
+      currentCompany: currentCompany,
+    });
 
     this.fetchCompanySiteList(currentCompany.company_id);
 
-    this.fetchIncomeTypeList({ companyId: currentCompany.company_id });
+    this.fetchIncomeTypeList({});
 
     dispatch({
       type: 'income/getIncomeDetailsAction',
@@ -668,51 +271,28 @@ class TableList extends PureComponent {
     });
   }
 
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
-    const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters,
-    };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
-  };
-
-  handleFormReset = () => {
-    const { form, dispatch } = this.props;
-    form.resetFields();
-    this.setState({
-      formValues: {},
-    });
-    dispatch({
-      type: 'rule/fetch',
-      payload: {},
-    });
-  };
-
   handleSelectRows = rows => {
     this.setState({
       selectedRows: rows,
     });
   };
 
-  fetchIncomeTypeList = async ({ companyId, siteId }) => {
+  fetchIncomeTypeList = async ({ siteId = -1 }) => {
     const { dispatch } = this.props;
-    dispatch({
+    const { currentCompany } = this.state;
+    const filter = {};
+    //
+    // 查询类型必须带上公司参数
+    filter.company_id = currentCompany.company_id || -1;
+    if (CacheCompany.company_type == 1) {
+      filter.site_id = siteId;
+    }
+    const list = dispatch({
       type: 'income/getIncomeTypesAction',
-      payload: { company_id: companyId, site_id: siteId },
+      payload: filter,
     });
+
+    return list;
   };
 
   fetchCompanySiteList = async companyId => {
@@ -738,22 +318,19 @@ class TableList extends PureComponent {
   onCompanySelect = async (value, option) => {
     const {
       company: { branchCompanyList },
+      form,
     } = this.props;
     // 获取当前公司的客户列表
     // this.fetchGetCustomerList(value);
 
     // 获取当前公司的站点
     this.fetchCompanySiteList(value);
-    // 清空勾选的站点
-    this.props.form.setFieldsValue({
-      site: '',
-    });
 
     // 重新获取收入类型
     this.fetchIncomeTypeList({ companyId: value });
     // 清空勾选的收入类型
-    this.props.form.setFieldsValue({
-      income_type: '',
+    form.setFieldsValue({
+      income_type_id: '',
     });
 
     const currentCompany = branchCompanyList.filter(item => {
@@ -790,27 +367,69 @@ class TableList extends PureComponent {
   handleSearch = e => {
     e && e.preventDefault();
 
+    this.getOrderList();
+  };
+
+  /**
+   * 获取订单信息
+   */
+  getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
+    const { current, pageSize, currentCompany } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
-      const values = {
-        ...fieldsValue,
-      };
-
-      // TODO: 后续放开时间查询，目前方便测试，暂时关闭
       if (fieldsValue.income_date && fieldsValue.income_date.length > 0) {
-        values.income_date = fieldsValue.income_date.map(item => {
+        fieldsValue.income_date = fieldsValue.income_date.map(item => {
           return `${item.valueOf()}`;
         });
       }
+      // 查询必须带上公司参数，否则查询出全部记录
+      fieldsValue.company_id = currentCompany.company_id;
 
+      const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'income/getIncomesAction',
-        payload: { pageNo: 1, pageSize: 20, filter: values },
+        payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
+
+      // dispatch({
+      //   type: 'abnormal/getSiteOrderStatisticAction',
+      //   payload: { ...searchParams },
+      // });
     });
+  };
+
+  /**
+   * 表格排序、分页响应
+   */
+  handleStandardTableChange = async (pagination, filtersArg, sorter) => {
+    const { dispatch } = this.props;
+    const { formValues, pageSize } = this.state;
+
+    let sort = {};
+    let current = 1;
+    // 变更排序
+    if (sorter.field) {
+      sort = { sorter: `${sorter.field}|${sorter.order}` };
+    }
+    // 变更pageSize
+    if (pagination && pagination.pageSize != pageSize) {
+      current = 1;
+
+      await this.setState({
+        pageSize: pagination.pageSize,
+      });
+    }
+    // 切换页数
+    else if (pagination && pagination.current) {
+      current = pagination.current;
+    }
+    await this.setState({
+      current,
+    });
+    this.getOrderList(sort, current);
   };
 
   // 添加收入
@@ -824,20 +443,29 @@ class TableList extends PureComponent {
       payload: {
         ...data,
         company_id: currentCompany.company_id,
+        company_name: currentCompany.company_name,
         site_id: currentSite.site_id,
+        site_name: currentSite.site_name,
       },
     });
-    if (result.code == 0) {
+    if (result && result.code == 0) {
       message.success('添加成功！');
 
       this.onCancelIncomeClick();
     } else {
-      message.error(result.msg);
+      message.error((result && result.msg) || '添加失败');
     }
   };
 
   // 打开添加收入对话框
   onAddIncomeClick = async () => {
+    const { currentCompany = {}, currentSite = {} } = this.state;
+    if (currentCompany.company_id == 1 && !currentSite.site_id) {
+      Modal.info({
+        content: '请先选择站点',
+      });
+      return;
+    }
     this.setState({
       addIncomeModalVisible: true,
     });
@@ -849,150 +477,16 @@ class TableList extends PureComponent {
     });
   };
 
-  // 取消账户核对
-  onSettle = async () => {
-    const { selectedRows } = this.state;
-    let accountStatistic = getSelectedAccount(selectedRows);
-    this.setState({ accountStatistic, settleModalVisible: true });
-  };
-
-  onSettleCancel = async () => {
-    this.setState({
-      settleModalVisible: false,
-    });
-  };
-
-  onSettleOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'settle/cancelSettleOrderAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('取消核对成功！');
-
-      this.onSettleCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 取消签字
-  onCancelSign = async () => {
-    this.setState({
-      cancelSignModalVisible: true,
-    });
-  };
-
-  onCancelSignCancel = async () => {
-    this.setState({
-      cancelSignModalVisible: false,
-    });
-  };
-
-  onCancelSignOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'settle/cancelSignAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('取消签字成功！');
-      this.handleSearch();
-      this.onCancelSignCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 打印
-  onPrint = async () => {
-    this.setState({
-      printModalVisible: true,
-    });
-  };
-
-  onPrintCancel = async () => {
-    this.setState({
-      printModalVisible: false,
-    });
-  };
-
-  onPrintOk = async () => {
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'settle/printAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('打印成功！');
-
-      this.onPrintCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 下载
-  onDownload = async () => {
-    this.setState({
-      downloadModalVisible: true,
-    });
-  };
-
-  onDownloadCancel = async () => {
-    this.setState({
-      downloadModalVisible: false,
-    });
-  };
-
-  onDownloadOk = async () => {
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'settle/downloadAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('下载成功！');
-
-      this.onDownloadCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
   /**
    * 修改订单信息弹窗
    */
-  onEntrunkModalShow = () => {
+  onIncomeModalShow = () => {
     this.setState({
       orderModalVisible: true,
     });
   };
 
-  onEntrunkModalCancel = () => {
+  onIncomeModalCancel = () => {
     // setTimeout(() => this.addBtn.blur(), 0);
     this.setState({
       orderModalVisible: false,
@@ -1012,7 +506,7 @@ class TableList extends PureComponent {
     });
     if (result.code == 0) {
       message.success('修改成功！');
-      this.onEntrunkModalCancel();
+      this.onIncomeModalCancel();
     } else {
       message.error(result.msg);
     }
@@ -1026,7 +520,7 @@ class TableList extends PureComponent {
     this.setState({
       record,
     });
-    this.onEntrunkModalShow();
+    this.onIncomeModalShow();
   };
 
   renderSimpleForm() {
@@ -1043,50 +537,54 @@ class TableList extends PureComponent {
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <FormItem label="分公司">
-          {getFieldDecorator('company_id', companyOption)(
-            <Select
-              placeholder="请选择"
-              onSelect={this.onCompanySelect}
-              style={{ width: '150px' }}
-              allowClear
-            >
-              {branchCompanyList.map(ele => {
-                return (
-                  <Option key={ele.company_id} value={ele.company_id}>
-                    {ele.company_name}
-                  </Option>
-                );
-              })}
-            </Select>
-          )}
-        </FormItem>
+        {CacheCompany.company_type == 2 && (
+          <FormItem label="分公司">
+            {getFieldDecorator('company_id', companyOption)(
+              <Select
+                placeholder="请选择"
+                onSelect={this.onCompanySelect}
+                style={{ width: '150px' }}
+                allowClear
+              >
+                {branchCompanyList.map(ele => {
+                  return (
+                    <Option key={ele.company_id} value={ele.company_id}>
+                      {ele.company_name}
+                    </Option>
+                  );
+                })}
+              </Select>
+            )}
+          </FormItem>
+        )}
 
-        <FormItem label="站点">
-          {getFieldDecorator('site', {})(
-            <Select
-              placeholder="请选择"
-              onSelect={this.onSiteSelect}
-              style={{ width: '150px' }}
-              allowClear
-            >
-              {normalSiteList.map(ele => {
-                return (
-                  <Option key={ele.site_id} value={ele.site_id}>
-                    {ele.site_name}
-                  </Option>
-                );
-              })}
-            </Select>
-          )}
-        </FormItem>
+        {CacheCompany.company_type == 1 && (
+          <FormItem label="站点">
+            {getFieldDecorator('site_id', {})(
+              <Select
+                placeholder="请选择"
+                onSelect={this.onSiteSelect}
+                style={{ width: '150px' }}
+                allowClear
+              >
+                {normalSiteList.map(ele => {
+                  return (
+                    <Option key={ele.site_id} value={ele.site_id}>
+                      {ele.site_name}
+                    </Option>
+                  );
+                })}
+              </Select>
+            )}
+          </FormItem>
+        )}
 
         <FormItem label="收入日期">
           {getFieldDecorator('income_date', {})(<RangePicker style={{ width: '250px' }} />)}
         </FormItem>
 
         <FormItem label="一级分类">
-          {getFieldDecorator('income_type')(
+          {getFieldDecorator('incometype_id')(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
               {incomeTypes.map(ele => {
                 return (
@@ -1113,20 +611,16 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      income: { incomeList, total, incomeTypes, totalOrderAmount, totalTransAmount },
+      income: { incomeList, total, incomeTypes, totalIncomeAmount },
       loading,
     } = this.props;
 
     const {
       selectedRows,
-      accountStatistic,
       current,
       pageSize,
       orderModalVisible,
-      settleModalVisible,
       addIncomeModalVisible,
-      signModalVisible,
-      cancelSignModalVisible,
       downloadModalVisible,
       printModalVisible,
       record,
@@ -1141,12 +635,6 @@ class TableList extends PureComponent {
               <Button icon="plus" type="primary" onClick={() => this.onAddIncomeClick(true)}>
                 添加
               </Button>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button onClick={this.onDownAccount}>添加为异常</Button>
-                  <Button onClick={this.onSettle}>取消异常</Button>
-                </span>
-              )}
             </div>
             <StandardTable
               selectedRows={selectedRows}
@@ -1174,16 +662,10 @@ class TableList extends PureComponent {
                 };
               }}
               rowClassName={(record, index) => {}}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={() => `收入总额：${totalIncomeAmount || ''}`}
             />
           </div>
         </Card>
-        <CreateForm
-          modalVisible={orderModalVisible}
-          record={record}
-          onCancelModal={this.onEntrunkModalCancel}
-          onUpdateOrder={this.onUpdateOrder}
-        />
         <AddFormDialog
           modalVisible={addIncomeModalVisible}
           addFormDataHandle={this.addFormDataHandle}
@@ -1191,33 +673,6 @@ class TableList extends PureComponent {
           incomeTypes={incomeTypes}
           selectedRows={selectedRows}
         />
-        <Modal
-          title="取消结账"
-          visible={settleModalVisible}
-          onOk={this.onSettleOk}
-          onCancel={this.onSettleCancel}
-        >
-          <p>{`取消结算货款条数${selectedRows.length}，取消结算总额 ${
-            accountStatistic.totalAccount
-          } `}</p>
-          <p>您确认结账么？</p>
-        </Modal>
-        <Modal
-          title="确认"
-          visible={signModalVisible}
-          onOk={this.onSignOk}
-          onCancel={this.onSignCancel}
-        >
-          <p>您确认签字么？</p>
-        </Modal>
-        <Modal
-          title="确认"
-          visible={cancelSignModalVisible}
-          onOk={this.onCancelSignOk}
-          onCancel={this.onCancelSignCancel}
-        >
-          <p>您确认取消签字么？</p>
-        </Modal>
         <Modal
           title="确认"
           visible={printModalVisible}

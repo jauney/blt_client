@@ -9,9 +9,9 @@ import gql from 'graphql-tag';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { async } from 'q';
 
-const httpLink = new HttpLink({ uri: 'http://47.105.84.59:3008/graphql' });
+// const httpLink = new HttpLink({ uri: 'http://47.105.84.59:3008/graphql' });
 
-// const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3008/graphql' });
+const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3008/graphql' });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
   // add the authorization to the headers
@@ -415,7 +415,7 @@ export async function createOrder(params) {
     });
 }
 
-export async function updateOrder(order) {
+export async function updateOrder(order, orderIds) {
   if (order.trans_real) {
     order.trans_real = Number(order.trans_real || 0);
   }
@@ -426,17 +426,20 @@ export async function updateOrder(order) {
     order.trans_discount = Number(order.trans_discount || 0);
   }
 
+  if (!orderIds) {
+    orderIds = [order.order_id];
+  }
   return client
     .mutate({
       mutation: gql`
-        mutation updateOrder($order: OrderInput) {
-          updateOrder(order: $order) {
+        mutation updateOrder($order_id: [Int], $order: OrderInput) {
+          updateOrder(order_id: $order_id, order: $order) {
             code
             msg
           }
         }
       `,
-      variables: { order },
+      variables: { order_id: orderIds, order },
     })
     .then(data => {
       console.log(data);
@@ -1081,7 +1084,7 @@ export async function queryDriverList(params) {
     });
 }
 
-export async function addAbnormal(params) {
+export async function updateAbnormal(params) {
   console.log('api.... ', params);
   if (typeof params.abnormal_type_id == 'undefined') {
     params.abnormal_type_id = 0;
@@ -1101,7 +1104,7 @@ export async function addAbnormal(params) {
   return client
     .mutate({
       mutation: gql`
-        mutation addAbnormal(
+        mutation updateAbnormal(
           $order_id: [Int]
           $abnormal_type: String
           $abnormal_type_id: Int
@@ -1111,7 +1114,7 @@ export async function addAbnormal(params) {
           $abnormal_amount: String
           $abnormal_remark: String
         ) {
-          addAbnormal(
+          updateAbnormal(
             order_id: $order_id
             abnormal_type: $abnormal_type
             abnormal_type_id: $abnormal_type_id
@@ -1130,7 +1133,7 @@ export async function addAbnormal(params) {
     })
     .then(data => {
       gotoLogin(data);
-      return data.data.addAbnormal;
+      return data.data.updateAbnormal;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');
@@ -1186,6 +1189,7 @@ export async function getIncomes(params) {
               income_money
               income_reason
               remark
+              operator_name
             }
           }
         }
@@ -1207,8 +1211,13 @@ export async function getIncomeTypes(params) {
   return client
     .query({
       query: gql`
-        query getIncomeTypes($pageNo: Int, $pageSize: Int, $company_id: Int) {
-          getIncomeTypes(pageNo: $pageNo, pageSize: $pageSize, company_id: $company_id) {
+        query getIncomeTypes($pageNo: Int, $pageSize: Int, $company_id: Int, $site_id: Int) {
+          getIncomeTypes(
+            pageNo: $pageNo
+            pageSize: $pageSize
+            company_id: $company_id
+            site_id: $site_id
+          ) {
             total
             incomeTypes {
               incometype_id

@@ -71,7 +71,7 @@ class DownAccountForm extends PureComponent {
   };
 
   onDownAccountHandler = () => {
-    const { downAccountHandle, form } = this.props;
+    const { onAddAbnormal, form } = this.props;
     let { abnormal_type, abnormal_type_id } = this.state;
     form.validateFields((err, fieldsValue) => {
       console.log(fieldsValue);
@@ -80,7 +80,7 @@ class DownAccountForm extends PureComponent {
         abnormal_type = fieldsValue.abnormal_type;
         abnormal_type_id = 0;
       }
-      downAccountHandle({
+      onAddAbnormal({
         abnormal_reason: fieldsValue.abnormal_reason,
         abnormal_type,
         abnormal_type_id,
@@ -709,27 +709,6 @@ class TableList extends PureComponent {
     }
   }
 
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
-    const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters,
-    };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
-  };
-
   handleFormReset = () => {
     const { form, dispatch } = this.props;
     form.resetFields();
@@ -762,13 +741,8 @@ class TableList extends PureComponent {
 
   onCompanySelect = async (value, option) => {
     const {
-      dispatch,
       company: { branchCompanyList },
-      form,
-      car: { lastCar },
     } = this.props;
-    // 获取当前公司的客户列表
-    this.fetchGetCustomerList(company_id);
 
     const currentCompany = branchCompanyList.filter(item => {
       if (item.company_id == value) {
@@ -784,35 +758,67 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
+    this.getOrderList();
+  };
 
+  /**
+   * 获取订单信息
+   */
+  getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
+    const { current, pageSize } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      fieldsValue.order_status = [3, 6];
+      fieldsValue.abnormal_status = 0;
 
-      const values = {
-        ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-      };
-
-      this.setState({
-        formValues: values,
-      });
-
+      const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'abnormal/getOrderListAction',
-        payload: { pageNo: 1, pageSize: 20, filter: values },
+        payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
       dispatch({
-        type: 'abnormal/getOrderStatisticAction',
-        payload: { company_id: fieldsValue.company_id, site_id: fieldsValue.site_id },
+        type: 'abnormal/getSiteOrderStatisticAction',
+        payload: { ...searchParams },
       });
     });
   };
 
+  /**
+   * 表格排序、分页响应
+   */
+  handleStandardTableChange = async (pagination, filtersArg, sorter) => {
+    const { dispatch } = this.props;
+    const { formValues, pageSize } = this.state;
+
+    let sort = {};
+    let current = 1;
+    // 变更排序
+    if (sorter.field) {
+      sort = { sorter: `${sorter.field}|${sorter.order}` };
+    }
+    // 变更pageSize
+    if (pagination && pagination.pageSize != pageSize) {
+      current = 1;
+
+      await this.setState({
+        pageSize: pagination.pageSize,
+      });
+    }
+    // 切换页数
+    else if (pagination && pagination.current) {
+      current = pagination.current;
+    }
+    await this.setState({
+      current,
+    });
+    this.getOrderList(sort, current);
+  };
+
   // 添加异常
-  downAccountHandle = async data => {
+  onAddAbnormal = async data => {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -829,91 +835,23 @@ class TableList extends PureComponent {
     if (result.code == 0) {
       message.success('添加异常成功！');
 
-      this.onDownCancel();
+      this.onAddAbnormalCancel();
     } else {
       message.error(result.msg);
     }
   };
 
   // 打开下账对话框
-  onDownAccount = async () => {
+  onAddAbnormalModal = async () => {
     this.setState({
       downModalVisible: true,
     });
   };
 
-  onDownCancel = async () => {
+  onAddAbnormalCancel = async () => {
     this.setState({
       downModalVisible: false,
     });
-  };
-
-  // 取消账户核对
-  onSettle = async () => {
-    const { selectedRows } = this.state;
-    let accountStatistic = getSelectedAccount(selectedRows);
-    this.setState({ accountStatistic, settleModalVisible: true });
-  };
-
-  onSettleCancel = async () => {
-    this.setState({
-      settleModalVisible: false,
-    });
-  };
-
-  onSettleOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'settle/cancelSettleOrderAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('取消核对成功！');
-
-      this.onSettleCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 取消签字
-  onCancelSign = async () => {
-    this.setState({
-      cancelSignModalVisible: true,
-    });
-  };
-
-  onCancelSignCancel = async () => {
-    this.setState({
-      cancelSignModalVisible: false,
-    });
-  };
-
-  onCancelSignOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'settle/cancelSignAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('取消签字成功！');
-      this.handleSearch();
-      this.onCancelSignCancel();
-    } else {
-      message.error(result.msg);
-    }
   };
 
   // 打印
@@ -1116,8 +1054,7 @@ class TableList extends PureComponent {
             <div className={styles.tableListOperator}>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button onClick={this.onDownAccount}>添加为异常</Button>
-                  <Button onClick={this.onSettle}>取消异常</Button>
+                  <Button onClick={this.onAddAbnormalModal}>添加为异常</Button>
                 </span>
               )}
             </div>
@@ -1167,8 +1104,8 @@ class TableList extends PureComponent {
         />
         <DownAccountForm
           modalVisible={downModalVisible}
-          downAccountHandle={this.downAccountHandle}
-          downCancel={this.onDownCancel}
+          onAddAbnormal={this.onAddAbnormal}
+          downCancel={this.onAddAbnormalCancel}
           selectedRows={selectedRows}
           abnormalTypes={abnormalTypes}
         />

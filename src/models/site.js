@@ -19,6 +19,7 @@ export default {
         type: 'getSiteListReducer',
         payload: Array.isArray(list) ? list : [],
       });
+      return list;
     },
     *getEntrunkSiteListAction({ payload }, { call, put }) {
       const response = yield call(querySiteList, payload);

@@ -43,7 +43,7 @@ const CacheCompany = JSON.parse(localStorage.getItem('company') || '{}');
 const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
 
 @Form.create()
-class DownAccountForm extends PureComponent {
+class AbnormalForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -73,7 +73,7 @@ class DownAccountForm extends PureComponent {
   };
 
   onDownAccountHandler = () => {
-    const { downAccountHandle, form } = this.props;
+    const { onResolveAbnormal, form } = this.props;
     let { abnormal_type, abnormal_type_id } = this.state;
     form.validateFields((err, fieldsValue) => {
       console.log(fieldsValue);
@@ -82,7 +82,7 @@ class DownAccountForm extends PureComponent {
         abnormal_type = fieldsValue.abnormal_type;
         abnormal_type_id = 0;
       }
-      downAccountHandle({
+      onResolveAbnormal({
         abnormal_status: 2,
         abnormal_reason: fieldsValue.abnormal_reason,
         abnormal_amount: fieldsValue.abnormal_amount,
@@ -108,18 +108,21 @@ class DownAccountForm extends PureComponent {
   };
 
   render() {
-    const { modalVisible, downCancel, selectedRows, form, abnormalTypes } = this.props;
-    const accountData = getSelectedDownAccount(selectedRows);
-    const record = selectedRows.length > 0 ? selectedRows[0] : {};
-    const { agencyFee } = this.state;
+    const {
+      modalVisible,
+      onResolveAbnormalModalCancel,
+      selectedRows,
+      form,
+      abnormalTypes,
+    } = this.props;
     return (
       <Modal
         destroyOnClose
         title="处理异常"
         visible={modalVisible}
-        onCancel={() => downCancel()}
+        onCancel={() => onResolveAbnormalModalCancel()}
         footer={[
-          <Button key="btn-cancel" onClick={() => downCancel()}>
+          <Button key="btn-cancel" onClick={() => onResolveAbnormalModalCancel()}>
             取 消
           </Button>,
           <Button key="btn-save" type="primary" onClick={this.onDownAccountHandler}>
@@ -130,13 +133,6 @@ class DownAccountForm extends PureComponent {
         className={styles.modalForm}
       >
         <Form>
-          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="异常单号">
-                {selectedRows.length}
-              </FormItem>
-            </Col>
-          </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem {...this.formItemLayout} label="异常类型">
@@ -476,99 +472,6 @@ class CreateForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ trunkedorder }) => {
-  return {
-    trunkedorder,
-  };
-})
-@Form.create()
-class CreateEntrunkForm extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
-  getModalContent = () => {
-    const {
-      form: { getFieldDecorator },
-      currentCompany,
-      lastCar,
-    } = this.props;
-
-    return (
-      <Form layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={12} sm={24}>
-            <FormItem label="分公司">{currentCompany.company_name}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="车牌号">{lastCar.driver_plate}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="车主姓名">{lastCar.driver_name}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="联系电话">{lastCar.driver_mobile}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="货车编号">{lastCar.car_code}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="拉货日期">
-              {moment(Number(lastCar.car_date || 0)).format('YYYY-MM-DD HH:mm:ss')}
-            </FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="货车费用">
-              {getFieldDecorator('car_fee', {
-                rules: [{ required: true, message: '请填写货车费用' }],
-                initialValue: lastCar.car_fee,
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-        </Row>
-      </Form>
-    );
-  };
-
-  onOkHandler = e => {
-    e.preventDefault();
-    const { dispatch, form, onEntrunkModalCancel, lastCar, onSearch } = this.props;
-    form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-
-      fieldsValue.car_fee = Number(fieldsValue.car_fee);
-      const result = await dispatch({
-        type: 'trunkedorder/updateCarFeeAction',
-        payload: Object.assign(lastCar, fieldsValue),
-      });
-
-      if (result.code == 0) {
-        onSearch();
-        onEntrunkModalCancel();
-      }
-    });
-  };
-
-  render() {
-    const { modalVisible, onEntrunkModalCancel } = this.props;
-    return (
-      <Modal
-        title="货物装车"
-        className={styles.standardListForm}
-        width={700}
-        destroyOnClose
-        visible={modalVisible}
-        onOk={this.onOkHandler}
-        onCancel={onEntrunkModalCancel}
-      >
-        {this.getModalContent()}
-      </Modal>
-    );
-  }
-}
-
-/* eslint react/no-multi-comp:0 */
 @connect(({ customer, company, abnormal, site, car, receiver, loading }) => {
   return {
     customer,
@@ -591,7 +494,7 @@ class TableList extends PureComponent {
     record: {},
     orderModalVisible: false,
     settleModalVisible: false,
-    downModalVisible: false,
+    abnormalModalVisible: false,
     signModalVisible: false,
     cancelSignModalVisible: false,
     downloadModalVisible: false,
@@ -742,27 +645,6 @@ class TableList extends PureComponent {
     }
   }
 
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
-    const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters,
-    };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
-  };
-
   handleFormReset = () => {
     const { form, dispatch } = this.props;
     form.resetFields();
@@ -795,13 +677,8 @@ class TableList extends PureComponent {
 
   onCompanySelect = async (value, option) => {
     const {
-      dispatch,
       company: { branchCompanyList },
-      form,
-      car: { lastCar },
     } = this.props;
-    // 获取当前公司的客户列表
-    this.fetchGetCustomerList(company_id);
 
     const currentCompany = branchCompanyList.filter(item => {
       if (item.company_id == value) {
@@ -817,17 +694,20 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
+    this.getOrderList();
+  };
 
+  /**
+   * 获取订单信息
+   */
+  getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
+    const { current, pageSize } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      fieldsValue.abnormal_status = 1;
 
-      const values = {
-        ...fieldsValue,
-      };
-
-      values.abnormal_status = 1;
       // TODO: 后续放开时间查询，目前方便测试，暂时关闭
       if (fieldsValue.entrunk_date && fieldsValue.entrunk_date.length > 0) {
         // values.entrunk_date = fieldsValue.entrunk_date.map(item => {
@@ -835,186 +715,119 @@ class TableList extends PureComponent {
         // });
       }
 
+      const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'abnormal/getOrderListAction',
-        payload: { pageNo: 1, pageSize: 20, filter: values },
+        payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
       dispatch({
-        type: 'abnormal/getOrderStatisticAction',
-        payload: { company_id: fieldsValue.company_id, site_id: fieldsValue.site_id },
+        type: 'abnormal/getSiteOrderStatisticAction',
+        payload: { ...searchParams },
       });
     });
   };
 
-  // 添加异常
-  downAccountHandle = async data => {
+  /**
+   * 表格排序、分页响应
+   */
+  handleStandardTableChange = async (pagination, filtersArg, sorter) => {
+    const { dispatch } = this.props;
+    const { formValues, pageSize } = this.state;
+
+    let sort = {};
+    let current = 1;
+    // 变更排序
+    if (sorter.field) {
+      sort = { sorter: `${sorter.field}|${sorter.order}` };
+    }
+    // 变更pageSize
+    if (pagination && pagination.pageSize != pageSize) {
+      current = 1;
+
+      await this.setState({
+        pageSize: pagination.pageSize,
+      });
+    }
+    // 切换页数
+    else if (pagination && pagination.current) {
+      current = pagination.current;
+    }
+    await this.setState({
+      current,
+    });
+    this.getOrderList(sort, current);
+  };
+
+  // 取消异常
+  onCancelAbnormal = async data => {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
     const result = await dispatch({
-      type: 'abnormal/addAbnormalAction',
+      type: 'abnormal/cancelAbnormalAction',
       payload: {
-        order_id: orderIds,
-        ...data,
+        abnormal_status: 0,
       },
+      orderIds,
     });
     if (result.code == 0) {
-      message.success('处理异常成功！');
-
-      this.onDownCancel();
+      message.success('取消异常成功！');
     } else {
       message.error(result.msg);
     }
+    return Promise.resolve();
   };
 
   // 打开下账对话框
-  onDownAccount = async () => {
-    this.setState({
-      downModalVisible: true,
+  onCancelAbnormalModal = async () => {
+    Modal.confirm({
+      title: '确认',
+      content: '确定取消异常吗？',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: this.onCancelAbnormal,
     });
   };
 
-  onDownCancel = async () => {
-    this.setState({
-      downModalVisible: false,
-    });
-  };
-
-  // 取消账户核对
-  onSettle = async () => {
-    const { selectedRows } = this.state;
-    let accountStatistic = getSelectedAccount(selectedRows);
-    this.setState({ accountStatistic, settleModalVisible: true });
-  };
-
-  onSettleCancel = async () => {
-    this.setState({
-      settleModalVisible: false,
-    });
-  };
-
-  onSettleOk = async () => {
+  onResolveAbnormal = async data => {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
-    let result = await dispatch({
-      type: 'settle/cancelSettleOrderAction',
-      payload: {
-        order_id: orderIds,
-      },
+    const result = await dispatch({
+      type: 'abnormal/resolveAbnormalAction',
+      payload: Object.assign(data, { order_id: orderIds }),
     });
     if (result.code == 0) {
-      message.success('取消核对成功！');
-
-      this.onSettleCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 取消签字
-  onCancelSign = async () => {
-    this.setState({
-      cancelSignModalVisible: true,
-    });
-  };
-
-  onCancelSignCancel = async () => {
-    this.setState({
-      cancelSignModalVisible: false,
-    });
-  };
-
-  onCancelSignOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'settle/cancelSignAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('取消签字成功！');
+      message.success('处理异常成功！');
+      this.onResolveAbnormalModalCancel();
       this.handleSearch();
-      this.onCancelSignCancel();
     } else {
       message.error(result.msg);
     }
+    return Promise.resolve();
   };
 
-  // 打印
-  onPrint = async () => {
+  /**
+   * 异常处理弹窗
+   */
+  onResolveAbnormalModal = () => {
     this.setState({
-      printModalVisible: true,
+      abnormalModalVisible: true,
     });
   };
 
-  onPrintCancel = async () => {
+  /**
+   * 关闭异常处理弹窗
+   */
+  onResolveAbnormalModalCancel = () => {
     this.setState({
-      printModalVisible: false,
+      abnormalModalVisible: false,
     });
-  };
-
-  onPrintOk = async () => {
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'settle/printAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('打印成功！');
-
-      this.onPrintCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 下载
-  onDownload = async () => {
-    this.setState({
-      downloadModalVisible: true,
-    });
-  };
-
-  onDownloadCancel = async () => {
-    this.setState({
-      downloadModalVisible: false,
-    });
-  };
-
-  onDownloadOk = async () => {
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'settle/downloadAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('下载成功！');
-
-      this.onDownloadCancel();
-    } else {
-      message.error(result.msg);
-    }
   };
 
   /**
@@ -1068,6 +881,7 @@ class TableList extends PureComponent {
       form: { getFieldDecorator },
       site: { entrunkSiteList, normalSiteList },
       company: { branchCompanyList },
+      abnormal: { abnormalTypes },
     } = this.props;
     const companyOption = {};
     // 默认勾选第一个公司
@@ -1107,10 +921,16 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="异常状态">
-          {getFieldDecorator('abnormal_status')(
+        <FormItem label="异常类型">
+          {getFieldDecorator('abnormal_type_id')(
             <Select placeholder="请选择" style={{ width: '150px' }}>
-              <Option value="1">异常</Option>
+              {abnormalTypes.map(ele => {
+                return (
+                  <Option key={ele.abnormal_type_id} value={ele.abnormal_type_id}>
+                    {ele.abnormal_type}
+                  </Option>
+                );
+              })}
             </Select>
           )}
         </FormItem>
@@ -1144,7 +964,7 @@ class TableList extends PureComponent {
       pageSize,
       orderModalVisible,
       settleModalVisible,
-      downModalVisible,
+      abnormalModalVisible,
       signModalVisible,
       cancelSignModalVisible,
       downloadModalVisible,
@@ -1160,8 +980,8 @@ class TableList extends PureComponent {
             <div className={styles.tableListOperator}>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button onClick={this.onDownAccount}>添加为异常</Button>
-                  <Button onClick={this.onSettle}>取消异常</Button>
+                  <Button onClick={this.onCancelAbnormalModal}>取消异常</Button>
+                  <Button onClick={this.onResolveAbnormalModal}>处理异常</Button>
                 </span>
               )}
             </div>
@@ -1201,10 +1021,10 @@ class TableList extends PureComponent {
           onCancelModal={this.onEntrunkModalCancel}
           onUpdateOrder={this.onUpdateOrder}
         />
-        <DownAccountForm
-          modalVisible={downModalVisible}
-          downAccountHandle={this.downAccountHandle}
-          downCancel={this.onDownCancel}
+        <AbnormalForm
+          modalVisible={abnormalModalVisible}
+          onResolveAbnormal={this.onResolveAbnormal}
+          onResolveAbnormalModalCancel={this.onResolveAbnormalModalCancel}
           selectedRows={selectedRows}
           abnormalTypes={abnormalTypes}
         />

@@ -756,11 +756,15 @@ class TableList extends PureComponent {
     const {
       dispatch,
       company: { branchCompanyList },
-      form,
       car: { lastCar },
     } = this.props;
+    // 清空原公司收获客户
+    dispatch({
+      type: 'customer/resetCustomerPageNo',
+      payload: { type: 'Get' },
+    });
     // 获取当前公司的客户列表
-    this.fetchGetCustomerList(company_id);
+    this.fetchGetCustomerList(value);
 
     const currentCompany = branchCompanyList.filter(item => {
       if (item.company_id == value) {
