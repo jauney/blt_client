@@ -1311,8 +1311,13 @@ export async function getExpenseTypes(params) {
   return client
     .query({
       query: gql`
-        query getExpenseTypes($pageNo: Int, $pageSize: Int, $company_id: Int) {
-          getExpenseTypes(pageNo: $pageNo, pageSize: $pageSize, company_id: $company_id) {
+        query getExpenseTypes($pageNo: Int, $pageSize: Int, $company_id: Int, $site_id: Int) {
+          getExpenseTypes(
+            pageNo: $pageNo
+            pageSize: $pageSize
+            company_id: $company_id
+            site_id: $site_id
+          ) {
             total
             expenseTypes {
               expensetype_id
