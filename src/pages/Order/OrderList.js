@@ -136,12 +136,12 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       dataIndex: 'create_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD HH:mm:ss') : ''}</span>,
     },
     {
       title: '发车时间',
       dataIndex: 'depart_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD HH:mm:ss') : ''}</span>,
     },
     {
       title: '站点',
@@ -149,18 +149,22 @@ class TableList extends PureComponent {
       sorter: true,
     },
     {
-      title: '中转',
-      dataIndex: 'transfer_type',
-      sorter: true,
-      render: val => {
-        let $transferType = '';
-        if (val == 1) {
-          $transferType = '转出';
-        } else if (val == 2) {
-          $transferType = '转入';
-        }
-        return $transferType;
-      },
+      title: '结算日期',
+      dataIndex: 'settle_date',
+      render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD') : ''}</span>,
+    },
+    {
+      title: '付款日期',
+      dataIndex: 'pay_date',
+      render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD') : ''}</span>,
+    },
+    {
+      title: '滞纳金',
+      dataIndex: 'late_fee',
+    },
+    {
+      title: '奖励金',
+      dataIndex: 'bonus_amount',
     },
     {
       title: '备注',

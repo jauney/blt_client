@@ -33,11 +33,6 @@ import { async } from 'q';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const getValue = obj =>
-  Object.keys(obj)
-    .map(key => obj[key])
-    .join(',');
-
 /* eslint react/no-multi-comp:0 */
 @connect(({ customer }) => {
   return {
@@ -524,6 +519,7 @@ class CreateForm extends PureComponent {
         destroyOnClose
         title="新建托运单"
         visible={modalVisible}
+        className={styles.modalForm}
         onCancel={() => handleModalVisible()}
         footer={[
           <Button key="btn-cancel" onClick={() => handleModalVisible()}>
