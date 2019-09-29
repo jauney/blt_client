@@ -114,10 +114,10 @@ class CreateForm extends PureComponent {
    * 编辑的时候初始化赋值表单
    */
   componentDidMount() {
-    const { form, selectedOrder } = this.props;
+    const { form, selectedOrder = {} } = this.props;
     const formFileds = form.getFieldsValue();
-
-    if (selectedOrder) {
+    const formKeys = Object.keys(formFileds);
+    if (formKeys.length > 0) {
       Object.keys(formFileds).forEach(item => {
         if (selectedOrder[item]) {
           const fieldValue = {};
@@ -1185,6 +1185,7 @@ class TableList extends PureComponent {
 
   handleModalVisible = flag => {
     this.setState({
+      selectedOrder: {},
       modalVisible: !!flag,
     });
   };
