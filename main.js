@@ -35,7 +35,14 @@ function createWindow() {
 
   // 关闭window时触发下列事件.
   mainWindow.on('closed', () => {
-    mainWindow = null;
+    mainWindow.webContents.session.clearStorageData({
+      // appcache, cookies, filesystem, indexdb, local storage, shadercache, websql, serviceworkers
+      storages: ['serviceworkers', 'filesystem', 'local storage'],
+    });
+
+    mainWindow.webContents.session.clearCache();
+
+    mainWindow.destroy();
   });
 }
 
