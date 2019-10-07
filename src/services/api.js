@@ -306,6 +306,7 @@ export async function getOrderCode(params) {
 export async function createOrder(params) {
   params.getcustomer_id = Number(params.getcustomer_id);
   params.sendcustomer_id = Number(params.sendcustomer_id);
+  params.trans_originalamount = Number(params.trans_originalamount || 0);
   params.trans_amount = Number(params.trans_amount || 0);
   params.trans_real = Number(params.trans_real || 0);
   params.trans_type = Number(params.trans_type || 0);
@@ -345,7 +346,8 @@ export async function createOrder(params) {
               bank_account
               getcustomer_address
               sendcustomer_address
-              pay_type
+              pay_status
+              trans_originalamount
               trans_amount
               trans_real
               trans_discount
@@ -595,7 +597,8 @@ export async function getOrderList(params) {
               bank_account
               getcustomer_address
               sendcustomer_address
-              pay_type
+              pay_status
+              trans_originalamount
               trans_amount
               trans_real
               trans_discount
@@ -687,26 +690,12 @@ export async function deleteOrder(params) {
     });
 }
 
-export async function getSiteOrderStatistic(params) {
+export async function getOrderStatistic(params) {
   return client
     .query({
       query: gql`
-        query getSiteOrderStatistic(
-          $company_id: Int
-          $site_id: Int
-          $operator_id: Int
-          $shipsite_id: Int
-          $car_code: String
-          $receiver_id: Int
-        ) {
-          getSiteOrderStatistic(
-            company_id: $company_id
-            site_id: $site_id
-            operator_id: $operator_id
-            shipsite_id: $shipsite_id
-            car_code: $car_code
-            receiver_id: $receiver_id
-          ) {
+        query getOrderStatistic($filter: OrderInput) {
+          getOrderStatistic(filter: $filter) {
             totalOrderAmount
             totalTransAmount
             totalInsurancefee
@@ -718,7 +707,7 @@ export async function getSiteOrderStatistic(params) {
     .then(data => {
       console.log(data);
       gotoLogin(data);
-      return data.data.getSiteOrderStatistic;
+      return data.data.getOrderStatistic;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');

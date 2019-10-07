@@ -1,4 +1,4 @@
-import { getOrderList } from '@/services/api';
+import { getOrderList, getOrderStatistic } from '@/services/api';
 
 export default {
   namespace: 'orderlist',
@@ -19,10 +19,10 @@ export default {
         payload: response || [],
       });
     },
-    *getUntrunkOrderStatisticAction({ payload }, { call, put }) {
-      const response = yield call(getTrunkedOrderStatistic, payload);
+    *getOrderStatisticAction({ payload }, { call, put }) {
+      const response = yield call(getOrderStatistic, payload);
       yield put({
-        type: 'getUntrunkOrderStatisticReducer',
+        type: 'getOrderStatisticReducer',
         payload: response,
       });
     },
@@ -36,7 +36,7 @@ export default {
         total: action.payload.total,
       };
     },
-    getUntrunkOrderStatisticReducer(state, action) {
+    getOrderStatisticReducer(state, action) {
       return {
         ...state,
         ...action.payload,

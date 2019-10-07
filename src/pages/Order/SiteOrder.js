@@ -205,7 +205,7 @@ class CreateForm extends PureComponent {
 
   // 分公司改变时响应函数
   onCompanySelect = async company_id => {
-    const { branchCompanyList } = this.props;
+    const { branchCompanyList, dispatch } = this.props;
 
     // 重新计算折后运费
     let company;
@@ -222,6 +222,11 @@ class CreateForm extends PureComponent {
         currentSendCustomerPageNo: 1,
       });
 
+      dispatch({
+        type: 'customer/resetCustomerPageNoAction',
+        payload: { type: 'Get' },
+      });
+
       // 获取当前公司的客户列表
       this.fetchGetCustomerList();
     }
@@ -235,7 +240,11 @@ class CreateForm extends PureComponent {
     let curCustomer;
     for (let i = 0; i < sendCustomerList.length; i++) {
       const customer = sendCustomerList[i];
-      if (customer.customer_name == currentSendCustomerName || customer.customer_id == value) {
+      if (
+        customer.customer_name == currentSendCustomerName ||
+        customer.customer_name == value ||
+        customer.customer_id == value
+      ) {
         curCustomer = customer;
         break;
       }
@@ -254,13 +263,16 @@ class CreateForm extends PureComponent {
     let curCustomer;
     for (let i = 0; i < getCustomerList.length; i++) {
       const customer = getCustomerList[i];
-      if (customer.customer_name == currentGetCustomerName || customer.customer_id == value) {
+      if (
+        customer.customer_name == currentGetCustomerName ||
+        customer.customer_name == value ||
+        customer.customer_id == value
+      ) {
         curCustomer = customer;
         break;
       }
     }
     if (!curCustomer) {
-      console.log(777777777777, curCustomer, currentGetCustomerName, value);
       form.setFieldsValue({
         getcustomer_id: currentGetCustomerName,
       });
@@ -283,7 +295,7 @@ class CreateForm extends PureComponent {
   setSelectedCustomer = async (fieldName, customer = {}) => {
     const { form } = this.props;
     const fieldObject = {};
-    fieldObject[fieldName] = customer.customer_name || ''; // customer.customer_id;
+    fieldObject[fieldName] = customer.customer_id || ''; // customer.customer_id;
     form.setFieldsValue(fieldObject);
     // setFieldsValue不会触发select的onSelect事件，因此需要手动再触发一次计算：
     // 1）是否VIP 2）计算折后运费 3）发货人银行账号
@@ -436,9 +448,9 @@ class CreateForm extends PureComponent {
   /**
    * 计算运费折扣
    */
-  computeTransDiscount = () => {
+  computeTransDiscount = changeType => {
     const { branchCompanyList } = this.props;
-    let { currentCompany, currentGetCustomer } = this.state;
+    let { currentCompany, currentGetCustomer, currentSendCustomer } = this.state;
     const { form } = this.props;
 
     if (!currentCompany) {
@@ -447,22 +459,64 @@ class CreateForm extends PureComponent {
         currentCompany,
       });
     }
-    let transAmount = form.getFieldValue('trans_amount') || '';
-    let transVipRatio = currentGetCustomer.trans_vip_ratio || 1;
+
+    let originalTransAmount = form.getFieldValue('trans_originalamount') || 0;
+    let transAmount = form.getFieldValue('trans_amount') || 0;
+    let transType = form.getFieldValue('trans_type') || 0;
+    let getCustomerTransVipRatio = currentGetCustomer.trans_vip_ratio || 1;
+    let sendCustomerTransVipRatio = currentSendCustomer.trans_vip_ratio || 1;
     let transRegionalRatio = currentCompany.trans_regional_ratio || 1;
     let transDiscount = transAmount;
 
-    if (transVipRatio && transRegionalRatio) {
+    let transVipRatio;
+    if (transType == 0) {
+      transVipRatio = getCustomerTransVipRatio;
+    } else {
+      transVipRatio = sendCustomerTransVipRatio;
+    }
+
+    if (changeType == 'type') {
       // 折后运费=地域系数*客户VIP*小票费
       transDiscount = (
-        Number(transAmount) *
+        Number(originalTransAmount) *
         Number(transVipRatio) *
         Number(transRegionalRatio)
       ).toFixed(2);
       form.setFieldsValue({
         trans_discount: transDiscount || '',
       });
+    } else if (changeType == 'original') {
+      if (originalTransAmount && transRegionalRatio) {
+        transAmount = (Number(originalTransAmount) * Number(transRegionalRatio)).toFixed(2);
+      }
+      if (transVipRatio && transRegionalRatio) {
+        // 折后运费=地域系数*客户VIP*小票费
+        transDiscount = (
+          Number(originalTransAmount) *
+          Number(transVipRatio) *
+          Number(transRegionalRatio)
+        ).toFixed(2);
+        form.setFieldsValue({
+          trans_discount: transDiscount || '',
+          trans_amount: transAmount || '',
+        });
+      }
+    } else if (transVipRatio && transRegionalRatio) {
+      // 折后运费=地域系数*客户VIP*小票费
+      transDiscount = (Number(transAmount) * Number(transVipRatio)).toFixed(2);
+      form.setFieldsValue({
+        trans_discount: transDiscount || '',
+      });
     }
+  };
+
+  onTransTypeSelect = () => {
+    this.computeTransDiscount('type');
+  };
+
+  // 小票运费变更，自动计算折后运费
+  onTransOriginalBlur = event => {
+    this.computeTransDiscount('original');
   };
 
   // 运费变更，自动计算折后运费
@@ -522,10 +576,10 @@ class CreateForm extends PureComponent {
         className={styles.modalForm}
         onCancel={() => handleModalVisible()}
         footer={[
-          <Button key="btn-cancel" onClick={() => handleModalVisible()}>
+          <Button key="btn-cancel" onClick={() => handleModalVisible()} tabIndex={-1}>
             取 消
           </Button>,
-          <Button key="btn-print" onClick={this.onOrderPrint}>
+          <Button key="btn-print" onClick={this.onOrderPrint} tabIndex={-1}>
             打 印
           </Button>,
           <Button key="btn-save" type="primary" onClick={this.okHandle}>
@@ -557,7 +611,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="站点">
               {form.getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Select placeholder="请选择" style={{ width: '100%' }} tabIndex={-1} disabled>
                   <Option value={CacheSite.site_id} selected>
                     {CacheSite.site_name}
                   </Option>
@@ -663,62 +717,95 @@ class CreateForm extends PureComponent {
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLayout}>
-            <FormItem {...this.formItemLayout} label="运费">
-              {form.getFieldDecorator('trans_amount', {})(
-                <Input placeholder="请输入运费" onBlur={this.onTransBlur} />
+          <Col span={38} className={styles.formItemFloat}>
+            <FormItem labelCol={{ span: 10 }} wrapperCol={{ span: 10 }} label="小票运费">
+              {form.getFieldDecorator('trans_originalamount', {})(
+                <Input
+                  placeholder="请输入小票运费"
+                  onBlur={this.onTransOriginalBlur}
+                  style={{ width: '100px' }}
+                />
               )}
             </FormItem>
-          </Col>
-          <Col {...this.colSmallLayout}>
-            <FormItem label="">
-              {form.getFieldDecorator('trans_type')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="1">现付</Option>
-                  <Option value="2">回付</Option>
+            <FormItem
+              style={{ width: '180px' }}
+              labelCol={{ span: 10 }}
+              wrapperCol={{ span: 12 }}
+              label="运费"
+            >
+              {form.getFieldDecorator('trans_amount', {})(
+                <Input
+                  placeholder="请输入运费"
+                  onBlur={this.onTransBlur}
+                  style={{ width: '100px' }}
+                  tabIndex={-1}
+                />
+              )}
+            </FormItem>
+            <FormItem label="" labelCol={{ span: 0 }} wrapperCol={{ span: 4 }}>
+              {form.getFieldDecorator('trans_type', { initialValue: 0 })(
+                <Select
+                  placeholder="请选择"
+                  style={{ width: '70px' }}
+                  tabIndex={-1}
+                  onSelect={this.onTransTypeSelect}
+                >
+                  <Option value={0}>提付</Option>
+                  <Option value={1}>现付</Option>
+                  <Option value={2}>回付</Option>
                 </Select>
               )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="折后运费">
-              {form.getFieldDecorator('trans_discount', {})(<Input placeholder="" />)}
+              {form.getFieldDecorator('trans_discount', {})(
+                <Input placeholder="" tabIndex={-1} style={{ width: '80px' }} disabled />
+              )}
             </FormItem>
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="货款">
-              {form.getFieldDecorator('order_amount', {})(<Input placeholder="请输入货款" />)}
+              {form.getFieldDecorator('order_amount', {})(
+                <Input placeholder="请输入货款" tabIndex={-1} />
+              )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="银行账号">
-              {form.getFieldDecorator('bank_account')(<Input placeholder="请输入银行账号" />)}
+              {form.getFieldDecorator('bank_account')(
+                <Input placeholder="请输入银行账号" tabIndex={-1} />
+              )}
             </FormItem>
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="保价金额">
-              {form.getFieldDecorator('insurance_amount', {})(<Input placeholder="" />)}
+              {form.getFieldDecorator('insurance_amount', {})(
+                <Input placeholder="" tabIndex={-1} />
+              )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="保价费">
-              {form.getFieldDecorator('insurance_fee', {})(<Input placeholder="" />)}
+              {form.getFieldDecorator('insurance_fee', {})(<Input placeholder="" tabIndex={-1} />)}
             </FormItem>
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="送货费">
-              {form.getFieldDecorator('deliver_amount', {})(<Input placeholder="" />)}
+              {form.getFieldDecorator('deliver_amount', {})(<Input placeholder="" tabIndex={-1} />)}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="垫付金额">
-              {form.getFieldDecorator('order_advancepay_amount', {})(<Input placeholder="" />)}
+              {form.getFieldDecorator('order_advancepay_amount', {})(
+                <Input placeholder="" tabIndex={-1} />
+              )}
             </FormItem>
           </Col>
         </Row>
@@ -733,7 +820,7 @@ class CreateForm extends PureComponent {
           <Col {...this.colSmallLayout}>
             <FormItem {...this.formItemLayout} label="">
               {form.getFieldDecorator('order_num')(
-                <InputNumber placeholder="件数" style={{ width: '200' }} />
+                <InputNumber placeholder="件数" style={{ width: '200' }} tabIndex={-1} />
               )}
             </FormItem>
           </Col>
@@ -742,7 +829,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="转进/转出">
               {form.getFieldDecorator('transfer_type')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Select placeholder="请选择" style={{ width: '100%' }} tabIndex={-1}>
                   <Option value="1" sele>
                     转出
                   </Option>
@@ -755,33 +842,41 @@ class CreateForm extends PureComponent {
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="中转费">
-              {form.getFieldDecorator('transfer_amount', {})(<Input placeholder="请输入" />)}
+              {form.getFieldDecorator('transfer_amount', {})(
+                <Input placeholder="请输入" tabIndex={-1} />
+              )}
             </FormItem>
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="中转地址">
-              {form.getFieldDecorator('transfer_address', {})(<Input placeholder="请输入" />)}
+              {form.getFieldDecorator('transfer_address', {})(
+                <Input placeholder="请输入" tabIndex={-1} />
+              )}
             </FormItem>
           </Col>
 
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="中转物流">
-              {form.getFieldDecorator('transfer_company_name')(<Input placeholder="请输入" />)}
+              {form.getFieldDecorator('transfer_company_name')(
+                <Input placeholder="请输入" tabIndex={-1} />
+              )}
             </FormItem>
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="中转单号">
-              {form.getFieldDecorator('transfer_order_code', {})(<Input placeholder="请输入" />)}
+              {form.getFieldDecorator('transfer_order_code', {})(
+                <Input placeholder="请输入" tabIndex={-1} />
+              )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="中转电话">
               {form.getFieldDecorator('transfer_company_mobile', {})(
-                <Input placeholder="请输入" />
+                <Input placeholder="请输入" tabIndex={-1} />
               )}
             </FormItem>
           </Col>
@@ -789,19 +884,21 @@ class CreateForm extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="实收货款">
-              {form.getFieldDecorator('order_real')(<Input placeholder="请输入" />)}
+              {form.getFieldDecorator('order_real')(<Input placeholder="请输入" tabIndex={-1} />)}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="实收运费">
-              {form.getFieldDecorator('trans_real', {})(<Input placeholder="请输入" />)}
+              {form.getFieldDecorator('trans_real', {})(
+                <Input placeholder="请输入" tabIndex={-1} />
+              )}
             </FormItem>
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.colLargeLayout}>
             <FormItem {...this.formItemMiniLayout} label="备注">
-              {form.getFieldDecorator('remark', {})(<Input placeholder="请输入" />)}
+              {form.getFieldDecorator('remark', {})(<Input placeholder="请输入" tabIndex={-1} />)}
             </FormItem>
           </Col>
         </Row>
@@ -918,7 +1015,7 @@ class CreateEntrunkForm extends PureComponent {
         payload: fieldsValue,
       });
 
-      if (result.code == 0) {
+      if (result && result.code == 0) {
         message.success('操作成功');
         onEntrunkModalCancel();
         setTimeout(() => {
@@ -971,15 +1068,18 @@ class TableList extends PureComponent {
   columns = [
     {
       title: '分公司',
+      width: 60,
       dataIndex: 'company_name',
     },
     {
       title: '录票时间',
+      width: 80,
       dataIndex: 'create_date',
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '货单号',
+      width: 70,
       dataIndex: 'order_code',
       sorter: true,
       align: 'right',
@@ -989,66 +1089,89 @@ class TableList extends PureComponent {
     },
     {
       title: '发货客户',
+      width: 60,
       dataIndex: 'sendcustomer_name',
     },
     {
       title: '收获客户',
+      width: 60,
       dataIndex: 'getcustomer_name',
       sorter: true,
     },
     {
       title: '应收货款',
+      width: 60,
       dataIndex: 'order_amount',
       sorter: true,
     },
     {
       title: '运费',
+      width: 60,
       dataIndex: 'trans_amount',
       sorter: true,
     },
     {
       title: '折后运费',
+      width: 60,
       dataIndex: 'trans_discount',
       sorter: true,
     },
     {
       title: '运费方式',
+      width: 60,
       dataIndex: 'trans_type',
       sorter: true,
-      render: val => `${val == 1 ? '现付' : '回付'}`,
+      render: val => {
+        let transType = '';
+        if (val === 1) {
+          transType = '现付';
+        } else if (val === 2) {
+          transType = '回付';
+        } else {
+          transType = '提付';
+        }
+        return transType;
+      },
     },
     {
       title: '垫付',
+      width: 60,
       dataIndex: 'order_advancepay_amount',
       sorter: true,
     },
     {
       title: '送货费',
+      width: 60,
       dataIndex: 'deliver_amount',
       sorter: true,
     },
     {
       title: '保价费',
+      width: 60,
       dataIndex: 'insurance_fee',
       sorter: true,
     },
     {
       title: '货物名称',
+      width: 100,
       dataIndex: 'order_name',
       sorter: true,
     },
     {
       title: '经办人',
+      width: 60,
       dataIndex: 'operator_name',
       sorter: true,
     },
     {
       title: '站点',
+      width: 60,
       dataIndex: 'site_name',
       sorter: true,
     },
     {
       title: '中转',
+      width: 60,
       dataIndex: 'transfer_type',
       sorter: true,
       render: val => {
@@ -1148,38 +1271,31 @@ class TableList extends PureComponent {
     if (e) {
       e.preventDefault();
     }
-    const { form } = this.props;
-
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-
-      const values = {
-        ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-      };
-
-      this.setState({
-        formValues: values,
-      });
-
-      this.getOrderList({ filter: values }, 1);
-    });
+    this.getOrderList();
   };
 
   /**
    * 获取订单信息
    */
-  getOrderList = (data, pageNo) => {
+  getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch } = this.props;
     const { current, pageSize } = this.state;
-    dispatch({
-      type: 'order/getOrderListAction',
-      payload: { pageNo: pageNo || current, pageSize, ...data },
-    });
 
-    dispatch({
-      type: 'order/getSiteOrderStatisticAction',
-      payload: { ...data },
+    const { form } = this.props;
+
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+
+      const searchParams = Object.assign({ filter: fieldsValue }, data);
+      dispatch({
+        type: 'order/getOrderListAction',
+        payload: { pageNo: pageNo || current, pageSize, ...searchParams },
+      });
+
+      dispatch({
+        type: 'order/getOrderStatisticAction',
+        payload: { ...searchParams },
+      });
     });
   };
 
@@ -1201,7 +1317,7 @@ class TableList extends PureComponent {
         payload: Object.assign(fields, { order_id: selectedOrder.order_id }),
       });
 
-      if (result.code == 0) {
+      if (result && result.code == 0) {
         message.success('编辑成功');
       } else {
         message.error('编辑失败');
@@ -1213,7 +1329,7 @@ class TableList extends PureComponent {
         payload: fields,
       });
 
-      if (result.code == 0) {
+      if (result && result.code == 0) {
         message.success('添加成功');
       } else {
         message.error('添加失败');
@@ -1243,7 +1359,7 @@ class TableList extends PureComponent {
           payload: { orderId: orderIds, isDelete: 1 },
         });
 
-        if (result.code == 0) {
+        if (result && result.code == 0) {
           message.success('删除成功');
         } else {
           message.error('删除失败');
@@ -1387,6 +1503,8 @@ class TableList extends PureComponent {
             </div>
             <StandardTable
               selectedRows={selectedRows}
+              className={styles.dataTable}
+              scroll={{ x: 900 }}
               loading={loading}
               rowKey="order_id"
               data={{

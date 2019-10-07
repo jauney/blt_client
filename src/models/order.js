@@ -4,7 +4,7 @@ import {
   updateOrder,
   getOrderList,
   deleteOrder,
-  getSiteOrderStatistic,
+  getOrderStatistic,
   shipOrder,
   cancelShipOrder,
 } from '@/services/api';
@@ -59,9 +59,10 @@ export default {
       payload.is_delete = 1;
       return yield call(deleteOrder, payload); // post
     },
-    *getSiteOrderStatisticAction({ payload }, { call, put }) {
+    *getOrderStatisticAction({ payload }, { call, put }) {
+      console.log(payload, '#####');
       payload.order_status = 0;
-      const response = yield call(getSiteOrderStatistic, payload);
+      const response = yield call(getOrderStatistic, payload);
       yield put({
         type: 'getSiteOrderStatisticReducer',
         payload: response,

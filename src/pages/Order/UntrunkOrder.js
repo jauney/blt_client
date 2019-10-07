@@ -381,6 +381,7 @@ class CreateEntrunkForm extends PureComponent {
 
       formValues.car_fee = Number(formValues.car_fee || 0);
       formValues.shipsite_id = CacheSite.site_id;
+      formValues.car_code = formValues.car_code + '';
 
       const result = await dispatch({
         type: 'untrunkorder/entrunkOrderAction',
@@ -441,15 +442,18 @@ class TableList extends PureComponent {
   columns = [
     {
       title: '分公司',
+      width: 60,
       dataIndex: 'company_name',
     },
     {
       title: '录票时间',
+      width: 80,
       dataIndex: 'create_date',
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '货单号',
+      width: 70,
       dataIndex: 'order_code',
       sorter: true,
       align: 'right',
@@ -459,76 +463,101 @@ class TableList extends PureComponent {
     },
     {
       title: '发货客户',
+      width: 60,
       dataIndex: 'sendcustomer_name',
     },
     {
       title: '收获客户',
+      width: 60,
       dataIndex: 'getcustomer_name',
       sorter: true,
     },
     {
       title: '应收货款',
+      width: 60,
       dataIndex: 'order_amount',
       sorter: true,
     },
     {
       title: '运费',
+      width: 60,
       dataIndex: 'trans_amount',
       sorter: true,
     },
     {
       title: '折后运费',
+      width: 60,
       dataIndex: 'trans_discount',
       sorter: true,
     },
     {
       title: '运费方式',
+      width: 60,
       dataIndex: 'trans_type',
       sorter: true,
-      render: val => `${val == 1 ? '现付' : '回付'}`,
+      render: val => {
+        let transType = '';
+        if (val === 1) {
+          transType = '现付';
+        } else if (val === 2) {
+          transType = '回付';
+        } else {
+          transType = '提付';
+        }
+        return transType;
+      },
     },
     {
       title: '垫付',
+      width: 60,
       dataIndex: 'order_advancepay_amount',
       sorter: true,
     },
     {
       title: '送货费',
+      width: 60,
       dataIndex: 'deliver_amount',
       sorter: true,
     },
     {
       title: '保价费',
+      width: 60,
       dataIndex: 'insurance_fee',
       sorter: true,
     },
     {
       title: '货物名称',
+      width: 100,
       dataIndex: 'order_name',
       sorter: true,
     },
     {
       title: '经办人',
+      width: 60,
       dataIndex: 'operator_name',
       sorter: true,
     },
     {
       title: '接货人',
+      width: 60,
       dataIndex: 'receiver_name',
       sorter: true,
     },
     {
       title: '装配站',
+      width: 60,
       dataIndex: 'shipsite_name',
       sorter: true,
     },
     {
       title: '站点',
+      width: 60,
       dataIndex: 'site_name',
       sorter: true,
     },
     {
       title: '中转',
+      width: 60,
       dataIndex: 'transfer_type',
       sorter: true,
       render: val => {
@@ -615,49 +644,30 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
-
-    const {
-      form,
-      company: { branchCompanyList },
-    } = this.props;
-
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-
-      const values = {
-        ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-      };
-
-      const currentCompany = branchCompanyList.filter(item => {
-        if (item.company_id == fieldsValue.company_id) {
-          return item;
-        }
-      });
-      if (currentCompany.length > 0) {
-        this.setState({
-          currentCompany: currentCompany[0],
-        });
-      }
-
-      this.getOrderList({ filter: values }, 1);
-    });
+    this.getOrderList();
   };
 
   /**
    * 获取订单信息
    */
-  getOrderList = (data, pageNo) => {
+  getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch } = this.props;
     const { current, pageSize } = this.state;
-    dispatch({
-      type: 'untrunkorder/getOrderListAction',
-      payload: { pageNo: pageNo || current, pageSize, ...data },
-    });
+    const { form } = this.props;
 
-    dispatch({
-      type: 'untrunkorder/getSiteOrderStatisticAction',
-      payload: { ...data },
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+
+      const searchParams = Object.assign({ filter: fieldsValue }, data);
+      dispatch({
+        type: 'untrunkorder/getOrderListAction',
+        payload: { pageNo: pageNo || current, pageSize, ...searchParams },
+      });
+
+      dispatch({
+        type: 'untrunkorder/getOrderStatisticAction',
+        payload: { ...searchParams },
+      });
     });
   };
 
@@ -877,6 +887,8 @@ class TableList extends PureComponent {
               )}
             </div>
             <StandardTable
+              className={styles.dataTable}
+              scroll={{ x: 900 }}
               selectedRows={selectedRows}
               loading={loading}
               rowKey="order_id"

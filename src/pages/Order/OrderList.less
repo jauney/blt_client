@@ -18,6 +18,15 @@
   }
 }
 
+.formItemFloat {
+  :global {
+    .ant-form-item {
+      float: left;
+      margin-bottom: 0;
+    }
+  }
+}
+
 .tableListForm {
   :global {
     .ant-form-item {
@@ -43,6 +52,23 @@
     display: block;
     white-space: nowrap;
     margin-bottom: 24px;
+  }
+}
+
+.dataTable {
+  :global {
+    .ant-table-column-title,
+    .ant-table-row td,
+    .ant-table-row span {
+      word-break: keep-all;
+      white-space: nowrap;
+    }
+    .ant-table-thead tr th {
+      padding: 12px 6px !important;
+    }
+    .ant-table-tbody tr td {
+      padding: 6px !important;
+    }
   }
 }
 

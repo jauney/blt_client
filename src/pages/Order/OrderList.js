@@ -71,6 +71,7 @@ class TableList extends PureComponent {
   columns = [
     {
       title: '货单号',
+      width: 60,
       dataIndex: 'order_code',
       sorter: true,
       align: 'right',
@@ -80,51 +81,61 @@ class TableList extends PureComponent {
     },
     {
       title: '发货客户',
+      width: 60,
       dataIndex: 'sendcustomer_name',
     },
     {
       title: '收获客户',
+      width: 60,
       dataIndex: 'getcustomer_name',
       sorter: true,
     },
     {
       title: '应收货款',
+      width: 60,
       dataIndex: 'order_amount',
       sorter: true,
     },
     {
       title: '实收货款',
+      width: 60,
       dataIndex: 'order_real',
       sorter: true,
     },
     {
       title: '实收运费',
+      width: 60,
       dataIndex: 'trans_real',
       sorter: true,
     },
     {
       title: '折后运费',
+      width: 60,
       dataIndex: 'trans_discount',
       sorter: true,
     },
     {
       title: '运费方式',
+      width: 60,
       dataIndex: 'trans_type',
       sorter: true,
       render: val => `${val == 1 ? '现付' : '回付'}`,
     },
     {
       title: '垫付',
+      width: 60,
       dataIndex: 'order_advancepay_amount',
       sorter: true,
     },
     {
       title: '送货费',
+      width: 60,
       dataIndex: 'deliver_amount',
       sorter: true,
     },
     {
       title: '保价费',
+      width: 60,
       dataIndex: 'insurance_fee',
       sorter: true,
     },
@@ -135,35 +146,42 @@ class TableList extends PureComponent {
     },
     {
       title: '录票时间',
+      width: 60,
       dataIndex: 'create_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD HH:mm:ss') : ''}</span>,
     },
     {
       title: '发车时间',
+      width: 80,
       dataIndex: 'depart_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD HH:mm:ss') : ''}</span>,
     },
     {
       title: '站点',
+      width: 60,
       dataIndex: 'site_name',
       sorter: true,
     },
     {
       title: '结算日期',
+      width: 80,
       dataIndex: 'settle_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD') : ''}</span>,
     },
     {
       title: '付款日期',
+      width: 80,
       dataIndex: 'pay_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD') : ''}</span>,
     },
     {
       title: '滞纳金',
+      width: 60,
       dataIndex: 'late_fee',
     },
     {
       title: '奖励金',
+      width: 60,
       dataIndex: 'bonus_amount',
     },
     {
@@ -338,16 +356,16 @@ class TableList extends PureComponent {
 
       filter.order_status = [3, 10];
       searchParams = filter;
-    });
-    searchParams = Object.assign({ filter: searchParams }, data);
-    dispatch({
-      type: 'orderlist/getOrderListAction',
-      payload: { pageNo: pageNo || current, pageSize, ...searchParams },
-    });
+      searchParams = Object.assign({ filter: searchParams }, data);
+      dispatch({
+        type: 'orderlist/getOrderListAction',
+        payload: { pageNo: pageNo || current, pageSize, ...searchParams },
+      });
 
-    dispatch({
-      type: 'orderlist/getSiteOrderStatisticAction',
-      payload: { ...searchParams },
+      dispatch({
+        type: 'orderlist/getOrderStatisticAction',
+        payload: { ...searchParams },
+      });
     });
   };
 
@@ -462,6 +480,8 @@ class TableList extends PureComponent {
               )}
             </div>
             <StandardTable
+              className={styles.dataTable}
+              scroll={{ x: 900 }}
               selectedRows={selectedRows}
               loading={loading}
               rowKey="order_id"
