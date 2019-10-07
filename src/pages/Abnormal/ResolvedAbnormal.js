@@ -820,7 +820,7 @@ class TableList extends PureComponent {
       });
 
       dispatch({
-        type: 'abnormal/getSiteOrderStatisticAction',
+        type: 'abnormal/getOrderStatisticAction',
         payload: { ...searchParams },
       });
     });
@@ -1080,6 +1080,8 @@ class TableList extends PureComponent {
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}
+              className={styles.dataTable}
+              scroll={{ x: 900 }}
               rowKey="order_id"
               data={{
                 list: orderList,

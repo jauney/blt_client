@@ -321,11 +321,11 @@ class CreateForm extends PureComponent {
   };
 })
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, unsettle, site, car, receiver, loading }) => {
+@connect(({ customer, company, unsettlegoods, site, car, receiver, loading }) => {
   return {
     customer,
     company,
-    unsettle,
+    unsettlegoods,
     site,
     car,
     receiver,
@@ -625,14 +625,16 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      fieldsValue.order_amount = -1;
+      fieldsValue.order_amount = -1;
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
-        type: 'unsettle/getOrderListAction',
+        type: 'unsettlegoods/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
       dispatch({
-        type: 'unsettle/getOrderStatisticAction',
+        type: 'unsettlegoods/getOrderStatisticAction',
         payload: { ...searchParams },
       });
     });
@@ -789,7 +791,7 @@ class TableList extends PureComponent {
       return item.order_id;
     });
     let result = await dispatch({
-      type: 'unsettle/printAction',
+      type: 'unsettlegoods/printAction',
       payload: {
         order_id: orderIds,
       },
@@ -977,10 +979,11 @@ class TableList extends PureComponent {
             <Input placeholder="请输入" style={{ width: '150px' }} />
           )}
         </FormItem>
-        <Form.Item {...formItemLayout}>
+        <Form.Item {...formItemLayout} className={styles.tableListOperator}>
           <Button type="primary" htmlType="submit">
             查询
           </Button>
+          <Button onClick={this.onDownload}>下载</Button>
         </Form.Item>
       </Form>
     );
@@ -992,7 +995,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      unsettle: { orderList, total, totalOrderAmount, totalTransAmount },
+      unsettlegoods: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },
       car: { carList, lastCar },
       loading,
@@ -1017,17 +1020,7 @@ class TableList extends PureComponent {
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
-            <div className={styles.tableListOperator}>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button onClick={this.onSettle}>账目核对</Button>
-                  <Button onClick={this.onSign}>签字</Button>
-                  <Button onClick={this.onCancelSign}>取消签字</Button>
-                  <Button onClick={this.onPrint}>结账打印</Button>
-                  <Button onClick={this.onDownload}>下载</Button>
-                </span>
-              )}
-            </div>
+
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}

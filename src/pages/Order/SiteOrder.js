@@ -1329,6 +1329,9 @@ class TableList extends PureComponent {
         payload: fields,
       });
 
+      // TODO: 拿到order_code用于打印
+      console.log(result.data);
+
       if (result && result.code == 0) {
         message.success('添加成功');
       } else {

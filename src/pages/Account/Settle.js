@@ -621,12 +621,15 @@ class TableList extends PureComponent {
       dataIndex: 'trans_type',
       sorter: true,
       render: val => {
-        if (val == 1) {
-          return '现付';
-        } else if (val == 2) {
-          return '回付';
+        let transType = '';
+        if (val === 1) {
+          transType = '现付';
+        } else if (val === 2) {
+          transType = '回付';
+        } else {
+          transType = '提付';
         }
-        return '';
+        return transType;
       },
     },
     {
@@ -652,12 +655,27 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       dataIndex: 'create_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
     },
     {
       title: '发车时间',
       dataIndex: 'depart_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
+    },
+    {
+      title: '结算时间',
+      dataIndex: 'settle_date',
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
+    },
+    {
+      title: '结算人',
+      dataIndex: 'settle_user_name',
     },
     {
       title: '站点',
@@ -800,7 +818,7 @@ class TableList extends PureComponent {
       });
 
       dispatch({
-        type: 'settle/getSiteOrderStatisticAction',
+        type: 'settle/getOrderStatisticAction',
         payload: { ...searchParams },
       });
     });
@@ -1203,6 +1221,8 @@ class TableList extends PureComponent {
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}
+              className={styles.dataTable}
+              scroll={{ x: 900 }}
               rowKey="order_id"
               data={{
                 list: orderList,

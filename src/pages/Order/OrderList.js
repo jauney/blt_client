@@ -119,7 +119,17 @@ class TableList extends PureComponent {
       width: 60,
       dataIndex: 'trans_type',
       sorter: true,
-      render: val => `${val == 1 ? '现付' : '回付'}`,
+      render: val => {
+        let transType = '';
+        if (val === 1) {
+          transType = '现付';
+        } else if (val === 2) {
+          transType = '回付';
+        } else {
+          transType = '提付';
+        }
+        return transType;
+      },
     },
     {
       title: '垫付',

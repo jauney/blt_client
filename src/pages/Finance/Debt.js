@@ -640,6 +640,8 @@ class TableList extends PureComponent {
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}
+              className={styles.dataTable}
+              scroll={{ x: 900 }}
               rowKey="debt_id"
               data={{
                 list: debtList,

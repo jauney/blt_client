@@ -9,7 +9,7 @@ export default {
   'menu.account': '账户核对',
   'menu.account.unsettle': '未结算账目核对',
   'menu.account.settle': '已结算账目核对',
-  'menu.account.unpaylist': '未结账目查询',
+  'menu.account.unsettlegoods': '未结货款查询',
   'menu.account.accountlist': '综合查询',
   'menu.abnormal': '异常货物',
   'menu.abnormal.addabnormal': '添加异常货物',

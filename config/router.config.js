@@ -56,7 +56,7 @@ export default [
           {
             path: '/account/unsettle',
             name: 'unsettle',
-            component: './Account/Unsettle',
+            component: './Account/UnSettle',
           },
           {
             path: '/account/settle',
@@ -64,15 +64,13 @@ export default [
             component: './Account/Settle',
           },
           {
-            path: '/account/unpaylist',
-            name: 'unpaylist',
-            authority: ['admin'],
-            component: './Account/UnPayList',
+            path: '/account/unsettlegoods',
+            name: 'unsettlegoods',
+            component: './Account/UnSettleGoods',
           },
           {
             path: '/account/accountlist',
             name: 'accountlist',
-            authority: ['admin'],
             component: './Account/AccountList',
           },
         ],

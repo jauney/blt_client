@@ -1,13 +1,14 @@
 import {
   getOrderList,
-  getTrunkedOrderStatistic,
-  cancelSettleOrder,
-  downAccount,
+  getOrderStatistic,
+  settleOrder,
+  updateCarStatus,
+  cancelEntrunk,
   updateOrderSign,
 } from '@/services/api';
 
 export default {
-  namespace: 'unpaylist',
+  namespace: 'unsettlegoods',
 
   state: {
     orderList: [],
@@ -20,7 +21,7 @@ export default {
   effects: {
     *getOrderListAction({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
-      payload.filter.order_status = [6];
+      payload.filter.order_status = [3, 5];
 
       const response = yield call(getOrderList, payload);
       yield put({
@@ -28,20 +29,20 @@ export default {
         payload: response,
       });
     },
-    *getUntrunkOrderStatisticAction({ payload }, { call, put }) {
-      payload.order_status = 0;
-      const response = yield call(getTrunkedOrderStatistic, payload);
+    *getOrderStatisticAction({ payload }, { call, put }) {
+      const response = yield call(getOrderStatistic, payload);
       yield put({
-        type: 'getUntrunkOrderStatisticReducer',
+        type: 'getOrderStatisticReducer',
         payload: response,
       });
     },
-    *cancelSettleOrderAction({ payload }, { call, put }) {
+    *settleOrderAction({ payload }, { call, put }) {
       console.log(payload);
-      return yield call(cancelSettleOrder, payload); // post
+      return yield call(settleOrder, payload); // post
     },
-    *downAccountAction({ payload }, { call, put }) {
-      return yield call(downAccount, payload); // post
+    *signAction({ payload }, { call, put }) {
+      payload.sign_status = 1;
+      return yield call(updateOrderSign, payload); // post
     },
     *cancelSignAction({ payload }, { call, put }) {
       payload.sign_status = 0;
@@ -57,7 +58,7 @@ export default {
         total: action.payload.total,
       };
     },
-    getUntrunkOrderStatisticReducer(state, action) {
+    getOrderStatisticReducer(state, action) {
       return {
         ...state,
         ...action.payload,

@@ -1,15 +1,14 @@
 import {
   getOrderList,
   getOrderStatistic,
-  downAccount,
+  settleOrder,
+  updateCarStatus,
+  cancelEntrunk,
   updateOrderSign,
-  updateAbnormal,
-  updateOrder,
-  getAbnormalTypes,
 } from '@/services/api';
 
 export default {
-  namespace: 'abnormal',
+  namespace: 'accountlist',
 
   state: {
     orderList: [],
@@ -17,8 +16,6 @@ export default {
     totalOrderAmount: 0,
     totalTransAmount: 0,
     totalInsurancefee: 0,
-    abnormalTypes: [],
-    abnormalTotal: 0,
   },
 
   effects: {
@@ -31,16 +28,6 @@ export default {
         payload: response,
       });
     },
-    *addAbnormalAction({ payload }, { call, put }) {
-      return yield call(updateAbnormal, payload); // post
-    },
-    *getAbnormalTypeListAction({ payload }, { call, put }) {
-      const response = yield call(getAbnormalTypes, payload); // post
-      yield put({
-        type: 'getAbnormalTypeListReducer',
-        payload: response,
-      });
-    },
     *getOrderStatisticAction({ payload }, { call, put }) {
       const response = yield call(getOrderStatistic, payload);
       yield put({
@@ -48,11 +35,13 @@ export default {
         payload: response,
       });
     },
-    *cancelAbnormalAction({ payload, orderIds }, { call, put }) {
-      return yield call(updateOrder, payload, orderIds); // post
+    *settleOrderAction({ payload }, { call, put }) {
+      console.log(payload);
+      return yield call(settleOrder, payload); // post
     },
-    *resolveAbnormalAction({ payload }, { call, put }) {
-      return yield call(updateAbnormal, payload); // post
+    *signAction({ payload }, { call, put }) {
+      payload.sign_status = 1;
+      return yield call(updateOrderSign, payload); // post
     },
     *cancelSignAction({ payload }, { call, put }) {
       payload.sign_status = 0;
@@ -61,13 +50,6 @@ export default {
   },
 
   reducers: {
-    getAbnormalTypeListReducer(state, action) {
-      return {
-        ...state,
-        abnormalTypes: action.payload.abnormal_types,
-        abnormalTotal: action.payload.total,
-      };
-    },
     getOrderListReducer(state, action) {
       return {
         ...state,
