@@ -1,17 +1,21 @@
 import {
   getOrderList,
   getOrderStatistic,
+  getTodayPayList,
   cancelSettleOrder,
   downAccount,
   cancelDownAccountOrder,
+  updateOrder,
 } from '@/services/api';
 
 export default {
-  namespace: 'settle',
+  namespace: 'pay',
 
   state: {
     orderList: [],
     total: 0,
+    todayPayList: [],
+    todayPayTotal: 0,
     totalOrderAmount: 0,
     totalTransAmount: 0,
     totalInsurancefee: 0,
@@ -28,17 +32,25 @@ export default {
         payload: response,
       });
     },
+    *getTodayPayListAction({ payload }, { call, put }) {
+      const response = yield call(getTodayPayList, payload);
+      yield put({
+        type: 'getTodayPayListReducer',
+        payload: response,
+      });
+    },
     *getOrderStatisticAction({ payload }, { call, put }) {
       payload.order_status = [6, 7];
+
       const response = yield call(getOrderStatistic, payload);
       yield put({
         type: 'getOrderStatisticReducer',
         payload: response,
       });
     },
-    *cancelSettleOrderAction({ payload }, { call, put }) {
+    *updatePayAbnormalAction({ payload }, { call, put }) {
       console.log(payload);
-      return yield call(cancelSettleOrder, payload); // post
+      return yield call(updateOrder, payload); // post
     },
     *downAccountAction({ payload }, { call, put }) {
       return yield call(downAccount, payload); // post
@@ -55,6 +67,13 @@ export default {
         ...state,
         orderList: action.payload.orders,
         total: action.payload.total,
+      };
+    },
+    getTodayPayListReducer(state, action) {
+      return {
+        ...state,
+        todayPayList: action.payload.todaypays,
+        todayPayTotal: action.payload.total,
       };
     },
     getOrderStatisticReducer(state, action) {

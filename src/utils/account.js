@@ -14,6 +14,8 @@ export function getSelectedAccount(sltDatas, type) {
   var totalShouldTransFunds = 0;
   var totalActualGoodsFunds = 0;
   var totalActualTransFunds = 0;
+  // 垫付金额
+  var totalAdvancepayAmount = 0;
   // 货款为0，运费结算方式为 回付、现付的记录，不能取消结算，因为这些记录是自动结算的。
   // 运费结算方式trans_type=1、2，表示西安结算，trans_type=0表示下站支付
   var totalXianSettleTransFunds = 0;
@@ -23,18 +25,19 @@ export function getSelectedAccount(sltDatas, type) {
 
     var realOrderAmount = order.order_real ? order.order_real : order.order_amount;
     totalActualGoodsFunds += Number(realOrderAmount);
+    // trans_discount即为实付运费，去掉trans_real字段
+    var realTransAmount = order.trans_discount ? order.trans_discount : order.trans_amount;
 
-    var realTransAmount = order.trans_real ? order.trans_real : order.trans_discount;
     if (order.trans_type == 0) {
-      totalActualTransFunds += Number(realTransAmount);
-      totalShouldTransFunds += Number(order.trans_discount);
+      totalActualTransFunds += Number(realTransAmount || 0);
+      totalAdvancepayAmount += Number(order.order_advancepay_amount || 0);
     } else {
-      totalXianSettleTransFunds += parseInt(realTransAmount);
+      totalXianSettleTransFunds += Number(realTransAmount || 0);
     }
+    totalShouldTransFunds += Number(order.trans_amount || 0);
+    totalShouldGoodsFunds += Number(order.order_amount || 0);
 
-    totalShouldGoodsFunds += parseInt(order.order_amount);
-
-    totalAccount = totalActualGoodsFunds + totalShouldTransFunds;
+    totalAccount = totalActualGoodsFunds + totalShouldTransFunds + totalAdvancepayAmount;
   }
   accountData.totalAccount = totalAccount;
   accountData.totalShouldGoodsFund = totalShouldGoodsFunds;
@@ -42,6 +45,7 @@ export function getSelectedAccount(sltDatas, type) {
   accountData.totalActualGoodsFund = totalActualGoodsFunds;
   accountData.totalActualTransFund = totalActualTransFunds;
   accountData.totalXianSettleTransFunds = totalXianSettleTransFunds;
+  accountData.totalAdvancepayAmount = totalAdvancepayAmount;
 
   return accountData;
 }

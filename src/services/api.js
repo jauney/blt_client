@@ -418,6 +418,10 @@ export async function createOrder(params) {
 }
 
 export async function updateOrder(order, orderIds) {
+  if (order.order) {
+    orderIds = order.order_id;
+    order = order.order;
+  }
   if (order.trans_real) {
     order.trans_real = Number(order.trans_real || 0);
   }
@@ -661,6 +665,48 @@ export async function getOrderList(params) {
     .then(data => {
       gotoLogin(data);
       return data.data.getOrders;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function getTodayPayList(params) {
+  return client
+    .query({
+      query: gql`
+        query getTodayPays($pageNo: Int, $pageSize: Int, $filter: TodayPayInput, $sorter: String) {
+          getTodayPays(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
+            total
+            todaypays {
+              operator_id
+              operator_name
+              company_id
+              serial_id
+              pay_amount
+              pay_type
+              site_id
+              pay_date
+              company_name
+              bank_account
+              getcustomer_id
+              getcustomer_name
+              sendcustomer_id
+              sendcustomer_name
+              order_id
+              agency_fee
+              order_amount
+              trans_amount
+              order_code
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getTodayPays;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');

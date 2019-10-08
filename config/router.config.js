@@ -47,7 +47,7 @@ export default [
           },
         ],
       },
-      // forms
+      // 账目结算
       {
         path: '/account',
         icon: 'form',
@@ -72,6 +72,29 @@ export default [
             path: '/account/accountlist',
             name: 'accountlist',
             component: './Account/AccountList',
+          },
+        ],
+      },
+      // 付款管理
+      {
+        path: '/pay',
+        icon: 'form',
+        name: 'pay',
+        routes: [
+          {
+            path: '/pay/pay',
+            name: 'pay',
+            component: './Pay/Pay',
+          },
+          {
+            path: '/pay/payabnormal',
+            name: 'payabnormal',
+            component: './Pay/PayAbnormal',
+          },
+          {
+            path: '/pay/paysearch',
+            name: 'paysearch',
+            component: './Pay/PaySearch',
           },
         ],
       },

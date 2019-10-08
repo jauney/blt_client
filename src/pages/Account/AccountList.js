@@ -27,17 +27,10 @@ import {
 import { getSelectedAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import styles from './Account.less';
+import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const getValue = obj =>
-  Object.keys(obj)
-    .map(key => obj[key])
-    .join(',');
-
-const CacheSite = JSON.parse(localStorage.getItem('site') || '{}');
-const CacheCompany = JSON.parse(localStorage.getItem('company') || '{}');
-const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
 
 @Form.create()
 class CreateForm extends PureComponent {
