@@ -1484,6 +1484,7 @@ export async function getDebts(params) {
               customer_id
               customer_name
               remark
+              debt_status
             }
           }
         }
@@ -1494,6 +1495,51 @@ export async function getDebts(params) {
       console.log(data);
       gotoLogin(data);
       return data.data.getDebts;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function getDebtsStatistic(params) {
+  return client
+    .query({
+      query: gql`
+        query getDebtsStatistic($filter: DebtInput) {
+          getDebtsStatistic(filter: $filter) {
+            totalDebtMoney
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      gotoLogin(data);
+      return data.data.getDebts;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function settleDebt(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation settleDebt($debt_id: [Int]) {
+          settleDebt(debt_id: $debt_id) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      gotoLogin(data);
+      return data.data.settleDebt;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');

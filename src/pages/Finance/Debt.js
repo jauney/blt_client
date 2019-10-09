@@ -446,10 +446,10 @@ class TableList extends PureComponent {
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      // dispatch({
-      //   type: 'abnormal/getSiteOrderStatisticAction',
-      //   payload: { ...searchParams },
-      // });
+      dispatch({
+        type: 'debt/getDebtsStatisticAction',
+        payload: { ...searchParams },
+      });
     });
   };
 
@@ -550,6 +550,35 @@ class TableList extends PureComponent {
   onSendCustomerScroll = e => {
     if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
       this.fetchSendCustomerList();
+    }
+  };
+
+  // 归零
+  onSettleModal = () => {
+    Modal.confirm({
+      title: '确认',
+      content: '确定将勾选记录归零吗？',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: this.onSettleDebt,
+    });
+  };
+
+  onSettleDebt = async () => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
+    const debtIds = selectedRows.map(item => {
+      return item.debt_id;
+    });
+    const result = await dispatch({
+      type: 'debt/settleDebtAction',
+      payload: { debt_id: debtIds },
+    });
+    if (result.code == 0) {
+      message.success('归零成功！');
+      this.handleSearch();
+    } else {
+      message.error(result.msg);
     }
   };
 
@@ -681,6 +710,14 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
+        <FormItem label="归零项">
+          {getFieldDecorator('debt_status')(
+            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+              <Option value={0}>未归零</Option>
+              <Option value={1}>已归零</Option>
+            </Select>
+          )}
+        </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">
             查询
@@ -719,6 +756,11 @@ class TableList extends PureComponent {
               <Button icon="plus" type="primary" onClick={() => this.onAddDebtClick(true)}>
                 添加
               </Button>
+              {selectedRows.length > 0 && (
+                <span>
+                  <Button onClick={this.onSettleModal}>归零</Button>
+                </span>
+              )}
             </div>
             <StandardTable
               selectedRows={selectedRows}
@@ -748,7 +790,7 @@ class TableList extends PureComponent {
                 };
               }}
               rowClassName={(record, index) => {}}
-              footer={() => `欠条总额： `}
+              footer={() => ` `}
             />
           </div>
         </Card>

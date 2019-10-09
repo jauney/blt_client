@@ -1,4 +1,4 @@
-import { getDebts, getDebtTypes, addDebt } from '@/services/api';
+import { getDebts, getDebtsStatistic, getDebtTypes, addDebt, settleDebt } from '@/services/api';
 
 export default {
   namespace: 'debt',
@@ -8,6 +8,7 @@ export default {
     debtTotal: 0,
     debtTypes: [],
     debtTypesTotal: 0,
+    totalDebtMoney: 0,
   },
 
   effects: {
@@ -18,8 +19,18 @@ export default {
         payload: response,
       });
     },
+    *getDebtsStatisticAction({ payload }, { call, put }) {
+      const response = yield call(getDebtsStatistic, payload);
+      yield put({
+        type: 'getDebtsStatisticReducer',
+        payload: response,
+      });
+    },
     *addDebtAction({ payload }, { call, put }) {
       return yield call(addDebt, payload); // post
+    },
+    *settleDebtAction({ payload }, { call, put }) {
+      return yield call(settleDebt, payload); // post
     },
     *getDebtTypesAction({ payload }, { call, put }) {
       const response = yield call(getDebtTypes, {
@@ -48,6 +59,12 @@ export default {
         ...state,
         debtTypes: action.payload.debtTypes,
         debtTypesTotal: action.payload.total,
+      };
+    },
+    getDebtsStatisticReducer(state, action) {
+      return {
+        ...state,
+        ...action.payload,
       };
     },
   },
