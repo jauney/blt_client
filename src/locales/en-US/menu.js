@@ -6,7 +6,7 @@ export default {
   'menu.order.untrunkorder': '未装车清单',
   'menu.order.trunkedorder': '已装车清单',
   'menu.order.orderlist': '货物清单总览',
-  'menu.account': '账户核对',
+  'menu.account': '账目核对',
   'menu.account.unsettle': '未结算账目核对',
   'menu.account.settle': '已结算账目核对',
   'menu.account.unpaylist': '未结账目查询',

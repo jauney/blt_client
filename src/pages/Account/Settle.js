@@ -1208,8 +1208,6 @@ class TableList extends PureComponent {
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onSettle}>取消结算</Button>
-                  <Button onClick={this.onDownAccount}>下账</Button>
-                  <Button onClick={this.onCancelSign}>取消下账</Button>
                   <Button onClick={this.onPrint}>打印</Button>
                 </span>
               )}

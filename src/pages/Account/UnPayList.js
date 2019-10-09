@@ -862,7 +862,7 @@ class TableList extends PureComponent {
     });
   };
 
-  // 取消账户核对
+  // 取消账目核对
   onSettle = async () => {
     const { selectedRows } = this.state;
     let accountStatistic = getSelectedAccount(selectedRows);
