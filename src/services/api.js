@@ -760,6 +760,32 @@ export async function getOrderStatistic(params) {
     });
 }
 
+export async function getTodayPayStatistic(params) {
+  return client
+    .query({
+      query: gql`
+        query getTodayPayStatistic($filter: TodayPayInput) {
+          getTodayPayStatistic(filter: $filter) {
+            totalOrderAmount
+            totalPayAmount
+            totalTransAmount
+            totalAgencyFee
+            totalRecord
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      gotoLogin(data);
+      return data.data.getTodayPayStatistic;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
 export async function shipOrder(params) {
   return client
     .mutate({

@@ -226,6 +226,9 @@ class TableList extends PureComponent {
         },
       });
     }
+
+    // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
+    this.getOrderList();
   }
 
   /**

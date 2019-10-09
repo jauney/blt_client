@@ -632,6 +632,9 @@ class TableList extends PureComponent {
       type: 'customer/sendCustomerListAction',
       payload: { pageNo: 1, pageSize: 100 },
     });
+
+    // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
+    this.getOrderList();
   }
 
   handleSelectRows = rows => {
@@ -1052,9 +1055,30 @@ class TableList extends PureComponent {
     return this.renderSimpleForm();
   }
 
+  tableFooter = () => {
+    const {
+      pay: { todayPayStatistic = {} },
+    } = this.props;
+    return (
+      <div>
+        <span>实收货款总额：{todayPayStatistic.totalOrderAmount || ''}</span>
+        <span className={styles.footerSplit}>
+          实付货款总额：{todayPayStatistic.totalPayAmount || ''}
+        </span>
+        <span className={styles.footerSplit}>
+          运费总额：{todayPayStatistic.totalTransAmount || ''}
+        </span>
+        <span className={styles.footerSplit}>
+          代办费总额：{todayPayStatistic.totalAgencyFee || ''}
+        </span>
+        <span className={styles.footerSplit}>记录总数：{todayPayStatistic.totalRecord || ''}</span>
+      </div>
+    );
+  };
+
   render() {
     const {
-      pay: { todayPayList, todayPayTotal, totalOrderAmount, totalTransAmount },
+      pay: { todayPayList, todayPayTotal },
       loading,
     } = this.props;
 
@@ -1105,7 +1129,7 @@ class TableList extends PureComponent {
                   },
                 };
               }}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={this.tableFooter}
             />
           </div>
         </Card>

@@ -2,6 +2,7 @@ import {
   getOrderList,
   getOrderStatistic,
   getTodayPayList,
+  getTodayPayStatistic,
   cancelSettleOrder,
   downAccount,
   cancelDownAccountOrder,
@@ -19,6 +20,7 @@ export default {
     totalOrderAmount: 0,
     totalTransAmount: 0,
     totalInsurancefee: 0,
+    todayPayStatistic: {},
   },
 
   effects: {
@@ -32,6 +34,15 @@ export default {
         payload: response,
       });
     },
+    *getOrderStatisticAction({ payload }, { call, put }) {
+      payload.order_status = [6, 7];
+
+      const response = yield call(getOrderStatistic, payload);
+      yield put({
+        type: 'getOrderStatisticReducer',
+        payload: response,
+      });
+    },
     *getTodayPayListAction({ payload }, { call, put }) {
       const response = yield call(getTodayPayList, payload);
       yield put({
@@ -39,12 +50,12 @@ export default {
         payload: response,
       });
     },
-    *getOrderStatisticAction({ payload }, { call, put }) {
+    *getTodayPayStatisticAction({ payload }, { call, put }) {
       payload.order_status = [6, 7];
 
-      const response = yield call(getOrderStatistic, payload);
+      const response = yield call(getTodayPayStatistic, payload);
       yield put({
-        type: 'getOrderStatisticReducer',
+        type: 'getTodayPayStatisticReducer',
         payload: response,
       });
     },
@@ -80,6 +91,12 @@ export default {
       return {
         ...state,
         ...action.payload,
+      };
+    },
+    getTodayPayStatisticReducer(state, action) {
+      return {
+        ...state,
+        todayPayStatistic: action.payload,
       };
     },
   },
