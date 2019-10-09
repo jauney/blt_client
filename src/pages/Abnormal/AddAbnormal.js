@@ -607,7 +607,7 @@ class TableList extends PureComponent {
         } else if (val == 2) {
           return '回付';
         }
-        return '';
+        return '提付';
       },
     },
     {
@@ -633,12 +633,12 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       dataIndex: 'create_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '发车时间',
       dataIndex: 'depart_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '站点',

@@ -1302,6 +1302,41 @@ export async function getIncomeTypes(params) {
     });
 }
 
+export async function getDebtTypes(params) {
+  return client
+    .query({
+      query: gql`
+        query getDebtTypes($pageNo: Int, $pageSize: Int, $company_id: Int, $site_id: Int) {
+          getDebtTypes(
+            pageNo: $pageNo
+            pageSize: $pageSize
+            company_id: $company_id
+            site_id: $site_id
+          ) {
+            total
+            debtTypes {
+              debttype_id
+              company_id
+              debttype
+              debttype_type
+              site_id
+              site_name
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      console.log(data);
+      gotoLogin(data);
+      return data.data.getDebtTypes;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
 export async function addIncome(params) {
   console.log('api.... ', params);
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
@@ -1440,10 +1475,14 @@ export async function getDebts(params) {
             debts {
               debt_id
               company_id
-              debt_type
+              debttype
+              debttype_type
+              debttype_id
               site_id
               debt_money
               debt_date
+              customer_id
+              customer_name
               remark
             }
           }

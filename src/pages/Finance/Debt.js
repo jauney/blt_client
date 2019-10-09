@@ -66,11 +66,28 @@ class AddFormDialog extends PureComponent {
   };
 
   onAddHandler = () => {
-    const { addFormDataHandle, form } = this.props;
+    const { addFormDataHandle, form, debtTypes, customerList } = this.props;
     form.validateFields((err, fieldsValue) => {
       console.log(fieldsValue);
       if (err) return;
+      let newDebtType = true;
+      debtTypes.forEach(item => {
+        if (item.debttype_id == fieldsValue['debttype_id']) {
+          newDebtType = false;
+        }
+      });
+      if (newDebtType) {
+        fieldsValue.debttype = fieldsValue.debttype_id;
+        fieldsValue.debttype_id = 0;
+      } else {
+        fieldsValue.debttype_id = Number(fieldsValue.debttype_id);
+      }
 
+      customerList.forEach(item => {
+        if (item.customer_id == fieldsValue.customer_id) {
+          fieldsValue.customer_name = item.customer_name;
+        }
+      });
       addFormDataHandle(fieldsValue);
     });
   };
@@ -78,18 +95,32 @@ class AddFormDialog extends PureComponent {
   renderCustomerOption = item => {
     const AutoOption = AutoComplete.Option;
     return (
-      <AutoOption
-        key={item.expensetype_id}
-        expensetype_id={item.expensetype_id}
-        text={item.expensetype}
-      >
-        {item.expensetype}
+      <AutoOption key={item.debttype_id} debttype_id={item.debttype_id} text={item.debttype}>
+        {item.debttype}
       </AutoOption>
     );
   };
 
+  onDebtTypeSelect = value => {
+    const { debtTypes = [], form } = this.props;
+    debtTypes.forEach(item => {
+      if (item.debttype_id == value) {
+        form.setFieldsValue({
+          debttype_type: item.debttype_type,
+        });
+      }
+    });
+  };
+
   render() {
-    const { modalVisible, onCancelHandler, onCustomerScroll, form, customerList = [] } = this.props;
+    const {
+      modalVisible,
+      onCancelHandler,
+      onCustomerScroll,
+      form,
+      customerList = [],
+      debtTypes = [],
+    } = this.props;
 
     return (
       <Modal
@@ -147,14 +178,31 @@ class AddFormDialog extends PureComponent {
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="类型">
-                {form.getFieldDecorator('debt_type', {
-                  initialValue: 1,
+              <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 14 }} label="类型">
+                {form.getFieldDecorator('debttype_id', {
                   rules: [{ required: true, message: '请填写类型' }],
                 })(
-                  <Select style={{ width: 120 }}>
-                    <Option value={1}>收条</Option>
-                    <Option value={2}>欠条</Option>
+                  <AutoComplete
+                    size="large"
+                    style={{ width: '280px' }}
+                    dataSource={debtTypes.map(this.renderCustomerOption)}
+                    onSelect={this.onDebtTypeSelect}
+                    placeholder="请输入"
+                    optionLabelProp="text"
+                    allowClear
+                  >
+                    {' '}
+                  </AutoComplete>
+                )}
+                {form.getFieldDecorator('debttype_type', { initialValue: 0 })(
+                  <Select
+                    placeholder="请选择"
+                    style={{ width: '70px' }}
+                    tabIndex={-1}
+                    onSelect={this.onTransTypeSelect}
+                  >
+                    <Option value={0}>支</Option>
+                    <Option value={1}>收</Option>
                   </Select>
                 )}
               </FormItem>
@@ -206,17 +254,24 @@ class TableList extends PureComponent {
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: '收条金额',
+      title: '金额',
       dataIndex: 'debt_money',
-      key: 'debt_id',
-      render: (val, item) => <span>{item.debt_type === 1 ? val : ''}</span>,
     },
     {
-      title: '欠条金额',
-      dataIndex: 'debt_money',
-      key: 'debt_money',
-      render: (val, item) => <span>{item.debt_type === 2 ? val : ''}</span>,
+      title: '类型',
+      dataIndex: 'debttype',
       sorter: true,
+    },
+    {
+      title: '客户姓名',
+      dataIndex: 'customer_name',
+      sorter: true,
+    },
+    {
+      title: '收/支',
+      dataIndex: 'debttype_type',
+      sorter: true,
+      render: val => (val == 0 ? '支' : '收'),
     },
     {
       title: '备注',
@@ -243,7 +298,7 @@ class TableList extends PureComponent {
 
     this.fetchCompanySiteList(currentCompany.company_id);
 
-    this.fetchExpenseTypeList({});
+    this.fetchDebtTypeList({});
 
     dispatch({
       type: 'customer/getCustomerListAction',
@@ -271,20 +326,30 @@ class TableList extends PureComponent {
     });
   };
 
-  fetchExpenseTypeList = async ({ companyId, siteId }) => {
+  fetchDebtTypeList = async () => {
     const { dispatch } = this.props;
+    const { currentSite, currentCompany } = this.state;
     dispatch({
-      type: 'expense/getexpenseTypesAction',
-      payload: { company_id: companyId, site_id: siteId },
+      type: 'debt/getDebtTypesAction',
+      payload: {
+        company_id: (currentCompany && currentCompany.company_id) || 0,
+        site_id: (currentSite && currentSite.site_id) || 0,
+      },
     });
   };
 
   fetchCompanySiteList = async companyId => {
     const { dispatch } = this.props;
-    dispatch({
+    const siteList = await dispatch({
       type: 'site/getSiteListAction',
       payload: { pageNo: 1, pageSize: 100, filter: { company_id: companyId } },
     });
+
+    if (siteList.length > 0) {
+      this.setState({
+        currentSite: siteList[0],
+      });
+    }
   };
 
   fetchGetCustomerList = async companyId => {
@@ -347,6 +412,8 @@ class TableList extends PureComponent {
         currentSite: currentSite[0],
       });
     }
+
+    this.fetchDebtTypeList();
   };
 
   handleSearch = e => {
@@ -422,7 +489,7 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
 
     const { currentCompany = {}, currentSite = {} } = this.state;
-    console.log(currentCompany, currentSite);
+
     const result = await dispatch({
       type: 'debt/addDebtAction',
       payload: {
@@ -435,6 +502,7 @@ class TableList extends PureComponent {
       message.success('添加成功！');
       this.handleSearch();
       this.onCancelDebtClick();
+      this.fetchDebtTypeList();
     } else {
       message.error(result.msg);
     }
@@ -491,7 +559,9 @@ class TableList extends PureComponent {
       site: { entrunkSiteList = [], normalSiteList = [] },
       company: { branchCompanyList = [] },
       customer: { getCustomerList, sendCustomerList },
+      debt: { debtTypes },
     } = this.props;
+    const { currentSite } = this.state;
     const companyList = [CacheCompany];
     const companyOption = {};
     // 默认勾选第一个公司
@@ -522,7 +592,7 @@ class TableList extends PureComponent {
 
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
-            {getFieldDecorator('site_id', {})(
+            {getFieldDecorator('site_id', { initialValue: currentSite.site_id })(
               <Select
                 placeholder="请选择"
                 onSelect={this.onSiteSelect}
@@ -594,6 +664,23 @@ class TableList extends PureComponent {
             )}
           </FormItem>
         )}
+        <FormItem label="支出日期">
+          {getFieldDecorator('debt_date', {})(<RangePicker style={{ width: '250px' }} />)}
+        </FormItem>
+
+        <FormItem label="分类">
+          {getFieldDecorator('debttype_id')(
+            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+              {debtTypes.map(ele => {
+                return (
+                  <Option key={ele.debttype_id} value={ele.debttype_id}>
+                    {ele.debttype}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">
             查询
@@ -609,7 +696,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      debt: { debtList, total },
+      debt: { debtList, total, debtTypes },
       customer: { sendCustomerList, getCustomerList },
       loading,
     } = this.props;
@@ -670,6 +757,7 @@ class TableList extends PureComponent {
           addFormDataHandle={this.addFormDataHandle}
           onCancelHandler={this.onCancelDebtClick}
           selectedRows={selectedRows}
+          debtTypes={debtTypes}
           onCustomerScroll={
             CacheCompany.company_type == 1 ? this.onSendCustomerScroll : this.onGetCustomerScroll
           }
