@@ -159,7 +159,7 @@ export default [
             path: '/transfer/site',
             name: 'site',
             component: './Transfer/Site',
-            authority: ['admin1'],
+            authority: ['admin', 'site_user', 'site_admin', 'site_account'],
           },
         ],
       },

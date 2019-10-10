@@ -1610,6 +1610,33 @@ export async function getTransfers(params) {
     });
 }
 
+// getTransferStatistic
+export async function getTransferStatistic(params) {
+  if (params.filter && params.filter.transfer_type) {
+    params.filter.transfer_type = Number(params.filter.transfer_type);
+  }
+  return client
+    .query({
+      query: gql`
+        query getTransferStatistic($filter: TransferInput) {
+          getTransferStatistic(filter: $filter) {
+            totalTransferAmount
+            totalTransferConfirmAmount
+            totalTransferUnConfirmAmount
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getTransferStatistic;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
 export async function addTransfer(params) {
   console.log('api.... ', params);
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);

@@ -968,6 +968,27 @@ class TableList extends PureComponent {
     this.onEntrunkModalShow();
   };
 
+  tableFooter = () => {
+    const {
+      pay: { todayPayStatistic = {} },
+    } = this.props;
+    return (
+      <div>
+        <span>实收货款总额：{todayPayStatistic.totalOrderAmount || ''}</span>
+        <span className={styles.footerSplit}>
+          实付货款总额：{todayPayStatistic.totalPayAmount || ''}
+        </span>
+        <span className={styles.footerSplit}>
+          运费总额：{todayPayStatistic.totalTransAmount || ''}
+        </span>
+        <span className={styles.footerSplit}>
+          代办费总额：{todayPayStatistic.totalAgencyFee || ''}
+        </span>
+        <span className={styles.footerSplit}>记录总数：{todayPayStatistic.totalRecord || ''}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -1054,27 +1075,6 @@ class TableList extends PureComponent {
   renderForm() {
     return this.renderSimpleForm();
   }
-
-  tableFooter = () => {
-    const {
-      pay: { todayPayStatistic = {} },
-    } = this.props;
-    return (
-      <div>
-        <span>实收货款总额：{todayPayStatistic.totalOrderAmount || ''}</span>
-        <span className={styles.footerSplit}>
-          实付货款总额：{todayPayStatistic.totalPayAmount || ''}
-        </span>
-        <span className={styles.footerSplit}>
-          运费总额：{todayPayStatistic.totalTransAmount || ''}
-        </span>
-        <span className={styles.footerSplit}>
-          代办费总额：{todayPayStatistic.totalAgencyFee || ''}
-        </span>
-        <span className={styles.footerSplit}>记录总数：{todayPayStatistic.totalRecord || ''}</span>
-      </div>
-    );
-  };
 
   render() {
     const {

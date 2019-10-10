@@ -1,6 +1,6 @@
 import { queryCompanyList, addCompany, updateCompany } from '@/services/api';
+import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../utils/storage';
 
-const CacheCompany = JSON.parse(localStorage.getItem('company') || '{}');
 export default {
   namespace: 'company',
 

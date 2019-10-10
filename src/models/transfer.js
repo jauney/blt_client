@@ -1,4 +1,10 @@
-import { getTransfers, addTransfer, updateTransfer, delTransfer } from '@/services/api';
+import {
+  getTransfers,
+  getTransferStatistic,
+  addTransfer,
+  updateTransfer,
+  delTransfer,
+} from '@/services/api';
 
 export default {
   namespace: 'transfer',
@@ -6,13 +12,23 @@ export default {
   state: {
     transferList: [],
     transferTotal: 0,
+    totalTransferAmount: 0,
+    totalTransferConfirmAmount: 0,
+    totalTransferUnConfirmAmount: 0,
   },
 
   effects: {
-    *getTransfersAction({ payload }, { call, put }) {
+    *getTransferAction({ payload }, { call, put }) {
       const response = yield call(getTransfers, payload);
       yield put({
         type: 'getTransfersReducer',
+        payload: response,
+      });
+    },
+    *getTransferStatisticAction({ payload }, { call, put }) {
+      const response = yield call(getTransferStatistic, payload);
+      yield put({
+        type: 'getTransferStatisticReducer',
         payload: response,
       });
     },
@@ -36,6 +52,12 @@ export default {
         ...state,
         transferList: action.payload.transfers,
         transferTotal: action.payload.total,
+      };
+    },
+    getTransferStatisticReducer(state, action) {
+      return {
+        ...state,
+        ...action.payload,
       };
     },
   },

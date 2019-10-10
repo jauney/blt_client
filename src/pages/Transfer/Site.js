@@ -430,99 +430,6 @@ class CreateForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ trunkedorder }) => {
-  return {
-    trunkedorder,
-  };
-})
-@Form.create()
-class CreateEntrunkForm extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
-  getModalContent = () => {
-    const {
-      form: { getFieldDecorator },
-      currentCompany,
-      lastCar,
-    } = this.props;
-
-    return (
-      <Form layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={12} sm={24}>
-            <FormItem label="分公司">{currentCompany.company_name}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="车牌号">{lastCar.driver_plate}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="车主姓名">{lastCar.driver_name}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="联系电话">{lastCar.driver_mobile}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="货车编号">{lastCar.car_code}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="拉货日期">
-              {moment(Number(lastCar.car_date || 0)).format('YYYY-MM-DD HH:mm:ss')}
-            </FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="货车费用">
-              {getFieldDecorator('car_fee', {
-                rules: [{ required: true, message: '请填写货车费用' }],
-                initialValue: lastCar.car_fee,
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-        </Row>
-      </Form>
-    );
-  };
-
-  onOkHandler = e => {
-    e.preventDefault();
-    const { dispatch, form, onEntrunkModalCancel, lastCar, onSearch } = this.props;
-    form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-
-      fieldsValue.car_fee = Number(fieldsValue.car_fee);
-      const result = await dispatch({
-        type: 'trunkedorder/updateCarFeeAction',
-        payload: Object.assign(lastCar, fieldsValue),
-      });
-
-      if (result.code == 0) {
-        onSearch();
-        onEntrunkModalCancel();
-      }
-    });
-  };
-
-  render() {
-    const { modalVisible, onEntrunkModalCancel } = this.props;
-    return (
-      <Modal
-        title="货物装车"
-        className={styles.standardListForm}
-        width={700}
-        destroyOnClose
-        visible={modalVisible}
-        onOk={this.onOkHandler}
-        onCancel={onEntrunkModalCancel}
-      >
-        {this.getModalContent()}
-      </Modal>
-    );
-  }
-}
-
-/* eslint react/no-multi-comp:0 */
 @connect(({ customer, company, transfer, site, car, receiver, loading }) => {
   return {
     customer,
@@ -539,11 +446,9 @@ class TableList extends PureComponent {
   state = {
     selectedRows: [],
     accountStatistic: {},
-    formValues: {},
     current: 1,
     pageSize: 20,
     record: {},
-    currentCompany: {},
     currentSite: {},
     orderModalVisible: false,
     settleModalVisible: false,
@@ -594,51 +499,8 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
-    // 下站只显示当前分公司
-    await dispatch({
-      type: 'company/getBranchCompanyList',
-      payload: CacheCompany,
-    });
-
-    this.setState({
-      currentCompany: CacheCompany,
-    });
-
     this.fetchCompanySiteList(CacheCompany.company_id);
   }
-
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
-    const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters,
-    };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
-  };
-
-  handleFormReset = () => {
-    const { form, dispatch } = this.props;
-    form.resetFields();
-    this.setState({
-      formValues: {},
-    });
-    dispatch({
-      type: 'rule/fetch',
-      payload: {},
-    });
-  };
 
   handleSelectRows = rows => {
     this.setState({
@@ -674,45 +536,17 @@ class TableList extends PureComponent {
     });
   };
 
-  onCompanySelect = async (value, option) => {
-    const {
-      company: { branchCompanyList },
-    } = this.props;
-    // 获取当前公司的客户列表
-    // this.fetchGetCustomerList(value);
-
-    // 获取当前公司的站点
-    this.fetchCompanySiteList(value);
-    // 清空勾选的站点
-    this.props.form.setFieldsValue({
-      site: '',
-    });
-
-    // 重新获取收入类型
-    this.fetchIncomeTypeList({ companyId: value });
-    // 清空勾选的收入类型
-    this.props.form.setFieldsValue({
-      income_type: '',
-    });
-
-    const currentCompany = branchCompanyList.filter(item => {
-      if (item.company_id == value) {
-        return item;
-      }
-    });
-    if (currentCompany.length > 0) {
-      this.setState({
-        currentCompany: currentCompany[0],
-      });
-    }
+  handleSearch = e => {
+    e && e.preventDefault();
+    this.getOrderList();
   };
 
   onSiteSelect = async (value, option) => {
     const {
-      site: { normalSiteList = [] },
+      site: { siteList = [] },
     } = this.props;
-    console.log(normalSiteList, value);
-    const currentSite = normalSiteList.filter(item => {
+
+    const currentSite = siteList.filter(item => {
       if (item.site_id == value) {
         return item;
       }
@@ -722,53 +556,85 @@ class TableList extends PureComponent {
         currentSite: currentSite[0],
       });
     }
-    // 重新获取收入类型
-    this.fetchIncomeTypeList({ siteId: value });
   };
 
-  handleSearch = e => {
-    e && e.preventDefault();
-
+  /**
+   * 获取订单信息
+   */
+  getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
+    const { current, pageSize } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
-      const values = {
-        ...fieldsValue,
-      };
-
-      // TODO: 后续放开时间查询，目前方便测试，暂时关闭
       if (fieldsValue.transfer_date && fieldsValue.transfer_date.length > 0) {
-        values.transfer_date = fieldsValue.transfer_date.map(item => {
+        fieldsValue.transfer_date = fieldsValue.transfer_date.map(item => {
           return `${item.valueOf()}`;
         });
       }
+      fieldsValue.company_id = CacheCompany.company_id;
+
+      const searchParams = Object.assign({ filter: fieldsValue }, data);
+      dispatch({
+        type: 'transfer/getTransferAction',
+        payload: { pageNo: pageNo || current, pageSize, ...searchParams },
+      });
 
       dispatch({
-        type: 'transfer/getTransfersAction',
-        payload: { pageNo: 1, pageSize: 20, filter: values },
+        type: 'transfer/getTransferStatisticAction',
+        payload: { ...searchParams },
       });
     });
+  };
+
+  /**
+   * 表格排序、分页响应
+   */
+  handleStandardTableChange = async (pagination, filtersArg, sorter) => {
+    const { pageSize } = this.state;
+
+    let sort = {};
+    let current = 1;
+    // 变更排序
+    if (sorter.field) {
+      sort = { sorter: `${sorter.field}|${sorter.order}` };
+    }
+    // 变更pageSize
+    if (pagination && pagination.pageSize != pageSize) {
+      current = 1;
+
+      await this.setState({
+        pageSize: pagination.pageSize,
+      });
+    }
+    // 切换页数
+    else if (pagination && pagination.current) {
+      current = pagination.current;
+    }
+    await this.setState({
+      current,
+    });
+    this.getOrderList(sort, current);
   };
 
   // 添加收入
   addFormDataHandle = async data => {
     const { dispatch } = this.props;
-
-    const { currentCompany = {}, currentSite = {} } = this.state;
-    console.log(currentCompany, currentSite);
+    const { currentSite = {} } = this.state;
     const result = await dispatch({
       type: 'transfer/addTransferAction',
       payload: {
         ...data,
-        company_id: currentCompany.company_id,
+        company_id: CacheCompany.company_id,
+        company_name: CacheCompany.company_name,
         site_id: currentSite.site_id,
+        site_name: currentSite.site_name,
       },
     });
     if (result.code == 0) {
       message.success('添加成功！');
-
+      this.handleSearch();
       this.onCancelIncomeClick();
     } else {
       message.error(result.msg);
@@ -777,6 +643,13 @@ class TableList extends PureComponent {
 
   // 打开添加收入对话框
   onAddIncomeClick = async () => {
+    const { currentSite = {} } = this.state;
+    if (CacheCompany.company_id == 1 && !currentSite.site_id) {
+      Modal.info({
+        content: '请先选择站点',
+      });
+      return;
+    }
     this.setState({
       addIncomeModalVisible: true,
     });
@@ -1038,10 +911,27 @@ class TableList extends PureComponent {
     this.onEntrunkModalShow();
   };
 
+  tableFooter = () => {
+    const {
+      transfer: { totalTransferAmount, totalTransferConfirmAmount, totalTransferUnConfirmAmount },
+    } = this.props;
+    return (
+      <div>
+        <span>打款总额：{totalTransferAmount || 0}</span>
+        <span className={styles.footerSplit}>
+          未确认打款总额：{totalTransferUnConfirmAmount || 0}
+        </span>
+        <span className={styles.footerSplit}>
+          已确认打款总额：{totalTransferConfirmAmount || 0}
+        </span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
-      site: { entrunkSiteList = [], normalSiteList = [] },
+      site: { siteList = [] },
       company: { branchCompanyList = [] },
     } = this.props;
     const companyOption = {};
@@ -1055,11 +945,11 @@ class TableList extends PureComponent {
           {getFieldDecorator('site_id', {})(
             <Select
               placeholder="请选择"
-              onSelect={this.onSiteSelect}
               style={{ width: '150px' }}
+              onSelect={this.onSiteSelect}
               allowClear
             >
-              {normalSiteList.map(ele => {
+              {siteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -1095,7 +985,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      transfer: { transferList, total, totalOrderAmount, totalTransAmount },
+      transfer: { transferList, total },
       loading,
     } = this.props;
 
@@ -1136,7 +1026,9 @@ class TableList extends PureComponent {
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}
-              rowKey="order_id"
+              className={styles.dataTable}
+              scroll={{ x: 900 }}
+              rowKey="transfer_id"
               data={{
                 list: transferList,
                 pagination: {
@@ -1159,7 +1051,7 @@ class TableList extends PureComponent {
                 };
               }}
               rowClassName={(record, index) => {}}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={this.tableFooter}
             />
           </div>
         </Card>
