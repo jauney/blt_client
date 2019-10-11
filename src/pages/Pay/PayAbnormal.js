@@ -26,6 +26,7 @@ import {
 } from 'antd';
 import { getSelectedAccount, getSelectedDownAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
+import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Pay.less';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
@@ -168,375 +169,6 @@ class DownAccountForm extends PureComponent {
   }
 }
 
-@Form.create()
-class CreateForm extends PureComponent {
-  constructor(props) {
-    super(props);
-
-    this.formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 8 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 },
-      },
-    };
-    // label列可以放下4个字
-    this.formItemSmallLayout = {
-      labelCol: {
-        xs: { span: 25 },
-        sm: { span: 9 },
-      },
-      wrapperCol: {
-        xs: { span: 23 },
-        sm: { span: 15 },
-      },
-    };
-
-    this.colLayout = {
-      md: 8,
-      sm: 24,
-    };
-
-    this.colSmallLayout = {
-      md: 4,
-      sm: 20,
-    };
-    this.col2Layout = {
-      md: 10,
-      sm: 26,
-    };
-    // colLargeLayout && formItemMiniLayout
-    this.colLargeLayout = {
-      md: 16,
-      sm: 32,
-    };
-    this.formItemMiniLayout = {
-      labelCol: {
-        xs: { span: 22 },
-        sm: { span: 6 },
-      },
-      wrapperCol: {
-        xs: { span: 26 },
-        sm: { span: 18 },
-      },
-    };
-
-    this.formLayout = {
-      labelCol: { span: 7 },
-      wrapperCol: { span: 13 },
-    };
-  }
-
-  okHandle = () => {
-    const { form, record, onUpdateOrder } = this.props;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-
-      form.resetFields();
-      onUpdateOrder(record, fieldsValue);
-    });
-  };
-
-  render() {
-    const { record, modalVisible, onCancelModal, form } = this.props;
-
-    return (
-      <Modal
-        destroyOnClose
-        title="编辑托运单"
-        visible={modalVisible}
-        onCancel={() => onCancelModal()}
-        footer={[
-          <Button key="btn-cancel" onClick={() => onCancelModal()}>
-            取 消
-          </Button>,
-          <Button key="btn-print" onClick={this.onOrderPrint}>
-            打 印
-          </Button>,
-          <Button key="btn-save" type="primary" onClick={this.okHandle}>
-            保 存
-          </Button>,
-        ]}
-        width={800}
-        className={styles.modalForm}
-      >
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="分公司">
-              {record.company_name}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="站点">
-              {record.site_name}
-            </FormItem>
-          </Col>
-          {/* <Col {...this.colLayout}>
-          <FormItem {...this.formItemLayout} label="运单号">
-            {getFieldDecorator('orderCode', { initialValue: orderCode.order_code })(
-              <Input placeholder="" />
-            )}
-          </FormItem>
-        </Col> */}
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="收货人电话">
-              {record.getcustomer_mobile}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="收货人姓名">
-              {record.getcustomer_name}
-            </FormItem>
-          </Col>
-          <Col>
-            {record.customer_type == 1 ? (
-              <Tag color="orange" style={{ marginTop: 10 }}>
-                VIP
-              </Tag>
-            ) : (
-              ''
-            )}
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="发货人电话">
-              {record.sendcustomer_mobile}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="发货人姓名">
-              {record.sendcustomer_name}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLayout}>
-            <FormItem {...this.formItemLayout} label="运费">
-              {record.trans_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.colSmallLayout}>
-            <FormItem label="">{record.trans_type == 1 ? '现付' : '回付'}</FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="折后运费">
-              {record.trans_discount}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLayout}>
-            <FormItem {...this.formItemLayout} label="货款">
-              {record.order_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.colLayout}>
-            <FormItem label="">{record.bank_account}</FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="保价金额">
-              {record.insurance_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="保价费">
-              {record.insurance_fee}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="送货费">
-              {record.deliver_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="垫付金额">
-              {record.order_advancepay_amount}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLargeLayout}>
-            <FormItem {...this.formItemMiniLayout} label="货物名称">
-              {record.order_name}
-            </FormItem>
-          </Col>
-          <Col {...this.colSmallLayout}>
-            <FormItem {...this.formItemLayout} label="">
-              {record.order_num}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="转进/转出">
-              {record.transfer_type == 1 ? '转出' : '转入'}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转费">
-              {record.transfer_amount}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转地址">
-              {record.transfer_address}
-            </FormItem>
-          </Col>
-
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转物流">
-              {record.transfer_company_name}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转单号">
-              {record.transfer_order_code}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转电话">
-              {record.transfer_company_mobile}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="实收货款">
-              {form.getFieldDecorator('order_real', { initialValue: record.order_real })(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="实收运费">
-              {form.getFieldDecorator('trans_real', { initialValue: record.trans_real })(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLargeLayout}>
-            <FormItem {...this.formItemMiniLayout} label="备注">
-              {form.getFieldDecorator('remark', { initialValue: record.remark })(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-        </Row>
-      </Modal>
-    );
-  }
-}
-
-/* eslint react/no-multi-comp:0 */
-@connect(({ trunkedorder }) => {
-  return {
-    trunkedorder,
-  };
-})
-@Form.create()
-class CreateEntrunkForm extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
-  getModalContent = () => {
-    const {
-      form: { getFieldDecorator },
-      currentCompany,
-      lastCar,
-    } = this.props;
-
-    return (
-      <Form layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={12} sm={24}>
-            <FormItem label="分公司">{currentCompany.company_name}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="车牌号">{lastCar.driver_plate}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="车主姓名">{lastCar.driver_name}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="联系电话">{lastCar.driver_mobile}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="货车编号">{lastCar.car_code}</FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="拉货日期">
-              {moment(Number(lastCar.car_date || 0)).format('YYYY-MM-DD HH:mm:ss')}
-            </FormItem>
-          </Col>
-          <Col md={12} sm={24}>
-            <FormItem label="货车费用">
-              {getFieldDecorator('car_fee', {
-                rules: [{ required: true, message: '请填写货车费用' }],
-                initialValue: lastCar.car_fee,
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-        </Row>
-      </Form>
-    );
-  };
-
-  onOkHandler = e => {
-    e.preventDefault();
-    const { dispatch, form, onEntrunkModalCancel, lastCar, onSearch } = this.props;
-    form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-
-      console.log(fieldsValue);
-      fieldsValue.car_fee = Number(fieldsValue.car_fee);
-      const result = await dispatch({
-        type: 'trunkedorder/updateCarFeeAction',
-        payload: Object.assign(lastCar, fieldsValue),
-      });
-
-      if (result.code == 0) {
-        onSearch();
-        onEntrunkModalCancel();
-      }
-    });
-  };
-
-  render() {
-    const { modalVisible, onEntrunkModalCancel } = this.props;
-    return (
-      <Modal
-        title="货物装车"
-        className={styles.standardListForm}
-        width={700}
-        destroyOnClose
-        visible={modalVisible}
-        onOk={this.onOkHandler}
-        onCancel={onEntrunkModalCancel}
-      >
-        {this.getModalContent()}
-      </Modal>
-    );
-  }
-}
-
 /* eslint react/no-multi-comp:0 */
 @connect(({ customer, company, pay, site, car, receiver, loading }) => {
   return {
@@ -558,7 +190,7 @@ class TableList extends PureComponent {
     current: 1,
     pageSize: 20,
     record: {},
-    orderModalVisible: false,
+    updateOrderModalVisible: false,
     settleModalVisible: false,
     downModalVisible: false,
     signModalVisible: false,
@@ -984,48 +616,29 @@ class TableList extends PureComponent {
   /**
    * 修改订单信息弹窗
    */
-  onEntrunkModalShow = () => {
+  onUpdateOrderModalShow = () => {
     this.setState({
-      orderModalVisible: true,
+      updateOrderModalVisible: true,
     });
   };
 
-  onEntrunkModalCancel = () => {
+  onUpdateOrderModalCancel = () => {
     // setTimeout(() => this.addBtn.blur(), 0);
     this.setState({
-      orderModalVisible: false,
+      updateOrderModalVisible: false,
     });
   };
-
-  // 更新订单
-  onUpdateOrder = async (record, fieldsValue) => {
-    const { dispatch } = this.props;
-    console.log(record, fieldsValue);
-    const result = await dispatch({
-      type: 'order/updateOrderAction',
-      payload: {
-        order_id: record.order_id,
-        order: { trans_real: fieldsValue.trans_real, order_real: fieldsValue.order_real },
-      },
-    });
-    if (result.code == 0) {
-      message.success('修改成功！');
-      this.onEntrunkModalCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => {};
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
     this.setState({
       record,
     });
-    this.onEntrunkModalShow();
+    this.onUpdateOrderModalShow();
   };
+
+  // 已结算账目核对中，计算付款日期
+  onRowClick = (record, index, event) => {};
 
   renderSimpleForm() {
     const {
@@ -1125,7 +738,7 @@ class TableList extends PureComponent {
       accountStatistic,
       current,
       pageSize,
-      orderModalVisible,
+      updateOrderModalVisible,
       settleModalVisible,
       downModalVisible,
       signModalVisible,
@@ -1190,11 +803,11 @@ class TableList extends PureComponent {
             />
           </div>
         </Card>
-        <CreateForm
-          modalVisible={orderModalVisible}
+        <OrderEditForm
+          modalVisible={updateOrderModalVisible}
           record={record}
-          onCancelModal={this.onEntrunkModalCancel}
-          onUpdateOrder={this.onUpdateOrder}
+          onCancelModal={this.onUpdateOrderModalCancel}
+          handleSearch={this.handleSearch}
         />
         <DownAccountForm
           modalVisible={downModalVisible}
