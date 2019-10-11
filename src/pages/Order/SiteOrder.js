@@ -881,7 +881,7 @@ class CreateForm extends PureComponent {
             </FormItem>
           </Col>
         </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        {/* <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="实收货款">
               {form.getFieldDecorator('order_real')(<Input placeholder="请输入" tabIndex={-1} />)}
@@ -894,7 +894,7 @@ class CreateForm extends PureComponent {
               )}
             </FormItem>
           </Col>
-        </Row>
+        </Row> */}
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.colLargeLayout}>
             <FormItem {...this.formItemMiniLayout} label="备注">

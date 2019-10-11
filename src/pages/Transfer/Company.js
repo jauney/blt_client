@@ -503,6 +503,8 @@ class TableList extends PureComponent {
       type: 'company/getBranchCompanyList',
       payload: { ...CacheCompany },
     });
+
+    this.handleSearch();
   }
 
   handleSelectRows = rows => {
@@ -929,6 +931,9 @@ class TableList extends PureComponent {
     // 上站需要对下站打款确认
     const companyList = CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany];
     const companyOption = { initialValue: companyList.length > 0 ? companyList[0].company_id : '' };
+    this.setState({
+      currentCompany: companyList[0],
+    });
 
     return (
       <Form onSubmit={this.handleSearch} layout="inline">

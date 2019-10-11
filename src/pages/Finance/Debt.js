@@ -535,10 +535,10 @@ class TableList extends PureComponent {
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
-    this.setState({
-      record,
-    });
-    this.onEntrunkModalShow();
+    // this.setState({
+    //   record,
+    // });
+    // this.onEntrunkModalShow();
   };
 
   onGetCustomerScroll = e => {

@@ -500,6 +500,7 @@ class TableList extends PureComponent {
   async componentDidMount() {
     const { dispatch } = this.props;
     this.fetchCompanySiteList(CacheCompany.company_id);
+    this.handleSearch();
   }
 
   handleSelectRows = rows => {
@@ -1050,7 +1051,11 @@ class TableList extends PureComponent {
                   },
                 };
               }}
-              rowClassName={(record, index) => {}}
+              rowClassName={(record, index) => {
+                if (record.transfer_type === 1) {
+                  return styles.payColor;
+                }
+              }}
               footer={this.tableFooter}
             />
           </div>

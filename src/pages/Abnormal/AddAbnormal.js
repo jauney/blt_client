@@ -1081,15 +1081,7 @@ class TableList extends PureComponent {
                   },
                 };
               }}
-              rowClassName={(record, index) => {
-                if (record.order_status === 6) {
-                  return styles.settleColor;
-                } else if (record.order_status === 7) {
-                  return styles.payColor;
-                } else {
-                  return '';
-                }
-              }}
+              rowClassName={(record, index) => {}}
               footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
             />
           </div>
