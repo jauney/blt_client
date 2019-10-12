@@ -154,8 +154,57 @@ export async function addCompany(params) {
     });
 }
 
-export async function addCustomer(params = {}) {
-  return {};
+export async function createCustomer({ customer, type }) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation createCustomer($customer: CustomerInput) {
+          createCustomer(customer: $customer) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: { customer, type },
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.createCustomer;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function updateCustomer(customer, customerIds) {
+  if (customer.customer) {
+    customerIds = customer.customer_id;
+    customer = customer.customer;
+  }
+
+  if (!customerIds) {
+    customerIds = [customer.customer_id];
+  }
+  return client
+    .mutate({
+      mutation: gql`
+        mutation updateCustomer($customer_id: [Int], $customer: CustomerInput) {
+          updateCustomer(customer_id: $customer_id, customer: $customer) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: { customer_id: customerIds, customer },
+    })
+    .then(data => {
+      console.log(data);
+      gotoLogin(data);
+      return data.data.updateCustomer;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
 }
 
 export async function queryCustomerList(params) {
@@ -176,6 +225,9 @@ export async function queryCustomerList(params) {
               customer_type
               customerMobiles {
                 mobile
+                mobile_id
+                mobile_type
+                customer_id
               }
             }
           }
@@ -565,6 +617,58 @@ export async function updateOrderSign(params) {
       console.log(data);
       gotoLogin(data);
       return data.data.updateOrderSign;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function getCustomerList(params) {
+  return client
+    .query({
+      query: gql`
+        query getCustomerList(
+          $pageNo: Int
+          $pageSize: Int
+          $filter: CustomerInput
+          $type: Int
+          $sorter: String
+        ) {
+          getCustomerList(
+            pageNo: $pageNo
+            pageSize: $pageSize
+            filter: $filter
+            type: $type
+            sorter: $sorter
+          ) {
+            total
+            customers {
+              customer_id
+              customer_name
+              customer_address
+              customer_type
+              customer_mobile
+              bank_account
+              company_id
+              sender_id
+              receiver_id
+              password
+              username
+              customerMobiles {
+                mobile_id
+                mobile
+                mobile_type
+                customer_id
+              }
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getCustomerList;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');

@@ -26,56 +26,102 @@ import {
 } from 'antd';
 import { getSelectedAccount, getSelectedDownAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
-import OrderEditForm from '@/components/EditOrderForm';
-import styles from './Pay.less';
+import EditableTable from '@/components/EditableTable';
+import styles from './Customer.less';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
+const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
 const { Option } = Select;
 
 @Form.create()
-class DownAccountForm extends PureComponent {
+class AddFormDialog extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      agencyFee: 0,
+      dataSource: [],
+    };
+    this.formItemLayout = {
+      labelCol: {
+        xs: { span: 18 },
+        sm: { span: 5 },
+      },
+      wrapperCol: {
+        xs: { span: 18 },
+        sm: { span: 8 },
+      },
+    };
+
+    this.col2Layout = {
+      md: 10,
+      sm: 26,
     };
   }
 
-  onAgencyFeeSelect = (value, option) => {
-    this.setState({
-      agencyFee: parseFloat(value),
+  onAddHandler = () => {
+    const { handleSearch, form, record, dispatch, onCancelModal, currentCompany } = this.props;
+    const { dataSource = [] } = this.state;
+    let currentMobile;
+    dataSource.forEach(item => {
+      if (item.mobile_id && item.mobile_id.indexOf('TMP-') >= 0) {
+        item.mobile_id = 0;
+      }
+      if (item.mobile_type == 1) {
+        currentMobile = item;
+      }
+    });
+    if (!currentMobile && dataSource.length > 0) {
+      currentMobile = dataSource[0];
+      dataSource[0].mobile_type = 1;
+    }
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) return;
+
+      fieldsValue.customer_mobile = (currentMobile && currentMobile.mobile) || '';
+      fieldsValue.customerMobiles = dataSource;
+      fieldsValue.company_id = currentCompany.company_id;
+      console.log(fieldsValue);
+
+      let result;
+      if (!record || !record.customer_id) {
+        result = await dispatch({
+          type: 'customer/createCustomerAction',
+          payload: { customer: fieldsValue, type: 2 },
+        });
+      }
+
+      if (result && result.code == 0) {
+        onCancelModal();
+        handleSearch();
+        message.success('添加成功');
+      } else {
+        message.error('添加失败');
+      }
     });
   };
 
-  onDownAccountHandler = () => {
-    const { downAccountHandle, form } = this.props;
-    const { agencyFee } = this.state;
-    form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
-      if (err) return;
-
-      downAccountHandle({ rate: agencyFee, bank_account: fieldsValue.bank_account });
+  // 更新手机号列表
+  notifyDataSource = mobiles => {
+    this.setState({
+      dataSource: mobiles,
     });
   };
 
   render() {
-    const { modalVisible, downCancel, selectedRows, form } = this.props;
-    const accountData = getSelectedDownAccount(selectedRows);
-    const record = selectedRows.length > 0 ? selectedRows[0] : {};
-    const { agencyFee } = this.state;
+    const { modalVisible, onCancelModal, record, form, mobileList = [] } = this.props;
+    console.log(record);
     return (
       <Modal
         destroyOnClose
-        title="下账"
+        title="添加收货客户"
         visible={modalVisible}
-        onCancel={() => downCancel()}
+        onCancel={() => onCancelModal()}
         footer={[
-          <Button key="btn-cancel" onClick={() => downCancel()}>
+          <Button key="btn-cancel" onClick={() => onCancelModal()}>
             取 消
           </Button>,
-          <Button key="btn-save" type="primary" onClick={this.onDownAccountHandler}>
+          <Button key="btn-save" type="primary" onClick={this.onAddHandler}>
             保 存
           </Button>,
         ]}
@@ -84,82 +130,74 @@ class DownAccountForm extends PureComponent {
       >
         <Form>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="下账条数">
-                {selectedRows.length}
+            <Col {...this.col2Layout}>
+              <FormItem {...this.formItemLayout} label="姓名">
+                {form.getFieldDecorator('customer_name', {
+                  initialValue: record.customer_name,
+                  rules: [{ required: true, message: '请填写姓名' }],
+                })(<Input placeholder="请输入" style={{ width: '150px' }} />)}
               </FormItem>
             </Col>
-          </Row>
-          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="下账总金额">
-                {accountData.totalActualGoodsFund || '0'} - 代办费 *
-                <Select
-                  placeholder="请选择"
-                  defaultValue="0"
-                  onSelect={this.onAgencyFeeSelect}
-                  style={{ width: '80px' }}
-                >
-                  <Option value="0">0‰</Option>
-                  <Option value="1">1‰</Option>
-                  <Option value="2">2‰</Option>
-                  <Option value="3">3‰</Option>
-                  <Option value="4">4‰</Option>
-                  <Option value="5">5‰</Option>
-                </Select>
-                {accountData.totalTransFunds ? (
-                  <span> `- (运费) ${accountData.totalTransFunds}`</span>
-                ) : (
-                  <span />
+            <Col {...this.col2Layout}>
+              <FormItem {...this.formItemLayout} label="类型">
+                {form.getFieldDecorator('customer_type', { initialValue: record.customer_type })(
+                  <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+                    <Option value={0}>普通用户</Option>
+                    <Option value={1}>VIP</Option>
+                    <Option value={9}>黑名单</Option>
+                  </Select>
                 )}
-                ={' '}
-                {accountData.totalActualGoodsFund -
-                  Number((accountData.totalActualGoodsFund * agencyFee) / 1000).toFixed(2) -
-                  accountData.totalTransFunds || 0}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="户主">
-                {record.getcustomer_name || ''}
+            <Col {...this.col2Layout}>
+              <FormItem {...this.formItemLayout} label="账户">
+                {form.getFieldDecorator('bank_account', { initialValue: record.bank_account })(
+                  <Input placeholder="请输入" style={{ width: '200px' }} />
+                )}
               </FormItem>
             </Col>
-            <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="账户">
-                {form.getFieldDecorator('bank_account', { initialValue: record.bank_account })(
+            <Col {...this.col2Layout}>
+              <FormItem {...this.formItemLayout} label="地址">
+                {form.getFieldDecorator('customer_address', {
+                  initialValue: record.customer_address,
+                })(<Input placeholder="请输入" style={{ width: '250px' }} />)}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col {...this.col2Layout}>
+              <FormItem {...this.formItemLayout} label="登录账号">
+                {form.getFieldDecorator('username', { initialValue: record.username })(
+                  <Input placeholder="请输入" style={{ width: '150px' }} />
+                )}
+              </FormItem>
+            </Col>
+            <Col {...this.col2Layout}>
+              <FormItem {...this.formItemLayout} label="密码">
+                {form.getFieldDecorator('password', { initialValue: record.password })(
+                  <Input placeholder="请输入" style={{ width: '150px' }} />
+                )}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col span={20}>
+              <FormItem wrapperCol={{ span: 16 }} labelCol={{ span: 4 }} label="备注">
+                {form.getFieldDecorator('remark', { initialValue: record.remark })(
                   <Input placeholder="请输入" style={{ width: '280px' }} />
                 )}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col>
-              <FormItem
-                labelCol={{ span: 3, offset: 2 }}
-                className={styles.tableDetail}
-                label="明细"
-              >
-                <table>
-                  <thead>
-                    <tr>
-                      <th>运单号</th>
-                      <th>实收货款</th>
-                      <th>应收货款</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedRows.map(item => {
-                      return (
-                        <tr>
-                          <td>{item.order_code}</td>
-                          <td>{item.order_real}</td>
-                          <td>{item.order_amount}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            <Col span={20}>
+              <FormItem wrapperCol={{ span: 16 }} labelCol={{ span: 4 }} label="手机号">
+                <EditableTable
+                  dataSource={record.customerMobiles}
+                  notifyDataSource={this.notifyDataSource}
+                />
               </FormItem>
             </Col>
           </Row>
@@ -170,13 +208,11 @@ class DownAccountForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, pay, site, car, receiver, loading }) => {
+@connect(({ customer, company, site, receiver, loading }) => {
   return {
     customer,
     company,
-    pay,
     site,
-    car,
     receiver,
     loading: loading.models.rule,
   };
@@ -191,19 +227,13 @@ class TableList extends PureComponent {
     pageSize: 20,
     record: {},
     updateOrderModalVisible: false,
-    settleModalVisible: false,
-    downModalVisible: false,
-    signModalVisible: false,
-    cancelDownAccountModalVisible: false,
-    downloadModalVisible: false,
-    printModalVisible: false,
     currentCompany: {},
   };
 
   columns = [
     {
-      title: '货单号',
-      dataIndex: 'order_code',
+      title: '客户类型',
+      dataIndex: 'customer_type',
       sorter: true,
       align: 'right',
       render: val => `${val}`,
@@ -211,89 +241,22 @@ class TableList extends PureComponent {
       needTotal: true,
     },
     {
-      title: '发货客户',
-      dataIndex: 'sendcustomer_name',
+      title: '姓名',
+      dataIndex: 'customer_name',
     },
     {
-      title: '收获客户',
-      dataIndex: 'getcustomer_name',
+      title: '电话',
+      dataIndex: 'customer_mobile',
       sorter: true,
     },
     {
-      title: '应收货款',
-      dataIndex: 'order_amount',
+      title: '账户',
+      dataIndex: 'bank_account',
       sorter: true,
     },
     {
-      title: '实收货款',
-      dataIndex: 'order_real',
-      sorter: true,
-    },
-    {
-      title: '实收运费',
-      dataIndex: 'trans_discount',
-      sorter: true,
-    },
-    {
-      title: '运费方式',
-      dataIndex: 'trans_type',
-      sorter: true,
-      render: val => {
-        let transType = '';
-        if (val === 1) {
-          transType = '现付';
-        } else if (val === 2) {
-          transType = '回付';
-        } else {
-          transType = '提付';
-        }
-        return transType;
-      },
-    },
-    {
-      title: '垫付',
-      dataIndex: 'order_advancepay_amount',
-      sorter: true,
-    },
-    {
-      title: '送货费',
-      dataIndex: 'deliver_amount',
-      sorter: true,
-    },
-    {
-      title: '保价费',
-      dataIndex: 'insurance_fee',
-      sorter: true,
-    },
-    {
-      title: '货物名称',
-      dataIndex: 'order_name',
-      sorter: true,
-    },
-    {
-      title: '录票时间',
-      dataIndex: 'create_date',
-      render: val => (
-        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
-    },
-    {
-      title: '结算时间',
-      dataIndex: 'settle_date',
-      render: val => (
-        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
-    },
-    {
-      title: '付款时间',
-      dataIndex: 'pay_date',
-      render: val => (
-        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
-    },
-    {
-      title: '站点',
-      dataIndex: 'site_name',
+      title: '收货地址',
+      dataIndex: 'customer_address',
       sorter: true,
     },
     {
@@ -305,18 +268,18 @@ class TableList extends PureComponent {
   async componentDidMount() {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
-    await dispatch({
-      type: 'company/getBranchCompanyList',
-      payload: { ...CacheCompany },
+    const branchCompanyList = await dispatch({
+      type: 'company/getCompanyList',
+      payload: {},
     });
+    if (branchCompanyList && branchCompanyList.length > 0) {
+      this.setState({
+        currentCompany: branchCompanyList[0],
+      });
+    }
 
     dispatch({
       type: 'site/getSiteListAction',
-      payload: { pageNo: 1, pageSize: 100 },
-    });
-
-    dispatch({
-      type: 'customer/sendCustomerListAction',
       payload: { pageNo: 1, pageSize: 100 },
     });
 
@@ -359,17 +322,10 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
-      fieldsValue.pay_status = 1;
-      const searchParams = Object.assign({ filter: fieldsValue }, data);
+      const searchParams = Object.assign({ filter: fieldsValue, type: 2 }, data);
       dispatch({
-        type: 'pay/getOrderListAction',
+        type: 'customer/queryCustomerListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
-      });
-
-      dispatch({
-        type: 'pay/getOrderStatisticAction',
-        payload: { ...searchParams },
       });
     });
   };
@@ -489,11 +445,11 @@ class TableList extends PureComponent {
       type: 'pay/updatePayAbnormalAction',
       payload: {
         order_id: orderIds,
-        order: { pay_status: 0 },
+        order: { pay_status: 1 },
       },
     });
     if (result.code == 0) {
-      message.success('取消异常成功！');
+      message.success('添加异常成功！');
       this.handleSearch();
     } else {
       message.error(result.msg);
@@ -503,7 +459,7 @@ class TableList extends PureComponent {
   onAddNormalModal = async () => {
     Modal.confirm({
       title: '确认',
-      content: '确定将所选订单取消异常吗？',
+      content: '确定将所选订单添加为异常吗？',
       okText: '确认',
       cancelText: '取消',
       onOk: this.onAddAbnormal,
@@ -611,9 +567,16 @@ class TableList extends PureComponent {
   };
 
   /**
-   * 修改订单信息弹窗
+   * 添加客户信息
    */
   onUpdateOrderModalShow = () => {
+    const { currentCompany } = this.state;
+    if (!currentCompany.company_id) {
+      Modal.info({
+        content: '请先选择分公司',
+      });
+      return;
+    }
     this.setState({
       updateOrderModalVisible: true,
     });
@@ -653,7 +616,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '200px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -664,9 +627,16 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="运单号">
-          {getFieldDecorator('order_code', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+        <FormItem label="时间段">
+          {getFieldDecorator('search_date', {})(<RangePicker style={{ width: '250px' }} />)}
+        </FormItem>
+        <FormItem label="客户分类">
+          {getFieldDecorator('customer_type', {})(
+            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+              <Option value={0}>普通用户</Option>
+              <Option value={1}>VIP</Option>
+              <Option value={9}>黑名单</Option>
+            </Select>
           )}
         </FormItem>
         <FormItem label="站点">
@@ -682,32 +652,13 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="发货人姓名">
-          {getFieldDecorator('sendcustomer_id')(
-            <Select
-              placeholder="请选择"
-              onSelect={this.onSendCustomerSelect}
-              style={{ width: '200px' }}
-              allowClear
-              showSearch
-              optionLabelProp="children"
-              onPopupScroll={this.onSendCustomerScroll}
-              filterOption={(input, option) =>
-                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-            >
-              {sendCustomerList.map(ele => {
-                return (
-                  <Option key={ele.get} value={ele.customer_id}>
-                    {ele.customer_name}
-                  </Option>
-                );
-              })}
-            </Select>
+        <FormItem label="姓名">
+          {getFieldDecorator('customer_name', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
           )}
         </FormItem>
-        <FormItem label="发货人电话">
-          {getFieldDecorator('sendcustomer_mobile', {})(
+        <FormItem label="电话">
+          {getFieldDecorator('customer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '150px' }} />
           )}
         </FormItem>
@@ -726,23 +677,18 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      pay: { orderList, total, totalOrderAmount, totalTransAmount },
+      customer: { customers, total, totalOrderAmount, totalTransAmount },
       loading,
+      dispatch,
     } = this.props;
 
     const {
       selectedRows,
-      accountStatistic,
       current,
       pageSize,
       updateOrderModalVisible,
-      settleModalVisible,
-      downModalVisible,
-      signModalVisible,
-      cancelDownAccountModalVisible,
-      downloadModalVisible,
-      printModalVisible,
       record,
+      currentCompany,
     } = this.state;
 
     return (
@@ -751,11 +697,11 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
+              <Button onClick={this.onUpdateOrderModalShow}>添加</Button>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button onClick={this.onDownAccount}>下账</Button>
                   <Button onClick={this.onCancelSign}>取消下账</Button>
-                  <Button onClick={this.onAddNormalModal}>取消异常</Button>
+                  <Button onClick={this.onAddNormalModal}>添加异常</Button>
                   <Button onClick={this.onPrint}>打印</Button>
                 </span>
               )}
@@ -765,9 +711,9 @@ class TableList extends PureComponent {
               loading={loading}
               className={styles.dataTable}
               scroll={{ x: 900 }}
-              rowKey="order_id"
+              rowKey="customer_id"
               data={{
-                list: orderList,
+                list: customers,
                 pagination: {
                   total,
                   pageSize,
@@ -787,76 +733,19 @@ class TableList extends PureComponent {
                   },
                 };
               }}
-              rowClassName={(record, index) => {
-                if (record.order_status === 6) {
-                  return styles.settleColor;
-                } else if (record.order_status === 7) {
-                  return styles.payColor;
-                } else {
-                  return '';
-                }
-              }}
+              rowClassName={(record, index) => {}}
               footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
             />
           </div>
         </Card>
-        <OrderEditForm
+        <AddFormDialog
           modalVisible={updateOrderModalVisible}
           record={record}
+          dispatch={dispatch}
           onCancelModal={this.onUpdateOrderModalCancel}
           handleSearch={this.handleSearch}
+          currentCompany={currentCompany}
         />
-        <DownAccountForm
-          modalVisible={downModalVisible}
-          downAccountHandle={this.downAccountHandle}
-          downCancel={this.onDownCancel}
-          selectedRows={selectedRows}
-        />
-        <Modal
-          title="取消结算"
-          visible={settleModalVisible}
-          onOk={this.onSettleOk}
-          onCancel={this.onSettleCancel}
-        >
-          <p>
-            {`取消结算货款条数${selectedRows.length}，取消结算总额 ${
-              accountStatistic.totalAccount
-            } `}
-          </p>
-          <p>您确认结算么？</p>
-        </Modal>
-        <Modal
-          title="确认"
-          visible={signModalVisible}
-          onOk={this.onSignOk}
-          onCancel={this.onSignCancel}
-        >
-          <p>您确认签字么？</p>
-        </Modal>
-        <Modal
-          title="确认"
-          visible={cancelDownAccountModalVisible}
-          onOk={this.onCancelDownAccountOk}
-          onCancel={this.onCancelDownAccountCancel}
-        >
-          <p>您确认取消下账么？</p>
-        </Modal>
-        <Modal
-          title="确认"
-          visible={printModalVisible}
-          onOk={this.onPrintOk}
-          onCancel={this.onPrintCancel}
-        >
-          <p>您确认结账打印么？</p>
-        </Modal>
-        <Modal
-          title="确认"
-          visible={downloadModalVisible}
-          onOk={this.onDownloadOk}
-          onCancel={this.onDownloadCancel}
-        >
-          <p>您确认要下载么？</p>
-        </Modal>
       </div>
     );
   }

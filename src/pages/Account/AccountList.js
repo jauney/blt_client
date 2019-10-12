@@ -207,17 +207,14 @@ class TableList extends PureComponent {
   async componentDidMount() {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
-    let branchCompanyList = [CacheCompany];
-    if (CacheCompany.company_type != 2) {
-      branchCompanyList = await dispatch({
-        type: 'company/getCompanyList',
-        payload: {},
-      });
-    }
+    const branchCompanyList = await dispatch({
+      type: 'company/getBranchCompanyList',
+      payload: { ...CacheCompany },
+    });
 
     dispatch({
       type: 'site/getSiteListAction',
-      payload: {},
+      payload: { pageNo: 1, pageSize: 100 },
     });
 
     dispatch({

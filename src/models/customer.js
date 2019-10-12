@@ -1,4 +1,10 @@
-import { queryCustomerList, removeCustomer, addCustomer, updateCustomer } from '@/services/api';
+import {
+  queryCustomerList,
+  getCustomerList,
+  removeCustomer,
+  createCustomer,
+  updateCustomer,
+} from '@/services/api';
 
 export default {
   namespace: 'customer',
@@ -10,14 +16,35 @@ export default {
     sendCustomerList: [],
     sendCustomerMap: {},
     sendCustomerPageNo: 1,
+    customers: [],
+    total: 0,
   },
 
   effects: {
+    // 专门用于客户管理
+    *queryCustomerListAction({ payload }, { call, put, select }) {
+      const response = yield call(getCustomerList, payload);
+
+      yield put({
+        type: 'queryGetCustomersReducer',
+        payload: response,
+      });
+    },
+    *createCustomerAction({ payload }, { call, put }) {
+      console.log(999999, payload);
+      const response = yield call(createCustomer, payload);
+      return response;
+    },
+    *updateCustomerAction({ payload }, { call, put }) {
+      const response = yield call(updateCustomer, payload);
+      return response;
+    },
     *getCustomerListAction({ payload }, { call, put, select }) {
       const customerState = yield select(state => state.customer);
       payload.type = 2;
       payload.pageNo = customerState.getCustomerPageNo;
       payload.pageSize = 20;
+      payload.filter.customerMobiles = [];
 
       const response = yield call(queryCustomerList, payload);
       const list = response.customers;
@@ -58,6 +85,12 @@ export default {
   },
 
   reducers: {
+    queryGetCustomersReducer(state, action) {
+      return {
+        ...state,
+        ...action.payload,
+      };
+    },
     queryGetCustomerList(state, action) {
       const customers = action.payload;
       const customerMap = state.getCustomerMap;

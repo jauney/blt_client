@@ -164,6 +164,25 @@ export default [
         ],
       },
       {
+        path: '/customer',
+        name: 'customer',
+        icon: 'profile',
+        routes: [
+          // transfer
+          {
+            path: '/customer/getcustomer',
+            name: 'getcustomer',
+            component: './Customer/GetCustomer',
+          },
+          {
+            path: '/customer/sendcustomer',
+            name: 'sendcustomer',
+            component: './Customer/SendCustomer',
+            authority: ['admin', 'site_user', 'site_admin', 'site_account'],
+          },
+        ],
+      },
+      {
         component: '404',
       },
     ],
