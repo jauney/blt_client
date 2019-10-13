@@ -1,6 +1,7 @@
 import {
   queryCustomerList,
   getCustomerList,
+  getCustomerTypes,
   removeCustomer,
   createCustomer,
   updateCustomer,
@@ -18,6 +19,8 @@ export default {
     sendCustomerPageNo: 1,
     customers: [],
     total: 0,
+    customerTypesTotal: 0,
+    customerTypes: [],
   },
 
   effects: {
@@ -27,6 +30,14 @@ export default {
 
       yield put({
         type: 'queryGetCustomersReducer',
+        payload: response,
+      });
+    },
+    *queryCustomerTypesAction({ payload }, { call, put, select }) {
+      const response = yield call(getCustomerTypes, payload);
+
+      yield put({
+        type: 'queryGetCustomerTypesReducer',
         payload: response,
       });
     },
@@ -86,6 +97,12 @@ export default {
 
   reducers: {
     queryGetCustomersReducer(state, action) {
+      return {
+        ...state,
+        ...action.payload,
+      };
+    },
+    queryGetCustomerTypesReducer(state, action) {
       return {
         ...state,
         ...action.payload,

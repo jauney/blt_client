@@ -60,11 +60,19 @@ class AddFormDialog extends PureComponent {
   }
 
   onAddHandler = () => {
-    const { handleSearch, form, record, dispatch, onCancelModal, currentCompany } = this.props;
+    const {
+      handleSearch,
+      form,
+      record,
+      dispatch,
+      onCancelModal,
+      currentCompany,
+      customerTypes,
+    } = this.props;
     const { dataSource = [] } = this.state;
     let currentMobile;
     dataSource.forEach(item => {
-      if (item.mobile_id && item.mobile_id.indexOf('TMP-') >= 0) {
+      if (item.mobile_id && `${item.mobile_id}`.indexOf('TMP-') >= 0) {
         item.mobile_id = 0;
       }
       if (item.mobile_type == 1) {
@@ -81,20 +89,42 @@ class AddFormDialog extends PureComponent {
       fieldsValue.customer_mobile = (currentMobile && currentMobile.mobile) || '';
       fieldsValue.customerMobiles = dataSource;
       fieldsValue.company_id = currentCompany.company_id;
-      console.log(fieldsValue);
+
+      // customertype
+      let customerType;
+      customerTypes.forEach(item => {
+        if (item.customertype == fieldsValue.customer_type) {
+          customerType = item;
+        }
+      });
+      if (!customerType && customerTypes.length > 0) {
+        customerType = customerTypes[0];
+      }
+
+      if (customerType) {
+        fieldsValue.customer_type = customerType.customertype;
+        fieldsValue.trans_vip_ratio = customerType.trans_vip_ratio;
+      }
 
       let result;
+      let resultMsg = '添加成功';
       if (!record || !record.customer_id) {
         result = await dispatch({
           type: 'customer/createCustomerAction',
           payload: { customer: fieldsValue, type: 2 },
         });
+      } else {
+        result = await dispatch({
+          type: 'customer/updateCustomerAction',
+          payload: { customer_id: [record.customer_id], customer: fieldsValue, type: 2 },
+        });
+        resultMsg = '修改成功';
       }
 
       if (result && result.code == 0) {
         onCancelModal();
         handleSearch();
-        message.success('添加成功');
+        message.success(resultMsg);
       } else {
         message.error('添加失败');
       }
@@ -109,7 +139,14 @@ class AddFormDialog extends PureComponent {
   };
 
   render() {
-    const { modalVisible, onCancelModal, record, form, mobileList = [] } = this.props;
+    const {
+      modalVisible,
+      onCancelModal,
+      record,
+      form,
+      mobileList = [],
+      customerTypes = [],
+    } = this.props;
     console.log(record);
     return (
       <Modal
@@ -142,9 +179,13 @@ class AddFormDialog extends PureComponent {
               <FormItem {...this.formItemLayout} label="类型">
                 {form.getFieldDecorator('customer_type', { initialValue: record.customer_type })(
                   <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
-                    <Option value={0}>普通用户</Option>
-                    <Option value={1}>VIP</Option>
-                    <Option value={9}>黑名单</Option>
+                    {customerTypes.map(ele => {
+                      return (
+                        <Option key={ele.customertype} value={ele.customertype}>
+                          {ele.customertype_name}
+                        </Option>
+                      );
+                    })}
                   </Select>
                 )}
               </FormItem>
@@ -226,7 +267,7 @@ class TableList extends PureComponent {
     current: 1,
     pageSize: 20,
     record: {},
-    updateOrderModalVisible: false,
+    addModalVisible: false,
     currentCompany: {},
   };
 
@@ -280,6 +321,11 @@ class TableList extends PureComponent {
 
     dispatch({
       type: 'site/getSiteListAction',
+      payload: { pageNo: 1, pageSize: 100 },
+    });
+
+    dispatch({
+      type: 'customer/queryCustomerTypesAction',
       payload: { pageNo: 1, pageSize: 100 },
     });
 
@@ -361,215 +407,10 @@ class TableList extends PureComponent {
     this.getOrderList(sort, current);
   };
 
-  // 下账
-  downAccountHandle = async data => {
-    console.log(data);
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    const result = await dispatch({
-      type: 'pay/downAccountAction',
-      payload: {
-        order_id: orderIds,
-        rate: data.rate,
-        bank_account: data.bank_account,
-      },
-    });
-    if (result.code == 0) {
-      message.success('下账成功！');
-
-      this.onDownCancel();
-      this.handleSearch();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 打开下账对话框
-  onDownAccount = async () => {
-    this.setState({
-      downModalVisible: true,
-    });
-  };
-
-  onDownCancel = async () => {
-    this.setState({
-      downModalVisible: false,
-    });
-  };
-
-  // 取消账户核对
-  onSettle = async () => {
-    const { selectedRows } = this.state;
-    let accountStatistic = getSelectedAccount(selectedRows);
-    this.setState({ accountStatistic, settleModalVisible: true });
-  };
-
-  onSettleCancel = async () => {
-    this.setState({
-      settleModalVisible: false,
-    });
-  };
-
-  onSettleOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'settle/cancelSettleOrderAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('取消结算成功！');
-
-      this.onSettleCancel();
-      this.handleSearch();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  onAddAbnormal = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    const result = await dispatch({
-      type: 'pay/updatePayAbnormalAction',
-      payload: {
-        order_id: orderIds,
-        order: { pay_status: 1 },
-      },
-    });
-    if (result.code == 0) {
-      message.success('添加异常成功！');
-      this.handleSearch();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  onAddNormalModal = async () => {
-    Modal.confirm({
-      title: '确认',
-      content: '确定将所选订单添加为异常吗？',
-      okText: '确认',
-      cancelText: '取消',
-      onOk: this.onAddAbnormal,
-    });
-  };
-
-  // 取消签字
-  onCancelSign = async () => {
-    this.setState({
-      cancelDownAccountModalVisible: true,
-    });
-  };
-
-  onCancelDownAccountCancel = async () => {
-    this.setState({
-      cancelDownAccountModalVisible: false,
-    });
-  };
-
-  onCancelDownAccountOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'pay/cancelDownAccountAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result && result.code == 0) {
-      message.success('取消下账成功！');
-      this.handleSearch();
-      this.onCancelDownAccountCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 打印
-  onPrint = async () => {
-    this.setState({
-      printModalVisible: true,
-    });
-  };
-
-  onPrintCancel = async () => {
-    this.setState({
-      printModalVisible: false,
-    });
-  };
-
-  onPrintOk = async () => {
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'pay/printAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('打印成功！');
-
-      this.onPrintCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 下载
-  onDownload = async () => {
-    this.setState({
-      downloadModalVisible: true,
-    });
-  };
-
-  onDownloadCancel = async () => {
-    this.setState({
-      downloadModalVisible: false,
-    });
-  };
-
-  onDownloadOk = async () => {
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'pay/downloadAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('下载成功！');
-
-      this.onDownloadCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
   /**
    * 添加客户信息
    */
-  onUpdateOrderModalShow = () => {
+  onAddModalShow = () => {
     const { currentCompany } = this.state;
     if (!currentCompany.company_id) {
       Modal.info({
@@ -578,23 +419,26 @@ class TableList extends PureComponent {
       return;
     }
     this.setState({
-      updateOrderModalVisible: true,
+      addModalVisible: true,
     });
   };
 
-  onUpdateOrderModalCancel = () => {
+  onAddModalCancel = () => {
     // setTimeout(() => this.addBtn.blur(), 0);
     this.setState({
-      updateOrderModalVisible: false,
+      addModalVisible: false,
     });
   };
+
+  // 删除
+  onDelCustomer = () => {};
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
     this.setState({
       record,
     });
-    this.onUpdateOrderModalShow();
+    this.onAddModalShow();
   };
 
   // 已结算账目核对中，计算付款日期
@@ -677,19 +521,12 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      customer: { customers, total, totalOrderAmount, totalTransAmount },
+      customer: { customers, total, customerTypes, totalOrderAmount, totalTransAmount },
       loading,
       dispatch,
     } = this.props;
 
-    const {
-      selectedRows,
-      current,
-      pageSize,
-      updateOrderModalVisible,
-      record,
-      currentCompany,
-    } = this.state;
+    const { selectedRows, current, pageSize, addModalVisible, record, currentCompany } = this.state;
 
     return (
       <div>
@@ -697,12 +534,10 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button onClick={this.onUpdateOrderModalShow}>添加</Button>
+              <Button onClick={this.onAddModalShow}>添加</Button>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button onClick={this.onCancelSign}>取消下账</Button>
-                  <Button onClick={this.onAddNormalModal}>添加异常</Button>
-                  <Button onClick={this.onPrint}>打印</Button>
+                  <Button onClick={this.onDelCustomer}>删除</Button>
                 </span>
               )}
             </div>
@@ -739,12 +574,13 @@ class TableList extends PureComponent {
           </div>
         </Card>
         <AddFormDialog
-          modalVisible={updateOrderModalVisible}
+          modalVisible={addModalVisible}
           record={record}
           dispatch={dispatch}
-          onCancelModal={this.onUpdateOrderModalCancel}
+          onCancelModal={this.onAddModalCancel}
           handleSearch={this.handleSearch}
           currentCompany={currentCompany}
+          customerTypes={customerTypes}
         />
       </div>
     );

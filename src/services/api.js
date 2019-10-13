@@ -675,6 +675,38 @@ export async function getCustomerList(params) {
     });
 }
 
+export async function getCustomerTypes(params) {
+  return client
+    .query({
+      query: gql`
+        query getCustomerTypes(
+          $pageNo: Int
+          $pageSize: Int
+          $filter: CustomerTypeInput
+          $sorter: String
+        ) {
+          getCustomerTypes(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
+            customerTypesTotal
+            customerTypes {
+              customertype_id
+              customertype
+              customertype_name
+              trans_vip_ratio
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getCustomerTypes;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
 export async function getOrderList(params) {
   if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
     params.filter.order_status = [params.filter.order_status];
