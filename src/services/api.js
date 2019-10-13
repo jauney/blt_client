@@ -158,8 +158,8 @@ export async function createCustomer({ customer, type }) {
   return client
     .mutate({
       mutation: gql`
-        mutation createCustomer($customer: CustomerInput) {
-          createCustomer(customer: $customer) {
+        mutation createCustomer($customer: CustomerInput, $type: Int) {
+          createCustomer(customer: $customer, type: $type) {
             code
             msg
           }
@@ -176,26 +176,26 @@ export async function createCustomer({ customer, type }) {
     });
 }
 
-export async function updateCustomer(customer, customerIds) {
+export async function updateCustomer({ customer, customer_id, type }) {
   if (customer.customer) {
-    customerIds = customer.customer_id;
+    customer_id = [customer.customer_id];
     customer = customer.customer;
   }
 
-  if (!customerIds) {
-    customerIds = [customer.customer_id];
+  if (!customer_id) {
+    customer_id = [customer.customer_id];
   }
   return client
     .mutate({
       mutation: gql`
-        mutation updateCustomer($customer_id: [Int], $customer: CustomerInput) {
-          updateCustomer(customer_id: $customer_id, customer: $customer) {
+        mutation updateCustomer($customer_id: [Int], $customer: CustomerInput, $type: Int) {
+          updateCustomer(customer_id: $customer_id, customer: $customer, type: $type) {
             code
             msg
           }
         }
       `,
-      variables: { customer_id: customerIds, customer },
+      variables: { customer_id, customer, type },
     })
     .then(data => {
       console.log(data);

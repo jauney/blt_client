@@ -103,6 +103,7 @@ class AddFormDialog extends PureComponent {
 
       if (customerType) {
         fieldsValue.customer_type = customerType.customertype;
+        fieldsValue.customertype_name = customerType.customertype_name;
         fieldsValue.trans_vip_ratio = customerType.trans_vip_ratio;
       }
 
@@ -310,8 +311,8 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     const branchCompanyList = await dispatch({
-      type: 'company/getCompanyList',
-      payload: {},
+      type: 'company/getBranchCompanyList',
+      payload: { ...CacheCompany },
     });
     if (branchCompanyList && branchCompanyList.length > 0) {
       this.setState({
@@ -351,11 +352,22 @@ class TableList extends PureComponent {
     });
   };
 
-  onCompanySelect = async (value, option) => {};
+  onCompanySelect = async (value, option) => {
+    const {
+      company: { branchCompanyList = [] },
+    } = this.props;
+    branchCompanyList.forEach(item => {
+      if (item.company_id == value) {
+        this.setState({ currentCompany: item });
+      }
+    });
+  };
 
   handleSearch = e => {
     e && e.preventDefault();
-
+    this.setState({
+      current: 1,
+    });
     this.getOrderList();
   };
 
@@ -448,7 +460,7 @@ class TableList extends PureComponent {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], normalSiteList = [] },
-      customer: { getCustomerList, sendCustomerList },
+      customer: { getCustomerList, sendCustomerList, customerTypes },
       company: { branchCompanyList },
     } = this.props;
     const companyOption = {};
@@ -477,9 +489,13 @@ class TableList extends PureComponent {
         <FormItem label="客户分类">
           {getFieldDecorator('customer_type', {})(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
-              <Option value={0}>普通用户</Option>
-              <Option value={1}>VIP</Option>
-              <Option value={9}>黑名单</Option>
+              {customerTypes.map(ele => {
+                return (
+                  <Option key={ele.customertype} value={ele.customertype}>
+                    {ele.customertype_name}
+                  </Option>
+                );
+              })}
             </Select>
           )}
         </FormItem>
@@ -521,7 +537,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      customer: { customers, total, customerTypes, totalOrderAmount, totalTransAmount },
+      customer: { customers, total, customerTypes },
       loading,
       dispatch,
     } = this.props;
@@ -569,7 +585,7 @@ class TableList extends PureComponent {
                 };
               }}
               rowClassName={(record, index) => {}}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={() => ``}
             />
           </div>
         </Card>
