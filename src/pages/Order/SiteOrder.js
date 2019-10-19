@@ -157,6 +157,8 @@ class CreateForm extends PureComponent {
 
       if (getCustomer) {
         fieldsValue.getcustomer_name = getCustomer.customer_name;
+        fieldsValue.sender_id = getCustomer.sender_id;
+        fieldsValue.sender_name = getCustomer.sender_name;
       } else {
         fieldsValue.getcustomer_name = fieldsValue.getcustomer_id;
         fieldsValue.getcustomer_id = 0;
@@ -164,6 +166,8 @@ class CreateForm extends PureComponent {
 
       if (sendCustomer) {
         fieldsValue.sendcustomer_name = sendCustomer.customer_name;
+        fieldsValue.receiver_id = sendCustomer.receiver_id;
+        fieldsValue.receiver_name = sendCustomer.receiver_name;
       } else {
         fieldsValue.sendcustomer_name = fieldsValue.sendcustomer_id;
         fieldsValue.sendcustomer_id = 0;
@@ -1317,7 +1321,10 @@ class TableList extends PureComponent {
     if (selectedOrder.order_id) {
       const result = await dispatch({
         type: 'order/updateOrderAction',
-        payload: Object.assign(fields, { order_id: selectedOrder.order_id }),
+        payload: {
+          order: Object.assign(fields, { order_id: selectedOrder.order_id }),
+          orderIds: [selectedOrder.order_id],
+        },
       });
 
       if (result && result.code == 0) {

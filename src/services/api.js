@@ -154,6 +154,152 @@ export async function addCompany(params) {
     });
 }
 
+export async function createCourier({ courier, type }) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation createCourier($courier: CourierInput, $type: Int) {
+          createCourier(courier: $courier, type: $type) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: { courier, type },
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.createCourier;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function updateCourier({ courier, courier_id, type }) {
+  if (courier.courier) {
+    courier_id = [courier.courier_id];
+    courier = courier.courier;
+  }
+
+  if (!courier_id) {
+    courier_id = [courier.courier_id];
+  }
+  return client
+    .mutate({
+      mutation: gql`
+        mutation updateCourier($courier_id: [Int], $courier: CourierInput, $type: Int) {
+          updateCourier(courier_id: $courier_id, courier: $courier, type: $type) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: { courier_id, courier, type },
+    })
+    .then(data => {
+      console.log(data);
+      gotoLogin(data);
+      return data.data.updateCourier;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function updateCustomerCourier({ courier, order_id, customer_id, type }) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation updateCustomerCourier(
+          $order_id: [Int]
+          $customer_id: [Int]
+          $courier: CourierInput
+          $type: String
+        ) {
+          updateCustomerCourier(
+            order_id: $order_id
+            customer_id: $customer_id
+            courier: $courier
+            type: $type
+          ) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: { courier, order_id, customer_id, type },
+    })
+    .then(data => {
+      console.log(data);
+      gotoLogin(data);
+      return data.data.updateCustomerCourier;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function getCourierList(params) {
+  return client
+    .query({
+      query: gql`
+        query getCourierList($pageNo: Int, $pageSize: Int, $type: String, $filter: CourierInput) {
+          getCourierList(pageNo: $pageNo, pageSize: $pageSize, type: $type, filter: $filter) {
+            total
+            couriers {
+              courier_id
+              courier_name
+              courier_mobile
+              site_id
+              company_id
+              company_name
+              site_name
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getCourierList;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function getOperatorList(params) {
+  return client
+    .query({
+      query: gql`
+        query getUserList($pageNo: Int, $pageSize: Int, $filter: UserInput) {
+          getUserList(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            users {
+              user_id
+              user_name
+              user_mobile
+              user_pass
+              user_type
+              site_id
+              company_id
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getUserList;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
 export async function createCustomer({ customer, type }) {
   return client
     .mutate({
@@ -469,11 +615,7 @@ export async function createOrder(params) {
     });
 }
 
-export async function updateOrder(order, orderIds) {
-  if (order.order) {
-    orderIds = order.order_id;
-    order = order.order;
-  }
+export async function updateOrder({ order, orderIds }) {
   if (order.trans_real) {
     order.trans_real = Number(order.trans_real || 0);
   }
@@ -880,6 +1022,8 @@ export async function getOrderStatistic(params) {
           getOrderStatistic(filter: $filter) {
             totalOrderAmount
             totalTransAmount
+            totalRealTransAmount
+            totalRealOrderAmount
             totalInsurancefee
           }
         }
@@ -1838,6 +1982,113 @@ export async function delTransfer(params) {
     .then(data => {
       gotoLogin(data);
       return data.data.delTransfer;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+// todayaccount
+export async function getTodayAccountList(params) {
+  return client
+    .query({
+      query: gql`
+        query getTodayAccountList($pageNo: Int, $pageSize: Int, $filter: AccountInput) {
+          getTodayAccountList(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            accounts {
+              account_id
+              operator_id
+              operator_name
+              company_id
+              company_name
+              account_name
+              serial_id
+              origin_id
+              origin_table
+              account_amount
+              account_type
+              site_id
+              site_name
+              account_date
+              account_customer
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getTodayAccountList;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+// todayaccount
+export async function getTodayAccountStatistic(params) {
+  return client
+    .query({
+      query: gql`
+        query getTodayAccountStatistic($pageNo: Int, $pageSize: Int, $filter: AccountInput) {
+          getTodayAccountStatistic(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            totalAccount
+            totalIncomeAccount
+            totalExpenseAccount
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getTodayAccountStatistic;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function cancelConfirmTrans(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation cancelConfirmTrans($order_id: [Int], $company_id: Int, $site_id: Int) {
+          cancelConfirmTrans(order_id: $order_id, company_id: $company_id, site_id: $site_id) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.cancelConfirmTrans;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function confirmTrans(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation confirmTrans($order_id: [Int], $company_id: Int, $site_id: Int) {
+          confirmTrans(order_id: $order_id, company_id: $company_id, site_id: $site_id) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.confirmTrans;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');

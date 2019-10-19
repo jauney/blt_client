@@ -29,18 +29,11 @@ import StandardTable from '@/components/StandardTable';
 import styles from './Transfer.less';
 import { fileToObject } from 'antd/lib/upload/utils';
 import { async } from 'q';
-const { RangePicker } = DatePicker;
+import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
+const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
 const { Option } = Select;
-const getValue = obj =>
-  Object.keys(obj)
-    .map(key => obj[key])
-    .join(',');
-
-const CacheSite = JSON.parse(localStorage.getItem('site') || '{}');
-const CacheCompany = JSON.parse(localStorage.getItem('company') || '{}');
-const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
 
 @Form.create()
 class AddFormDialog extends PureComponent {
@@ -889,7 +882,7 @@ class TableList extends PureComponent {
     const result = await dispatch({
       type: 'order/updateOrderAction',
       payload: {
-        order_id: record.order_id,
+        orderIds: [record.order_id],
         order: { trans_real: fieldsValue.trans_real, order_real: fieldsValue.order_real },
       },
     });

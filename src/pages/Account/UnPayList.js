@@ -1019,7 +1019,7 @@ class TableList extends PureComponent {
     const result = await dispatch({
       type: 'order/updateOrderAction',
       payload: {
-        order_id: record.order_id,
+        orderIds: [record.order_id],
         order: { trans_real: fieldsValue.trans_real, order_real: fieldsValue.order_real },
       },
     });

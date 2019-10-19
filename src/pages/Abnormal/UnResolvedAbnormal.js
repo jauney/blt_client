@@ -483,9 +483,9 @@ class TableList extends PureComponent {
     const result = await dispatch({
       type: 'abnormal/cancelAbnormalAction',
       payload: {
-        abnormal_status: 0,
+        order: { abnormal_status: 0 },
+        orderIds,
       },
-      orderIds,
     });
     if (result.code == 0) {
       message.success('取消异常成功！');

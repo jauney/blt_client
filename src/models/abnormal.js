@@ -48,8 +48,8 @@ export default {
         payload: response,
       });
     },
-    *cancelAbnormalAction({ payload, orderIds }, { call, put }) {
-      return yield call(updateOrder, payload, orderIds); // post
+    *cancelAbnormalAction({ payload }, { call, put }) {
+      return yield call(updateOrder, payload); // post
     },
     *resolveAbnormalAction({ payload }, { call, put }) {
       return yield call(updateAbnormal, payload); // post

@@ -257,10 +257,7 @@ class TableList extends PureComponent {
       payload: { pageNo: 1, pageSize: 100 },
     });
 
-    dispatch({
-      type: 'customer/sendCustomerListAction',
-      payload: { pageNo: 1, pageSize: 100 },
-    });
+    this.fetchSendCustomerList();
 
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
@@ -272,14 +269,19 @@ class TableList extends PureComponent {
     });
   };
 
-  fetchGetCustomerList = async companyId => {
+  onSendCustomerScroll = e => {
+    if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
+      this.fetchSendCustomerList();
+    }
+  };
+
+  fetchSendCustomerList = async companyId => {
     const { dispatch } = this.props;
+
     dispatch({
-      type: 'customer/getCustomerListAction',
+      type: 'customer/sendCustomerListAction',
       payload: {
-        pageNo: 1,
-        pageSize: 100,
-        filter: { company_id: companyId },
+        filter: {},
       },
     });
   };

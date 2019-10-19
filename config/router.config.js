@@ -183,6 +183,78 @@ export default [
         ],
       },
       {
+        path: '/courier',
+        name: 'courier',
+        icon: 'profile',
+        routes: [
+          // transfer
+          {
+            path: '/courier/sender',
+            name: 'sender',
+            component: './Courier/Sender',
+          },
+          {
+            path: '/courier/receiver',
+            name: 'receiver',
+            component: './Courier/Receiver',
+          },
+          {
+            path: '/courier/operator',
+            name: 'operator',
+            component: './Courier/Operator',
+          },
+        ],
+      },
+      {
+        path: '/search',
+        name: 'search',
+        icon: 'profile',
+        routes: [
+          // transfer
+          {
+            path: '/search/account',
+            name: 'todayaccount',
+            component: './Search/Account',
+          },
+          {
+            path: '/search/stock',
+            name: 'stock',
+            component: './Search/Stock',
+          },
+        ],
+      },
+      {
+        path: '/transconfirm',
+        name: 'transconfirm',
+        icon: 'profile',
+        routes: [
+          // transfer
+          {
+            path: '/transconfirm/transunconfirm',
+            name: 'transunconfirm',
+            component: './TransConfirm/TransUnconfirm',
+          },
+          {
+            path: '/transconfirm/transconfirmed',
+            name: 'transconfirmed',
+            component: './TransConfirm/TransConfirmed',
+          },
+        ],
+      },
+      {
+        path: '/system',
+        name: 'system',
+        icon: 'profile',
+        routes: [
+          // transfer
+          {
+            path: '/system/company',
+            name: 'companymng',
+            component: './System/Company',
+          },
+        ],
+      },
+      {
         component: '404',
       },
     ],

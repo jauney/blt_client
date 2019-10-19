@@ -99,7 +99,7 @@ class OrderEditForm extends PureComponent {
       const result = await dispatch({
         type: 'order/updateOrderAction',
         payload: {
-          order_id: record.order_id,
+          orderIds: [record.order_id],
           order: fieldsValue,
         },
       });
