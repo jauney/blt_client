@@ -79,7 +79,7 @@ export default class GlobalHeaderRight extends PureComponent {
 
   render() {
     const {
-      currentUser,
+      currentUser = {},
       fetchingMoreNotices,
       fetchingNotices,
       loadedAllNotices,

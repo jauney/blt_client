@@ -15,7 +15,7 @@ export default {
   effects: {
     *login({ payload }, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
-      console.log(response);
+
       yield put({
         type: 'changeLoginStatus',
         payload: response,
@@ -26,7 +26,7 @@ export default {
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params;
-        console.log('#$$$$$$$$', redirect);
+
         if (redirect) {
           const redirectUrlParams = new URL(redirect);
           if (redirectUrlParams.origin === urlParams.origin) {
@@ -40,7 +40,6 @@ export default {
           }
         }
 
-        console.log('#$$$77777', redirect);
         window.location.href = redirect || '/';
         // yield put(routerRedux.replace({ pathname: redirect || '/' }));
       }

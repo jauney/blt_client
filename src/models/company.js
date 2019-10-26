@@ -7,8 +7,10 @@ export default {
   state: {
     // 分公司，company_type=2
     branchCompanyList: [],
+    branchTotal: 0,
     // 总公司，company_type=1
     companyList: [],
+    companyTotal: 0,
   },
 
   effects: {
@@ -21,37 +23,34 @@ export default {
       }
       const response = yield call(queryCompanyList, payload);
       const list = response.companys;
-      console.log('########', response);
       const action = companyType === 2 ? 'queryBranchCompanyList' : 'queryCompanyList';
       yield put({
         type: action,
-        payload: Array.isArray(list) ? list : [],
+        payload: { list: Array.isArray(list) ? list : [], total: response.total },
       });
 
       return list;
     },
     *getBranchCompanyList({ payload }, { call, put }) {
       let list = [payload];
+      let total = 0;
       if (payload.company_type == 1) {
         payload = { filter: { company_type: 2 } };
         const response = yield call(queryCompanyList, payload);
         list = response.companys;
+        total = response.total;
       }
 
       yield put({
         type: 'queryBranchCompanyList',
-        payload: Array.isArray(list) ? list : [],
+        payload: { list: Array.isArray(list) ? list : [], total },
       });
 
       return list;
     },
     *addCompany({ payload }, { call, put }) {
       const response = yield call(addCompany, payload);
-
-      yield put({
-        type: 'addCompany',
-        payload: response ? [response] : [],
-      });
+      return response;
     },
   },
 
@@ -59,19 +58,15 @@ export default {
     queryBranchCompanyList(state, action) {
       return {
         ...state,
-        branchCompanyList: action.payload,
+        branchCompanyList: action.payload.list,
+        branchTotal: action.payload.total,
       };
     },
     queryCompanyList(state, action) {
       return {
         ...state,
-        companyList: action.payload,
-      };
-    },
-    addCompany(state, action) {
-      return {
-        ...state,
-        getCustomerList: state.getCustomerList.concat(action.payload),
+        companyList: action.payload.list,
+        companyTotal: action.payload.total,
       };
     },
   },

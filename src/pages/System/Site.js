@@ -36,10 +36,7 @@ import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/stora
 class AddFormDialog extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      abnormal_type_id: '',
-      abnormal_type: '',
-    };
+    this.state = {};
     this.formItemLayout = {
       labelCol: {
         xs: { span: 18 },
@@ -58,12 +55,11 @@ class AddFormDialog extends PureComponent {
     const { addFormDataHandle, form, record = {} } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      fieldsValue.trans_regional_ratio = Number(fieldsValue.trans_regional_ratio || 1);
       const data = {
-        company: fieldsValue,
+        site: fieldsValue,
       };
-      if (record.company_id) {
-        data.ids = [record.company_id];
+      if (record.site_id) {
+        data.ids = [record.site_id];
       }
       addFormDataHandle(data);
     });
@@ -87,7 +83,7 @@ class AddFormDialog extends PureComponent {
     return (
       <Modal
         destroyOnClose
-        title="添加公司"
+        title="添加站点"
         visible={modalVisible}
         onCancel={() => onCancelHandler()}
         footer={[
@@ -104,39 +100,39 @@ class AddFormDialog extends PureComponent {
         <Form>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="公司名称">
-                {form.getFieldDecorator('company_name', {
-                  initialValue: record.company_name,
-                  rules: [{ required: true, message: '请填写公司名称' }],
+              <FormItem {...this.formItemLayout} label="站点名称">
+                {form.getFieldDecorator('site_name', {
+                  initialValue: record.site_name,
+                  rules: [{ required: true, message: '请填写站点名称' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="地域系数">
-                {form.getFieldDecorator('trans_regional_ratio', {
-                  initialValue: record.trans_regional_ratio,
-                  rules: [{ required: true, message: '请填写地域系数，如：1, 1.1, 0.9' }],
-                })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
+              <FormItem {...this.formItemLayout} label="站点类型">
+                {form.getFieldDecorator('site_type', {
+                  initialValue: record.site_type || 1,
+                  rules: [{ required: true, message: '请填写站点类型' }],
+                })(
+                  <Select placeholder="请选择" style={{ width: '150px' }}>
+                    <Option key={1} value={1}>
+                      普通站点
+                    </Option>
+                    <Option key={2} value={2}>
+                      配载站
+                    </Option>
+                  </Select>
+                )}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="公司电话">
-                {form.getFieldDecorator('company_mobile', {
-                  initialValue: record.company_mobile,
-                  rules: [{ required: true, message: '请填写公司电话' }],
-                })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="地址">
-                {form.getFieldDecorator('company_address', {
-                  initialValue: record.company_address,
+              <FormItem {...this.formItemLayout} label="订单号前缀">
+                {form.getFieldDecorator('site_orderprefix', {
+                  initialValue: record.site_orderprefix,
+                  rules: [{ required: true, message: '请填写该站点的订单号前缀' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
             </Col>
@@ -148,9 +144,9 @@ class AddFormDialog extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, loading }) => {
+@connect(({ site, company, loading }) => {
   return {
-    customer,
+    site,
     company,
     loading: loading.models.rule,
   };
@@ -170,32 +166,23 @@ class TableList extends PureComponent {
 
   columns = [
     {
-      title: '公司名称',
-      dataIndex: 'company_name',
+      title: '站点名称',
+      dataIndex: 'site_name',
     },
     {
-      title: '公司电话',
-      dataIndex: 'company_mobile',
+      title: '站点类型',
+      dataIndex: 'site_type',
       sorter: true,
     },
     {
-      title: '地域系数',
-      dataIndex: 'trans_regional_ratio',
-      sorter: true,
-    },
-    {
-      title: '地址',
-      dataIndex: 'company_address',
+      title: '订单号前缀',
+      dataIndex: 'site_orderprefix',
       sorter: true,
     },
   ];
 
   async componentDidMount() {
     const { dispatch } = this.props;
-    dispatch({
-      type: 'company/getBranchCompanyList',
-      payload: { company_type: 1 },
-    });
 
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
@@ -284,8 +271,8 @@ class TableList extends PureComponent {
       if (err) return;
 
       dispatch({
-        type: 'company/getBranchCompanyList',
-        payload: { company_type: 1 },
+        type: 'site/getSiteListAction',
+        payload: {},
       });
     });
   };
@@ -322,13 +309,13 @@ class TableList extends PureComponent {
   };
 
   // 添加支出
-  addFormDataHandle = async ({ company, ids }) => {
+  addFormDataHandle = async ({ site, ids }) => {
     const { dispatch } = this.props;
 
     const result = await dispatch({
-      type: 'company/addCompany',
+      type: 'site/addSite',
       payload: {
-        company,
+        site,
         ids,
       },
     });
@@ -422,6 +409,7 @@ class TableList extends PureComponent {
   render() {
     const {
       company: { branchCompanyList, branchTotal },
+      site: { siteList = [], siteTotal = 0 },
       loading,
     } = this.props;
 
@@ -441,11 +429,11 @@ class TableList extends PureComponent {
               loading={loading}
               className={styles.dataTable}
               scroll={{ x: 900 }}
-              rowKey="company_id"
+              rowKey="site_id"
               data={{
-                list: branchCompanyList,
+                list: siteList,
                 pagination: {
-                  branchTotal,
+                  siteTotal,
                   pageSize,
                   current,
                 },

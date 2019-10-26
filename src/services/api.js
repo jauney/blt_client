@@ -111,6 +111,7 @@ export async function queryCompanyList(params) {
               company_name
               company_address
               company_type
+              company_mobile
               trans_regional_ratio
             }
           }
@@ -129,17 +130,12 @@ export async function queryCompanyList(params) {
 
 export async function addCompany(params) {
   return client
-    .query({
-      query: gql`
-        query getCompanys($pageNo: Int, $pageSize: Int, $filter: CompanyInput) {
-          getCompanys(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
-            total
-            companys {
-              company_id
-              company_name
-              company_address
-              company_type
-            }
+    .mutate({
+      mutation: gql`
+        mutation addCompany($company: CompanyInput, $ids: [Int]) {
+          addCompany(company: $company, ids: $ids) {
+            code
+            msg
           }
         }
       `,
@@ -147,7 +143,7 @@ export async function addCompany(params) {
     })
     .then(data => {
       gotoLogin(data);
-      return data.data.getCompanys;
+      return data.data.addCompany;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');
@@ -300,6 +296,91 @@ export async function getOperatorList(params) {
     });
 }
 
+export async function getRoleList(params) {
+  return client
+    .query({
+      query: gql`
+        query getRoleList($pageNo: Int, $pageSize: Int, $filter: RoleInput) {
+          getRoleList(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            roleTotal
+            roleList {
+              role_id
+              role_name
+              role_value
+              role_desc
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getRoleList;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function getUserInfos(params) {
+  return client
+    .query({
+      query: gql`
+        query getUserInfos($pageNo: Int, $pageSize: Int, $filter: UserInput) {
+          getUserInfos(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            userList {
+              user_id
+              user_name
+              user_mobile
+              user_pass
+              user_type
+              site_id
+              company_id
+              role {
+                role_id
+                role_value
+                role_name
+                role_desc
+              }
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getUserInfos;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function addUser(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation addUser($user: UserInput, $ids: [Int]) {
+          addUser(user: $user, ids: $ids) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.addUser;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
 export async function createCustomer({ customer, type }) {
   return client
     .mutate({
@@ -404,6 +485,7 @@ export async function querySiteList(params) {
               site_mobile
               site_type
               company_id
+              site_orderprefix
             }
           }
         }
@@ -422,18 +504,12 @@ export async function querySiteList(params) {
 // site
 export async function addSite(params) {
   return client
-    .query({
-      query: gql`
-        query getSites($pageNo: Int, $pageSize: Int, $filter: SiteInput) {
-          getSites(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
-            total
-            sites {
-              site_id
-              site_name
-              site_mobile
-              site_type
-              company_id
-            }
+    .mutate({
+      mutation: gql`
+        mutation addSite($ids: [Int], $site: SiteInput) {
+          addSite(ids: $ids, site: $site) {
+            code
+            msg
           }
         }
       `,
@@ -441,36 +517,7 @@ export async function addSite(params) {
     })
     .then(data => {
       gotoLogin(data);
-      return data.data.getSites;
-    })
-    .catch(error => {
-      message.error('系统繁忙，请稍后再试');
-    });
-}
-
-// site
-export async function updateSite(params) {
-  return client
-    .query({
-      query: gql`
-        query getSites($pageNo: Int, $pageSize: Int, $filter: SiteInput) {
-          getSites(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
-            total
-            sites {
-              site_id
-              site_name
-              site_mobile
-              site_type
-              company_id
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getSites;
+      return data.data.addSite;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');

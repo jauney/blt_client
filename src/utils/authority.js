@@ -6,7 +6,7 @@ export function getAuthority(str) {
   let authority;
   try {
     authority = JSON.parse(authorityString);
-    authority = authority.map(item => item.role_name);
+    authority = authority.map(item => item.role_value);
   } catch (e) {
     authority = authorityString;
   }

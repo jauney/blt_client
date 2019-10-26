@@ -1,51 +1,50 @@
-import { query as queryUsers, queryCurrent } from '@/services/user';
+import { addUser, getUserInfos, getRoleList } from '@/services/api';
+import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../utils/storage';
 
 export default {
   namespace: 'user',
-
   state: {
-    list: [],
-    currentUser: {},
+    userList: [],
+    total: 0,
+    roleList: [],
+    roleTotal: 0,
   },
-
   effects: {
-    *fetch(_, { call, put }) {
-      const response = yield call(queryUsers);
+    *getUserListAction({ payload }, { call, put }) {
+      const response = yield call(getUserInfos, payload);
       yield put({
-        type: 'save',
+        type: 'getUserListReducer',
         payload: response,
       });
+
+      return response;
     },
-    *fetchCurrent(_, { call, put }) {
-      const response = yield call(queryCurrent);
+    *getRoleListAction({ payload }, { call, put }) {
+      const response = yield call(getRoleList, payload);
       yield put({
-        type: 'saveCurrentUser',
+        type: 'getRoleListReducer',
         payload: response,
       });
+
+      return response;
+    },
+    *addUserAction({ payload }, { call, put }) {
+      const response = yield call(addUser, payload);
+      return response;
     },
   },
 
   reducers: {
-    save(state, action) {
+    getUserListReducer(state, action) {
       return {
         ...state,
-        list: action.payload,
+        ...action.payload,
       };
     },
-    saveCurrentUser(state, action) {
+    getRoleListReducer(state, action) {
       return {
         ...state,
-        currentUser: action.payload || {},
-      };
-    },
-    changeNotifyCount(state, action) {
-      return {
-        ...state,
-        currentUser: {
-          ...state.currentUser,
-          notifyCount: action.payload.totalCount,
-          unreadCount: action.payload.unreadCount,
-        },
+        ...action.payload,
       };
     },
   },

@@ -58,12 +58,13 @@ class AddFormDialog extends PureComponent {
     const { addFormDataHandle, form, record = {} } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      fieldsValue.trans_regional_ratio = Number(fieldsValue.trans_regional_ratio || 1);
+
       const data = {
-        company: fieldsValue,
+        user: fieldsValue,
       };
-      if (record.company_id) {
-        data.ids = [record.company_id];
+      if (record.user_id) {
+        data.ids = [record.user_id];
+        fieldsValue.user_id = record.user_id;
       }
       addFormDataHandle(data);
     });
@@ -83,11 +84,11 @@ class AddFormDialog extends PureComponent {
   };
 
   render() {
-    const { modalVisible, onCancelHandler, record, form } = this.props;
+    const { modalVisible, onCancelHandler, record, form, roleList } = this.props;
     return (
       <Modal
         destroyOnClose
-        title="添加公司"
+        title="添加用户"
         visible={modalVisible}
         onCancel={() => onCancelHandler()}
         footer={[
@@ -104,39 +105,50 @@ class AddFormDialog extends PureComponent {
         <Form>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="公司名称">
-                {form.getFieldDecorator('company_name', {
-                  initialValue: record.company_name,
-                  rules: [{ required: true, message: '请填写公司名称' }],
+              <FormItem {...this.formItemLayout} label="用户名">
+                {form.getFieldDecorator('user_name', {
+                  initialValue: record.user_name,
+                  rules: [{ required: true, message: '请填写用户名' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="地域系数">
-                {form.getFieldDecorator('trans_regional_ratio', {
-                  initialValue: record.trans_regional_ratio,
-                  rules: [{ required: true, message: '请填写地域系数，如：1, 1.1, 0.9' }],
+              <FormItem {...this.formItemLayout} label="用户密码">
+                {form.getFieldDecorator('user_pass', {
+                  initialValue: record.user_pass ? '******' : '',
+                  rules: [{ required: true, message: '请填写用户密码' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="公司电话">
-                {form.getFieldDecorator('company_mobile', {
-                  initialValue: record.company_mobile,
-                  rules: [{ required: true, message: '请填写公司电话' }],
-                })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
+              <FormItem {...this.formItemLayout} label="用户角色">
+                {form.getFieldDecorator('role_id', {
+                  initialValue: record.role_id,
+                  rules: [{ required: true, message: '请选择用户角色' }],
+                })(
+                  <Select placeholder="请选择" style={{ width: '150px' }}>
+                    {roleList.map(ele => {
+                      return (
+                        <Option key={ele.role_id} value={ele.role_id}>
+                          {ele.role_name}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                )}
               </FormItem>
             </Col>
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="地址">
-                {form.getFieldDecorator('company_address', {
-                  initialValue: record.company_address,
+              <FormItem {...this.formItemLayout} label="用户电话">
+                {form.getFieldDecorator('user_mobile', {
+                  initialValue: record.user_mobile,
+                  rules: [{ required: true, message: '请填写用户电话' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
             </Col>
@@ -148,9 +160,11 @@ class AddFormDialog extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, loading }) => {
+@connect(({ customer, user, site, company, loading }) => {
   return {
     customer,
+    user,
+    site,
     company,
     loading: loading.models.rule,
   };
@@ -170,22 +184,22 @@ class TableList extends PureComponent {
 
   columns = [
     {
-      title: '公司名称',
-      dataIndex: 'company_name',
+      title: '用户名',
+      dataIndex: 'user_name',
     },
     {
-      title: '公司电话',
-      dataIndex: 'company_mobile',
+      title: '用户电话',
+      dataIndex: 'user_mobile',
       sorter: true,
     },
     {
-      title: '地域系数',
-      dataIndex: 'trans_regional_ratio',
+      title: '站点',
+      dataIndex: 'site_name',
       sorter: true,
     },
     {
-      title: '地址',
-      dataIndex: 'company_address',
+      title: '角色',
+      dataIndex: 'role.role_name',
       sorter: true,
     },
   ];
@@ -193,12 +207,13 @@ class TableList extends PureComponent {
   async componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'company/getBranchCompanyList',
-      payload: { company_type: 1 },
+      type: 'company/getCompanyList',
+      payload: { filter: {} },
     });
-
-    // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
-    this.getOrderList();
+    dispatch({
+      type: 'user/getRoleListAction',
+      payload: {},
+    });
   }
 
   handleSelectRows = rows => {
@@ -229,14 +244,14 @@ class TableList extends PureComponent {
 
   onCompanySelect = async (value, option) => {
     const {
-      company: { branchCompanyList },
+      company: { companyList },
       form,
     } = this.props;
 
     // 获取当前公司的站点
     this.fetchCompanySiteList(value);
 
-    const currentCompany = branchCompanyList.filter(item => {
+    const currentCompany = companyList.filter(item => {
       if (item.company_id == value) {
         return item;
       }
@@ -250,10 +265,10 @@ class TableList extends PureComponent {
 
   onSiteSelect = async (value, option) => {
     const {
-      site: { normalSiteList = [] },
+      site: { siteList = [] },
     } = this.props;
 
-    const currentSite = normalSiteList.filter(item => {
+    const currentSite = siteList.filter(item => {
       if (item.site_id == value) {
         return item;
       }
@@ -263,8 +278,6 @@ class TableList extends PureComponent {
         currentSite: currentSite[0],
       });
     }
-    // 重新获取支出类型
-    this.fetchExpenseTypeList({ siteId: value });
   };
 
   handleSearch = e => {
@@ -278,14 +291,17 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize, currentCompany } = this.state;
+    const { current, pageSize, currentCompany = {} } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
+      const param = { company_id: currentCompany.company_id };
+      if (currentCompany.company_type == 1 && fieldsValue.site_id) {
+        param.site_id = fieldsValue.site_id;
+      }
       dispatch({
-        type: 'company/getBranchCompanyList',
-        payload: { company_type: 1 },
+        type: 'user/getUserListAction',
+        payload: { pageNo: pageNo || current, pageSize, filter: param },
       });
     });
   };
@@ -322,13 +338,20 @@ class TableList extends PureComponent {
   };
 
   // 添加支出
-  addFormDataHandle = async ({ company, ids }) => {
+  addFormDataHandle = async ({ user, ids }) => {
     const { dispatch } = this.props;
+    const { currentCompany = {}, currentSite = {} } = this.state;
 
+    if (!user.company_id) {
+      user.company_id = currentCompany.company_id;
+    }
+    if (!user.site_id && currentCompany.company_type == 1 && currentSite.site_id) {
+      user.site_id = currentSite.site_id;
+    }
     const result = await dispatch({
-      type: 'company/addCompany',
+      type: 'user/addUserAction',
       payload: {
-        company,
+        user,
         ids,
       },
     });
@@ -343,6 +366,13 @@ class TableList extends PureComponent {
 
   // 打开添加对话框
   onAddClick = async () => {
+    const { currentCompany = {}, currentSite = {} } = this.state;
+    if (!currentCompany.company_id) {
+      Modal.info({
+        content: '请先选择公司',
+      });
+      return;
+    }
     this.setState({
       addModalVisible: true,
       record: {},
@@ -421,31 +451,75 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      company: { branchCompanyList, branchTotal },
+      company: { companyList },
+      user: { userList, total, roleList },
+      site: { siteList, siteTotal },
       loading,
     } = this.props;
 
-    const { selectedRows, current, pageSize, addModalVisible, record } = this.state;
+    const { selectedRows, current, pageSize, addModalVisible, record, currentCompany } = this.state;
 
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={() => this.onAddClick(true)}>
-                添加
-              </Button>
+              <Form onSubmit={this.handleSearch} layout="inline">
+                <FormItem label="公司">
+                  <Select
+                    placeholder="请选择"
+                    onSelect={this.onCompanySelect}
+                    style={{ width: '150px' }}
+                  >
+                    {companyList.map(ele => {
+                      return (
+                        <Option key={ele.company_id} value={ele.company_id}>
+                          {ele.company_name}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                </FormItem>
+                {currentCompany.company_type == 1 && (
+                  <FormItem label="站点">
+                    <Select
+                      placeholder="请选择"
+                      onSelect={this.onSiteSelect}
+                      style={{ width: '150px' }}
+                      allowClear
+                    >
+                      {siteList.map(ele => {
+                        return (
+                          <Option key={ele.site_id} value={ele.site_id}>
+                            {ele.site_name}
+                          </Option>
+                        );
+                      })}
+                    </Select>
+                  </FormItem>
+                )}
+                <FormItem>
+                  <Button type="primary" htmlType="submit">
+                    查询
+                  </Button>
+                </FormItem>
+                <FormItem>
+                  <Button icon="plus" type="primary" onClick={() => this.onAddClick(true)}>
+                    添加
+                  </Button>
+                </FormItem>
+              </Form>
             </div>
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
               scroll={{ x: 900 }}
-              rowKey="company_id"
+              rowKey="user_id"
               data={{
-                list: branchCompanyList,
+                list: userList,
                 pagination: {
-                  branchTotal,
+                  total,
                   pageSize,
                   current,
                 },
@@ -474,6 +548,7 @@ class TableList extends PureComponent {
           onCancelHandler={this.onCancelModalClick}
           record={record}
           selectedRows={selectedRows}
+          roleList={roleList}
         />
       </div>
     );

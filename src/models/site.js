@@ -6,8 +6,11 @@ export default {
   state: {
     // site_type: 1 普通站点， 2 装载站点
     siteList: [],
+    siteTotal: 0,
     entrunkSiteList: [],
+    entrunkSiteTotal: 0,
     normalSiteList: [],
+    normalSiteTotal: 0,
     site: {},
   },
 
@@ -39,11 +42,7 @@ export default {
     },
     *addSite({ payload }, { call, put }) {
       const response = yield call(addSite, payload);
-
-      yield put({
-        type: 'addSite',
-        payload: response ? [response] : [],
-      });
+      return response;
     },
   },
 
@@ -62,8 +61,11 @@ export default {
       return {
         ...state,
         siteList: action.payload,
+        siteTotal: action.payload.length,
         normalSiteList,
+        normalSiteTotal: normalSiteList.length,
         entrunkSiteList,
+        entrunkSiteTotal: entrunkSiteList.length,
         site: JSON.parse(localStorage.getItem('site') || '{}'),
       };
     },
@@ -77,12 +79,6 @@ export default {
       return {
         ...state,
         normalSiteList: action.payload,
-      };
-    },
-    addSite(state, action) {
-      return {
-        ...state,
-        site: action.payload,
       };
     },
   },

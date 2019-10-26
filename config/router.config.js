@@ -252,6 +252,16 @@ export default [
             name: 'companymng',
             component: './System/Company',
           },
+          {
+            path: '/system/site',
+            name: 'sitemng',
+            component: './System/Site',
+          },
+          {
+            path: '/system/user',
+            name: 'usermng',
+            component: './System/User',
+          },
         ],
       },
       {
