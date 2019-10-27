@@ -173,6 +173,9 @@ class TableList extends PureComponent {
       title: '站点类型',
       dataIndex: 'site_type',
       sorter: true,
+      render: val => {
+        return val == 1 ? '普通站点' : '装配站';
+      },
     },
     {
       title: '订单号前缀',

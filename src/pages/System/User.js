@@ -373,6 +373,14 @@ class TableList extends PureComponent {
       });
       return;
     }
+
+    if (currentCompany.company_type == 1 && !currentSite.site_id) {
+      Modal.info({
+        content: '请先选择站点',
+      });
+      return;
+    }
+
     this.setState({
       addModalVisible: true,
       record: {},

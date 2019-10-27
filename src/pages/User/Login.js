@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi/locale';
 import Link from 'umi/link';
-import { Checkbox, Alert, Icon } from 'antd';
+import { Checkbox, Alert, Icon, message } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
 
@@ -39,18 +39,21 @@ class LoginPage extends Component {
       });
     });
 
-  handleSubmit = (err, values) => {
-    console.log(values);
+  handleSubmit = async (err, values) => {
     const { type } = this.state;
     if (!err) {
       const { dispatch } = this.props;
-      dispatch({
+      const result = await dispatch({
         type: 'login/login',
         payload: {
           ...values,
           type,
         },
       });
+
+      if (result && result.code == 1001) {
+        message.error(result.msg);
+      }
     }
   };
 

@@ -944,8 +944,10 @@ class CreateEntrunkForm extends PureComponent {
       <Form layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={12} sm={24}>
-            <FormItem label="装回">
-              {getFieldDecorator('shipsite_id', {})(
+            <FormItem label="配载站">
+              {getFieldDecorator('shipsite_id', {
+                rules: [{ required: true, message: '请选择配载站' }],
+              })(
                 <Select placeholder="请选择" style={{ width: '150px' }}>
                   {entrunkSiteList.map(ele => {
                     return (
@@ -960,7 +962,9 @@ class CreateEntrunkForm extends PureComponent {
           </Col>
           <Col md={12} sm={24}>
             <FormItem label="接货人">
-              {getFieldDecorator('receiver_id', {})(
+              {getFieldDecorator('receiver_id', {
+                rules: [{ required: true, message: '请选择接货人' }],
+              })(
                 <Select placeholder="请选择" style={{ width: '150px' }}>
                   {receiverList.map(ele => {
                     return (
@@ -1209,7 +1213,7 @@ class TableList extends PureComponent {
 
     dispatch({
       type: 'receiver/getReceiverListAction',
-      payload: { pageNo: 1, pageSize: 100, type: 1, filter: {} },
+      payload: { pageNo: 1, pageSize: 100, type: 'receiver', filter: {} },
     });
 
     dispatch({

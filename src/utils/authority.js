@@ -16,7 +16,7 @@ export function getAuthority(str) {
   return authority || ['admin'];
 }
 
-export function setAuthority(loginData) {
+export function setAuthority(loginData = {}) {
   // TODO: 登录后，同时获取当前用户的角色，用于权限控制
   localStorage.setItem('role', JSON.stringify(loginData.roles || []));
   localStorage.setItem('user', JSON.stringify(loginData.user || {}));

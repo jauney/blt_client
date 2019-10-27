@@ -15,7 +15,9 @@ export default {
   effects: {
     *login({ payload }, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
-
+      if (response.code == 1001) {
+        return response;
+      }
       yield put({
         type: 'changeLoginStatus',
         payload: response,
@@ -59,12 +61,13 @@ export default {
       });
       reloadAuthorized();
       yield put(
-        routerRedux.push({
-          pathname: '/user/login',
-          search: stringify({
-            redirect: window.location.href,
-          }),
-        })
+        window.location.replace('/user/login')
+        // routerRedux.push({
+        //   pathname: '/user/login',
+        //   search: stringify({
+        //     redirect: window.location.href,
+        //   }),
+        // })
       );
     },
   },

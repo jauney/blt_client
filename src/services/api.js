@@ -82,6 +82,7 @@ export async function fakeAccountLogin(params) {
             roles {
               role_id
               role_name
+              role_value
               role_desc
             }
           }
@@ -90,7 +91,9 @@ export async function fakeAccountLogin(params) {
       variables: params,
     })
     .then(data => {
-      gotoLogin(data);
+      if (data.errors && data.errors.length > 0 && data.errors[0].message == 'login') {
+        return { code: 1001, msg: '用户名密码错误' };
+      }
       return data.data.login;
     })
     .catch(error => {
@@ -1301,8 +1304,8 @@ export async function queryReceiverList(params) {
   return client
     .query({
       query: gql`
-        query getCouriers($pageNo: Int, $pageSize: Int, $filter: CourierInput, $type: Int) {
-          getCouriers(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, type: $type) {
+        query getCourierList($pageNo: Int, $pageSize: Int, $filter: CourierInput, $type: String) {
+          getCourierList(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, type: $type) {
             total
             couriers {
               courier_id
@@ -1316,7 +1319,7 @@ export async function queryReceiverList(params) {
     .then(data => {
       console.log(data);
       gotoLogin(data);
-      return data.data.getCouriers;
+      return data.data.getCourierList;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');
