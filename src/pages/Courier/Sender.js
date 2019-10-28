@@ -151,6 +151,7 @@ class TableList extends PureComponent {
     updateOrderModalVisible: false,
     downloadModalVisible: false,
     addFormModalVisible: false,
+    addCourierModalVisible: false,
     currentCompany: {},
   };
 
@@ -795,6 +796,7 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
+              <Button onClick={this.onAddSenderModal}>添加送货人</Button>
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onUpdateSenderModal}>更改送货人</Button>

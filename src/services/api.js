@@ -175,26 +175,18 @@ export async function createCourier({ courier, type }) {
     });
 }
 
-export async function updateCourier({ courier, courier_id, type }) {
-  if (courier.courier) {
-    courier_id = [courier.courier_id];
-    courier = courier.courier;
-  }
-
-  if (!courier_id) {
-    courier_id = [courier.courier_id];
-  }
+export async function updateCourier({ courier, ids, type }) {
   return client
     .mutate({
       mutation: gql`
-        mutation updateCourier($courier_id: [Int], $courier: CourierInput, $type: Int) {
-          updateCourier(courier_id: $courier_id, courier: $courier, type: $type) {
+        mutation updateCourier($ids: [Int], $courier: CourierInput, $type: String) {
+          updateCourier(ids: $ids, courier: $courier, type: $type) {
             code
             msg
           }
         }
       `,
-      variables: { courier_id, courier, type },
+      variables: { ids, courier, type },
     })
     .then(data => {
       console.log(data);

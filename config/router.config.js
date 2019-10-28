@@ -277,23 +277,38 @@ export default [
         path: '/system',
         name: 'system',
         icon: 'profile',
-        authority: ['admin'],
+        authority: ['admin', 'site_admin', 'company_admin'],
         routes: [
           // transfer
           {
             path: '/system/company',
             name: 'companymng',
             component: './System/Company',
+            authority: ['admin'],
           },
           {
             path: '/system/site',
             name: 'sitemng',
             component: './System/Site',
+            authority: ['admin'],
           },
           {
             path: '/system/user',
             name: 'usermng',
             component: './System/User',
+            authority: ['admin'],
+          },
+          {
+            path: '/system/sender',
+            name: 'sendermng',
+            component: './System/Sender',
+            authority: ['company_admin'],
+          },
+          {
+            path: '/system/receiver',
+            name: 'receivermng',
+            component: './System/Receiver',
+            authority: ['site_admin'],
           },
         ],
       },

@@ -43,6 +43,8 @@ export default {
   'menu.system.companymng': '公司管理',
   'menu.system.sitemng': '站点管理',
   'menu.system.usermng': '用户管理',
+  'menu.system.sendermng': '送货人管理',
+  'menu.system.receivermng': '收货人管理',
   'menu.system.systemconfig': '系统配置',
   'menu.exception': '异常页',
   'menu.exception.not-permission': '403',

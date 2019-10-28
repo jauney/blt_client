@@ -4,7 +4,7 @@ import {
   getOperatorList,
   removeCourier,
   createCourier,
-  updateCuourier,
+  updateCourier,
   updateCustomerCourier,
   getOrderStatistic,
   getOrderList,
