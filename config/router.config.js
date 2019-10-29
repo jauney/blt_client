@@ -39,7 +39,6 @@ export default [
             path: '/order/trunkedorder',
             name: 'trunkedorder',
             component: './Order/TrunkedOrder',
-            authority: ['site_orderuser', 'site_admin'],
           },
           {
             path: '/order/orderlist',

@@ -303,6 +303,7 @@ export async function getRoleList(params) {
               role_name
               role_value
               role_desc
+              company_type
             }
           }
         }
@@ -1238,18 +1239,19 @@ export async function changeOrderReceiver(params) {
     });
 }
 
-export async function updateCarFee(params) {
+export async function updateCarFee({ car = {} }) {
+  delete car['__typename'];
   return client
     .mutate({
       mutation: gql`
-        mutation updateCarFee($car_id: Int, $car_fee: Float) {
-          updateCarFee(car_id: $car_id, car_fee: $car_fee) {
+        mutation updateCarFee($car: CarInput) {
+          updateCarFee(car: $car) {
             code
             msg
           }
         }
       `,
-      variables: params,
+      variables: { car },
     })
     .then(data => {
       gotoLogin(data);

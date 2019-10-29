@@ -1458,7 +1458,7 @@ class TableList extends PureComponent {
 
         <FormItem label="经办人">
           {getFieldDecorator('operator_id', { initialValue: CacheUser.user_id })(
-            <Select placeholder="请选择" style={{ width: '150px' }}>
+            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
               <Option value={CacheUser.user_id} selected>
                 {CacheUser.user_name}
               </Option>

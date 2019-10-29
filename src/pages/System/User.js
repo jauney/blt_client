@@ -84,7 +84,7 @@ class AddFormDialog extends PureComponent {
   };
 
   render() {
-    const { modalVisible, onCancelHandler, record, form, roleList } = this.props;
+    const { modalVisible, onCancelHandler, record, form, roleList, currentCompany } = this.props;
     return (
       <Modal
         destroyOnClose
@@ -133,9 +133,11 @@ class AddFormDialog extends PureComponent {
                   <Select placeholder="请选择" style={{ width: '150px' }}>
                     {roleList.map(ele => {
                       return (
-                        <Option key={ele.role_id} value={ele.role_id}>
-                          {ele.role_name}
-                        </Option>
+                        ele.company_type == currentCompany.company_type && (
+                          <Option key={ele.role_id} value={ele.role_id}>
+                            {ele.role_name}
+                          </Option>
+                        )
                       );
                     })}
                   </Select>
@@ -557,6 +559,7 @@ class TableList extends PureComponent {
           record={record}
           selectedRows={selectedRows}
           roleList={roleList}
+          currentCompany={currentCompany}
         />
       </div>
     );

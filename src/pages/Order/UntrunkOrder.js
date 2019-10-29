@@ -596,7 +596,7 @@ class TableList extends PureComponent {
 
     dispatch({
       type: 'receiver/getReceiverListAction',
-      payload: { pageNo: 1, pageSize: 100, type: 1, filter: {} },
+      payload: { pageNo: 1, pageSize: 100, type: 'receiver', filter: {} },
     });
 
     // 初始渲染的是否，先加载第一个分公司的收货人信息

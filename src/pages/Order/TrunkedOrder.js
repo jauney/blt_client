@@ -168,9 +168,10 @@ class CreateEntrunkForm extends PureComponent {
       if (err) return;
 
       fieldsValue.car_fee = Number(fieldsValue.car_fee);
+      fieldsValue.confirm = 1;
       const result = await dispatch({
         type: 'trunkedorder/updateCarFeeAction',
-        payload: Object.assign(lastCar, fieldsValue),
+        payload: { car: Object.assign(lastCar, fieldsValue) },
       });
 
       if (result.code == 0) {
@@ -371,12 +372,7 @@ class TableList extends PureComponent {
         currentCompany: branchCompanyList[0],
       });
 
-      await dispatch({
-        type: 'car/getLastCarCodeAction',
-        payload: {
-          company_id: branchCompanyList[0].company_id,
-        },
-      });
+      await this.getLastCarInfo(branchCompanyList[0].company_id);
     }
 
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
@@ -459,17 +455,11 @@ class TableList extends PureComponent {
       dispatch,
       company: { branchCompanyList },
       form,
-      car: { lastCar },
     } = this.props;
 
     // 自动更新货车编号
-    const carInfo = await dispatch({
-      type: 'car/getLastCarCodeAction',
-      payload: {
-        company_id: value,
-      },
-    });
-    console.log(carInfo);
+    const carInfo = await this.getLastCarInfo(value);
+
     form.setFieldsValue({
       car_code: carInfo.car_code,
     });
@@ -484,6 +474,19 @@ class TableList extends PureComponent {
         currentCompany: currentCompany[0],
       });
     }
+  };
+
+  getLastCarInfo = async companyId => {
+    const { dispatch } = this.props;
+    const { currentCompany = {} } = this.state;
+    const carInfo = await dispatch({
+      type: 'car/getLastCarCodeAction',
+      payload: {
+        company_id: companyId || currentCompany.company_id,
+      },
+    });
+
+    return carInfo;
   };
 
   handleSearch = e => {
@@ -577,6 +580,7 @@ class TableList extends PureComponent {
         },
       });
       this.onDepartCancel();
+      this.handleSearch();
     } else {
       message.error(result.msg);
     }
@@ -717,10 +721,42 @@ class TableList extends PureComponent {
   /**
    * 装车弹窗
    */
-  onEntrunkModalShow = () => {
+  onCarFeeModalShow = () => {
     this.setState({
       entrunkModalVisible: true,
     });
+  };
+
+  /**
+   * 取消运费结算
+   */
+  onCancelCarFeeConfirmModalShow = () => {
+    const {
+      car: { lastCar },
+    } = this.props;
+    Modal.confirm({
+      title: '确认',
+      content: `确定要取消第 ${lastCar.car_code} 车的运费么`,
+      okText: '确认',
+      cancelText: '取消',
+      onOk: this.onCancelCarFeeConfirm,
+    });
+  };
+
+  onCancelCarFeeConfirm = async () => {
+    const {
+      dispatch,
+      car: { lastCar },
+    } = this.props;
+    const result = await dispatch({
+      type: 'trunkedorder/updateCarFeeAction',
+      payload: { car: Object.assign(lastCar, { confirm: 0 }) },
+    });
+
+    if (result.code == 0) {
+      message.success('取消运费结算成功');
+      this.getLastCarInfo();
+    }
   };
 
   onEntrunkModalCancel = () => {
@@ -737,15 +773,13 @@ class TableList extends PureComponent {
       site: { entrunkSiteList, normalSiteList },
       car: { lastCar },
     } = this.props;
-    const companyOption = {};
+    const { currentCompany = {} } = this.state;
     // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
-    }
+
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
-          {getFieldDecorator('company_id', companyOption)(
+          {getFieldDecorator('company_id', { initialValue: currentCompany.company_id })(
             <Select
               placeholder="请选择"
               onSelect={this.onCompanySelect}
@@ -835,9 +869,16 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button type="primary" onClick={this.onEntrunkModalShow}>
-                货车运费结算
-              </Button>
+              {lastCar.confirm == 0 && (
+                <Button type="primary" onClick={this.onCarFeeModalShow}>
+                  货车运费结算
+                </Button>
+              )}
+              {lastCar.confirm == 1 && (
+                <Button type="primary" onClick={this.onCancelCarFeeConfirmModalShow}>
+                  取消货车运费结算
+                </Button>
+              )}
               {lastCar.car_status < 3 && <Button onClick={this.onDepark}>发车</Button>}
               {lastCar.car_status == 3 && <Button onClick={this.onCancelDepark}>取消发车</Button>}
               {lastCar.car_status == 3 && <Button onClick={this.onArrive}>到车确认</Button>}
