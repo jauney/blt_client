@@ -42,12 +42,12 @@ class AddFormDialog extends PureComponent {
     };
     this.formItemLayout = {
       labelCol: {
-        xs: { span: 18 },
-        sm: { span: 5 },
+        xs: { span: 6 },
+        sm: { span: 3 },
       },
       wrapperCol: {
-        xs: { span: 18 },
-        sm: { span: 8 },
+        xs: { span: 30 },
+        sm: { span: 20 },
       },
     };
   }
@@ -57,8 +57,38 @@ class AddFormDialog extends PureComponent {
   onAddHandler = () => {
     const { addFormDataHandle, form, record = {} } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) return;
+      if (err) {
+        const ratios = ['1', '2', '3'];
+        for (let i = 0; i < 3; i++) {
+          const index = ratios[i];
+          if (err[`sendfee_ratio_${index}`]) {
+            const error = err[`sendfee_ratio_${index}`].errors[0] || {};
+            message.error(error.message);
+            return;
+          }
+        }
+        return;
+      }
+
       fieldsValue.trans_regional_ratio = Number(fieldsValue.trans_regional_ratio || 1);
+      fieldsValue.remember_sender = Number(fieldsValue.remember_sender);
+      fieldsValue.late_fee_days = Number(fieldsValue.late_fee_days);
+      fieldsValue.late_fee_beginamount = Number(fieldsValue.late_fee_beginamount);
+      fieldsValue.late_fee_rate = Number(fieldsValue.late_fee_rate);
+      fieldsValue.rewards_24h = Number(fieldsValue.rewards_24h);
+      fieldsValue.rewards_48h = Number(fieldsValue.rewards_48h);
+      fieldsValue.rewards_72h = Number(fieldsValue.rewards_72h);
+      fieldsValue.alarm_days = Number(fieldsValue.alarm_days);
+      fieldsValue.agency_fee = Number(fieldsValue.agency_fee);
+      fieldsValue.bonus_type = Number(fieldsValue.bonus_type);
+      fieldsValue.sendfee_ratio = Number(fieldsValue[`sendfee_ratio_${fieldsValue.bonus_type}`]);
+      fieldsValue.unsendfee_ratio = Number(
+        fieldsValue[`unsendfee_ratio_${fieldsValue.bonus_type}`]
+      );
+      ['1', '2', '3'].forEach(index => {
+        delete fieldsValue[`sendfee_ratio_${index}`];
+        delete fieldsValue[`unsendfee_ratio_${index}`];
+      });
       const data = {
         company: fieldsValue,
       };
@@ -98,7 +128,7 @@ class AddFormDialog extends PureComponent {
             保 存
           </Button>,
         ]}
-        width={800}
+        width={900}
         className={styles.modalForm}
       >
         <Form>
@@ -114,11 +144,168 @@ class AddFormDialog extends PureComponent {
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="地域系数">
+              <FormItem {...this.formItemLayout} label="分红算法">
+                {form.getFieldDecorator('bonus_type', {
+                  initialValue: record.bonus_type,
+                  rules: [
+                    { required: true, message: '请选择分红算法' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '分红算法格式错误' },
+                  ],
+                })(
+                  <Radio.Group>
+                    <Radio value={1}>
+                      <strong>平分法：</strong> (运费总额-大车运费)/2 + 送货运费 ✕
+                      {form.getFieldDecorator('sendfee_ratio_1', {
+                        initialValue: record.bonus_type == 1 ? record.sendfee_ratio || 0.06 : 0.06,
+                        rules: [
+                          { required: true, message: '请填写送货运费率' },
+                          { pattern: /^\d+(\.\d+)?$/, message: '送货运费率格式错误' },
+                        ],
+                      })(<Input placeholder="" style={{ width: '60px' }} />)}
+                      + 不送货运费 ✕
+                      {form.getFieldDecorator('unsendfee_ratio_1', {
+                        initialValue:
+                          record.bonus_type == 1 ? record.unsendfee_ratio || 0.11 : 0.11,
+                        rules: [
+                          { required: true, message: '请填写不送货运费率' },
+                          { pattern: /^\d+(\.\d+)?$/, message: '不送货运费率格式错误' },
+                        ],
+                      })(<Input placeholder="" style={{ width: '60px' }} />)}
+                      - 西安收运费 + 实收货款 - 打款总额
+                    </Radio>
+                    <Radio value={2}>
+                      <strong>多劳多得：</strong> 运费总额 - 送货运费 ✕
+                      {form.getFieldDecorator('sendfee_ratio_2', {
+                        initialValue: record.bonus_type == 2 ? record.sendfee_ratio || 0.22 : 0.22,
+                        rules: [
+                          { required: true, message: '请填写送货运费率' },
+                          { pattern: /^\d+(\.\d+)?$/, message: '送货运费率格式错误' },
+                        ],
+                      })(<Input placeholder="" style={{ width: '60px' }} />)}
+                      - 不送货运费 ✕
+                      {form.getFieldDecorator('unsendfee_ratio_2', {
+                        initialValue:
+                          record.bonus_type == 2 ? record.unsendfee_ratio || 0.12 : 0.12,
+                        rules: [
+                          { required: true, message: '请填写不送货运费率' },
+                          { pattern: /^\d+(\.\d+)?$/, message: '不送货运费率格式错误' },
+                        ],
+                      })(<Input placeholder="" style={{ width: '60px' }} />)}
+                      - 大车运费 - 西安收运费 + 实收货款 - 打款总额
+                    </Radio>
+                    <Radio value={3}>
+                      <strong>优惠法：</strong> 送货运费 ✕
+                      {form.getFieldDecorator('sendfee_ratio_3', {
+                        initialValue: record.bonus_type == 3 ? record.sendfee_ratio || 0.25 : 0.25,
+                        rules: [
+                          { required: true, message: '请填写送货运费率' },
+                          { pattern: /^\d+(\.\d+)?$/, message: '送货运费率格式错误' },
+                        ],
+                      })(<Input placeholder="" style={{ width: '60px' }} />)}
+                      + 不送货运费 ✕
+                      {form.getFieldDecorator('unsendfee_ratio_3', {
+                        initialValue: record.bonus_type == 3 ? record.unsendfee_ratio || 0.3 : 0.3,
+                        rules: [
+                          { required: true, message: '请填写不送货运费率' },
+                          { pattern: /^\d+(\.\d+)?$/, message: '不送货运费率格式错误' },
+                        ],
+                      })(<Input placeholder="" style={{ width: '60px' }} />)}
+                      - 上站运费 + 实收货款 - 打款总额
+                    </Radio>
+                  </Radio.Group>
+                )}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem {...this.formItemLayout} label="运费费率">
                 {form.getFieldDecorator('trans_regional_ratio', {
-                  initialValue: record.trans_regional_ratio,
-                  rules: [{ required: true, message: '请填写地域系数，如：1, 1.1, 0.9' }],
-                })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
+                  initialValue: record.trans_regional_ratio || 1,
+                  rules: [
+                    { required: true, message: '' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '运费费率格式错误' },
+                  ],
+                })(<Input placeholder="" style={{ width: '80px' }} />)}
+                <strong className="inner-form-label">&nbsp;代办费率：</strong>
+                {form.getFieldDecorator('agency_fee', {
+                  initialValue: record.agency_fee || 0.4,
+                  rules: [
+                    { required: true, message: '' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '代办费率格式错误' },
+                  ],
+                })(<Input placeholder="" style={{ width: '62px' }} />)}
+                &permil;
+                <strong className="inner-form-label">&nbsp;报警天数：</strong>
+                {form.getFieldDecorator('alarm_days', {
+                  initialValue: record.alarm_days || 0,
+                  rules: [
+                    { required: true, message: '' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '报警天数格式错误' },
+                  ],
+                })(<Input placeholder="" style={{ width: '80px' }} />)}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem {...this.formItemLayout} label="24H奖金">
+                {form.getFieldDecorator('rewards_24h', {
+                  initialValue: record.rewards_24h || 1,
+                  rules: [
+                    { required: true, message: '' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '奖金格式错误' },
+                  ],
+                })(<Input placeholder="" style={{ width: '62px' }} />)}
+                &permil;
+                <strong className="inner-form-label">&nbsp;48H奖金：</strong>
+                {form.getFieldDecorator('rewards_48h', {
+                  initialValue: record.rewards_48h || 0.04,
+                  rules: [
+                    { required: true, message: '' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '奖金格式错误' },
+                  ],
+                })(<Input placeholder="" style={{ width: '62px' }} />)}
+                &permil;
+                <strong className="inner-form-label">&nbsp;72H奖金：</strong>
+                {form.getFieldDecorator('rewards_72h', {
+                  initialValue: record.rewards_72h || 0.01,
+                  rules: [
+                    { required: true, message: '' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '奖金格式错误' },
+                  ],
+                })(<Input placeholder="" style={{ width: '80px' }} />)}
+                &permil;
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem {...this.formItemLayout} label="滞纳金天数">
+                {form.getFieldDecorator('late_fee_days', {
+                  initialValue: record.late_fee_days || 12,
+                  rules: [
+                    { required: true, message: '' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '滞纳金格式错误' },
+                  ],
+                })(<Input placeholder="" style={{ width: '80px' }} />)}
+                <strong className="inner-form-label">&nbsp;滞纳金起始金额：</strong>
+                {form.getFieldDecorator('late_fee_beginamount', {
+                  initialValue: record.late_fee_beginamount || 10,
+                  rules: [
+                    { required: true, message: '' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '滞纳金格式错误' },
+                  ],
+                })(<Input placeholder="" style={{ width: '80px' }} />)}
+                <strong className="inner-form-label">&nbsp;滞纳金费率：</strong>
+                {form.getFieldDecorator('late_fee_rate', {
+                  initialValue: record.late_fee_rate || 0.5,
+                  rules: [
+                    { required: true, message: '' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '滞纳金格式错误' },
+                  ],
+                })(<Input placeholder="" style={{ width: '80px' }} />)}
+                &permil;
               </FormItem>
             </Col>
           </Row>
@@ -129,6 +316,16 @@ class AddFormDialog extends PureComponent {
                   initialValue: record.company_mobile,
                   rules: [{ required: true, message: '请填写公司电话' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
+                <strong className="inner-form-label">&nbsp;送货人是否记忆：</strong>
+                {form.getFieldDecorator('remember_sender', {
+                  initialValue: record.remember_sender || 1,
+                  rules: [{ required: true, message: '' }],
+                })(
+                  <Select placeholder="请选择" style={{ width: '100px' }}>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                )}
               </FormItem>
             </Col>
           </Row>

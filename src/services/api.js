@@ -116,6 +116,18 @@ export async function queryCompanyList(params) {
               company_type
               company_mobile
               trans_regional_ratio
+              remember_sender
+              late_fee_days
+              late_fee_beginamount
+              late_fee_rate
+              rewards_24h
+              rewards_48h
+              rewards_72h
+              alarm_days
+              agency_fee
+              bonus_type
+              sendfee_ratio
+              unsendfee_ratio
             }
           }
         }
