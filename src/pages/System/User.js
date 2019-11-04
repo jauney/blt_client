@@ -293,13 +293,13 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize, currentCompany = {} } = this.state;
+    const { current, pageSize, currentCompany = {}, currentSite = {} } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       const param = { company_id: currentCompany.company_id };
-      if (currentCompany.company_type == 1 && fieldsValue.site_id) {
-        param.site_id = fieldsValue.site_id;
+      if (currentCompany.company_type == 1 && currentSite.site_id) {
+        param.site_id = currentSite.site_id;
       }
       dispatch({
         type: 'user/getUserListAction',
@@ -461,6 +461,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
+      form: { getFieldDecorator },
       company: { companyList },
       user: { userList, total, roleList },
       site: { siteList, siteTotal },
@@ -468,7 +469,11 @@ class TableList extends PureComponent {
     } = this.props;
 
     const { selectedRows, current, pageSize, addModalVisible, record, currentCompany } = this.state;
-
+    const companyOption = {};
+    // 默认勾选第一个公司
+    if (companyList.length > 0) {
+      companyOption.initialValue = companyList[0].company_id || '';
+    }
     return (
       <div>
         <Card bordered={false}>
@@ -476,19 +481,21 @@ class TableList extends PureComponent {
             <div className={styles.tableListOperator}>
               <Form onSubmit={this.handleSearch} layout="inline">
                 <FormItem label="公司">
-                  <Select
-                    placeholder="请选择"
-                    onSelect={this.onCompanySelect}
-                    style={{ width: '150px' }}
-                  >
-                    {companyList.map(ele => {
-                      return (
-                        <Option key={ele.company_id} value={ele.company_id}>
-                          {ele.company_name}
-                        </Option>
-                      );
-                    })}
-                  </Select>
+                  {getFieldDecorator('company_id', companyOption)(
+                    <Select
+                      placeholder="请选择"
+                      onSelect={this.onCompanySelect}
+                      style={{ width: '150px' }}
+                    >
+                      {companyList.map(ele => {
+                        return (
+                          <Option key={ele.company_id} value={ele.company_id}>
+                            {ele.company_name}
+                          </Option>
+                        );
+                      })}
+                    </Select>
+                  )}
                 </FormItem>
                 {currentCompany.company_type == 1 && (
                   <FormItem label="站点">

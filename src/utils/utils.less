@@ -1,3 +1,23 @@
+html,
+body {
+  overflow: hidden;
+}
+
+.tableList {
+  :global {
+    .ant-table-body {
+      max-height: 500px;
+      overflow: auto;
+    }
+  }
+  .tableListOperator {
+    margin-bottom: 16px;
+    button {
+      margin-right: 8px;
+    }
+  }
+}
+
 .textOverflow() {
   overflow: hidden;
   text-overflow: ellipsis;
