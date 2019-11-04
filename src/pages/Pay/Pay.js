@@ -409,7 +409,6 @@ class TableList extends PureComponent {
 
   // 下账
   downAccountHandle = async data => {
-    console.log(data);
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -622,7 +621,6 @@ class TableList extends PureComponent {
   };
 
   onUpdateOrderModalCancel = () => {
-    // setTimeout(() => this.addBtn.blur(), 0);
     this.setState({
       updateOrderModalVisible: false,
     });

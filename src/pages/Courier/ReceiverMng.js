@@ -25,7 +25,7 @@ import {
   Tag,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
-import styles from './System.less';
+import styles from './Courier.less';
 const { RangePicker } = DatePicker;
 
 const FormItem = Form.Item;
@@ -88,7 +88,7 @@ class AddFormDialog extends PureComponent {
     return (
       <Modal
         destroyOnClose
-        title="添加送货人"
+        title="添加接货人"
         visible={modalVisible}
         onCancel={() => onCancelHandler()}
         footer={[
@@ -164,7 +164,9 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {}
+  async componentDidMount() {
+    this.fetchCompanySiteList();
+  }
 
   handleSelectRows = rows => {
     this.setState({
@@ -176,7 +178,7 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'site/getSiteListAction',
-      payload: { pageNo: 1, pageSize: 100, filter: { company_id: companyId } },
+      payload: { pageNo: 1, pageSize: 100, filter: { company_id: CacheCompany.company_id } },
     });
   };
 
@@ -241,18 +243,21 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, currentSite } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
+      const filter = { company_id: CacheCompany.company_id };
+      if (currentSite && currentSite.site_id) {
+        filter.site_id = currentSite.site_id;
+      }
       dispatch({
         type: 'courier/getCourierListAction',
         payload: {
           pageNo: pageNo || current,
           pageSize,
-          type: 'sender',
-          filter: { company_id: CacheCompany.company_id },
+          type: 'receiver',
+          filter,
         },
       });
     });
@@ -290,11 +295,16 @@ class TableList extends PureComponent {
   };
 
   // 添加支出
-  addFormDataHandle = async ({ courier, ids }) => {
+  addFormDataHandle = async ({ courier = {}, ids }) => {
     const { dispatch } = this.props;
-    console.log(courier, ids);
+    const { currentSite = {} } = this.state;
     if (!courier.company_id) {
       courier.company_id = CacheCompany.company_id;
+    }
+
+    if (!courier.site_id && currentSite.site_id) {
+      courier.site_id = currentSite.site_id;
+      courier.site_name = currentSite.site_name;
     }
 
     const result = await dispatch({
@@ -302,7 +312,7 @@ class TableList extends PureComponent {
       payload: {
         courier,
         ids,
-        type: 'sender',
+        type: 'receiver',
       },
     });
     if (result && result.code == 0) {
@@ -375,8 +385,8 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      company: { companyList },
-      courier: { senderList, senderTotal },
+      site: { siteList },
+      courier: { receiverList, receiverTotal },
       loading,
     } = this.props;
 
@@ -388,17 +398,17 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListOperator}>
               <Form onSubmit={this.handleSearch} layout="inline">
-                <FormItem label="公司">
+                <FormItem label="站点">
                   <Select
                     placeholder="请选择"
-                    onSelect={this.onCompanySelect}
+                    onSelect={this.onSiteSelect}
                     style={{ width: '150px' }}
-                    defaultValue={CacheCompany.company_id}
+                    allowClear
                   >
-                    {[CacheCompany].map(ele => {
+                    {siteList.map(ele => {
                       return (
-                        <Option key={ele.company_id} value={ele.company_id}>
-                          {ele.company_name}
+                        <Option key={ele.site_id} value={ele.site_id}>
+                          {ele.site_name}
                         </Option>
                       );
                     })}
@@ -423,9 +433,9 @@ class TableList extends PureComponent {
               scroll={{ x: 900 }}
               rowKey="courier_id"
               data={{
-                list: senderList,
+                list: receiverList,
                 pagination: {
-                  senderTotal,
+                  receiverTotal,
                   pageSize,
                   current,
                 },

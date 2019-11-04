@@ -228,6 +228,18 @@ export default [
             component: './Courier/Operator',
             authority: ['company_admin', 'site_admin'],
           },
+          {
+            path: '/courier/sendermng',
+            name: 'sendermng',
+            component: './Courier/SenderMng',
+            authority: ['company_admin'],
+          },
+          {
+            path: '/courier/receivermng',
+            name: 'receivermng',
+            component: './Courier/ReceiverMng',
+            authority: ['site_admin'],
+          },
         ],
       },
       {
@@ -276,7 +288,7 @@ export default [
         path: '/system',
         name: 'system',
         icon: 'profile',
-        authority: ['admin', 'site_admin', 'company_admin'],
+        authority: ['admin'],
         routes: [
           // transfer
           {
@@ -296,18 +308,6 @@ export default [
             name: 'usermng',
             component: './System/User',
             authority: ['admin'],
-          },
-          {
-            path: '/system/sender',
-            name: 'sendermng',
-            component: './System/Sender',
-            authority: ['company_admin'],
-          },
-          {
-            path: '/system/receiver',
-            name: 'receivermng',
-            component: './System/Receiver',
-            authority: ['site_admin'],
           },
         ],
       },

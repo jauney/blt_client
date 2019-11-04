@@ -25,7 +25,7 @@ import {
   Tag,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
-import styles from './System.less';
+import styles from './Courier.less';
 const { RangePicker } = DatePicker;
 
 const FormItem = Form.Item;
@@ -164,9 +164,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
-    this.fetchCompanySiteList();
-  }
+  async componentDidMount() {}
 
   handleSelectRows = rows => {
     this.setState({
@@ -178,7 +176,7 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'site/getSiteListAction',
-      payload: { pageNo: 1, pageSize: 100, filter: { company_id: CacheCompany.company_id } },
+      payload: { pageNo: 1, pageSize: 100, filter: { company_id: companyId } },
     });
   };
 
@@ -243,21 +241,18 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize, currentSite } = this.state;
+    const { current, pageSize } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      const filter = { company_id: CacheCompany.company_id };
-      if (currentSite && currentSite.site_id) {
-        filter.site_id = currentSite.site_id;
-      }
+
       dispatch({
         type: 'courier/getCourierListAction',
         payload: {
           pageNo: pageNo || current,
           pageSize,
-          type: 'receiver',
-          filter,
+          type: 'sender',
+          filter: { company_id: CacheCompany.company_id },
         },
       });
     });
@@ -295,16 +290,11 @@ class TableList extends PureComponent {
   };
 
   // 添加支出
-  addFormDataHandle = async ({ courier = {}, ids }) => {
+  addFormDataHandle = async ({ courier, ids }) => {
     const { dispatch } = this.props;
-    const { currentSite = {} } = this.state;
+    console.log(courier, ids);
     if (!courier.company_id) {
       courier.company_id = CacheCompany.company_id;
-    }
-
-    if (!courier.site_id && currentSite.site_id) {
-      courier.site_id = currentSite.site_id;
-      courier.site_name = currentSite.site_name;
     }
 
     const result = await dispatch({
@@ -312,7 +302,7 @@ class TableList extends PureComponent {
       payload: {
         courier,
         ids,
-        type: 'receiver',
+        type: 'sender',
       },
     });
     if (result && result.code == 0) {
@@ -385,8 +375,8 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      site: { siteList },
-      courier: { receiverList, receiverTotal },
+      company: { companyList },
+      courier: { senderList, senderTotal },
       loading,
     } = this.props;
 
@@ -398,17 +388,17 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListOperator}>
               <Form onSubmit={this.handleSearch} layout="inline">
-                <FormItem label="站点">
+                <FormItem label="公司">
                   <Select
                     placeholder="请选择"
-                    onSelect={this.onSiteSelect}
+                    onSelect={this.onCompanySelect}
                     style={{ width: '150px' }}
-                    allowClear
+                    defaultValue={CacheCompany.company_id}
                   >
-                    {siteList.map(ele => {
+                    {[CacheCompany].map(ele => {
                       return (
-                        <Option key={ele.site_id} value={ele.site_id}>
-                          {ele.site_name}
+                        <Option key={ele.company_id} value={ele.company_id}>
+                          {ele.company_name}
                         </Option>
                       );
                     })}
@@ -433,9 +423,9 @@ class TableList extends PureComponent {
               scroll={{ x: 900 }}
               rowKey="courier_id"
               data={{
-                list: receiverList,
+                list: senderList,
                 pagination: {
-                  receiverTotal,
+                  senderTotal,
                   pageSize,
                   current,
                 },
