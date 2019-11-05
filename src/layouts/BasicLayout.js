@@ -18,7 +18,7 @@ import Login from '../pages/User/Login';
 import PageLoading from '@/components/PageLoading';
 import SiderMenu from '@/components/SiderMenu';
 import { menu, title } from '../defaultSettings';
-
+import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../utils/storage';
 import styles from './BasicLayout.less';
 
 // lazy load SettingDrawer
@@ -196,6 +196,8 @@ class BasicLayout extends React.PureComponent {
             handleMenuCollapse={this.handleMenuCollapse}
             logo={logo}
             isMobile={isMobile}
+            CacheSite={CacheSite}
+            CacheUser={CacheUser}
             {...this.props}
           />
           <Content className={styles.content} style={contentStyle}>

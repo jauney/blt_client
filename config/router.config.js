@@ -52,31 +52,55 @@ export default [
         path: '/account',
         icon: 'form',
         name: 'account',
-        authority: ['company_account', 'company_admin'],
+        authority: ['company_account', 'company_admin', 'site_admin', 'site_orderuser', 'site_pay'],
         routes: [
           {
             path: '/account/unsettle',
             name: 'unsettle',
             component: './Account/UnSettle',
-            authority: ['company_account', 'company_admin'],
+            authority: [
+              'company_account',
+              'company_admin',
+              'site_admin',
+              'site_orderuser',
+              'site_pay',
+            ],
           },
           {
             path: '/account/settle',
             name: 'settle',
             component: './Account/Settle',
-            authority: ['company_account', 'company_admin'],
+            authority: [
+              'company_account',
+              'company_admin',
+              'site_admin',
+              'site_orderuser',
+              'site_pay',
+            ],
           },
           {
             path: '/account/unsettlegoods',
             name: 'unsettlegoods',
             component: './Account/UnSettleGoods',
-            authority: ['company_account', 'company_admin'],
+            authority: [
+              'company_account',
+              'company_admin',
+              'site_admin',
+              'site_orderuser',
+              'site_pay',
+            ],
           },
           {
             path: '/account/accountlist',
             name: 'accountlist',
             component: './Account/AccountList',
-            authority: ['company_account', 'company_admin'],
+            authority: [
+              'company_account',
+              'company_admin',
+              'site_admin',
+              'site_orderuser',
+              'site_pay',
+            ],
           },
         ],
       },
@@ -112,25 +136,43 @@ export default [
         path: '/abnormal',
         icon: 'table',
         name: 'abnormal',
-        authority: ['site_pay', 'site_admin', 'company_account', 'company_admin'],
+        authority: ['site_pay', 'site_admin', 'company_account', 'company_admin', 'site_orderuser'],
         routes: [
           {
             path: '/abnormal/addabnormal',
             name: 'addabnormal',
             component: './Abnormal/AddAbnormal',
-            authority: ['site_pay', 'site_admin', 'company_account', 'company_admin'],
+            authority: [
+              'site_pay',
+              'site_admin',
+              'company_account',
+              'company_admin',
+              'site_orderuser',
+            ],
           },
           {
             path: '/abnormal/unresolvedabnormal',
             name: 'unresolvedabnormal',
             component: './Abnormal/UnResolvedAbnormal',
-            authority: ['site_pay', 'site_admin', 'company_account', 'company_admin'],
+            authority: [
+              'site_pay',
+              'site_admin',
+              'company_account',
+              'company_admin',
+              'site_orderuser',
+            ],
           },
           {
             path: '/abnormal/resolvedabnormal',
             name: 'resolvedabnormal',
             component: './Abnormal/ResolvedAbnormal',
-            authority: ['site_pay', 'site_admin', 'company_account', 'company_admin'],
+            authority: [
+              'site_pay',
+              'site_admin',
+              'company_account',
+              'company_admin',
+              'site_orderuser',
+            ],
           },
         ],
       },
@@ -139,46 +181,47 @@ export default [
         path: '/finance',
         icon: 'table',
         name: 'finance',
-        authority: ['site_admin', 'company_admin'],
+        authority: ['site_admin', 'company_admin', 'site_pay'],
         routes: [
           {
             path: '/finance/income',
             name: 'income',
             component: './Finance/Income',
-            authority: ['site_admin', 'company_admin'],
+            authority: ['site_admin', 'company_admin', 'site_pay'],
           },
           {
             path: '/finance/expense',
             name: 'expense',
             component: './Finance/Expense',
-            authority: ['site_admin', 'company_admin'],
+            authority: ['site_admin', 'company_admin', 'site_pay'],
           },
           {
             path: '/finance/debt',
             name: 'debt',
             component: './Finance/Debt',
-            authority: ['site_admin', 'company_admin'],
+            authority: ['site_admin', 'company_admin', 'site_pay'],
           },
         ],
       },
+      // 打款管理
       {
         path: '/transfer',
         name: 'transfer',
         icon: 'profile',
-        authority: ['site_user', 'site_admin', 'site_pay', 'company_admin', 'company_account'],
+        authority: ['site_user', 'site_admin', 'site_pay', 'company_admin', 'site_orderuser'],
         routes: [
           // transfer
           {
             path: '/transfer/company',
             name: 'company',
             component: './Transfer/Company',
-            authority: ['site_user', 'site_admin', 'site_pay', 'company_admin', 'company_account'],
+            authority: ['site_user', 'site_admin', 'site_pay', 'company_admin'],
           },
           {
             path: '/transfer/site',
             name: 'site',
             component: './Transfer/Site',
-            authority: ['site_user', 'site_admin', 'site_pay'],
+            authority: ['site_user', 'site_admin', 'site_pay', 'site_orderuser'],
           },
         ],
       },
@@ -186,20 +229,20 @@ export default [
         path: '/customer',
         name: 'customer',
         icon: 'profile',
-        authority: ['company_admin', 'site_admin'],
+        authority: ['company_admin', 'company_account', 'site_admin', 'site_orderuser', 'site_pay'],
         routes: [
           // transfer
           {
             path: '/customer/getcustomer',
             name: 'getcustomer',
             component: './Customer/GetCustomer',
-            authority: ['company_admin'],
+            authority: ['company_admin', 'company_account'],
           },
           {
             path: '/customer/sendcustomer',
             name: 'sendcustomer',
             component: './Customer/SendCustomer',
-            authority: ['site_admin'],
+            authority: ['site_admin', 'site_orderuser', 'site_pay'],
           },
         ],
       },
@@ -207,14 +250,14 @@ export default [
         path: '/courier',
         name: 'courier',
         icon: 'profile',
-        authority: ['company_admin', 'site_admin', 'site_admin'],
+        authority: ['company_admin', 'site_admin', 'company_account'],
         routes: [
           // transfer
           {
             path: '/courier/sender',
             name: 'sender',
             component: './Courier/Sender',
-            authority: ['company_admin'],
+            authority: ['company_admin', 'company_account'],
           },
           {
             path: '/courier/receiver',
@@ -226,13 +269,13 @@ export default [
             path: '/courier/operator',
             name: 'operator',
             component: './Courier/Operator',
-            authority: ['company_admin', 'site_admin'],
+            authority: ['company_admin', 'site_admin', 'company_account'],
           },
           {
             path: '/courier/sendermng',
             name: 'sendermng',
             component: './Courier/SenderMng',
-            authority: ['company_admin'],
+            authority: ['company_admin', 'company_account'],
           },
           {
             path: '/courier/receivermng',
@@ -246,14 +289,14 @@ export default [
         path: '/search',
         name: 'search',
         icon: 'profile',
-        authority: ['company_admin', 'site_admin', 'site_pay', 'company_account'],
+        authority: ['company_admin', 'site_admin', 'site_pay'],
         routes: [
           // transfer
           {
             path: '/search/account',
             name: 'todayaccount',
             component: './Search/Account',
-            authority: ['company_admin', 'site_admin', 'site_pay', 'company_account'],
+            authority: ['company_admin', 'site_admin', 'site_pay'],
           },
           {
             path: '/search/stock',
@@ -267,20 +310,20 @@ export default [
         path: '/transconfirm',
         name: 'transconfirm',
         icon: 'profile',
-        authority: ['company_admin', 'site_admin', 'site_pay', 'company_account'],
+        authority: ['site_admin', 'site_pay'],
         routes: [
           // transfer
           {
             path: '/transconfirm/transunconfirm',
             name: 'transunconfirm',
             component: './TransConfirm/TransUnconfirm',
-            authority: ['company_admin', 'site_admin', 'site_pay', 'company_account'],
+            authority: ['site_pay'],
           },
           {
             path: '/transconfirm/transconfirmed',
             name: 'transconfirmed',
             component: './TransConfirm/TransConfirmed',
-            authority: ['company_admin', 'site_admin', 'site_pay', 'company_account'],
+            authority: ['site_pay'],
           },
         ],
       },
