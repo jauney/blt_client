@@ -430,11 +430,6 @@ export async function createCustomer({ customer, type }) {
 }
 
 export async function updateCustomer({ customer, customer_id, type }) {
-  if (customer.customer) {
-    customer_id = [customer.customer_id];
-    customer = customer.customer;
-  }
-
   if (!customer_id) {
     customer_id = [customer.customer_id];
   }
@@ -476,6 +471,7 @@ export async function queryCustomerList(params) {
               customer_mobile
               trans_vip_ratio
               customer_type
+              customertype_name
               customerMobiles {
                 mobile
                 mobile_id
@@ -862,6 +858,7 @@ export async function getCustomerList(params) {
               customer_name
               customer_address
               customer_type
+              customertype_name
               customer_mobile
               bank_account
               company_id
@@ -1001,6 +998,7 @@ export async function getOrderList(params) {
               abnormal_remark
               abnormal_type_id
               abnormal_status
+              abnormal_reason
               sign_status
               trans_status
               create_user_id
@@ -1104,6 +1102,7 @@ export async function getOrderStatistic(params) {
             totalXianTransAmount
             totalLatefee
             totalBonusfee
+            totalAbnormalAmount
           }
         }
       `,

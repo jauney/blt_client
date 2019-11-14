@@ -57,24 +57,25 @@ class AbnormalForm extends PureComponent {
   }
 
   onAbnormalSelect = (value, option) => {
-    console.log('####', option.props.abnormal_type_id);
     this.setState({
       abnormal_type_id: option.props.abnormal_type_id,
       abnormal_type: option.props.text,
     });
-    console.log(value, option);
-    console.log(this.state);
   };
 
   onDownAccountHandler = () => {
-    const { onResolveAbnormal, form } = this.props;
-    let { abnormal_type, abnormal_type_id } = this.state;
+    const { onResolveAbnormal, form, abnormalTypes = [] } = this.props;
     form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
       if (err) return;
-      if (fieldsValue.abnormal_type != abnormal_type) {
-        abnormal_type = fieldsValue.abnormal_type;
-        abnormal_type_id = 0;
+      let abnormal;
+      abnormalTypes.forEach(item => {
+        if (item.abnormal_type_id == fieldsValue.abnormal_type_id) {
+          abnormal = item;
+        }
+      });
+
+      if (!abnormal) {
+        abnormal = { abnormal_type: fieldsValue.abnormal_type, abnormal_type_id: 0 };
       }
       onResolveAbnormal({
         abnormal_status: 2,
@@ -82,8 +83,7 @@ class AbnormalForm extends PureComponent {
         abnormal_amount: fieldsValue.abnormal_amount,
         abnormal_resolve_type: fieldsValue.abnormal_resolve_type,
         abnormal_remark: fieldsValue.abnormal_remark,
-        abnormal_type,
-        abnormal_type_id,
+        ...abnormal,
       });
     });
   };
@@ -94,6 +94,7 @@ class AbnormalForm extends PureComponent {
       <AutoOption
         key={item.abnormal_type_id}
         abnormal_type_id={item.abnormal_type_id}
+        value={`${item.abnormal_type_id}`}
         text={item.abnormal_type}
       >
         {item.abnormal_type}
@@ -109,6 +110,8 @@ class AbnormalForm extends PureComponent {
       form,
       abnormalTypes,
     } = this.props;
+
+    console.log(selectedRows);
     return (
       <Modal
         destroyOnClose
@@ -130,8 +133,10 @@ class AbnormalForm extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem {...this.formItemLayout} label="异常类型">
-                {form.getFieldDecorator('abnormal_type', {
+                {form.getFieldDecorator('abnormal_type_id', {
                   rules: [{ required: true, message: '请填写异常类型' }],
+                  initialValue:
+                    selectedRows.length > 0 ? `${selectedRows[0].abnormal_type_id}` : '',
                 })(
                   <AutoComplete
                     size="large"
@@ -151,9 +156,9 @@ class AbnormalForm extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem labelCol={{ span: 3, offset: 2 }} label="异常原因">
-                {form.getFieldDecorator('abnormal_reason', { initialValue: '' })(
-                  <Input placeholder="请输入" style={{ width: '280px' }} />
-                )}
+                {form.getFieldDecorator('abnormal_reason', {
+                  initialValue: selectedRows.length > 0 ? selectedRows[0].abnormal_reason : '',
+                })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
             </Col>
           </Row>
@@ -250,11 +255,6 @@ class TableList extends PureComponent {
       sorter: true,
     },
     {
-      title: '实收运费',
-      dataIndex: 'trans_real',
-      sorter: true,
-    },
-    {
       title: '折后运费',
       dataIndex: 'trans_discount',
       sorter: true,
@@ -295,11 +295,6 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       dataIndex: 'create_date',
-      render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
-      title: '发车时间',
-      dataIndex: 'depart_date',
       render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
@@ -489,6 +484,7 @@ class TableList extends PureComponent {
     });
     if (result.code == 0) {
       message.success('取消异常成功！');
+      this.handleSearch();
     } else {
       message.error(result.msg);
     }

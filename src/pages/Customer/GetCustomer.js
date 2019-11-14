@@ -71,23 +71,25 @@ class AddFormDialog extends PureComponent {
     } = this.props;
     const { dataSource = [] } = this.state;
     let currentMobile;
-    dataSource.forEach(item => {
+    let mobiles = dataSource.length <= 0 ? record.customerMobiles : dataSource;
+    mobiles.forEach(item => {
       if (item.mobile_id && `${item.mobile_id}`.indexOf('TMP-') >= 0) {
         item.mobile_id = 0;
       }
       if (item.mobile_type == 1) {
         currentMobile = item;
       }
+      delete item.__typename;
     });
-    if (!currentMobile && dataSource.length > 0) {
-      currentMobile = dataSource[0];
-      dataSource[0].mobile_type = 1;
+    if (!currentMobile && mobiles.length > 0) {
+      currentMobile = mobiles[0];
+      mobiles[0].mobile_type = 1;
     }
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
 
       fieldsValue.customer_mobile = (currentMobile && currentMobile.mobile) || '';
-      fieldsValue.customerMobiles = dataSource;
+      fieldsValue.customerMobiles = mobiles;
       fieldsValue.company_id = currentCompany.company_id;
 
       // customertype
@@ -275,12 +277,9 @@ class TableList extends PureComponent {
   columns = [
     {
       title: '客户类型',
-      dataIndex: 'customer_type',
+      dataIndex: 'customertype_name',
       sorter: true,
       align: 'right',
-      render: val => `${val}`,
-      // mark to display a total number
-      needTotal: true,
     },
     {
       title: '姓名',
@@ -443,7 +442,32 @@ class TableList extends PureComponent {
   };
 
   // 删除
-  onDelCustomer = () => {};
+  onDelCustomer = () => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
+    let self = this;
+    const customerId = [];
+    selectedRows.forEach(item => {
+      customerId.push(item.customer_id);
+    });
+    Modal.confirm({
+      content: '确定删除所选记录么？',
+      onOk: async () => {
+        let result =
+          (await dispatch({
+            type: 'customer/updateCustomerAction',
+            payload: { customer: { is_delete: 1 }, customer_id: customerId, type: 0 },
+          })) || {};
+
+        if (result.code == 0) {
+          message.success('删除客户成功！');
+          this.handleSearch();
+        } else {
+          message.error(result.msg);
+        }
+      },
+    });
+  };
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {

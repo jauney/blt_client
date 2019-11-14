@@ -55,29 +55,28 @@ class DownAccountForm extends PureComponent {
   }
 
   onAbnormalSelect = (value, option) => {
-    console.log('####', option.props.abnormal_type_id);
     this.setState({
       abnormal_type_id: option.props.abnormal_type_id,
       abnormal_type: option.props.text,
     });
-    console.log(value, option);
-    console.log(this.state);
   };
 
   onDownAccountHandler = () => {
-    const { onAddAbnormal, form } = this.props;
-    let { abnormal_type, abnormal_type_id } = this.state;
+    const { onAddAbnormal, form, abnormalTypes = [] } = this.props;
     form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
       if (err) return;
-      if (fieldsValue.abnormal_type != abnormal_type) {
-        abnormal_type = fieldsValue.abnormal_type;
-        abnormal_type_id = 0;
+      let abnormal;
+      abnormalTypes.forEach(item => {
+        if (item.abnormal_type_id == fieldsValue.abnormal_type_id) {
+          abnormal = item;
+        }
+      });
+      if (!abnormal) {
+        abnormal = { abnormal_type: fieldsValue.abnormal_type_id, abnormal_type_id: 0 };
       }
       onAddAbnormal({
         abnormal_reason: fieldsValue.abnormal_reason,
-        abnormal_type,
-        abnormal_type_id,
+        ...abnormal,
       });
     });
   };
@@ -89,6 +88,7 @@ class DownAccountForm extends PureComponent {
         key={item.abnormal_type_id}
         abnormal_type_id={item.abnormal_type_id}
         text={item.abnormal_type}
+        value={`${item.abnormal_type_id}`}
       >
         {item.abnormal_type}
       </AutoOption>
@@ -128,7 +128,7 @@ class DownAccountForm extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem {...this.formItemLayout} label="异常类型">
-                {form.getFieldDecorator('abnormal_type', {
+                {form.getFieldDecorator('abnormal_type_id', {
                   rules: [{ required: true, message: '请填写异常类型' }],
                 })(
                   <AutoComplete
@@ -221,11 +221,6 @@ class TableList extends PureComponent {
       sorter: true,
     },
     {
-      title: '实收运费',
-      dataIndex: 'trans_real',
-      sorter: true,
-    },
-    {
       title: '折后运费',
       dataIndex: 'trans_discount',
       sorter: true,
@@ -266,11 +261,6 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       dataIndex: 'create_date',
-      render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
-      title: '发车时间',
-      dataIndex: 'depart_date',
       render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
@@ -391,7 +381,7 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      fieldsValue.order_status = [3, 6];
+      fieldsValue.order_status = [3, 5];
       fieldsValue.abnormal_status = 0;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
@@ -455,7 +445,7 @@ class TableList extends PureComponent {
     });
     if (result.code == 0) {
       message.success('添加异常成功！');
-
+      this.handleSearch();
       this.onAddAbnormalCancel();
     } else {
       message.error(result.msg);
@@ -632,7 +622,7 @@ class TableList extends PureComponent {
       loading,
       abnormal: { abnormalTypes },
     } = this.props;
-    console.log(orderList);
+
     const {
       selectedRows,
       accountStatistic,

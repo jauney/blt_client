@@ -55,20 +55,9 @@ class AddFormDialog extends PureComponent {
     };
   }
 
-  onAbnormalSelect = (value, option) => {
-    console.log('####', option.props.abnormal_type_id);
-    this.setState({
-      abnormal_type_id: option.props.abnormal_type_id,
-      abnormal_type: option.props.text,
-    });
-    console.log(value, option);
-    console.log(this.state);
-  };
-
   onAddHandler = () => {
     const { addFormDataHandle, form, debtTypes, customerList } = this.props;
     form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
       if (err) return;
       let newDebtType = true;
       debtTypes.forEach(item => {
@@ -83,11 +72,6 @@ class AddFormDialog extends PureComponent {
         fieldsValue.debttype_id = Number(fieldsValue.debttype_id);
       }
 
-      customerList.forEach(item => {
-        if (item.customer_id == fieldsValue.customer_id) {
-          fieldsValue.customer_name = item.customer_name;
-        }
-      });
       addFormDataHandle(fieldsValue);
     });
   };
@@ -142,27 +126,10 @@ class AddFormDialog extends PureComponent {
         <Form>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="客户">
-                {form.getFieldDecorator('customer_id')(
-                  <Select
-                    placeholder="请选择"
-                    style={{ width: '150px' }}
-                    showSearch
-                    optionLabelProp="children"
-                    onPopupScroll={onCustomerScroll}
-                    filterOption={(input, option) =>
-                      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
-                  >
-                    {customerList.map(ele => {
-                      return (
-                        <Option key={ele.customer_id} value={ele.customer_id}>
-                          {ele.customer_name}
-                        </Option>
-                      );
-                    })}
-                  </Select>
-                )}
+              <FormItem {...this.formItemLayout} label="姓名">
+                {form.getFieldDecorator('customer_name', {
+                  rules: [{ required: true, message: '请填写姓名' }],
+                })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
             </Col>
           </Row>
@@ -282,40 +249,13 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
-    // 下站只显示当前分公司
-    let branchCompanyList = [CacheCompany];
 
-    let currentCompany = {};
-    // 初始渲染的是否，先加载第一个分公司的收货人信息
-    if (CacheCompany.company_type == 2 && branchCompanyList && branchCompanyList.length > 0) {
-      currentCompany = branchCompanyList[0];
-    } else {
-      currentCompany = CacheCompany;
-    }
     this.setState({
-      currentCompany: currentCompany,
+      currentCompany: CacheCompany,
     });
 
-    this.fetchCompanySiteList(currentCompany.company_id);
-
-    this.fetchDebtTypeList({});
-
-    dispatch({
-      type: 'customer/getCustomerListAction',
-      payload: {
-        filter: {
-          company_id: currentCompany.company_id || 0,
-        },
-      },
-    });
-
-    dispatch({
-      type: 'customer/sendCustomerListAction',
-      payload: {
-        filter: {},
-      },
-    });
-
+    await this.fetchCompanySiteList(CacheCompany.company_id);
+    await this.fetchDebtTypeList({});
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
   }

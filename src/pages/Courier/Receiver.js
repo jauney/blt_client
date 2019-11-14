@@ -651,6 +651,7 @@ class TableList extends PureComponent {
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
+      company: { branchCompanyList },
       customer: { getCustomerList, sendCustomerList },
       site: { siteList },
       courier: { receiverList },
@@ -661,8 +662,26 @@ class TableList extends PureComponent {
     if (siteList.length > 0) {
       siteOption.initialValue = siteList[0].company_id || '';
     }
+    const companyOption = {};
+    // 默认勾选第一个公司
+    if (branchCompanyList.length > 0) {
+      companyOption.initialValue = branchCompanyList[0].company_id || '';
+    }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
+        <FormItem label="分公司">
+          {getFieldDecorator('company_id', companyOption)(
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '200px' }}>
+              {branchCompanyList.map(ele => {
+                return (
+                  <Option key={ele.company_id} value={ele.company_id}>
+                    {ele.company_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
         <FormItem label="站点" {...formItemLayout}>
           {getFieldDecorator('site_id', siteOption)(
             <Select

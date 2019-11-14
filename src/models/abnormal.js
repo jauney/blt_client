@@ -17,6 +17,7 @@ export default {
     totalOrderAmount: 0,
     totalTransAmount: 0,
     totalInsurancefee: 0,
+    totalAbnormalAmount: 0,
     abnormalTypes: [],
     abnormalTotal: 0,
   },

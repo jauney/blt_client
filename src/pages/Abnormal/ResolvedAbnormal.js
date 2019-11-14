@@ -254,11 +254,6 @@ class TableList extends PureComponent {
       sorter: true,
     },
     {
-      title: '实收运费',
-      dataIndex: 'trans_real',
-      sorter: true,
-    },
-    {
       title: '折后运费',
       dataIndex: 'trans_discount',
       sorter: true,
@@ -302,28 +297,24 @@ class TableList extends PureComponent {
       render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: '发车时间',
-      dataIndex: 'depart_date',
-      render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
       title: '站点',
       dataIndex: 'site_name',
       sorter: true,
     },
     {
-      title: '中转',
-      dataIndex: 'transfer_type',
+      title: '异常类型',
+      dataIndex: 'abnormal_type',
       sorter: true,
-      render: val => {
-        let $transferType = '';
-        if (val == 1) {
-          $transferType = '转出';
-        } else if (val == 2) {
-          $transferType = '转入';
-        }
-        return $transferType;
-      },
+    },
+    {
+      title: '处理方式',
+      dataIndex: 'abnormal_resolve_type',
+      sorter: true,
+    },
+    {
+      title: '异常金额',
+      dataIndex: 'abnormal_amount',
+      sorter: true,
     },
     {
       title: '备注',
@@ -571,6 +562,19 @@ class TableList extends PureComponent {
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => {};
 
+  tableFooter = () => {
+    const {
+      abnormal: { totalOrderAmount, totalTransAmount, totalAbnormalAmount },
+    } = this.props;
+    return (
+      <div>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>异常费用总额：{totalAbnormalAmount || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -707,7 +711,7 @@ class TableList extends PureComponent {
                 };
               }}
               rowClassName={(record, index) => {}}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={this.tableFooter}
             />
           </div>
         </Card>
