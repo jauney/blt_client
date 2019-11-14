@@ -202,38 +202,87 @@ class TableList extends PureComponent {
 
   columns = [
     {
-      title: '发货客户姓名',
+      title: '货单号',
+      dataIndex: 'order_code',
+      sorter: true,
+      align: 'right',
+      render: val => `${val}`,
+      // mark to display a total number
+      needTotal: true,
+    },
+    {
+      title: '发货客户',
       dataIndex: 'sendcustomer_name',
+    },
+    {
+      title: '收获客户',
+      dataIndex: 'getcustomer_name',
       sorter: true,
     },
     {
-      title: '货单号',
-      dataIndex: 'order_code',
-    },
-    {
-      title: '实收货款',
+      title: '应收货款',
       dataIndex: 'order_amount',
       sorter: true,
     },
     {
-      title: '代办费',
-      dataIndex: 'agency_fee',
+      title: '实收货款',
+      dataIndex: 'order_real',
       sorter: true,
     },
     {
-      title: '运费内扣',
-      dataIndex: 'trans_amount',
+      title: '实收运费',
+      dataIndex: 'trans_discount',
       sorter: true,
     },
     {
-      title: '实付货款',
-      dataIndex: 'pay_amount',
+      title: '运费方式',
+      dataIndex: 'trans_type',
+      sorter: true,
+      render: val => {
+        let transType = '';
+        if (val === 1) {
+          transType = '现付';
+        } else if (val === 2) {
+          transType = '回付';
+        } else {
+          transType = '提付';
+        }
+        return transType;
+      },
+    },
+    {
+      title: '垫付',
+      dataIndex: 'order_advancepay_amount',
       sorter: true,
     },
     {
-      title: '付款人',
-      dataIndex: 'operator_name',
+      title: '送货费',
+      dataIndex: 'deliver_amount',
       sorter: true,
+    },
+    {
+      title: '保价费',
+      dataIndex: 'insurance_fee',
+      sorter: true,
+    },
+    {
+      title: '货物名称',
+      dataIndex: 'order_name',
+      sorter: true,
+    },
+    {
+      title: '录票时间',
+      dataIndex: 'create_date',
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
+    },
+    {
+      title: '结算时间',
+      dataIndex: 'settle_date',
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
     },
     {
       title: '付款时间',
@@ -241,6 +290,15 @@ class TableList extends PureComponent {
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
+    },
+    {
+      title: '站点',
+      dataIndex: 'site_name',
+      sorter: true,
+    },
+    {
+      title: '备注',
+      dataIndex: 'remark',
     },
   ];
 
@@ -304,14 +362,17 @@ class TableList extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
+      fieldsValue.pay_status = 0;
+      fieldsValue.order_amount = -1;
+      fieldsValue.order_status = 7;
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
-        type: 'pay/getTodayPayListAction',
+        type: 'pay/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
       dispatch({
-        type: 'pay/getTodayPayStatisticAction',
+        type: 'pay/getOrderStatisticAction',
         payload: { ...searchParams },
       });
     });
@@ -350,7 +411,6 @@ class TableList extends PureComponent {
 
   // 下账
   downAccountHandle = async data => {
-    console.log(data);
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -534,6 +594,7 @@ class TableList extends PureComponent {
   };
 
   onDownloadOk = async () => {
+    const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
       return item.order_id;
@@ -576,26 +637,75 @@ class TableList extends PureComponent {
     });
   };
 
+  /**
+   * 取消下账
+   */
+  onCancelPay = async () => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
+    let self = this;
+    let canCancelFlag = true;
+    let orderIds = [];
+    let totalAmount = 0;
+    selectedRows.forEach(item => {
+      let curDate = moment(new Date().getTime());
+      let diffHours = curDate.subtract(moment(Number(item.pay_date) || 0)).hours();
+      if (diffHours >= 24) {
+        canCancelFlag = false;
+      }
+      orderIds.push(item.order_id);
+      totalAmount += Number(item.order_real || item.order_amount || 0);
+    });
+
+    if (!canCancelFlag) {
+      message.error('下账超过24小时不可以取消');
+      return;
+    }
+    Modal.confirm({
+      content: (
+        <div>
+          确定取消下账么？下账条数：{selectedRows.length}；下账总额：{totalAmount}
+        </div>
+      ),
+      onOk: async () => {
+        let result = await dispatch({
+          type: 'pay/cancelDownAccountAction',
+          payload: {
+            order_id: orderIds,
+          },
+        });
+        if (result && result.code == 0) {
+          message.success('取消下账成功！');
+          self.handleSearch();
+        } else {
+          message.error(result.msg);
+        }
+      },
+    });
+  };
+
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => {};
 
   tableFooter = () => {
     const {
-      pay: { todayPayStatistic = {} },
+      pay: {
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalRealTransAmount,
+        totalRealOrderAmount,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+      },
     } = this.props;
     return (
       <div>
-        <span>实收货款总额：{todayPayStatistic.totalOrderAmount || ''}</span>
-        <span className={styles.footerSplit}>
-          实付货款总额：{todayPayStatistic.totalPayAmount || ''}
-        </span>
-        <span className={styles.footerSplit}>
-          运费总额：{todayPayStatistic.totalTransAmount || ''}
-        </span>
-        <span className={styles.footerSplit}>
-          代办费总额：{todayPayStatistic.totalAgencyFee || ''}
-        </span>
-        <span className={styles.footerSplit}>记录总数：{todayPayStatistic.totalRecord || ''}</span>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付总额：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
       </div>
     );
   };
@@ -689,7 +799,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      pay: { todayPayList, todayPayTotal },
+      pay: { orderList, total },
       loading,
     } = this.props;
 
@@ -713,6 +823,11 @@ class TableList extends PureComponent {
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
+            {selectedRows.length > 0 && (
+              <span>
+                <Button onClick={this.onCancelPay}>取消下账</Button>
+              </span>
+            )}
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}
@@ -720,9 +835,9 @@ class TableList extends PureComponent {
               scroll={{ x: 900 }}
               rowKey="order_id"
               data={{
-                list: todayPayList,
+                list: orderList,
                 pagination: {
-                  todayPayTotal,
+                  total,
                   pageSize,
                   current,
                 },

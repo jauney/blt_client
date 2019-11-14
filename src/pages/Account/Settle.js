@@ -552,6 +552,16 @@ class TableList extends PureComponent {
   // 取消账户核对
   onSettle = async () => {
     const { selectedRows } = this.state;
+    let canCancelSettle = true;
+    selectedRows.forEach(item => {
+      if (item.order_status >= 7) {
+        canCancelSettle = false;
+      }
+    });
+    if (!canCancelSettle) {
+      message.error('已下账订单不能取消结算');
+      return;
+    }
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, settleModalVisible: true });
   };

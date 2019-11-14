@@ -9,6 +9,14 @@ export default {
     totalOrderAmount: 0,
     totalTransAmount: 0,
     totalInsurancefee: 0,
+    totalRealTransAmount: 0,
+    totalRealOrderAmount: 0,
+    totalAdvancepayAmount: 0,
+    totalDeliverAmount: 0,
+    totalTifuTransAmount: 0,
+    totalXianTransAmount: 0,
+    totalLatefee: 0,
+    totalBonusfee: 0,
   },
 
   effects: {

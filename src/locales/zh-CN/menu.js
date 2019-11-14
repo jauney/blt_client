@@ -14,7 +14,7 @@ export default {
   'menu.pay': '付款管理',
   'menu.pay.pay': '货款下账',
   'menu.pay.payabnormal': '异常货款下账',
-  'menu.pay.paysearch': '今日付款查下',
+  'menu.pay.paysearch': '今日付款查询',
   'menu.abnormal': '异常货物',
   'menu.abnormal.addabnormal': '添加异常货物',
   'menu.abnormal.resolvedabnormal': '已处理异常货物',

@@ -49,7 +49,7 @@ export default {
   reducers: {
     getSiteListReducer(state, action) {
       const entrunkSiteList = action.payload.filter(item => {
-        if (item.site_type == 2) {
+        if (item.site_type != 1) {
           return item;
         }
       });

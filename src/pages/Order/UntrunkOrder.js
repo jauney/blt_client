@@ -142,55 +142,12 @@ class CreateReceiverForm extends PureComponent {
 class CreateEntrunkForm extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      lastCar: {},
-    };
   }
 
   /**
    * 编辑的时候初始化赋值表单
    */
-  componentDidMount() {
-    const { currentCompany } = this.props;
-    if (!currentCompany.company_id) {
-      return;
-    }
-    this.getLastCar(currentCompany.company_id);
-  }
-
-  getLastCar = async companyId => {
-    const { dispatch } = this.props;
-    if (!companyId) {
-      return;
-    }
-    // 重新获取货车编号
-    const result = await dispatch({
-      type: 'car/getLastCarCodeAction',
-      payload: {
-        company_id: companyId,
-      },
-    });
-    console.log('88888', result);
-    this.setState({
-      lastCar: result,
-    });
-  };
-
-  onCompanySelect = async (value, option) => {
-    const { dispatch, form } = this.props;
-    dispatch({
-      type: 'car/getCarListAction',
-      payload: {
-        pageNo: 1,
-        pageSize: 500,
-        company_id: value,
-      },
-    });
-    // 清空勾选的货车信息
-    form.resetFields(['car_id', 'driver_name', 'driver_mobile', 'car_code', 'car_date', 'car_fee']);
-
-    this.getLastCar(value);
-  };
+  componentDidMount() {}
 
   onCarChange = value => {
     const { driverList, form } = this.props;
@@ -246,43 +203,30 @@ class CreateEntrunkForm extends PureComponent {
   };
 
   getModalContent = () => {
-    const {
+    let {
       form: { getFieldDecorator },
       branchCompanyList,
       currentCompany,
       driverList,
+      lastCar,
     } = this.props;
-    const { lastCar } = this.state;
-    console.log(lastCar);
+    let currentDriver = {};
+    driverList.forEach(item => {
+      if (item.driver_id == lastCar.driver_id && Number(lastCar.car_status) < 2) {
+        currentDriver = item;
+      }
+    });
+    if (Number(lastCar.car_status) >= 2) {
+      lastCar = { car_code: Number(lastCar.car_code) + 1 };
+    }
     return (
-      <Form layout="inline">
+      <Form layout="inline" className={styles.modalForm}>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={12} sm={24}>
-            <FormItem label="分公司">
-              {getFieldDecorator('company_id', {
-                rules: [{ required: true, message: '请选择分公司' }],
-                initialValue: currentCompany.company_id,
-              })(
-                <Select
-                  placeholder="请选择"
-                  onSelect={this.onCompanySelect}
-                  style={{ width: '100%' }}
-                >
-                  {branchCompanyList.map(ele => {
-                    return (
-                      <Option key={ele.company_id} value={ele.company_id}>
-                        {ele.company_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
           <Col md={12} sm={24}>
             <FormItem label="车牌号">
               {getFieldDecorator('driver_id', {
                 rules: [{ required: true, message: '请填写收车牌号' }],
+                initialValue: lastCar.driver_id,
               })(
                 <AutoComplete
                   size="large"
@@ -305,27 +249,30 @@ class CreateEntrunkForm extends PureComponent {
             <FormItem label="车主姓名">
               {getFieldDecorator('driver_name', {
                 rules: [{ required: true, message: '请填写车主姓名' }],
+                initialValue: currentDriver.driver_name,
               })(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
+        </Row>
+        <Row>
           <Col md={12} sm={24}>
             <FormItem label="联系电话">
               {getFieldDecorator('driver_mobile', {
                 rules: [{ required: true, message: '请填写联系电话' }],
+                initialValue: currentDriver.driver_mobile,
               })(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={12} sm={24}>
             <FormItem label="货车编号">
               {getFieldDecorator('car_code', {
-                initialValue:
-                  lastCar.car_status && lastCar.car_status >= 2
-                    ? Number(lastCar.car_code) + 1
-                    : lastCar.car_code,
+                initialValue: lastCar.car_code,
                 rules: [{ required: true, message: '请填写货车编号' }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
+        </Row>
+        <Row>
           <Col md={12} sm={24}>
             <FormItem label="拉货日期">
               {getFieldDecorator('car_date', {
@@ -338,6 +285,7 @@ class CreateEntrunkForm extends PureComponent {
             <FormItem label="货车费用">
               {getFieldDecorator('car_fee', {
                 rules: [{ required: true, message: '请填写货车费用' }],
+                initialValue: lastCar.car_fee || '',
               })(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
@@ -355,6 +303,8 @@ class CreateEntrunkForm extends PureComponent {
       onEntrunkModalCancel,
       driverList = [],
       onSearch,
+      currentShipSite = {},
+      currentCompany = {},
     } = this.props;
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
@@ -380,8 +330,9 @@ class CreateEntrunkForm extends PureComponent {
       }
 
       formValues.car_fee = Number(formValues.car_fee || 0);
-      formValues.shipsite_id = CacheSite.site_id;
+      formValues.shipsite_id = currentShipSite.site_id;
       formValues.car_code = formValues.car_code + '';
+      formValues.company_id = currentCompany.company_id;
 
       const result = await dispatch({
         type: 'untrunkorder/entrunkOrderAction',
@@ -437,6 +388,8 @@ class TableList extends PureComponent {
     entrunkModalVisible: false,
     cancelShipModalVisible: false,
     currentCompany: {},
+    currentShipSite: {},
+    lastCar: {},
   };
 
   columns = [
@@ -622,12 +575,7 @@ class TableList extends PureComponent {
         },
       });
 
-      dispatch({
-        type: 'car/getCarCodeAction',
-        payload: {
-          company_id: branchCompanyList[0].company_id,
-        },
-      });
+      this.getLastCar();
     }
 
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
@@ -743,6 +691,15 @@ class TableList extends PureComponent {
    * 装车弹窗
    */
   onEntrunkModalShow = () => {
+    const { currentShipSite = {}, currentCompany = {} } = this.state;
+    if (!currentCompany.company_id) {
+      message.error('请先选择公司');
+      return;
+    }
+    if (!currentShipSite.site_id) {
+      message.error('请先选择配载站');
+      return;
+    }
     this.setState({
       entrunkModalVisible: true,
     });
@@ -770,11 +727,92 @@ class TableList extends PureComponent {
     });
   };
 
+  onCompanySelect = async (value, option) => {
+    const {
+      company: { branchCompanyList = [] },
+    } = this.props;
+
+    // 重新计算折后运费
+    let company = {};
+    for (let i = 0; i < branchCompanyList.length; i++) {
+      const c = branchCompanyList[i];
+      if (c.company_id == value) {
+        company = c;
+        break;
+      }
+    }
+
+    await this.setState({
+      currentCompany: company,
+    });
+
+    this.getLastCar();
+  };
+
+  getLastCar = async () => {
+    const { currentCompany = {} } = this.state;
+    const { dispatch } = this.props;
+
+    // 重新获取货车编号
+    const result = await dispatch({
+      type: 'car/getLastCarCodeAction',
+      payload: {
+        company_id: currentCompany.company_id,
+      },
+    });
+
+    this.setState({
+      lastCar: result,
+    });
+  };
+
+  onShipSiteSelect = async value => {
+    const {
+      site: { entrunkSiteList = [] },
+    } = this.props;
+
+    let site = {};
+    for (let i = 0; i < entrunkSiteList.length; i++) {
+      const c = entrunkSiteList[i];
+      if (c.site_id == value) {
+        site = c;
+        break;
+      }
+    }
+
+    await this.setState({
+      currentShipSite: site,
+    });
+  };
+
+  tableFooter = () => {
+    const {
+      untrunkorder: {
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalRealTransAmount,
+        totalRealOrderAmount,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+      },
+    } = this.props;
+    return (
+      <div>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付总额：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
-      site: { entrunkSiteList, normalSiteList },
+      site: { entrunkSiteList, siteList },
       receiver: { receiverList },
     } = this.props;
     const companyOption = {};
@@ -786,7 +824,12 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+            <Select
+              placeholder="请选择"
+              onChange={this.onCompanySelect}
+              style={{ width: '150px' }}
+              allowClear
+            >
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -801,7 +844,7 @@ class TableList extends PureComponent {
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
-              {normalSiteList.map(ele => {
+              {(CacheSite.site_type == 1 ? [CacheSite] : siteList).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -814,7 +857,12 @@ class TableList extends PureComponent {
 
         <FormItem label="配载部">
           {getFieldDecorator('shipsite_id', {})(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select
+              placeholder="请选择"
+              style={{ width: '150px' }}
+              onChange={this.onShipSiteSelect}
+              allowClear
+            >
               {(entrunkSiteList || []).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
@@ -858,7 +906,6 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       receiver: { receiverList },
       site: { entrunkSiteList },
-      car: { carCode },
       driver: { driverList },
       loading,
     } = this.props;
@@ -871,6 +918,8 @@ class TableList extends PureComponent {
       entrunkModalVisible,
       currentCompany,
       cancelShipModalVisible,
+      currentShipSite,
+      lastCar,
     } = this.state;
 
     return (
@@ -906,7 +955,7 @@ class TableList extends PureComponent {
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={this.tableFooter}
             />
           </div>
         </Card>
@@ -918,8 +967,9 @@ class TableList extends PureComponent {
             currentCompany={currentCompany}
             onEntrunkModalCancel={this.onEntrunkModalCancel}
             driverList={driverList}
-            lastCar={carCode}
+            lastCar={lastCar}
             onSearch={this.handleSearch}
+            currentShipSite={currentShipSite}
           />
         )}
         <CreateReceiverForm

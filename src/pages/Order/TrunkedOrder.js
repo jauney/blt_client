@@ -30,6 +30,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { async } from 'q';
+import { CacheCompany } from '@/utils/storage';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -766,11 +767,34 @@ class TableList extends PureComponent {
     });
   };
 
+  tableFooter = () => {
+    const {
+      trunkedorder: {
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalRealTransAmount,
+        totalRealOrderAmount,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+      },
+    } = this.props;
+    return (
+      <div>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付总额：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
-      site: { entrunkSiteList, normalSiteList },
+      site: { entrunkSiteList, siteList },
       car: { lastCar },
     } = this.props;
     const { currentCompany = {} } = this.state;
@@ -799,7 +823,7 @@ class TableList extends PureComponent {
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
-              {normalSiteList.map(ele => {
+              {siteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -811,7 +835,7 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="配载部">
-          {getFieldDecorator('shipsite_id', {})(
+          {getFieldDecorator('shipsite_id', { initialValue: CacheSite.site_id })(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
               {(entrunkSiteList || []).map(ele => {
                 return (
@@ -869,12 +893,12 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {lastCar.confirm == 0 && (
+              {lastCar.confirm == 0 && CacheCompany.company_type == 2 && (
                 <Button type="primary" onClick={this.onCarFeeModalShow}>
                   货车运费结算
                 </Button>
               )}
-              {lastCar.confirm == 1 && (
+              {lastCar.confirm == 1 && CacheCompany.company_type == 2 && (
                 <Button type="primary" onClick={this.onCancelCarFeeConfirmModalShow}>
                   取消货车运费结算
                 </Button>
@@ -908,7 +932,7 @@ class TableList extends PureComponent {
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={this.tableFooter}
             />
           </div>
         </Card>
@@ -929,6 +953,8 @@ class TableList extends PureComponent {
           onCancel={this.onDepartCancel}
         >
           <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
+          <p>{`车牌号：${lastCar.driver_plate}      司机姓名： ${lastCar.driver_name} `}</p>
+          <p>{`司机电话：${lastCar.driver_mobile}   司机运费： ${lastCar.car_fee} `}</p>
           <p>您确认发车么？</p>
         </Modal>
         <Modal

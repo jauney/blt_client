@@ -21,12 +21,16 @@ export default {
     totalTransAmount: 0,
     totalInsurancefee: 0,
     todayPayStatistic: {},
+    totalRealTransAmount: 0,
+    totalRealOrderAmount: 0,
+    totalAdvancepayAmount: 0,
+    totalDeliverAmount: 0,
   },
 
   effects: {
     *getOrderListAction({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
-      payload.filter.order_status = [6, 7];
+      payload.filter.order_status = payload.filter.order_status || 6;
 
       const response = yield call(getOrderList, payload);
       yield put({
@@ -67,7 +71,6 @@ export default {
       return yield call(downAccount, payload); // post
     },
     *cancelDownAccountAction({ payload }, { call, put }) {
-      payload.sign_status = 0;
       return yield call(cancelDownAccountOrder, payload); // post
     },
   },

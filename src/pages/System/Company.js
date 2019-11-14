@@ -294,7 +294,7 @@ class AddFormDialog extends PureComponent {
                   initialValue: record.late_fee_beginamount || 10,
                   rules: [
                     { required: true, message: '' },
-                    { pattern: /^\d+(\.\d+)?$/, message: '滞纳金格式错误' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '滞纳金金额格式错误' },
                   ],
                 })(<Input placeholder="" style={{ width: '80px' }} />)}
                 <strong className="inner-form-label">&nbsp;滞纳金费率：</strong>
@@ -302,7 +302,7 @@ class AddFormDialog extends PureComponent {
                   initialValue: record.late_fee_rate || 0.5,
                   rules: [
                     { required: true, message: '' },
-                    { pattern: /^\d+(\.\d+)?$/, message: '滞纳金格式错误' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '滞纳金费率格式错误' },
                   ],
                 })(<Input placeholder="" style={{ width: '80px' }} />)}
                 &permil;
@@ -331,10 +331,19 @@ class AddFormDialog extends PureComponent {
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem labelCol={{ span: 3, offset: 2 }} label="地址">
+              <FormItem {...this.formItemLayout} label="地址">
                 {form.getFieldDecorator('company_address', {
                   initialValue: record.company_address,
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
+                <strong className="inner-form-label">&nbsp;保价费率：</strong>
+                {form.getFieldDecorator('insurance_ratio', {
+                  initialValue: record.insurance_ratio || 2,
+                  rules: [
+                    { required: true, message: '' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '保价费率格式错误' },
+                  ],
+                })(<Input placeholder="" style={{ width: '80px' }} />)}
+                &permil;
               </FormItem>
             </Col>
           </Row>

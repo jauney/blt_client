@@ -39,7 +39,7 @@ class DownAccountForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      agencyFee: 0,
+      agencyFee: 4,
     };
   }
 
@@ -96,7 +96,7 @@ class DownAccountForm extends PureComponent {
                 {accountData.totalActualGoodsFund || '0'} - 代办费 *
                 <Select
                   placeholder="请选择"
-                  defaultValue="0"
+                  defaultValue="4"
                   onSelect={this.onAgencyFeeSelect}
                   style={{ width: '80px' }}
                 >
@@ -363,6 +363,7 @@ class TableList extends PureComponent {
       if (err) return;
 
       fieldsValue.pay_status = 0;
+      fieldsValue.order_amount = -1;
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'pay/getOrderListAction',
@@ -527,9 +528,24 @@ class TableList extends PureComponent {
   onCancelDownAccountOk = async () => {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
+    let canCancelFlag = true;
+    let orderIds = [];
+    let totalAmount = 0;
+    selectedRows.forEach(item => {
+      let curDate = moment(new Date().getTime());
+      let diffHours = curDate.subtract(moment(Number(item.pay_date) || 0)).hours();
+      if (diffHours >= 24) {
+        canCancelFlag = false;
+      }
+      orderIds.push(item.order_id);
+      totalAmount += Number(item.order_real || item.order_amount || 0);
     });
+
+    if (!canCancelFlag) {
+      message.error('下账超过24小时不可以取消');
+      return;
+    }
+
     let result = await dispatch({
       type: 'pay/cancelDownAccountAction',
       payload: {
@@ -754,7 +770,6 @@ class TableList extends PureComponent {
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onDownAccount}>下账</Button>
-                  <Button onClick={this.onCancelSign}>取消下账</Button>
                   <Button onClick={this.onAddNormalModal}>添加异常</Button>
                   <Button onClick={this.onPrint}>打印</Button>
                 </span>

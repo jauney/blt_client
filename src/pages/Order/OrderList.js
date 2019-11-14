@@ -103,12 +103,6 @@ class TableList extends PureComponent {
       sorter: true,
     },
     {
-      title: '实收运费',
-      width: 60,
-      dataIndex: 'trans_real',
-      sorter: true,
-    },
-    {
       title: '折后运费',
       width: 60,
       dataIndex: 'trans_discount',
@@ -158,12 +152,6 @@ class TableList extends PureComponent {
       title: '录票时间',
       width: 60,
       dataIndex: 'create_date',
-      render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD HH:mm:ss') : ''}</span>,
-    },
-    {
-      title: '发车时间',
-      width: 80,
-      dataIndex: 'depart_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD HH:mm:ss') : ''}</span>,
     },
     {
@@ -382,6 +370,40 @@ class TableList extends PureComponent {
     });
   };
 
+  tableFooter = () => {
+    const {
+      orderlist: {
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalRealTransAmount,
+        totalRealOrderAmount,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+        totalTifuTransAmount,
+        totalXianTransAmount,
+        totalLatefee,
+        totalBonusfee,
+      },
+      car: { lastCar },
+    } = this.props;
+    return (
+      <div>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span>实收货款：{totalRealOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>提付运费：{totalTifuTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>保价费：{totalInsurancefee || '0'}</span>
+        <span className={styles.footerSplit}>货车运费：{lastCar.car_fee || '0'}</span>
+        <span className={styles.footerSplit}>滞纳金：{totalLatefee || '0'}</span>
+        <span className={styles.footerSplit}>奖金：{totalBonusfee || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -509,7 +531,7 @@ class TableList extends PureComponent {
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={this.tableFooter}
             />
           </div>
         </Card>

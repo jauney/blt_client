@@ -139,7 +139,11 @@ class CreateForm extends PureComponent {
     } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
+      // 有货款必须有银行账号
+      if (fieldsValue.order_amount && !fieldsValue.bank_account) {
+        message.error('请填写银行账号');
+        return;
+      }
       // 完善公司信息
       const company = branchCompanyList.find(item => {
         return item.company_id == fieldsValue.company_id;
@@ -223,7 +227,6 @@ class CreateForm extends PureComponent {
     if (company) {
       await this.setState({
         currentCompany: company,
-        currentSendCustomerPageNo: 1,
       });
 
       dispatch({
@@ -233,8 +236,9 @@ class CreateForm extends PureComponent {
 
       // 获取当前公司的客户列表
       this.fetchGetCustomerList();
+      this.computeInsuranceFee();
+      this.computeTransDiscount();
     }
-    this.computeTransDiscount();
   };
 
   onSendCustomerBlur = value => {
@@ -450,19 +454,24 @@ class CreateForm extends PureComponent {
   };
 
   /**
+   * 计算保价费
+   */
+  computeInsuranceFee = () => {
+    const { form } = this.props;
+    const { currentCompany = {} } = this.state;
+    let transAmount = form.getFieldValue('insurance_amount') || 0;
+    let transFee = Math.floor((transAmount * (currentCompany.insurance_ratio || 2)) / 1000);
+
+    form.setFieldsValue({ insurance_fee: transFee });
+  };
+
+  /**
    * 计算运费折扣
    */
   computeTransDiscount = changeType => {
     const { branchCompanyList } = this.props;
     let { currentCompany, currentGetCustomer, currentSendCustomer } = this.state;
     const { form } = this.props;
-
-    if (!currentCompany) {
-      currentCompany = branchCompanyList[0];
-      this.setState({
-        currentCompany,
-      });
-    }
 
     let originalTransAmount = form.getFieldValue('trans_originalamount') || 0;
     let transAmount = form.getFieldValue('trans_amount') || 0;
@@ -528,7 +537,10 @@ class CreateForm extends PureComponent {
     this.computeTransDiscount();
   };
 
-  onOrderPrint = () => {};
+  // 打印订单
+  onOrderPrint = () => {
+    this.okHandle();
+  };
 
   onGetCustomerFilter = (inputValue, option) => {
     console.log(inputValue, option);
@@ -552,6 +564,7 @@ class CreateForm extends PureComponent {
       branchCompanyList,
       getCustomerList,
       sendCustomerList,
+      siteList,
       selectedOrder,
     } = this.props;
     const {
@@ -569,6 +582,10 @@ class CreateForm extends PureComponent {
     if (currentCompany && currentCompany.company_id) {
       companyOption.initialValue = currentCompany.company_id || '';
     } else if (branchCompanyList.length > 0) {
+      this.setState({
+        currentCompany: branchCompanyList[0],
+      });
+
       companyOption.initialValue = branchCompanyList[0].company_id || '';
     }
 
@@ -583,10 +600,10 @@ class CreateForm extends PureComponent {
           <Button key="btn-cancel" onClick={() => handleModalVisible()} tabIndex={-1}>
             取 消
           </Button>,
-          <Button key="btn-print" onClick={this.onOrderPrint} tabIndex={-1}>
+          <Button key="btn-print" onClick={this.onOrderPrint}>
             打 印
           </Button>,
-          <Button key="btn-save" type="primary" onClick={this.okHandle}>
+          <Button key="btn-save" type="primary" onClick={this.okHandle} tabIndex={-1}>
             保 存
           </Button>,
         ]}
@@ -615,10 +632,14 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="站点">
               {form.getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-                <Select placeholder="请选择" style={{ width: '100%' }} tabIndex={-1} disabled>
-                  <Option value={CacheSite.site_id} selected>
-                    {CacheSite.site_name}
-                  </Option>
+                <Select placeholder="请选择" style={{ width: '100%' }} tabIndex={-1}>
+                  {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(ele => {
+                    return (
+                      <Option key={ele.site_id} value={ele.site_id}>
+                        {ele.site_name}
+                      </Option>
+                    );
+                  })}
                 </Select>
               )}
             </FormItem>
@@ -789,7 +810,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="保价金额">
               {form.getFieldDecorator('insurance_amount', {})(
-                <Input placeholder="" tabIndex={-1} />
+                <Input placeholder="" tabIndex={-1} onBlur={this.computeInsuranceFee} />
               )}
             </FormItem>
           </Col>
@@ -824,7 +845,7 @@ class CreateForm extends PureComponent {
           <Col {...this.colSmallLayout}>
             <FormItem {...this.formItemLayout} label="">
               {form.getFieldDecorator('order_num')(
-                <InputNumber placeholder="件数" style={{ width: '200' }} tabIndex={-1} />
+                <InputNumber placeholder="件数" style={{ width: '200' }} />
               )}
             </FormItem>
           </Col>
@@ -1484,7 +1505,7 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       customer: { getCustomerList, sendCustomerList, getCustomerPageNo, sendCustomerPageNo },
       receiver: { receiverList },
-      site: { entrunkSiteList },
+      site: { entrunkSiteList, siteList },
       loading,
     } = this.props;
 
@@ -1557,6 +1578,7 @@ class TableList extends PureComponent {
             getCustomerList={getCustomerList}
             modalVisible={modalVisible}
             selectedOrder={selectedOrder}
+            siteList={siteList}
           />
         )}
 

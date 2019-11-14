@@ -73,11 +73,28 @@ export async function fakeAccountLogin(params) {
             site {
               site_id
               site_name
+              site_type
             }
             company {
               company_id
               company_name
+              company_address
               company_type
+              company_mobile
+              trans_regional_ratio
+              remember_sender
+              late_fee_days
+              late_fee_beginamount
+              late_fee_rate
+              rewards_24h
+              rewards_48h
+              rewards_72h
+              alarm_days
+              agency_fee
+              bonus_type
+              sendfee_ratio
+              unsendfee_ratio
+              insurance_ratio
             }
             roles {
               role_id
@@ -128,6 +145,7 @@ export async function queryCompanyList(params) {
               bonus_type
               sendfee_ratio
               unsendfee_ratio
+              insurance_ratio
             }
           }
         }
@@ -1080,6 +1098,12 @@ export async function getOrderStatistic(params) {
             totalRealTransAmount
             totalRealOrderAmount
             totalInsurancefee
+            totalAdvancepayAmount
+            totalDeliverAmount
+            totalTifuTransAmount
+            totalXianTransAmount
+            totalLatefee
+            totalBonusfee
           }
         }
       `,
@@ -1400,6 +1424,7 @@ export async function getLastCarCode(params) {
             car_fee
             car_code
             car_date
+            driver_id
             driver_name
             driver_mobile
             driver_plate
