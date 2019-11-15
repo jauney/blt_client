@@ -85,6 +85,7 @@ class AddFormDialog extends PureComponent {
 
   render() {
     const { modalVisible, onCancelHandler, record, form, roleList, currentCompany } = this.props;
+
     return (
       <Modal
         destroyOnClose
@@ -127,7 +128,7 @@ class AddFormDialog extends PureComponent {
             <Col>
               <FormItem {...this.formItemLayout} label="用户角色">
                 {form.getFieldDecorator('role_id', {
-                  initialValue: record.role_id,
+                  initialValue: (record.role && record.role.role_id) || '',
                   rules: [{ required: true, message: '请选择用户角色' }],
                 })(
                   <Select placeholder="请选择" style={{ width: '150px' }}>
@@ -208,13 +209,18 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
-    dispatch({
+
+    const companyList = await dispatch({
       type: 'company/getCompanyList',
       payload: { filter: {} },
     });
-    dispatch({
+    await dispatch({
       type: 'user/getRoleListAction',
       payload: {},
+    });
+
+    this.setState({
+      currentCompany: companyList[0],
     });
   }
 
