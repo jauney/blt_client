@@ -320,7 +320,12 @@ class TableList extends PureComponent {
   async componentDidMount() {
     const { dispatch } = this.props;
 
-    this.fetchCompanySiteList();
+    // 下站只显示当前分公司
+    await dispatch({
+      type: 'company/getBranchCompanyList',
+      payload: { ...CacheCompany },
+    });
+    await this.fetchCompanySiteList();
     this.fetchOperatorList();
 
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
@@ -335,7 +340,7 @@ class TableList extends PureComponent {
 
   fetchCompanySiteList = async () => {
     const { dispatch } = this.props;
-    dispatch({
+    const siteList = await dispatch({
       type: 'site/getSiteListAction',
       payload: { pageNo: 1, pageSize: 100, filter: { company_id: CacheCompany.company_id } },
     });
@@ -624,39 +629,39 @@ class TableList extends PureComponent {
     const {
       form: { getFieldDecorator },
       customer: { getCustomerList, sendCustomerList },
-      company: { branchCompanyList },
+      company: { branchCompanyList = [] },
       courier: { operatorList },
       site: { siteList },
     } = this.props;
     const formItemLayout = {};
-    const companyOption = { initialValue: CacheCompany.company_id };
+    let companyOption = { initialValue: CacheCompany.company_id };
     const siteOption = {};
     // 默认勾选第一个站点
     if (siteList.length > 0) {
       siteOption.initialValue = siteList[0].company_id || '';
     }
 
+    if (CacheCompany.company_type == 1) {
+      companyOption = {
+        initialValue: branchCompanyList.length > 0 ? branchCompanyList[0].company_id : '',
+      };
+    }
+
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        {CacheCompany.company_type == 2 && (
-          <FormItem label="分公司" {...formItemLayout}>
-            {getFieldDecorator('company_id', companyOption)(
-              <Select
-                placeholder="请选择"
-                onSelect={this.onCompanySelect}
-                style={{ width: '150px' }}
-              >
-                {[CacheCompany].map(ele => {
-                  return (
-                    <Option key={ele.company_id} value={ele.company_id}>
-                      {ele.company_name}
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
-          </FormItem>
-        )}
+        <FormItem label="分公司" {...formItemLayout}>
+          {getFieldDecorator('company_id', companyOption)(
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+              {(CacheCompany.company_type == 2 ? [CacheCompany] : branchCompanyList).map(ele => {
+                return (
+                  <Option key={ele.company_id} value={ele.company_id}>
+                    {ele.company_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点" {...formItemLayout}>
             {getFieldDecorator('site_id', siteOption)(

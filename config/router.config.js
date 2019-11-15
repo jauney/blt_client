@@ -317,13 +317,11 @@ export default [
             path: '/transconfirm/transunconfirm',
             name: 'transunconfirm',
             component: './TransConfirm/TransUnconfirm',
-            authority: ['site_pay'],
           },
           {
             path: '/transconfirm/transconfirmed',
             name: 'transconfirmed',
             component: './TransConfirm/TransConfirmed',
-            authority: ['site_pay'],
           },
         ],
       },

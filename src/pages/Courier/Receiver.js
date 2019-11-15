@@ -260,7 +260,7 @@ class TableList extends PureComponent {
       sorter: true,
     },
     {
-      title: '分公司',
+      title: '货车编号',
       width: 60,
       dataIndex: 'car_code',
       sorter: true,
@@ -306,6 +306,11 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
+    // 下站只显示当前分公司
+    await dispatch({
+      type: 'company/getBranchCompanyList',
+      payload: { ...CacheCompany },
+    });
 
     let siteList = dispatch({
       type: 'site/getSiteListAction',
