@@ -159,6 +159,12 @@ class CreateForm extends PureComponent {
 
       fieldsValue.company_name = company.company_name;
 
+      Object.keys(fieldsValue).forEach(item => {
+        if (item.indexOf('amount') >= 0) {
+          fieldsValue[item] = Number(fieldsValue[item] || 0);
+        }
+      });
+
       if (getCustomer) {
         fieldsValue.getcustomer_name = getCustomer.customer_name;
         fieldsValue.sender_id = getCustomer.sender_id;
@@ -1447,6 +1453,7 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
     } = this.props;
     const companyOption = {};
+
     // 默认勾选第一个公司
     if (branchCompanyList.length > 0) {
       companyOption.initialValue = branchCompanyList[0].company_id || '';
@@ -1455,7 +1462,12 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+            <Select
+              placeholder="请选择"
+              onSelect={this.onCompanySelect}
+              allowClear={CacheCompany.company_type == 1 ? true : false}
+              style={{ width: '150px' }}
+            >
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -1542,7 +1554,7 @@ class TableList extends PureComponent {
             <StandardTable
               selectedRows={selectedRows}
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               loading={loading}
               rowKey="order_id"
               data={{

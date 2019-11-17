@@ -66,6 +66,7 @@ class TableList extends PureComponent {
     pageSize: 20,
     departModalVisible: false,
     currentCompany: {},
+    currentShipSite: {},
   };
 
   columns = [
@@ -196,7 +197,7 @@ class TableList extends PureComponent {
       payload: {},
     });
 
-    dispatch({
+    const siteList = await dispatch({
       type: 'site/getSiteListAction',
       payload: {},
     });
@@ -206,18 +207,36 @@ class TableList extends PureComponent {
       this.setState({
         currentCompany: branchCompanyList[0],
       });
-
-      await dispatch({
-        type: 'car/getLastCarCodeAction',
-        payload: {
-          company_id: branchCompanyList[0].company_id,
-        },
+    }
+    if (siteList && siteList.length > 0) {
+      const shipSiteList = siteList.filter(item => {
+        return item.site_type == 3;
       });
+      if (shipSiteList.length > 0) {
+        this.setState({
+          currentShipSite: shipSiteList[0],
+        });
+      }
     }
 
+    this.getLastCarInfo();
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
   }
+
+  getLastCarInfo = async () => {
+    const { dispatch } = this.props;
+    const { currentCompany = {}, currentShipSite = {} } = this.state;
+    const carInfo = await dispatch({
+      type: 'car/getLastCarCodeAction',
+      payload: {
+        company_id: currentCompany.company_id,
+        shipsite_id: currentShipSite.site_id,
+      },
+    });
+
+    return carInfo;
+  };
 
   /**
    * 表格排序、分页响应
@@ -276,18 +295,6 @@ class TableList extends PureComponent {
       car: { lastCar },
     } = this.props;
 
-    // 自动更新货车编号
-    const carInfo = await dispatch({
-      type: 'car/getLastCarCodeAction',
-      payload: {
-        company_id: value,
-      },
-    });
-    console.log(carInfo);
-    form.setFieldsValue({
-      car_code: carInfo.car_code,
-    });
-
     const currentCompany = branchCompanyList.filter(item => {
       if (item.company_id == value) {
         return item;
@@ -298,6 +305,29 @@ class TableList extends PureComponent {
         currentCompany: currentCompany[0],
       });
     }
+
+    // 自动更新货车编号
+    await this.getLastCarInfo();
+  };
+
+  onShipSiteSelect = async value => {
+    const {
+      site: { entrunkSiteList = [] },
+    } = this.props;
+
+    let site = {};
+    for (let i = 0; i < entrunkSiteList.length; i++) {
+      const c = entrunkSiteList[i];
+      if (c.site_id == value) {
+        site = c;
+        break;
+      }
+    }
+
+    await this.setState({
+      currentShipSite: site,
+    });
+    this.getLastCarInfo();
   };
 
   handleSearch = e => {
@@ -305,15 +335,6 @@ class TableList extends PureComponent {
 
     const { dispatch, form } = this.props;
     const { currentCompany } = this.state;
-
-    // 获取当前货车编号信息
-    dispatch({
-      type: 'car/getLastCarCodeAction',
-      payload: {
-        company_id: currentCompany.company_id,
-        car_code: form.getFieldValue('car_code') || '',
-      },
-    });
 
     this.getOrderList();
   };
@@ -328,22 +349,12 @@ class TableList extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
-      const filter = {};
-      if (fieldsValue.company_id) {
-        filter.company_id = fieldsValue.company_id;
-      }
-
-      if (fieldsValue.site_id) {
-        filter.site_id = fieldsValue.site_id;
-      }
-
-      if (fieldsValue.shipsite_id) {
-        filter.shipsite_id = fieldsValue.shipsite_id;
-      }
-
-      if (fieldsValue.abnormal_status) {
-        filter.abnormal_status = fieldsValue.abnormal_status;
-      }
+      const filter = fieldsValue;
+      Object.keys(filter).forEach(item => {
+        if (!filter[item]) {
+          delete filter[item];
+        }
+      });
 
       if (fieldsValue.create_date) {
         filter.create_date = [`${fieldsValue.create_date.valueOf()}`];
@@ -368,6 +379,7 @@ class TableList extends PureComponent {
         payload: { ...searchParams },
       });
     });
+    this.getLastCarInfo();
   };
 
   tableFooter = () => {
@@ -384,6 +396,8 @@ class TableList extends PureComponent {
         totalXianTransAmount,
         totalLatefee,
         totalBonusfee,
+        totalCarFeeConfirm,
+        totalCarFee,
       },
       car: { lastCar },
     } = this.props;
@@ -397,9 +411,10 @@ class TableList extends PureComponent {
         <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
         <span className={styles.footerSplit}>送货费：{totalDeliverAmount || '0'}</span>
         <span className={styles.footerSplit}>保价费：{totalInsurancefee || '0'}</span>
-        <span className={styles.footerSplit}>货车运费：{lastCar.car_fee || '0'}</span>
         <span className={styles.footerSplit}>滞纳金：{totalLatefee || '0'}</span>
         <span className={styles.footerSplit}>奖金：{totalBonusfee || '0'}</span>
+        <span className={styles.footerSplit}>未结算货车运费：{totalCarFee || '0'}</span>
+        <span className={styles.footerSplit}>已结算货车运费：{totalCarFeeConfirm || '0'}</span>
       </div>
     );
   };
@@ -408,14 +423,14 @@ class TableList extends PureComponent {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
-      site: { entrunkSiteList, normalSiteList },
+      site: { entrunkSiteList, siteList },
       car: { lastCar },
     } = this.props;
+    const { currentCompany = {}, currentShipSite = {} } = this.state;
     const companyOption = {};
     // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
-    }
+    companyOption.initialValue = currentCompany.company_id || '';
+
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
@@ -440,7 +455,7 @@ class TableList extends PureComponent {
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
-              {normalSiteList.map(ele => {
+              {siteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -452,8 +467,13 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="配载部">
-          {getFieldDecorator('shipsite_id', {})(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+          {getFieldDecorator('shipsite_id', { initialValue: currentShipSite.site_id })(
+            <Select
+              placeholder="请选择"
+              style={{ width: '150px' }}
+              onSelect={this.onShipSiteSelect}
+              allowClear
+            >
               {(entrunkSiteList || []).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
@@ -464,12 +484,9 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-
-        <FormItem label="异常状态">
-          {getFieldDecorator('abnormal_status')(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
-              <Option value="1">异常</Option>
-            </Select>
+        <FormItem label="货车编号">
+          {getFieldDecorator('car_code', { initialValue: lastCar.car_code })(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
           )}
         </FormItem>
         <FormItem label="录入日期">
@@ -516,7 +533,7 @@ class TableList extends PureComponent {
             </div>
             <StandardTable
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               selectedRows={selectedRows}
               loading={loading}
               rowKey="order_id"

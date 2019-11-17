@@ -212,11 +212,11 @@ class CreateEntrunkForm extends PureComponent {
     } = this.props;
     let currentDriver = {};
     driverList.forEach(item => {
-      if (item.driver_id == lastCar.driver_id && Number(lastCar.car_status) < 2) {
+      if (item.driver_id == lastCar.driver_id && Number(lastCar.car_status) < 3) {
         currentDriver = item;
       }
     });
-    if (Number(lastCar.car_status) >= 2) {
+    if (Number(lastCar.car_status) >= 3) {
       lastCar = { car_code: Number(lastCar.car_code) + 1 };
     }
     return (
@@ -343,6 +343,8 @@ class CreateEntrunkForm extends PureComponent {
         message.success('装车成功');
         onSearch();
         onEntrunkModalCancel();
+      } else {
+        message.error(result.msg || '装车失败');
       }
     });
   };
@@ -400,7 +402,7 @@ class TableList extends PureComponent {
     },
     {
       title: '录票时间',
-      width: 80,
+      width: 100,
       dataIndex: 'create_date',
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
@@ -537,7 +539,7 @@ class TableList extends PureComponent {
       payload: {},
     });
 
-    dispatch({
+    const siteList = await dispatch({
       type: 'site/getSiteListAction',
       payload: {},
     });
@@ -574,10 +576,19 @@ class TableList extends PureComponent {
           company_id: branchCompanyList[0].company_id,
         },
       });
-
-      this.getLastCar();
     }
 
+    if (siteList && siteList.length > 0) {
+      const shipSiteList = siteList.filter(item => {
+        return item.site_type == 3;
+      });
+      if (shipSiteList.length > 0) {
+        this.setState({
+          currentShipSite: shipSiteList[0],
+        });
+      }
+    }
+    this.getLastCar();
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
   }
@@ -750,7 +761,7 @@ class TableList extends PureComponent {
   };
 
   getLastCar = async () => {
-    const { currentCompany = {} } = this.state;
+    const { currentCompany = {}, currentShipSite = {} } = this.state;
     const { dispatch } = this.props;
 
     // 重新获取货车编号
@@ -758,6 +769,7 @@ class TableList extends PureComponent {
       type: 'car/getLastCarCodeAction',
       payload: {
         company_id: currentCompany.company_id,
+        shipsite_id: currentShipSite.site_id,
       },
     });
 
@@ -783,6 +795,7 @@ class TableList extends PureComponent {
     await this.setState({
       currentShipSite: site,
     });
+    this.getLastCar();
   };
 
   tableFooter = () => {
@@ -815,11 +828,13 @@ class TableList extends PureComponent {
       site: { entrunkSiteList, siteList },
       receiver: { receiverList },
     } = this.props;
+    const { currentShipSite = {} } = this.state;
     const companyOption = {};
     // 默认勾选第一个公司
     if (branchCompanyList.length > 0) {
       companyOption.initialValue = branchCompanyList[0].company_id || '';
     }
+    // 当前配载部只能装当前的车，不能装其他配载部的，所以用entrunkSiteList = [CacheSite]
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
@@ -856,14 +871,13 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="配载部">
-          {getFieldDecorator('shipsite_id', {})(
+          {getFieldDecorator('shipsite_id', { initialValue: currentShipSite.site_id })(
             <Select
               placeholder="请选择"
               style={{ width: '150px' }}
               onChange={this.onShipSiteSelect}
-              allowClear
             >
-              {(entrunkSiteList || []).map(ele => {
+              {[CacheSite].map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -940,7 +954,7 @@ class TableList extends PureComponent {
             </div>
             <StandardTable
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               selectedRows={selectedRows}
               loading={loading}
               rowKey="order_id"

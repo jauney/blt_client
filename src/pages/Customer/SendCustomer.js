@@ -318,11 +318,14 @@ class TableList extends PureComponent {
       currentCompany: CacheCompany,
     });
 
-    dispatch({
+    let siteList = await dispatch({
       type: 'site/getSiteListAction',
       payload: { pageNo: 1, pageSize: 100 },
     });
 
+    if (siteList && siteList.length > 0) {
+      this.setState({ currentSite: siteList[0] });
+    }
     dispatch({
       type: 'customer/queryCustomerTypesAction',
       payload: { pageNo: 1, pageSize: 100 },
@@ -352,9 +355,9 @@ class TableList extends PureComponent {
 
   onSiteSelect = async (value, option) => {
     const {
-      site: { normalSiteList = [] },
+      site: { siteList = [] },
     } = this.props;
-    normalSiteList.forEach(item => {
+    siteList.forEach(item => {
       if (item.site_id == value) {
         this.setState({ currentCompany: { company_id: item.company_id }, currentSite: item });
       }
@@ -420,13 +423,24 @@ class TableList extends PureComponent {
   /**
    * 添加客户信息
    */
-  onAddModalShow = () => {
-    const { currentCompany } = this.state;
+  onAddModalShow = (type = 'add') => {
+    const { currentCompany, currentSite = {} } = this.state;
     if (!currentCompany.company_id) {
       Modal.info({
         content: '请先选择分公司',
       });
       return;
+    }
+    if (type != 'edit') {
+      if (!currentSite.site_id) {
+        Modal.info({
+          content: '请先选择站点',
+        });
+        return;
+      }
+      this.setState({
+        record: {},
+      });
     }
     this.setState({
       addModalVisible: true,
@@ -473,7 +487,7 @@ class TableList extends PureComponent {
     this.setState({
       record,
     });
-    this.onAddModalShow();
+    this.onAddModalShow('edit');
   };
 
   // 已结算账目核对中，计算付款日期
@@ -482,7 +496,7 @@ class TableList extends PureComponent {
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
-      site: { entrunkSiteList = [], normalSiteList = [] },
+      site: { entrunkSiteList = [], siteList = [] },
       customer: { getCustomerList, sendCustomerList, customerTypes },
     } = this.props;
 
@@ -505,14 +519,14 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="站点">
-          {getFieldDecorator('site_id', {})(
+          {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
             <Select
               placeholder="请选择"
               style={{ width: '150px' }}
               onSelect={this.onSiteSelect}
               allowClear
             >
-              {normalSiteList.map(ele => {
+              {siteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -579,7 +593,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               rowKey="customer_id"
               data={{
                 list: customers,

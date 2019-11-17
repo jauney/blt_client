@@ -30,6 +30,12 @@ export default {
   },
 
   effects: {
+    *initOrderListAction({ payload }, { call, put }) {
+      yield put({
+        type: 'initOrderListReducer',
+        payload: { orders: [], total: 0 },
+      });
+    },
     *getCourierListAction({ payload }, { call, put, select }) {
       const response = yield call(getCourierList, payload);
 
@@ -87,6 +93,23 @@ export default {
   },
 
   reducers: {
+    initOrderListReducer(state, action) {
+      return {
+        ...state,
+        senderList: [],
+        receiverList: [],
+        operatorList: [],
+        senderTotal: 0,
+        receiverTotal: 0,
+        operatorTotal: 0,
+        orderList: [],
+        total: 0,
+        current: 1,
+        totalOrderAmount: 0,
+        totalTransAmount: 0,
+        totalInsurancefee: 0,
+      };
+    },
     getCourierReducer(state, action) {
       const { type, response } = action.payload;
       let courier = {};

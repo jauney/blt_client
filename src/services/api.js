@@ -1103,6 +1103,8 @@ export async function getOrderStatistic(params) {
             totalLatefee
             totalBonusfee
             totalAbnormalAmount
+            totalCarFeeConfirm
+            totalCarFee
           }
         }
       `,
@@ -1225,7 +1227,10 @@ export async function entrunkOrder(params) {
     });
 }
 
-export async function cancelEntrunk(params) {
+export async function cancelEntrunk(params = {}) {
+  if (params.car && params.car['__typename']) {
+    delete params.car['__typename'];
+  }
   return client
     .mutate({
       mutation: gql`
@@ -1417,8 +1422,8 @@ export async function getLastCarCode(params) {
   return client
     .query({
       query: gql`
-        query getLastCarCode($company_id: Int, $car_code: String) {
-          getLastCarCode(company_id: $company_id, car_code: $car_code) {
+        query getLastCarCode($company_id: Int, $shipsite_id: Int, $car_code: String) {
+          getLastCarCode(company_id: $company_id, shipsite_id: $shipsite_id, car_code: $car_code) {
             car_id
             car_fee
             car_code

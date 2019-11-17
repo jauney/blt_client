@@ -93,7 +93,7 @@ class EditableTable extends React.Component {
     super(props);
     const dataSource = props.dataSource || [];
     const selectedRowKeys = [];
-    console.log(dataSource);
+
     dataSource.forEach(item => {
       if (item.mobile_type == 1) {
         selectedRowKeys.push(item.mobile_id);

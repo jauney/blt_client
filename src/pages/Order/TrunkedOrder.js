@@ -226,6 +226,7 @@ class TableList extends PureComponent {
     cancelArriveModalVisible: false,
     cancelEntrunkModalVisible: false,
     currentCompany: {},
+    currentShipSite: {},
   };
 
   columns = [
@@ -260,12 +261,6 @@ class TableList extends PureComponent {
       title: '实收货款',
       width: 60,
       dataIndex: 'order_real',
-      sorter: true,
-    },
-    {
-      title: '实收运费',
-      width: 60,
-      dataIndex: 'trans_real',
       sorter: true,
     },
     {
@@ -362,7 +357,7 @@ class TableList extends PureComponent {
       payload: {},
     });
 
-    dispatch({
+    const siteList = await dispatch({
       type: 'site/getSiteListAction',
       payload: {},
     });
@@ -372,10 +367,20 @@ class TableList extends PureComponent {
       this.setState({
         currentCompany: branchCompanyList[0],
       });
-
-      await this.getLastCarInfo(branchCompanyList[0].company_id);
     }
 
+    if (siteList && siteList.length > 0) {
+      const shipSiteList = siteList.filter(item => {
+        return item.site_type == 3;
+      });
+      if (shipSiteList.length > 0) {
+        this.setState({
+          currentShipSite: shipSiteList[0],
+        });
+      }
+    }
+
+    await this.getLastCarInfo();
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
   }
@@ -387,8 +392,14 @@ class TableList extends PureComponent {
     const { dispatch, form } = this.props;
     const { current, pageSize } = this.state;
 
+    this.getLastCarInfo();
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      Object.keys(fieldsValue).forEach(item => {
+        if (!fieldsValue[item]) {
+          delete fieldsValue[item];
+        }
+      });
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -458,13 +469,6 @@ class TableList extends PureComponent {
       form,
     } = this.props;
 
-    // 自动更新货车编号
-    const carInfo = await this.getLastCarInfo(value);
-
-    form.setFieldsValue({
-      car_code: carInfo.car_code,
-    });
-
     const currentCompany = branchCompanyList.filter(item => {
       if (item.company_id == value) {
         return item;
@@ -475,15 +479,37 @@ class TableList extends PureComponent {
         currentCompany: currentCompany[0],
       });
     }
+    this.getLastCarInfo();
+  };
+
+  onShipSiteSelect = async value => {
+    const {
+      site: { entrunkSiteList = [] },
+    } = this.props;
+
+    let site = {};
+    for (let i = 0; i < entrunkSiteList.length; i++) {
+      const c = entrunkSiteList[i];
+      if (c.site_id == value) {
+        site = c;
+        break;
+      }
+    }
+
+    await this.setState({
+      currentShipSite: site,
+    });
+    this.getLastCarInfo();
   };
 
   getLastCarInfo = async companyId => {
     const { dispatch } = this.props;
-    const { currentCompany = {} } = this.state;
+    const { currentCompany = {}, currentShipSite = {} } = this.state;
     const carInfo = await dispatch({
       type: 'car/getLastCarCodeAction',
       payload: {
         company_id: companyId || currentCompany.company_id,
+        shipsite_id: currentShipSite.site_id,
       },
     });
 
@@ -492,19 +518,6 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
-
-    const { dispatch, form } = this.props;
-    const { currentCompany } = this.state;
-
-    // 获取当前货车编号信息
-    dispatch({
-      type: 'car/getLastCarCodeAction',
-      payload: {
-        company_id: currentCompany.company_id,
-        car_code: form.getFieldValue('car_code') || '',
-      },
-    });
-
     this.getOrderList();
   };
 
@@ -512,9 +525,10 @@ class TableList extends PureComponent {
   onCancelEntrunkOk = async () => {
     const {
       dispatch,
-      selectedRows,
       car: { lastCar },
     } = this.props;
+    const { selectedRows } = this.state;
+
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
@@ -573,13 +587,7 @@ class TableList extends PureComponent {
     if (result.code == 0) {
       message.success('发车成功！');
 
-      // 自动更新货车编号
-      await dispatch({
-        type: 'car/getLastCarCodeAction',
-        payload: {
-          company_id: currentCompany.company_id,
-        },
-      });
+      this.getLastCarInfo();
       this.onDepartCancel();
       this.handleSearch();
     } else {
@@ -618,13 +626,7 @@ class TableList extends PureComponent {
     if (result.code == 0) {
       message.success('取消发车成功！');
 
-      // 自动更新货车编号
-      await dispatch({
-        type: 'car/getLastCarCodeAction',
-        payload: {
-          company_id: currentCompany.company_id,
-        },
-      });
+      this.getLastCarInfo();
       this.onCancelDepartCancel();
     } else {
       message.error(result.msg);
@@ -795,9 +797,10 @@ class TableList extends PureComponent {
       form: { getFieldDecorator },
       company: { branchCompanyList },
       site: { entrunkSiteList, siteList },
-      car: { lastCar },
+      car: { lastCar = {} },
     } = this.props;
-    const { currentCompany = {} } = this.state;
+
+    const { currentCompany = {}, currentShipSite = {} } = this.state;
     // 默认勾选第一个公司
 
     return (
@@ -807,10 +810,10 @@ class TableList extends PureComponent {
             <Select
               placeholder="请选择"
               onSelect={this.onCompanySelect}
-              allowClear
+              allowClear={CacheCompany.company_type == 1 ? true : false}
               style={{ width: '150px' }}
             >
-              {branchCompanyList.map(ele => {
+              {(CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany]).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
                     {ele.company_name}
@@ -835,8 +838,13 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="配载部">
-          {getFieldDecorator('shipsite_id', { initialValue: CacheSite.site_id })(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+          {getFieldDecorator('shipsite_id', { initialValue: currentShipSite.site_id })(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onShipSiteSelect}
+              style={{ width: '150px' }}
+              allowClear
+            >
               {(entrunkSiteList || []).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
@@ -903,13 +911,23 @@ class TableList extends PureComponent {
                   取消货车运费结算
                 </Button>
               )}
-              {lastCar.car_status < 3 && <Button onClick={this.onDepark}>发车</Button>}
-              {lastCar.car_status == 3 && <Button onClick={this.onCancelDepark}>取消发车</Button>}
-              {lastCar.car_status == 3 && <Button onClick={this.onArrive}>到车确认</Button>}
-              {lastCar.car_status == 4 && <Button onClick={this.onCancelArrive}>取消到车</Button>}
+              {lastCar.car_status < 3 && CacheCompany.company_type == 1 && (
+                <Button onClick={this.onDepark}>发车</Button>
+              )}
+              {lastCar.car_status == 3 && CacheCompany.company_type == 1 && (
+                <Button onClick={this.onCancelDepark}>取消发车</Button>
+              )}
+              {lastCar.car_status == 3 && CacheCompany.company_type != 1 && (
+                <Button onClick={this.onArrive}>到车确认</Button>
+              )}
+              {lastCar.car_status == 4 && CacheCompany.company_type != 1 && (
+                <Button onClick={this.onCancelArrive}>取消到车</Button>
+              )}
               {selectedRows.length > 0 && (
                 <span>
-                  <Button onClick={this.onCancelEntrunk}>取消货物装车</Button>
+                  {CacheCompany.company_type == 1 && (
+                    <Button onClick={this.onCancelEntrunk}>取消货物装车</Button>
+                  )}
                   <Button onClick={this.onPrintOrder}>货物清单打印</Button>
                   <Button onClick={this.onDownloadOrder}>货物清单下载</Button>
                 </span>
@@ -917,7 +935,7 @@ class TableList extends PureComponent {
             </div>
             <StandardTable
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               selectedRows={selectedRows}
               loading={loading}
               rowKey="order_id"

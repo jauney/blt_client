@@ -23,6 +23,12 @@ export default {
   },
 
   effects: {
+    *initOrderListAction({ payload }, { call, put }) {
+      yield put({
+        type: 'initOrderListReducer',
+        payload: { orders: [], total: 0 },
+      });
+    },
     *getOrderListAction({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
 
@@ -62,6 +68,18 @@ export default {
   },
 
   reducers: {
+    initOrderListReducer(state, action) {
+      return {
+        ...state,
+        orderList: action.payload.orders,
+        total: action.payload.total,
+        totalOrderAmount: 0,
+        totalTransAmount: 0,
+        totalInsurancefee: 0,
+        totalAdvancepayAmount: 0,
+        totalDeliverAmount: 0,
+      };
+    },
     getAbnormalTypeListReducer(state, action) {
       return {
         ...state,

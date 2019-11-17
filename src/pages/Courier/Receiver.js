@@ -177,12 +177,6 @@ class TableList extends PureComponent {
       sorter: true,
     },
     {
-      title: '运费',
-      width: 60,
-      dataIndex: 'trans_real',
-      sorter: true,
-    },
-    {
       title: '折后运费',
       width: 60,
       dataIndex: 'trans_discount',
@@ -233,14 +227,6 @@ class TableList extends PureComponent {
       title: '录票时间',
       width: 80,
       dataIndex: 'create_date',
-      render: val => (
-        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
-    },
-    {
-      title: '发车时间',
-      width: 100,
-      dataIndex: 'depart_date',
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
@@ -306,6 +292,11 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
+
+    dispatch({
+      type: 'courier/initOrderListAction',
+    });
+
     // 下站只显示当前分公司
     await dispatch({
       type: 'company/getBranchCompanyList',
@@ -326,8 +317,6 @@ class TableList extends PureComponent {
 
     this.fetchSendCustomerList();
     this.fetchReceiverList();
-    // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
-    this.getOrderList();
   }
 
   handleSelectRows = rows => {
@@ -805,7 +794,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               rowKey="order_id"
               data={{
                 list: orderList,

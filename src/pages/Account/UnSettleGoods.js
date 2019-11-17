@@ -34,8 +34,9 @@ const FormItem = Form.Item;
 const { Option } = Select;
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, unsettlegoods, site, car, receiver, loading }) => {
+@connect(({ common, customer, company, unsettlegoods, site, car, receiver, loading }) => {
   return {
+    common,
     customer,
     company,
     unsettlegoods,
@@ -61,6 +62,7 @@ class TableList extends PureComponent {
     downloadModalVisible: false,
     printModalVisible: false,
     currentCompany: {},
+    currentShipSite: {},
   };
 
   columns = [
@@ -94,12 +96,6 @@ class TableList extends PureComponent {
     {
       title: '实收货款',
       dataIndex: 'order_real',
-      sorter: true,
-    },
-    {
-      title: '运费',
-      width: 60,
-      dataIndex: 'trans_real',
       sorter: true,
     },
     {
@@ -158,14 +154,6 @@ class TableList extends PureComponent {
       ),
     },
     {
-      title: '发车时间',
-      width: 100,
-      dataIndex: 'depart_date',
-      render: val => (
-        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
-    },
-    {
       title: '滞纳金',
       width: 60,
       dataIndex: 'late_fee',
@@ -212,7 +200,7 @@ class TableList extends PureComponent {
       payload: { ...CacheCompany },
     });
 
-    dispatch({
+    const siteList = await dispatch({
       type: 'site/getSiteListAction',
       payload: { pageNo: 1, pageSize: 100 },
     });
@@ -238,8 +226,20 @@ class TableList extends PureComponent {
       });
     }
 
-    // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
-    this.getOrderList();
+    if (siteList && siteList.length > 0) {
+      const shipSiteList = siteList.filter(item => {
+        return item.site_type == 3;
+      });
+      if (shipSiteList.length > 0) {
+        this.setState({
+          currentShipSite: shipSiteList[0],
+        });
+      }
+    }
+
+    dispatch({
+      type: 'common/initOrderListAction',
+    });
   }
 
   handleFormReset = () => {
@@ -578,12 +578,35 @@ class TableList extends PureComponent {
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => {};
 
+  tableFooter = () => {
+    const {
+      unsettlegoods: {
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+      },
+    } = this.props;
+    return (
+      <div>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付总额：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       customer: { getCustomerList, sendCustomerList },
       company: { branchCompanyList },
+      site: { entrunkSiteList },
     } = this.props;
+    const { currentShipSite } = this.state;
     const formItemLayout = {};
     const companyOption = {};
     // 默认勾选第一个公司
@@ -611,6 +634,21 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="货车编号" {...formItemLayout}>
+          {getFieldDecorator('shipsite_id', { initialValue: currentShipSite.site_id })(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onShipSiteSelect}
+              style={{ width: '100px' }}
+            >
+              {(entrunkSiteList || []).map(ele => {
+                return (
+                  <Option key={ele.site_id} value={ele.site_id}>
+                    {ele.site_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
           {getFieldDecorator('car_code', {})(
             <Input placeholder="请输入" style={{ width: '150px' }} />
           )}
@@ -719,7 +757,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               rowKey="order_id"
               data={{
                 list: orderList,
@@ -745,7 +783,7 @@ class TableList extends PureComponent {
               rowClassName={(record, index) => {
                 return record.sign_status == 1 ? styles.signColor : '';
               }}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={this.tableFooter}
             />
           </div>
         </Card>

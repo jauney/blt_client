@@ -646,7 +646,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               rowKey="company_id"
               data={{
                 list: branchCompanyList,

@@ -324,6 +324,11 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
+
+    await dispatch({
+      type: 'abnormal/initOrderListAction',
+    });
+
     // 下站只显示当前分公司
     const branchCompanyList = await dispatch({
       type: 'company/getBranchCompanyList',
@@ -349,9 +354,6 @@ class TableList extends PureComponent {
         },
       });
     }
-
-    // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
-    this.getOrderList();
   }
 
   handleFormReset = () => {
@@ -416,6 +418,12 @@ class TableList extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       fieldsValue.abnormal_status = 1;
+
+      Object.keys(fieldsValue).forEach(item => {
+        if (!fieldsValue[item]) {
+          delete fieldsValue[item];
+        }
+      });
 
       // TODO: 后续放开时间查询，目前方便测试，暂时关闭
       if (fieldsValue.entrunk_date && fieldsValue.entrunk_date.length > 0) {
@@ -680,7 +688,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               rowKey="order_id"
               data={{
                 list: orderList,

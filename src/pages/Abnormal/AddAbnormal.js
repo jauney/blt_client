@@ -162,8 +162,9 @@ class DownAccountForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, abnormal, site, car, receiver, loading }) => {
+@connect(({ common, customer, company, abnormal, site, car, receiver, loading }) => {
   return {
+    common,
     customer,
     company,
     abnormal,
@@ -290,13 +291,18 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
+
+    await dispatch({
+      type: 'abnormal/initOrderListAction',
+    });
+
     // 下站只显示当前分公司
     const branchCompanyList = await dispatch({
       type: 'company/getBranchCompanyList',
       payload: { ...CacheCompany },
     });
 
-    dispatch({
+    const siteList = await dispatch({
       type: 'site/getSiteListAction',
       payload: { pageNo: 1, pageSize: 100 },
     });
@@ -315,9 +321,6 @@ class TableList extends PureComponent {
         },
       });
     }
-
-    // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
-    this.getOrderList();
   }
 
   handleFormReset = () => {
@@ -383,6 +386,12 @@ class TableList extends PureComponent {
       if (err) return;
       fieldsValue.order_status = [3, 5];
       fieldsValue.abnormal_status = 0;
+
+      Object.keys(fieldsValue).forEach(item => {
+        if (!fieldsValue[item]) {
+          delete fieldsValue[item];
+        }
+      });
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -561,7 +570,7 @@ class TableList extends PureComponent {
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
-      site: { entrunkSiteList, normalSiteList },
+      site: { entrunkSiteList, siteList },
       company: { branchCompanyList },
     } = this.props;
     const companyOption = {};
@@ -593,7 +602,7 @@ class TableList extends PureComponent {
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
             <Select placeholder="请选择" style={{ width: '150px' }}>
-              {normalSiteList.map(ele => {
+              {siteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -654,7 +663,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               rowKey="order_id"
               data={{
                 list: orderList,

@@ -24,7 +24,7 @@ export default {
   effects: {
     *getOrderListAction({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
-      payload.filter.order_status = [2, 8];
+      payload.filter.order_status = [1, 8];
 
       const response = yield call(getOrderList, payload);
       yield put({

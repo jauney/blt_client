@@ -421,13 +421,18 @@ class TableList extends PureComponent {
   /**
    * 添加客户信息
    */
-  onAddModalShow = () => {
+  onAddModalShow = (type = 'add') => {
     const { currentCompany } = this.state;
     if (!currentCompany.company_id) {
       Modal.info({
         content: '请先选择分公司',
       });
       return;
+    }
+    if (type != 'edit') {
+      this.setState({
+        record: {},
+      });
     }
     this.setState({
       addModalVisible: true,
@@ -474,7 +479,7 @@ class TableList extends PureComponent {
     this.setState({
       record,
     });
-    this.onAddModalShow();
+    this.onAddModalShow('edit');
   };
 
   // 已结算账目核对中，计算付款日期
@@ -585,7 +590,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
-              scroll={{ x: 900 }}
+              scroll={{ x: 900, y: 350 }}
               rowKey="customer_id"
               data={{
                 list: customers,

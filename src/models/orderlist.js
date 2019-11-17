@@ -17,6 +17,8 @@ export default {
     totalXianTransAmount: 0,
     totalLatefee: 0,
     totalBonusfee: 0,
+    totalCarFeeConfirm: 0,
+    totalCarFee: 0,
   },
 
   effects: {

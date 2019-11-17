@@ -16,12 +16,14 @@ export default {
     totalOrderAmount: 0,
     totalTransAmount: 0,
     totalInsurancefee: 0,
+    totalAdvancepayAmount: 0,
+    totalDeliverAmount: 0,
   },
 
   effects: {
     *getOrderListAction({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
-      payload.filter.order_status = [3, 5];
+      payload.filter.order_status = [4, 5];
 
       const response = yield call(getOrderList, payload);
       yield put({
