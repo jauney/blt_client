@@ -606,6 +606,19 @@ class TableList extends PureComponent {
     }
   };
 
+  tableFooter = () => {
+    const {
+      debt: { totalDebtMoney = 0, totalIncome, totalExpense },
+    } = this.props;
+    console.log(this.props.debt, totalExpense);
+    return (
+      <div>
+        <span>收入总额：{totalIncome || '0'}</span>
+        <span className={styles.footerSplit}>支出总额：{totalExpense || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -762,7 +775,7 @@ class TableList extends PureComponent {
                   return '';
                 }
               }}
-              footer={() => ` `}
+              footer={this.tableFooter}
             />
           </div>
         </Card>

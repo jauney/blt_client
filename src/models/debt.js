@@ -20,6 +20,8 @@ export default {
     debtTypes: [],
     debtTypesTotal: 0,
     totalDebtMoney: 0,
+    totalIncome: 0,
+    totalExpense: 0,
   },
 
   effects: {

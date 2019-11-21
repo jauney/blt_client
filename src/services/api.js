@@ -1903,15 +1903,16 @@ export async function getDebtsStatistic(params) {
         query getDebtsStatistic($filter: DebtInput) {
           getDebtsStatistic(filter: $filter) {
             totalDebtMoney
+            totalIncome
+            totalExpense
           }
         }
       `,
       variables: params,
     })
     .then(data => {
-      console.log(data);
       gotoLogin(data);
-      return data.data.getDebts;
+      return data.data.getDebtsStatistic;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');
