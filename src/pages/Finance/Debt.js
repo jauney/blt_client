@@ -40,8 +40,7 @@ class AddFormDialog extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      abnormal_type_id: '',
-      abnormal_type: '',
+      currentDebtUserName: '',
     };
     this.formItemLayout = {
       labelCol: {
@@ -56,20 +55,36 @@ class AddFormDialog extends PureComponent {
   }
 
   onAddHandler = () => {
-    const { addFormDataHandle, form, debtTypes, customerList } = this.props;
+    const { addFormDataHandle, form, debtTypes, debtUserList } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      let newDebtType = true;
+      let debtType;
       debtTypes.forEach(item => {
         if (item.debttype_id == fieldsValue['debttype_id']) {
-          newDebtType = false;
+          debtType = item;
         }
       });
-      if (newDebtType) {
+      // 如果选择了类型，则添加时带上类型名称
+      if (!debtType) {
         fieldsValue.debttype = fieldsValue.debttype_id;
         fieldsValue.debttype_id = 0;
       } else {
         fieldsValue.debttype_id = Number(fieldsValue.debttype_id);
+        fieldsValue.debttype = debtType.debttype;
+      }
+
+      // 如果姓名不在列表中，则使用姓名查询
+      let debtUser;
+      debtUserList.forEach(item => {
+        if (item.debtuser_id == fieldsValue.debtuser_id) {
+          debtUser = item;
+        }
+      });
+      if (!debtUser) {
+        fieldsValue.debtuser_name = fieldsValue.debtuser_id;
+        fieldsValue.debtuser_id = 0;
+      } else {
+        fieldsValue.debtuser_name = debtUser.debtuser_name;
       }
 
       addFormDataHandle(fieldsValue);
@@ -96,13 +111,44 @@ class AddFormDialog extends PureComponent {
     });
   };
 
+  onDebtUserSearch = async value => {
+    if (value) {
+      this.setState({
+        currentDebtUserName: value,
+      });
+    }
+  };
+
+  onDebtUserBlur = value => {
+    const { form, debtUserList } = this.props;
+    const { currentDebtUserName } = this.state;
+
+    let curCustomer;
+    for (let i = 0; i < debtUserList.length; i++) {
+      const customer = debtUserList[i];
+      if (
+        customer.debtuser_name == currentDebtUserName ||
+        customer.debtuser_name == value ||
+        customer.debtuser_id == value
+      ) {
+        curCustomer = customer;
+        break;
+      }
+    }
+    if (!curCustomer) {
+      form.setFieldsValue({
+        debtuser_id: currentDebtUserName,
+      });
+    }
+  };
+
   render() {
     const {
       modalVisible,
       onCancelHandler,
       onCustomerScroll,
       form,
-      customerList = [],
+      debtUserList = [],
       debtTypes = [],
     } = this.props;
 
@@ -127,9 +173,32 @@ class AddFormDialog extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem {...this.formItemLayout} label="姓名">
-                {form.getFieldDecorator('customer_name', {
+                {form.getFieldDecorator('debtuser_id', {
                   rules: [{ required: true, message: '请填写姓名' }],
-                })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
+                })(
+                  <Select
+                    placeholder="请选择"
+                    onSelect={this.onGetCustomerSelect}
+                    style={{ width: '150px' }}
+                    allowClear
+                    showSearch
+                    onSearch={this.onDebtUserSearch}
+                    onBlur={this.onDebtUserBlur}
+                    optionLabelProp="children"
+                    onPopupScroll={onCustomerScroll}
+                    filterOption={(input, option) =>
+                      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
+                    {debtUserList.map(ele => {
+                      return (
+                        <Option key={ele.debtuser_id} value={ele.debtuser_id}>
+                          {ele.debtuser_name}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                )}
               </FormItem>
             </Col>
           </Row>
@@ -208,9 +277,8 @@ class TableList extends PureComponent {
     current: 1,
     pageSize: 20,
     record: {},
-    currentCompany: {},
+    currentDebtUserName: '',
     currentSite: {},
-    orderModalVisible: false,
     addDebtModalVisible: false,
   };
 
@@ -231,7 +299,7 @@ class TableList extends PureComponent {
     },
     {
       title: '客户姓名',
-      dataIndex: 'customer_name',
+      dataIndex: 'debtuser_name',
       sorter: true,
     },
     {
@@ -248,13 +316,8 @@ class TableList extends PureComponent {
   ];
 
   async componentDidMount() {
-    const { dispatch } = this.props;
-
-    this.setState({
-      currentCompany: CacheCompany,
-    });
-
     await this.fetchCompanySiteList(CacheCompany.company_id);
+    await this.fetchDebtUserList();
     await this.fetchDebtTypeList({});
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
@@ -268,11 +331,11 @@ class TableList extends PureComponent {
 
   fetchDebtTypeList = async () => {
     const { dispatch } = this.props;
-    const { currentSite, currentCompany } = this.state;
+    const { currentSite } = this.state;
     dispatch({
       type: 'debt/getDebtTypesAction',
       payload: {
-        company_id: (currentCompany && currentCompany.company_id) || 0,
+        company_id: CacheCompany.company_id,
         site_id: (currentSite && currentSite.site_id) || 0,
       },
     });
@@ -292,54 +355,25 @@ class TableList extends PureComponent {
     }
   };
 
-  fetchGetCustomerList = async companyId => {
-    const { dispatch, branchCompanyList } = this.props;
-    let { currentCompany } = this.state;
-    if (!currentCompany || !currentCompany.company_id) {
-      currentCompany = branchCompanyList && branchCompanyList[0];
-    }
-
-    dispatch({
-      type: 'customer/getCustomerListAction',
-      payload: {
-        filter: { company_id: companyId || (currentCompany && currentCompany.company_id) || 0 },
-      },
-    });
-  };
-
-  fetchSendCustomerList = async companyId => {
+  fetchDebtUserList = async companyId => {
     const { dispatch } = this.props;
-
+    const { currentSite = {} } = this.state;
+    const filter = { company_id: CacheCompany.company_id };
+    if (currentSite.site_id) {
+      filter.site_id = currentSite.site_id;
+    }
     dispatch({
-      type: 'customer/sendCustomerListAction',
+      type: 'debt/getDebtUsersAction',
       payload: {
-        filter: {},
+        filter,
       },
     });
-  };
-
-  onCompanySelect = async (value, option) => {
-    const {
-      company: { branchCompanyList },
-    } = this.props;
-    // 获取当前公司的客户列表
-    // this.fetchGetCustomerList(value);
-
-    const currentCompany = branchCompanyList.filter(item => {
-      if (item.company_id == value) {
-        return item;
-      }
-    });
-    if (currentCompany.length > 0) {
-      this.setState({
-        currentCompany: currentCompany[0],
-      });
-    }
   };
 
   onSiteSelect = async (value, option) => {
     const {
       site: { normalSiteList = [] },
+      dispatch,
     } = this.props;
 
     const currentSite = normalSiteList.filter(item => {
@@ -352,8 +386,13 @@ class TableList extends PureComponent {
         currentSite: currentSite[0],
       });
     }
-
+    // 清空姓名列表
+    dispatch({
+      type: 'debt/resetDebtUserPageNoAction',
+      payload: {},
+    });
     this.fetchDebtTypeList();
+    this.fetchDebtUserList();
   };
 
   handleSearch = e => {
@@ -366,8 +405,12 @@ class TableList extends PureComponent {
    * 获取订单信息
    */
   getOrderList = (data = {}, pageNo = 1) => {
-    const { dispatch, form } = this.props;
-    const { current, pageSize, currentCompany } = this.state;
+    const {
+      dispatch,
+      form,
+      debt: { debtUserList = [] },
+    } = this.props;
+    const { current, pageSize } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
@@ -377,8 +420,20 @@ class TableList extends PureComponent {
           return `${item.valueOf()}`;
         });
       }
+      // 如果姓名不在列表中，则使用姓名查询
+      let debtUserFlag = false;
+      debtUserList.forEach(item => {
+        if (item.debtuser_id == fieldsValue.debtuser_id) {
+          debtUserFlag = true;
+        }
+      });
+      if (!debtUserFlag) {
+        fieldsValue.debtuser_name = fieldsValue.debtuser_id;
+        delete fieldsValue.debtuser_id;
+      }
+
       // 查询必须带上公司参数，否则查询出全部记录
-      fieldsValue.company_id = currentCompany.company_id;
+      fieldsValue.company_id = CacheCompany.company_id;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -427,14 +482,13 @@ class TableList extends PureComponent {
   // 添加收入
   addFormDataHandle = async data => {
     const { dispatch } = this.props;
-
-    const { currentCompany = {}, currentSite = {} } = this.state;
+    const { currentSite = {} } = this.state;
 
     const result = await dispatch({
       type: 'debt/addDebtAction',
       payload: {
         ...data,
-        company_id: currentCompany.company_id,
+        company_id: CacheCompany.company_id,
         site_id: currentSite.site_id,
       },
     });
@@ -481,17 +535,47 @@ class TableList extends PureComponent {
     // this.onEntrunkModalShow();
   };
 
-  onGetCustomerScroll = e => {
+  onDebtUserScroll = e => {
     if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
-      this.fetchGetCustomerList();
+      this.fetchDebtUserList();
     }
   };
 
-  onSendCustomerScroll = e => {
-    if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
-      this.fetchSendCustomerList();
+  onDebtUserSearch = async value => {
+    if (value) {
+      this.setState({
+        currentDebtUserName: value,
+      });
     }
   };
+
+  onDebtUserBlur = value => {
+    const {
+      form,
+      debt: { debtUserList },
+    } = this.props;
+    const { currentDebtUserName } = this.state;
+
+    let curCustomer;
+    for (let i = 0; i < debtUserList.length; i++) {
+      const customer = debtUserList[i];
+      if (
+        customer.debtuser_name == currentDebtUserName ||
+        customer.debtuser_name == value ||
+        customer.debtuser_id == value
+      ) {
+        curCustomer = customer;
+        break;
+      }
+    }
+    if (!curCustomer) {
+      form.setFieldsValue({
+        debtuser_id: currentDebtUserName,
+      });
+    }
+  };
+
+  onDebtUserSelect = () => {};
 
   // 归零
   onSettleModal = () => {
@@ -526,11 +610,9 @@ class TableList extends PureComponent {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], normalSiteList = [] },
-      company: { branchCompanyList = [] },
-      customer: { getCustomerList, sendCustomerList },
-      debt: { debtTypes },
+      debt: { debtTypes, debtUserList },
     } = this.props;
-    const { currentSite } = this.state;
+    const { currentSite, currentDebtUserName } = this.state;
     const companyList = [CacheCompany];
     const companyOption = {};
     // 默认勾选第一个公司
@@ -539,26 +621,6 @@ class TableList extends PureComponent {
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        {CacheCompany.company_type == 2 && (
-          <FormItem label="分公司">
-            {getFieldDecorator('company_id', companyOption)(
-              <Select
-                placeholder="请选择"
-                onSelect={this.onCompanySelect}
-                style={{ width: '150px' }}
-              >
-                {companyList.map(ele => {
-                  return (
-                    <Option key={ele.company_id} value={ele.company_id}>
-                      {ele.company_name}
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
-          </FormItem>
-        )}
-
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
             {getFieldDecorator('site_id', { initialValue: currentSite.site_id })(
@@ -579,61 +641,33 @@ class TableList extends PureComponent {
             )}
           </FormItem>
         )}
-
-        {CacheCompany.company_type == 2 && (
-          <FormItem label="客户">
-            {getFieldDecorator('customer_id')(
-              <Select
-                placeholder="请选择"
-                onSelect={this.onGetCustomerSelect}
-                style={{ width: '150px' }}
-                allowClear
-                showSearch
-                optionLabelProp="children"
-                onPopupScroll={this.onGetCustomerScroll}
-                filterOption={(input, option) =>
-                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
-              >
-                {getCustomerList.map(ele => {
-                  return (
-                    <Option key={ele.customer_id} value={ele.customer_id}>
-                      {ele.customer_name}
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
-          </FormItem>
-        )}
-
-        {CacheCompany.company_type == 1 && (
-          <FormItem label="客户">
-            {getFieldDecorator('customer_id')(
-              <Select
-                placeholder="请选择"
-                onSelect={this.onSendCustomerSelect}
-                style={{ width: '150px' }}
-                allowClear
-                showSearch
-                optionLabelProp="children"
-                onPopupScroll={this.onSendCustomerScroll}
-                filterOption={(input, option) =>
-                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
-              >
-                {sendCustomerList.map(ele => {
-                  return (
-                    <Option key={ele.customer_id} value={ele.customer_id}>
-                      {ele.customer_name}
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
-          </FormItem>
-        )}
-        <FormItem label="支出日期">
+        <FormItem label="姓名">
+          {getFieldDecorator('debtuser_id')(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onDebtUserSelect}
+              style={{ width: '150px' }}
+              allowClear
+              showSearch
+              onBlur={this.onDebtUserBlur}
+              onSearch={this.onDebtUserSearch}
+              optionLabelProp="children"
+              onPopupScroll={this.onDebtUserScroll}
+              filterOption={(input, option) =>
+                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {debtUserList.map(ele => {
+                return (
+                  <Option key={ele.debtuser_id} value={ele.debtuser_id}>
+                    {ele.debtuser_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="日期">
           {getFieldDecorator('debt_date', {})(<RangePicker style={{ width: '250px' }} />)}
         </FormItem>
 
@@ -673,19 +707,11 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      debt: { debtList, total, debtTypes },
-      customer: { sendCustomerList, getCustomerList },
+      debt: { debtList, total, debtTypes, debtUserList },
       loading,
     } = this.props;
 
-    const {
-      selectedRows,
-      current,
-      pageSize,
-      orderModalVisible,
-      addDebtModalVisible,
-      record,
-    } = this.state;
+    const { selectedRows, current, pageSize, addDebtModalVisible, record } = this.state;
 
     return (
       <div>
@@ -729,7 +755,13 @@ class TableList extends PureComponent {
                   },
                 };
               }}
-              rowClassName={(record, index) => {}}
+              rowClassName={(record, index) => {
+                if (record.debt_status === 1) {
+                  return styles.payColor;
+                } else {
+                  return '';
+                }
+              }}
               footer={() => ` `}
             />
           </div>
@@ -740,10 +772,8 @@ class TableList extends PureComponent {
           onCancelHandler={this.onCancelDebtClick}
           selectedRows={selectedRows}
           debtTypes={debtTypes}
-          onCustomerScroll={
-            CacheCompany.company_type == 1 ? this.onSendCustomerScroll : this.onGetCustomerScroll
-          }
-          customerList={CacheCompany.company_type == 1 ? sendCustomerList : getCustomerList}
+          onCustomerScroll={this.onGetDebtUserScroll}
+          debtUserList={debtUserList}
         />
       </div>
     );

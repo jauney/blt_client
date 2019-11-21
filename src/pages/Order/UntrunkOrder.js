@@ -196,7 +196,12 @@ class CreateEntrunkForm extends PureComponent {
   renderCustomerOption = item => {
     const AutoOption = AutoComplete.Option;
     return (
-      <AutoOption key={item.driver_id} driverid={item.driver_id} text={item.driver_plate}>
+      <AutoOption
+        key={item.driver_id}
+        driverid={item.driver_id}
+        value={item.driver_id}
+        text={item.driver_plate}
+      >
         {item.driver_plate}
       </AutoOption>
     );
@@ -758,6 +763,7 @@ class TableList extends PureComponent {
     });
 
     this.getLastCar();
+    this.handleSearch();
   };
 
   getLastCar = async () => {

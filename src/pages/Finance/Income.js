@@ -63,7 +63,7 @@ class AddFormDialog extends PureComponent {
   };
 
   onAddHandler = () => {
-    const { addFormDataHandle, form, incomeTypes = [] } = this.props;
+    const { addFormDataHandle, form, incomeTypes = [], record = {} } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       let newIncomeType = true;
@@ -76,6 +76,7 @@ class AddFormDialog extends PureComponent {
       });
 
       addFormDataHandle({
+        income_id: record.income_id || 0,
         income_money: fieldsValue.income_money,
         incometype_id: newIncomeType ? '' : fieldsValue.incometype_id,
         incometype: newIncomeType ? fieldsValue.incometype_id : incomeType,
@@ -91,6 +92,7 @@ class AddFormDialog extends PureComponent {
       <AutoOption
         key={item.incometype_id}
         incometype_id={item.incometype_id}
+        value={item.incometype_id}
         text={item.incometype}
       >
         {item.incometype}
@@ -99,7 +101,7 @@ class AddFormDialog extends PureComponent {
   };
 
   render() {
-    const { modalVisible, onCancelHandler, selectedRows, form, incomeTypes = [] } = this.props;
+    const { modalVisible, onCancelHandler, record = {}, form, incomeTypes = [] } = this.props;
     return (
       <Modal
         destroyOnClose
@@ -122,7 +124,7 @@ class AddFormDialog extends PureComponent {
             <Col>
               <FormItem {...this.formItemLayout} label="收入金额">
                 {form.getFieldDecorator('income_money', {
-                  initialValue: '',
+                  initialValue: record.income_money,
                   rules: [{ required: true, message: '请填写收入金额' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
@@ -132,6 +134,7 @@ class AddFormDialog extends PureComponent {
             <Col>
               <FormItem {...this.formItemLayout} label="收入类型">
                 {form.getFieldDecorator('incometype_id', {
+                  initialValue: record.incometype_id,
                   rules: [{ required: true, message: '请填写收入类型' }],
                 })(
                   <AutoComplete
@@ -151,7 +154,7 @@ class AddFormDialog extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem {...this.formItemLayout} label="收入原因">
-                {form.getFieldDecorator('income_reason', { initialValue: '' })(
+                {form.getFieldDecorator('income_reason', { initialValue: record.income_reason })(
                   <Input placeholder="请输入" style={{ width: '280px' }} />
                 )}
               </FormItem>
@@ -160,7 +163,7 @@ class AddFormDialog extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem labelCol={{ span: 3, offset: 2 }} label="备注">
-                {form.getFieldDecorator('remark', { initialValue: '' })(
+                {form.getFieldDecorator('remark', { initialValue: record.remark })(
                   <Input placeholder="请输入" style={{ width: '280px' }} />
                 )}
               </FormItem>
@@ -195,7 +198,6 @@ class TableList extends PureComponent {
     record: {},
     currentCompany: {},
     currentSite: {},
-    orderModalVisible: false,
     settleModalVisible: false,
     addIncomeModalVisible: false,
     signModalVisible: false,
@@ -247,21 +249,8 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
-    // 下站只显示当前分公司
-    let branchCompanyList = [CacheCompany];
 
-    let currentCompany = {};
-    // 初始渲染的是否，先加载第一个分公司的收货人信息
-    if (CacheCompany.company_type == 2 && branchCompanyList && branchCompanyList.length > 0) {
-      currentCompany = branchCompanyList[0];
-    } else {
-      currentCompany = CacheCompany;
-    }
-    this.setState({
-      currentCompany: currentCompany,
-    });
-
-    this.fetchCompanySiteList(currentCompany.company_id);
+    this.fetchCompanySiteList(CacheCompany.company_id);
 
     this.fetchIncomeTypeList({});
 
@@ -282,11 +271,10 @@ class TableList extends PureComponent {
 
   fetchIncomeTypeList = async ({ siteId = -1 }) => {
     const { dispatch } = this.props;
-    const { currentCompany } = this.state;
     const filter = {};
     //
     // 查询类型必须带上公司参数
-    filter.company_id = currentCompany.company_id || -1;
+    filter.company_id = CacheCompany.company_id || -1;
     if (CacheCompany.company_type == 1) {
       filter.site_id = siteId;
     }
@@ -316,36 +304,6 @@ class TableList extends PureComponent {
         filter: { company_id: companyId },
       },
     });
-  };
-
-  onCompanySelect = async (value, option) => {
-    const {
-      company: { branchCompanyList },
-      form,
-    } = this.props;
-    // 获取当前公司的客户列表
-    // this.fetchGetCustomerList(value);
-
-    // 获取当前公司的站点
-    this.fetchCompanySiteList(value);
-
-    // 重新获取收入类型
-    this.fetchIncomeTypeList({ companyId: value });
-    // 清空勾选的收入类型
-    form.setFieldsValue({
-      income_type_id: '',
-    });
-
-    const currentCompany = branchCompanyList.filter(item => {
-      if (item.company_id == value) {
-        return item;
-      }
-    });
-    if (currentCompany.length > 0) {
-      this.setState({
-        currentCompany: currentCompany[0],
-      });
-    }
   };
 
   onSiteSelect = async (value, option) => {
@@ -378,7 +336,7 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize, currentCompany } = this.state;
+    const { current, pageSize } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
@@ -389,7 +347,7 @@ class TableList extends PureComponent {
         });
       }
       // 查询必须带上公司参数，否则查询出全部记录
-      fieldsValue.company_id = currentCompany.company_id;
+      fieldsValue.company_id = CacheCompany.company_id;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -439,14 +397,13 @@ class TableList extends PureComponent {
   addFormDataHandle = async data => {
     const { dispatch } = this.props;
 
-    const { currentCompany = {}, currentSite = {} } = this.state;
-    console.log(currentCompany, currentSite);
+    const { currentSite = {} } = this.state;
     const result = await dispatch({
       type: 'income/addIncomeAction',
       payload: {
         ...data,
-        company_id: currentCompany.company_id,
-        company_name: currentCompany.company_name,
+        company_id: CacheCompany.company_id,
+        company_name: CacheCompany.company_name,
         site_id: currentSite.site_id,
         site_name: currentSite.site_name,
       },
@@ -462,8 +419,8 @@ class TableList extends PureComponent {
 
   // 打开添加收入对话框
   onAddIncomeClick = async () => {
-    const { currentCompany = {}, currentSite = {} } = this.state;
-    if (currentCompany.company_id == 1 && !currentSite.site_id) {
+    const { currentSite = {} } = this.state;
+    if (CacheCompany.company_id == 1 && !currentSite.site_id) {
       Modal.info({
         content: '请先选择站点',
       });
@@ -471,6 +428,7 @@ class TableList extends PureComponent {
     }
     this.setState({
       addIncomeModalVisible: true,
+      record: {},
     });
   };
 
@@ -485,14 +443,14 @@ class TableList extends PureComponent {
    */
   onIncomeModalShow = () => {
     this.setState({
-      orderModalVisible: true,
+      addIncomeModalVisible: true,
     });
   };
 
   onIncomeModalCancel = () => {
     // setTimeout(() => this.addBtn.blur(), 0);
     this.setState({
-      orderModalVisible: false,
+      addIncomeModalVisible: false,
     });
   };
 
@@ -540,27 +498,6 @@ class TableList extends PureComponent {
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        {CacheCompany.company_type == 2 && (
-          <FormItem label="分公司">
-            {getFieldDecorator('company_id', companyOption)(
-              <Select
-                placeholder="请选择"
-                onSelect={this.onCompanySelect}
-                style={{ width: '150px' }}
-                allowClear
-              >
-                {branchCompanyList.map(ele => {
-                  return (
-                    <Option key={ele.company_id} value={ele.company_id}>
-                      {ele.company_name}
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
-          </FormItem>
-        )}
-
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
             {getFieldDecorator('site_id', {})(
@@ -586,7 +523,7 @@ class TableList extends PureComponent {
           {getFieldDecorator('income_date', {})(<RangePicker style={{ width: '250px' }} />)}
         </FormItem>
 
-        <FormItem label="一级分类">
+        <FormItem label="收入分类">
           {getFieldDecorator('incometype_id')(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
               {incomeTypes.map(ele => {
@@ -622,7 +559,6 @@ class TableList extends PureComponent {
       selectedRows,
       current,
       pageSize,
-      orderModalVisible,
       addIncomeModalVisible,
       downloadModalVisible,
       printModalVisible,
@@ -677,6 +613,7 @@ class TableList extends PureComponent {
           onCancelHandler={this.onCancelIncomeClick}
           incomeTypes={incomeTypes}
           selectedRows={selectedRows}
+          record={record}
         />
         <Modal
           title="确认"

@@ -1830,6 +1830,36 @@ export async function addExpense(params) {
 }
 
 // debts
+export async function getDebtUsers(params) {
+  return client
+    .query({
+      query: gql`
+        query getDebtUsers($pageNo: Int, $pageSize: Int, $filter: DebtUserInput) {
+          getDebtUsers(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+            total
+            debtUsers {
+              debtuser_id
+              debtuser_name
+              company_id
+              company_name
+              site_id
+              site_name
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getDebtUsers;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+// debts
 export async function getDebts(params) {
   return client
     .query({
@@ -1846,8 +1876,8 @@ export async function getDebts(params) {
               site_id
               debt_money
               debt_date
-              customer_id
-              customer_name
+              debtuser_id
+              debtuser_name
               remark
               debt_status
             }
@@ -1988,6 +2018,7 @@ export async function getTransferStatistic(params) {
             totalTransferAmount
             totalTransferConfirmAmount
             totalTransferUnConfirmAmount
+            totalShouldTransfer
           }
         }
       `,

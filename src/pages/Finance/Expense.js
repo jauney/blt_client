@@ -60,7 +60,7 @@ class AddFormDialog extends PureComponent {
   };
 
   onAddHandler = () => {
-    const { addFormDataHandle, form, expenseTypes = [] } = this.props;
+    const { addFormDataHandle, form, expenseTypes = [], record } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       let newExpenseType = true;
@@ -73,6 +73,7 @@ class AddFormDialog extends PureComponent {
       });
 
       addFormDataHandle({
+        expense_id: record.expense_id || 0,
         expense_money: fieldsValue.expense_money,
         expensetype_id: newExpenseType ? '' : fieldsValue.expensetype_id,
         expensetype: newExpenseType ? fieldsValue.expensetype_id : expenseType,
@@ -88,6 +89,7 @@ class AddFormDialog extends PureComponent {
       <AutoOption
         key={item.expensetype_id}
         expensetype_id={item.expensetype_id}
+        value={item.expensetype_id}
         text={item.expensetype}
       >
         {item.expensetype}
@@ -96,7 +98,7 @@ class AddFormDialog extends PureComponent {
   };
 
   render() {
-    const { modalVisible, onCancelHandler, selectedRows, form, expenseTypes = [] } = this.props;
+    const { modalVisible, onCancelHandler, record, form, expenseTypes = [] } = this.props;
     return (
       <Modal
         destroyOnClose
@@ -119,7 +121,7 @@ class AddFormDialog extends PureComponent {
             <Col>
               <FormItem {...this.formItemLayout} label="支出金额">
                 {form.getFieldDecorator('expense_money', {
-                  initialValue: '',
+                  initialValue: record.expense_money,
                   rules: [{ required: true, message: '请填写支出金额' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
@@ -129,6 +131,7 @@ class AddFormDialog extends PureComponent {
             <Col>
               <FormItem {...this.formItemLayout} label="支出类型">
                 {form.getFieldDecorator('expensetype_id', {
+                  initialValue: record.expensetype_id,
                   rules: [{ required: true, message: '请填写支出类型' }],
                 })(
                   <AutoComplete
@@ -148,7 +151,7 @@ class AddFormDialog extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem {...this.formItemLayout} label="支出原因">
-                {form.getFieldDecorator('expense_reason', { initialValue: '' })(
+                {form.getFieldDecorator('expense_reason', { initialValue: record.expense_reason })(
                   <Input placeholder="请输入" style={{ width: '280px' }} />
                 )}
               </FormItem>
@@ -157,7 +160,7 @@ class AddFormDialog extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem labelCol={{ span: 3, offset: 2 }} label="备注">
-                {form.getFieldDecorator('remark', { initialValue: '' })(
+                {form.getFieldDecorator('remark', { initialValue: record.remark })(
                   <Input placeholder="请输入" style={{ width: '280px' }} />
                 )}
               </FormItem>
@@ -192,7 +195,6 @@ class TableList extends PureComponent {
     record: {},
     currentCompany: {},
     currentSite: {},
-    orderModalVisible: false,
     settleModalVisible: false,
     addExpenseModalVisible: false,
     signModalVisible: false,
@@ -244,21 +246,8 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
-    // 下站只显示当前分公司
-    let branchCompanyList = [CacheCompany];
 
-    let currentCompany = {};
-    // 初始渲染的是否，先加载第一个分公司的收货人信息
-    if (CacheCompany.company_type == 2 && branchCompanyList && branchCompanyList.length > 0) {
-      currentCompany = branchCompanyList[0];
-    } else {
-      currentCompany = CacheCompany;
-    }
-    this.setState({
-      currentCompany: currentCompany,
-    });
-
-    this.fetchCompanySiteList(currentCompany.company_id);
+    this.fetchCompanySiteList(CacheCompany.company_id);
 
     this.fetchExpenseTypeList({});
 
@@ -279,11 +268,10 @@ class TableList extends PureComponent {
 
   fetchExpenseTypeList = async ({ siteId = -1 }) => {
     const { dispatch } = this.props;
-    const { currentCompany } = this.state;
     const filter = {};
     //
     // 查询类型必须带上公司参数
-    filter.company_id = currentCompany.company_id || -1;
+    filter.company_id = CacheCompany.company_id || -1;
     if (CacheCompany.company_type == 1) {
       filter.site_id = siteId;
     }
@@ -349,7 +337,7 @@ class TableList extends PureComponent {
     const {
       site: { normalSiteList = [] },
     } = this.props;
-    console.log(normalSiteList, value);
+
     const currentSite = normalSiteList.filter(item => {
       if (item.site_id == value) {
         return item;
@@ -375,7 +363,7 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize, currentCompany } = this.state;
+    const { current, pageSize } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
@@ -386,18 +374,13 @@ class TableList extends PureComponent {
         });
       }
       // 查询必须带上公司参数，否则查询出全部记录
-      fieldsValue.company_id = currentCompany.company_id;
+      fieldsValue.company_id = CacheCompany.company_id;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'expense/getExpensesAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
-      // dispatch({
-      //   type: 'abnormal/getSiteOrderStatisticAction',
-      //   payload: { ...searchParams },
-      // });
     });
   };
 
@@ -436,14 +419,13 @@ class TableList extends PureComponent {
   addFormDataHandle = async data => {
     const { dispatch } = this.props;
 
-    const { currentCompany = {}, currentSite = {} } = this.state;
-    console.log(currentCompany, currentSite);
+    const { currentSite = {} } = this.state;
     const result = await dispatch({
       type: 'expense/addExpenseAction',
       payload: {
         ...data,
-        company_id: currentCompany.company_id,
-        company_name: currentCompany.company_name,
+        company_id: CacheCompany.company_id,
+        company_name: CacheCompany.company_name,
         site_id: currentSite.site_id,
         site_name: currentSite.site_name,
       },
@@ -459,21 +441,23 @@ class TableList extends PureComponent {
 
   // 打开添加支出对话框
   onAddExpenseClick = async () => {
-    const { currentCompany = {}, currentSite = {} } = this.state;
-    if (currentCompany.company_id == 1 && !currentSite.site_id) {
+    const { currentSite = {} } = this.state;
+    if (CacheCompany.company_id == 1 && !currentSite.site_id) {
       Modal.info({
         content: '请先选择站点',
       });
       return;
     }
-    if (!currentCompany.company_id) {
+    if (!CacheCompany.company_id) {
       Modal.info({
         content: '请先选择公司',
       });
       return;
     }
+
     this.setState({
       addExpenseModalVisible: true,
+      record: {},
     });
   };
 
@@ -488,14 +472,14 @@ class TableList extends PureComponent {
    */
   onExpenseModalShow = () => {
     this.setState({
-      orderModalVisible: true,
+      addExpenseModalVisible: true,
     });
   };
 
   onExpenseModalCancel = () => {
     // setTimeout(() => this.addBtn.blur(), 0);
     this.setState({
-      orderModalVisible: false,
+      addExpenseModalVisible: false,
     });
   };
 
@@ -561,28 +545,6 @@ class TableList extends PureComponent {
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        {CacheCompany.company_type == 2 && (
-          <FormItem label="分公司">
-            {getFieldDecorator('company_id', companyOption)(
-              <Select
-                placeholder="请选择"
-                onSelect={this.onCompanySelect}
-                onChange={this.onCompanyChange}
-                style={{ width: '150px' }}
-                allowClear
-              >
-                {branchCompanyList.map(ele => {
-                  return (
-                    <Option key={ele.company_id} value={ele.company_id}>
-                      {ele.company_name}
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
-          </FormItem>
-        )}
-
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
             {getFieldDecorator('site_id', {})(
@@ -609,7 +571,7 @@ class TableList extends PureComponent {
           {getFieldDecorator('expense_date', {})(<RangePicker style={{ width: '250px' }} />)}
         </FormItem>
 
-        <FormItem label="一级分类">
+        <FormItem label="支出类型">
           {getFieldDecorator('expensetype_id')(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
               {expenseTypes.map(ele => {
@@ -645,7 +607,6 @@ class TableList extends PureComponent {
       selectedRows,
       current,
       pageSize,
-      orderModalVisible,
       addExpenseModalVisible,
       downloadModalVisible,
       printModalVisible,
@@ -699,6 +660,7 @@ class TableList extends PureComponent {
           addFormDataHandle={this.addFormDataHandle}
           onCancelHandler={this.onCancelExpenseClick}
           expenseTypes={expenseTypes}
+          record={record}
           selectedRows={selectedRows}
         />
         <Modal

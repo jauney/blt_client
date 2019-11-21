@@ -901,7 +901,12 @@ class TableList extends PureComponent {
 
   tableFooter = () => {
     const {
-      transfer: { totalTransferAmount, totalTransferConfirmAmount, totalTransferUnConfirmAmount },
+      transfer: {
+        totalTransferAmount,
+        totalTransferConfirmAmount,
+        totalTransferUnConfirmAmount,
+        totalShouldTransfer,
+      },
     } = this.props;
     return (
       <div>
@@ -912,6 +917,7 @@ class TableList extends PureComponent {
         <span className={styles.footerSplit}>
           已确认打款总额：{totalTransferConfirmAmount || 0}
         </span>
+        <span className={styles.footerSplit}>应打款总额：{totalShouldTransfer || 0}</span>
       </div>
     );
   };
