@@ -8,6 +8,7 @@ export default {
     expenseTotal: 0,
     expenseTypes: [],
     expenseDetails: [],
+    totalExpense: 0,
   },
 
   effects: {
@@ -38,9 +39,8 @@ export default {
         payload: response,
       });
     },
-    *getOrderStatisticAction({ payload }, { call, put }) {
-      payload.order_status = 0;
-      const response = yield call(getTrunkedOrderStatistic, payload);
+    *getExpensesStatisticAction({ payload }, { call, put }) {
+      const response = yield call(getExpensesStatistic, payload);
       yield put({
         type: 'getOrderStatisticReducer',
         payload: response,
@@ -57,6 +57,7 @@ export default {
         ...state,
         expenseList: action.payload.expenses,
         expenseTotal: action.payload.total,
+        totalExpense: action.payload.totalExpense,
       };
     },
     getExpenseTypesReducer(state, action) {

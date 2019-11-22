@@ -8,6 +8,7 @@ export default {
     incomeTotal: 0,
     incomeTypes: [],
     incomeDetails: [],
+    totalIncome: 0,
   },
 
   effects: {
@@ -57,6 +58,7 @@ export default {
         ...state,
         incomeList: action.payload.incomes,
         incomeTotal: action.payload.total,
+        totalIncome: action.payload.totalIncome,
       };
     },
     getIncomeTypesReducer(state, action) {

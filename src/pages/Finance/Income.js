@@ -53,13 +53,10 @@ class AddFormDialog extends PureComponent {
   }
 
   onAbnormalSelect = (value, option) => {
-    console.log('####', option.props.abnormal_type_id);
     this.setState({
       abnormal_type_id: option.props.abnormal_type_id,
       abnormal_type: option.props.text,
     });
-    console.log(value, option);
-    console.log(this.state);
   };
 
   onAddHandler = () => {
@@ -92,7 +89,7 @@ class AddFormDialog extends PureComponent {
       <AutoOption
         key={item.incometype_id}
         incometype_id={item.incometype_id}
-        value={item.incometype_id}
+        value={`${item.incometype_id}`}
         text={item.incometype}
       >
         {item.incometype}
@@ -134,7 +131,7 @@ class AddFormDialog extends PureComponent {
             <Col>
               <FormItem {...this.formItemLayout} label="收入类型">
                 {form.getFieldDecorator('incometype_id', {
-                  initialValue: record.incometype_id,
+                  initialValue: `${record.incometype_id || ''}`,
                   rules: [{ required: true, message: '请填写收入类型' }],
                 })(
                   <AutoComplete
@@ -252,9 +249,9 @@ class TableList extends PureComponent {
 
     this.fetchCompanySiteList(CacheCompany.company_id);
 
-    this.fetchIncomeTypeList({});
+    await this.fetchIncomeTypeList();
 
-    dispatch({
+    await dispatch({
       type: 'income/getIncomeDetailsAction',
       payload: {},
     });
@@ -269,16 +266,16 @@ class TableList extends PureComponent {
     });
   };
 
-  fetchIncomeTypeList = async ({ siteId = -1 }) => {
+  fetchIncomeTypeList = async () => {
     const { dispatch } = this.props;
     const filter = {};
     //
     // 查询类型必须带上公司参数
     filter.company_id = CacheCompany.company_id || -1;
     if (CacheCompany.company_type == 1) {
-      filter.site_id = siteId;
+      filter.site_id = CacheSite.site_id;
     }
-    const list = dispatch({
+    const list = await dispatch({
       type: 'income/getIncomeTypesAction',
       payload: filter,
     });
@@ -396,17 +393,17 @@ class TableList extends PureComponent {
   // 添加收入
   addFormDataHandle = async data => {
     const { dispatch } = this.props;
-
-    const { currentSite = {} } = this.state;
+    const income = {
+      ...data,
+      company_id: CacheCompany.company_id,
+      company_name: CacheCompany.company_name,
+    };
+    if (CacheSite.site_id) {
+      Object.assign(income, { site_id: CacheSite.site_id, site_name: CacheSite.site_name });
+    }
     const result = await dispatch({
       type: 'income/addIncomeAction',
-      payload: {
-        ...data,
-        company_id: CacheCompany.company_id,
-        company_name: CacheCompany.company_name,
-        site_id: currentSite.site_id,
-        site_name: currentSite.site_name,
-      },
+      payload: income,
     });
     if (result && result.code == 0) {
       message.success('添加成功！');
@@ -457,7 +454,7 @@ class TableList extends PureComponent {
   // 更新订单
   onUpdateOrder = async (record, fieldsValue) => {
     const { dispatch } = this.props;
-    console.log(record, fieldsValue);
+
     const result = await dispatch({
       type: 'order/updateOrderAction',
       payload: {
@@ -546,7 +543,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      income: { incomeList, total, incomeTypes, totalIncomeAmount },
+      income: { incomeList, total, incomeTypes, totalIncome },
       loading,
     } = this.props;
 
@@ -598,7 +595,7 @@ class TableList extends PureComponent {
                 };
               }}
               rowClassName={(record, index) => {}}
-              footer={() => `收入总额：${totalIncomeAmount || ''}`}
+              footer={() => `收入总额：${totalIncome || ''}`}
             />
           </div>
         </Card>

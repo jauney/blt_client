@@ -190,7 +190,7 @@ class TableList extends PureComponent {
       payload: CacheCompany,
     });
 
-    dispatch({
+    await dispatch({
       type: 'site/getSiteListAction',
       payload: {},
     });
@@ -328,15 +328,12 @@ class TableList extends PureComponent {
 
   onConfirmTrans = async () => {
     const { dispatch } = this.props;
-    const { selectedRows, currentSite = {} } = this.state;
+    const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
     const order = { order_id: orderIds, company_id: CacheCompany.company_id };
-    if (currentSite.site_id) {
-      order.site_id = currentSite.site_id;
-      order.site_name = currentSite.site_name;
-    }
+
     const result = await dispatch({
       type: 'transconfirm/cancelConfirmTransAction',
       payload: order,
@@ -404,9 +401,9 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="站点">
-          {getFieldDecorator('site_id', {})(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
-              {siteList.map(ele => {
+          {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
+            <Select placeholder="请选择" style={{ width: '150px' }}>
+              {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}

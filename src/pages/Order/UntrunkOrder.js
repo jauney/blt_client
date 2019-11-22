@@ -199,7 +199,7 @@ class CreateEntrunkForm extends PureComponent {
       <AutoOption
         key={item.driver_id}
         driverid={item.driver_id}
-        value={item.driver_id}
+        value={`${item.driver_id}`}
         text={item.driver_plate}
       >
         {item.driver_plate}
@@ -231,7 +231,7 @@ class CreateEntrunkForm extends PureComponent {
             <FormItem label="车牌号">
               {getFieldDecorator('driver_id', {
                 rules: [{ required: true, message: '请填写收车牌号' }],
-                initialValue: lastCar.driver_id,
+                initialValue: `${lastCar.driver_id || ''}`,
               })(
                 <AutoComplete
                   size="large"
@@ -402,18 +402,18 @@ class TableList extends PureComponent {
   columns = [
     {
       title: '分公司',
-      width: 60,
+      width: '80px',
       dataIndex: 'company_name',
     },
     {
       title: '录票时间',
-      width: 100,
+      width: '190px',
       dataIndex: 'create_date',
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '货单号',
-      width: 70,
+      width: '80px',
       dataIndex: 'order_code',
       sorter: true,
       align: 'right',
@@ -423,36 +423,36 @@ class TableList extends PureComponent {
     },
     {
       title: '发货客户',
-      width: 60,
+      width: '80px',
       dataIndex: 'sendcustomer_name',
     },
     {
       title: '收获客户',
-      width: 60,
+      width: '80px',
       dataIndex: 'getcustomer_name',
       sorter: true,
     },
     {
       title: '应收货款',
-      width: 60,
+      width: '80px',
       dataIndex: 'order_amount',
       sorter: true,
     },
     {
       title: '运费',
-      width: 60,
+      width: '80px',
       dataIndex: 'trans_amount',
       sorter: true,
     },
     {
       title: '折后运费',
-      width: 60,
+      width: '80px',
       dataIndex: 'trans_discount',
       sorter: true,
     },
     {
       title: '运费方式',
-      width: 60,
+      width: '80px',
       dataIndex: 'trans_type',
       sorter: true,
       render: val => {
@@ -469,55 +469,55 @@ class TableList extends PureComponent {
     },
     {
       title: '垫付',
-      width: 60,
+      width: '80px',
       dataIndex: 'order_advancepay_amount',
       sorter: true,
     },
     {
       title: '送货费',
-      width: 60,
+      width: '80px',
       dataIndex: 'deliver_amount',
       sorter: true,
     },
     {
       title: '保价费',
-      width: 60,
+      width: '80px',
       dataIndex: 'insurance_fee',
       sorter: true,
     },
     {
       title: '货物名称',
-      width: 100,
+      width: '250px',
       dataIndex: 'order_name',
       sorter: true,
     },
     {
       title: '经办人',
-      width: 60,
+      width: '80px',
       dataIndex: 'operator_name',
       sorter: true,
     },
     {
       title: '接货人',
-      width: 60,
+      width: '80px',
       dataIndex: 'receiver_name',
       sorter: true,
     },
     {
       title: '装配站',
-      width: 60,
+      width: '100px',
       dataIndex: 'shipsite_name',
       sorter: true,
     },
     {
       title: '站点',
-      width: 60,
+      width: '100px',
       dataIndex: 'site_name',
       sorter: true,
     },
     {
       title: '中转',
-      width: 60,
+      width: '80px',
       dataIndex: 'transfer_type',
       sorter: true,
       render: val => {
@@ -585,13 +585,15 @@ class TableList extends PureComponent {
 
     if (siteList && siteList.length > 0) {
       const shipSiteList = siteList.filter(item => {
-        return item.site_type == 3;
+        return item.site_type == 3 || item.site_type == 2;
       });
       if (shipSiteList.length > 0) {
         this.setState({
           currentShipSite: shipSiteList[0],
         });
       }
+
+      console.log(shipSiteList);
     }
     this.getLastCar();
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
@@ -865,7 +867,7 @@ class TableList extends PureComponent {
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
-              {(CacheSite.site_type == 1 ? [CacheSite] : siteList).map(ele => {
+              {(CacheSite.site_type != 3 ? [CacheSite] : siteList).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -883,7 +885,7 @@ class TableList extends PureComponent {
               style={{ width: '150px' }}
               onChange={this.onShipSiteSelect}
             >
-              {[CacheSite].map(ele => {
+              {entrunkSiteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}

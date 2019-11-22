@@ -89,7 +89,7 @@ class AddFormDialog extends PureComponent {
       <AutoOption
         key={item.expensetype_id}
         expensetype_id={item.expensetype_id}
-        value={item.expensetype_id}
+        value={`${item.expensetype_id}`}
         text={item.expensetype}
       >
         {item.expensetype}
@@ -131,7 +131,7 @@ class AddFormDialog extends PureComponent {
             <Col>
               <FormItem {...this.formItemLayout} label="支出类型">
                 {form.getFieldDecorator('expensetype_id', {
-                  initialValue: record.expensetype_id,
+                  initialValue: `${record.expensetype_id || ''}`,
                   rules: [{ required: true, message: '请填写支出类型' }],
                 })(
                   <AutoComplete
@@ -247,11 +247,11 @@ class TableList extends PureComponent {
   async componentDidMount() {
     const { dispatch } = this.props;
 
-    this.fetchCompanySiteList(CacheCompany.company_id);
+    await this.fetchCompanySiteList(CacheCompany.company_id);
 
-    this.fetchExpenseTypeList({});
+    await this.fetchExpenseTypeList({});
 
-    dispatch({
+    await dispatch({
       type: 'expense/getExpenseDetailsAction',
       payload: {},
     });
@@ -266,16 +266,16 @@ class TableList extends PureComponent {
     });
   };
 
-  fetchExpenseTypeList = async ({ siteId = -1 }) => {
+  fetchExpenseTypeList = async () => {
     const { dispatch } = this.props;
     const filter = {};
     //
     // 查询类型必须带上公司参数
     filter.company_id = CacheCompany.company_id || -1;
     if (CacheCompany.company_type == 1) {
-      filter.site_id = siteId;
+      filter.site_id = CacheSite.site_id;
     }
-    const list = dispatch({
+    const list = await dispatch({
       type: 'expense/getExpenseTypesAction',
       payload: filter,
     });
@@ -418,17 +418,17 @@ class TableList extends PureComponent {
   // 添加支出
   addFormDataHandle = async data => {
     const { dispatch } = this.props;
-
-    const { currentSite = {} } = this.state;
+    const expense = {
+      ...data,
+      company_id: CacheCompany.company_id,
+      company_name: CacheCompany.company_name,
+    };
+    if (CacheSite.site_id) {
+      Object.assign(expense, { site_id: CacheSite.site_id, site_name: CacheSite.site_name });
+    }
     const result = await dispatch({
       type: 'expense/addExpenseAction',
-      payload: {
-        ...data,
-        company_id: CacheCompany.company_id,
-        company_name: CacheCompany.company_name,
-        site_id: currentSite.site_id,
-        site_name: currentSite.site_name,
-      },
+      payload: expense,
     });
     if (result && result.code == 0) {
       message.success('添加成功！');
@@ -598,7 +598,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      expense: { expenseList, total, expenseTypes, totalExpenseAmount },
+      expense: { expenseList, total, expenseTypes, totalExpense },
       loading,
     } = this.props;
 
@@ -650,7 +650,7 @@ class TableList extends PureComponent {
                 };
               }}
               rowClassName={(record, index) => {}}
-              footer={() => `支出总额：${totalExpenseAmount || ''}`}
+              footer={() => `支出总额：${totalExpense || ''}`}
             />
           </div>
         </Card>

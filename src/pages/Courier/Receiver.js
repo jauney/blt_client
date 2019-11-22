@@ -144,30 +144,30 @@ class TableList extends PureComponent {
   columns = [
     {
       title: '接货人',
-      width: 60,
+      width: '80px',
       dataIndex: 'receiver_name',
       sorter: true,
     },
     {
       title: '货单号',
-      width: 60,
+      width: '80px',
       dataIndex: 'order_code',
       sorter: true,
     },
     {
       title: '发货客户',
-      width: 60,
+      width: '80px',
       dataIndex: 'sendcustomer_name',
     },
     {
       title: '收获客户',
-      width: 60,
+      width: '80px',
       dataIndex: 'getcustomer_name',
       sorter: true,
     },
     {
       title: '应收货款',
-      width: 60,
+      width: '80px',
       dataIndex: 'order_amount',
       sorter: true,
     },
@@ -178,13 +178,13 @@ class TableList extends PureComponent {
     },
     {
       title: '折后运费',
-      width: 60,
+      width: '80px',
       dataIndex: 'trans_discount',
       sorter: true,
     },
     {
       title: '运费方式',
-      width: 60,
+      width: '80px',
       dataIndex: 'trans_type',
       sorter: true,
       render: val => {
@@ -201,31 +201,31 @@ class TableList extends PureComponent {
     },
     {
       title: '垫付',
-      width: 60,
+      width: '80px',
       dataIndex: 'order_advancepay_amount',
       sorter: true,
     },
     {
       title: '送货费',
-      width: 60,
+      width: '80px',
       dataIndex: 'deliver_amount',
       sorter: true,
     },
     {
       title: '保价费',
-      width: 60,
+      width: '80px',
       dataIndex: 'insurance_fee',
       sorter: true,
     },
     {
       title: '货物名称',
-      width: 100,
+      width: '250px',
       dataIndex: 'order_name',
       sorter: true,
     },
     {
       title: '录票时间',
-      width: 80,
+      width: '190px',
       dataIndex: 'create_date',
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
@@ -233,7 +233,7 @@ class TableList extends PureComponent {
     },
     {
       title: '结算时间',
-      width: 100,
+      width: '190px',
       dataIndex: 'settle_date',
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
@@ -241,31 +241,31 @@ class TableList extends PureComponent {
     },
     {
       title: '付款日期',
-      width: 60,
+      width: '80px',
       dataIndex: 'pay_date',
       sorter: true,
     },
     {
       title: '货车编号',
-      width: 60,
+      width: '80px',
       dataIndex: 'car_code',
       sorter: true,
     },
     {
       title: '站点',
-      width: 60,
+      width: '80px',
       dataIndex: 'site_name',
       sorter: true,
     },
     {
       title: '配载站',
-      width: 60,
+      width: '80px',
       dataIndex: 'shipsite_name',
       sorter: true,
     },
     {
       title: '中转',
-      width: 60,
+      width: '80px',
       dataIndex: 'transfer_type',
       sorter: true,
       render: val => {
@@ -280,7 +280,7 @@ class TableList extends PureComponent {
     },
     {
       title: '异常情况',
-      width: 60,
+      width: '80px',
       dataIndex: 'abnormal_type',
       sorter: true,
     },
@@ -647,7 +647,7 @@ class TableList extends PureComponent {
       form: { getFieldDecorator },
       company: { branchCompanyList },
       customer: { getCustomerList, sendCustomerList },
-      site: { siteList },
+      site: { siteList, entrunkSiteList },
       courier: { receiverList },
     } = this.props;
     const formItemLayout = {};
@@ -704,6 +704,23 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="货车编号" {...formItemLayout}>
+          {getFieldDecorator('shipsite_id', {
+            initialValue: entrunkSiteList.length > 0 ? entrunkSiteList[0].site_id : '',
+          })(
+            <Select
+              placeholder="请选择"
+              onSelect={this.onShipSiteSelect}
+              style={{ width: '100px' }}
+            >
+              {(entrunkSiteList || []).map(ele => {
+                return (
+                  <Option key={ele.site_id} value={ele.site_id}>
+                    {ele.site_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
           {getFieldDecorator('car_code', {})(
             <Input placeholder="请输入" style={{ width: '150px' }} />
           )}

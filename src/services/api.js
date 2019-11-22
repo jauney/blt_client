@@ -1617,6 +1617,7 @@ export async function getIncomes(params) {
               remark
               operator_name
             }
+            totalIncome
           }
         }
       `,
@@ -1752,6 +1753,7 @@ export async function getExpenses(params) {
               expense_reason
               remark
             }
+            totalExpense
           }
         }
       `,
