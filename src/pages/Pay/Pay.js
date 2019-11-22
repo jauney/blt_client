@@ -210,30 +210,36 @@ class TableList extends PureComponent {
       render: val => `${val}`,
       // mark to display a total number
       needTotal: true,
+      width: '80px',
     },
     {
       title: '发货客户',
       dataIndex: 'sendcustomer_name',
+      width: '80px',
     },
     {
       title: '收获客户',
       dataIndex: 'getcustomer_name',
       sorter: true,
+      width: '80px',
     },
     {
       title: '应收货款',
       dataIndex: 'order_amount',
       sorter: true,
+      width: '80px',
     },
     {
       title: '实收货款',
       dataIndex: 'order_real',
       sorter: true,
+      width: '80px',
     },
     {
       title: '实收运费',
       dataIndex: 'trans_discount',
       sorter: true,
+      width: '80px',
     },
     {
       title: '运费方式',
@@ -250,26 +256,31 @@ class TableList extends PureComponent {
         }
         return transType;
       },
+      width: '80px',
     },
     {
       title: '垫付',
       dataIndex: 'order_advancepay_amount',
       sorter: true,
+      width: '80px',
     },
     {
       title: '送货费',
       dataIndex: 'deliver_amount',
       sorter: true,
+      width: '80px',
     },
     {
       title: '保价费',
       dataIndex: 'insurance_fee',
       sorter: true,
+      width: '80px',
     },
     {
       title: '货物名称',
       dataIndex: 'order_name',
       sorter: true,
+      width: '250px',
     },
     {
       title: '录票时间',
@@ -277,6 +288,7 @@ class TableList extends PureComponent {
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
+      width: '190px',
     },
     {
       title: '结算时间',
@@ -284,6 +296,7 @@ class TableList extends PureComponent {
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
+      width: '190px',
     },
     {
       title: '付款时间',
@@ -291,11 +304,13 @@ class TableList extends PureComponent {
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
+      width: '190px',
     },
     {
       title: '站点',
       dataIndex: 'site_name',
       sorter: true,
+      width: '80px',
     },
     {
       title: '备注',
