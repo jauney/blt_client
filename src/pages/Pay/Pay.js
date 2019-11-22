@@ -65,6 +65,7 @@ class DownAccountForm extends PureComponent {
     const accountData = getSelectedDownAccount(selectedRows);
     const record = selectedRows.length > 0 ? selectedRows[0] : {};
     const { agencyFee } = this.state;
+
     return (
       <Modal
         destroyOnClose
@@ -435,6 +436,16 @@ class TableList extends PureComponent {
 
   // 打开下账对话框
   onDownAccount = async () => {
+    const { selectedRows } = this.state;
+    const accountData = getSelectedDownAccount(selectedRows);
+    if (!accountData.isSameSendCustomer) {
+      message.error('请选择相同客户的订单进行下账');
+      return;
+    }
+    if (!accountData.isSettled) {
+      message.error('只能选择已经结算的订单进行下账');
+      return;
+    }
     this.setState({
       downModalVisible: true,
     });
@@ -487,10 +498,11 @@ class TableList extends PureComponent {
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
+
     const result = await dispatch({
       type: 'pay/updatePayAbnormalAction',
       payload: {
-        order_id: orderIds,
+        orderIds,
         order: { pay_status: 1 },
       },
     });

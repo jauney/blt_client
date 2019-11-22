@@ -878,7 +878,7 @@ class TableList extends PureComponent {
   // 更新订单
   onUpdateOrder = async (record, fieldsValue) => {
     const { dispatch } = this.props;
-    console.log(record, fieldsValue);
+
     const result = await dispatch({
       type: 'order/updateOrderAction',
       payload: {

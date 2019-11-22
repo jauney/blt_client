@@ -58,6 +58,7 @@ export function getSelectedDownAccount(sltDatas = []) {
   let totalTransFunds = 0;
   let sendCustomerId = '';
   let isSameSendCustomer = true;
+  let isSettled = true;
   for (var i = 0; i < sltDatas.length; i++) {
     if (i == 0) {
       sendCustomerId = sltDatas[i]['sendcustomer_id'];
@@ -81,12 +82,15 @@ export function getSelectedDownAccount(sltDatas = []) {
       } else {
         totalActualGoodsFunds += Number(sltDatas[i].order_amount);
       }
+    } else {
+      isSettled = false;
     }
   }
 
   accountData.totalActualGoodsFund = totalActualGoodsFunds;
   accountData.totalTransFunds = totalTransFunds;
   accountData.isSameSendCustomer = isSameSendCustomer;
+  accountData.isSettled = isSettled;
 
   return accountData;
 }

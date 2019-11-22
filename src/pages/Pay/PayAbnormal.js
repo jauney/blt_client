@@ -96,7 +96,7 @@ class DownAccountForm extends PureComponent {
                 {accountData.totalActualGoodsFund || '0'} - 代办费 *
                 <Select
                   placeholder="请选择"
-                  defaultValue="0"
+                  defaultValue="4"
                   onSelect={this.onAgencyFeeSelect}
                   style={{ width: '80px' }}
                 >
@@ -435,6 +435,16 @@ class TableList extends PureComponent {
 
   // 打开下账对话框
   onDownAccount = async () => {
+    const { selectedRows } = this.state;
+    const accountData = getSelectedDownAccount(selectedRows);
+    if (!accountData.isSameSendCustomer) {
+      message.error('请选择相同客户的订单进行下账');
+      return;
+    }
+    if (!accountData.isSettled) {
+      message.error('只能选择已经结算的订单进行下账');
+      return;
+    }
     this.setState({
       downModalVisible: true,
     });

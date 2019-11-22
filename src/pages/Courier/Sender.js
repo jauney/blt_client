@@ -669,6 +669,29 @@ class TableList extends PureComponent {
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => {};
 
+  tableFooter = () => {
+    const {
+      courier: {
+        totalOrderAmount,
+        totalTransAmount,
+        totalRealOrderAmount,
+        totalDeliverAmount,
+        totalLatefee,
+        totalBonusfee,
+      },
+    } = this.props;
+    return (
+      <div>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span>实收货款：{totalRealOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>滞纳金：{totalLatefee || '0'}</span>
+        <span className={styles.footerSplit}>奖金：{totalBonusfee || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -784,7 +807,6 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button onClick={this.onAddSenderModal}>添加送货人</Button>
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onUpdateSenderModal}>更改送货人</Button>
@@ -821,7 +843,7 @@ class TableList extends PureComponent {
                 };
               }}
               rowClassName={(record, index) => {}}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={this.tableFooter}
             />
           </div>
         </Card>

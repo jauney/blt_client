@@ -26,7 +26,10 @@ export default {
     current: 1,
     totalOrderAmount: 0,
     totalTransAmount: 0,
-    totalInsurancefee: 0,
+    totalRealOrderAmount: 0,
+    totalDeliverAmount: 0,
+    totalLatefee: 0,
+    totalBonusfee: 0,
   },
 
   effects: {
