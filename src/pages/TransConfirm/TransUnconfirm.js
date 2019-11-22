@@ -392,7 +392,12 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '200px' }}>
+            <Select
+              placeholder="请选择"
+              onSelect={this.onCompanySelect}
+              style={{ width: '200px' }}
+              allowClear
+            >
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>

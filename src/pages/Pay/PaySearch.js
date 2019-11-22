@@ -362,7 +362,7 @@ class TableList extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
-      fieldsValue.pay_status = 0;
+      // fieldsValue.pay_status = 0;
       fieldsValue.order_amount = -1;
       fieldsValue.order_status = 7;
       const searchParams = Object.assign({ filter: fieldsValue }, data);

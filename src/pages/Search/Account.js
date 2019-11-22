@@ -109,8 +109,8 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
-    this.fetchCompanySiteList();
-    this.fetchOperatorList();
+    await this.fetchCompanySiteList();
+    await this.fetchOperatorList();
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
   }
@@ -123,7 +123,7 @@ class TableList extends PureComponent {
 
   fetchCompanySiteList = async () => {
     const { dispatch } = this.props;
-    dispatch({
+    await dispatch({
       type: 'site/getSiteListAction',
       payload: { pageNo: 1, pageSize: 100, filter: { company_id: CacheCompany.company_id } },
     });
@@ -138,7 +138,7 @@ class TableList extends PureComponent {
     if (currentSite && currentSite.site_id) {
       filter.site_id = currentSite.site_id;
     }
-    dispatch({
+    await dispatch({
       type: 'courier/getOperatorListAction',
       payload: {
         pageNo: 1,
@@ -179,6 +179,10 @@ class TableList extends PureComponent {
       if (err) return;
       if (fieldsValue.account_date && fieldsValue.account_date.valueOf) {
         fieldsValue.account_date = [`${fieldsValue.account_date.valueOf()}`];
+      }
+      fieldsValue.company_id = CacheCompany.company_id;
+      if (CacheCompany.company_type == 1) {
+        fieldsValue.site_id = CacheSite.site_id;
       }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -278,9 +282,9 @@ class TableList extends PureComponent {
         )}
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
-            {getFieldDecorator('site_id', {})(
-              <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
-                {siteList.map(ele => {
+            {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
+              <Select placeholder="请选择" style={{ width: '150px' }}>
+                {[CacheSite].map(ele => {
                   return (
                     <Option key={ele.site_id} value={ele.site_id}>
                       {ele.site_name}

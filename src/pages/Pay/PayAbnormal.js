@@ -39,7 +39,7 @@ class DownAccountForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      agencyFee: 0,
+      agencyFee: 4,
     };
   }
 
@@ -766,7 +766,6 @@ class TableList extends PureComponent {
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onDownAccount}>下账</Button>
-                  <Button onClick={this.onCancelSign}>取消下账</Button>
                   <Button onClick={this.onAddNormalModal}>取消异常</Button>
                   <Button onClick={this.onPrint}>打印</Button>
                 </span>

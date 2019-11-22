@@ -547,15 +547,14 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
-            {getFieldDecorator('site_id', {})(
+            {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
               <Select
                 placeholder="请选择"
                 onSelect={this.onSiteSelect}
                 onChange={this.onSiteChange}
                 style={{ width: '150px' }}
-                allowClear
               >
-                {normalSiteList.map(ele => {
+                {[CacheSite].map(ele => {
                   return (
                     <Option key={ele.site_id} value={ele.site_id}>
                       {ele.site_name}
