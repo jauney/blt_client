@@ -69,7 +69,7 @@ class TableList extends PureComponent {
     {
       title: '收支',
       dataIndex: 'account_type',
-      sorter: true,
+      width: '80px',
       render: val => {
         return val == 0 ? '支出' : '收入';
       },
@@ -77,30 +77,32 @@ class TableList extends PureComponent {
     {
       title: '类型项目',
       dataIndex: 'account_name',
+      width: '80px',
     },
     {
       title: '金额',
       dataIndex: 'account_amount',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '用户名',
       dataIndex: 'operator_name',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '站点',
       dataIndex: 'site_name',
-      sorter: true,
+      width: '100px',
     },
     {
       title: '分公司',
       dataIndex: 'company_name',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '日期',
       dataIndex: 'account_date',
+      width: '170px',
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),

@@ -286,32 +286,33 @@ class TableList extends PureComponent {
     {
       title: '日期',
       dataIndex: 'debt_date',
+      width: '130px',
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '金额',
       dataIndex: 'debt_money',
+      width: '80px',
     },
     {
       title: '类型',
       dataIndex: 'debttype',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '客户姓名',
       dataIndex: 'debtuser_name',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '收/支',
       dataIndex: 'debttype_type',
-      sorter: true,
+      width: '80px',
       render: val => (val == 0 ? '支' : '收'),
     },
     {
       title: '备注',
       dataIndex: 'remark',
-      sorter: true,
     },
   ];
 
@@ -641,7 +642,7 @@ class TableList extends PureComponent {
                 placeholder="请选择"
                 onSelect={this.onSiteSelect}
                 onChange={this.onSiteChange}
-                style={{ width: '150px' }}
+                style={{ width: '100px' }}
               >
                 {[CacheSite].map(ele => {
                   return (
@@ -659,7 +660,7 @@ class TableList extends PureComponent {
             <Select
               placeholder="请选择"
               onSelect={this.onDebtUserSelect}
-              style={{ width: '150px' }}
+              style={{ width: '100px' }}
               allowClear
               showSearch
               onBlur={this.onDebtUserBlur}
@@ -686,7 +687,7 @@ class TableList extends PureComponent {
 
         <FormItem label="分类">
           {getFieldDecorator('debttype_id')(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               {debtTypes.map(ele => {
                 return (
                   <Option key={ele.debttype_id} value={ele.debttype_id}>
@@ -699,7 +700,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="归零项">
           {getFieldDecorator('debt_status')(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select placeholder="请选择" style={{ width: '80px' }} allowClear>
               <Option value={0}>未归零</Option>
               <Option value={1}>已归零</Option>
             </Select>

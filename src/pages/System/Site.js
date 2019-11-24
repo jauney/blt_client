@@ -168,11 +168,12 @@ class TableList extends PureComponent {
     {
       title: '站点名称',
       dataIndex: 'site_name',
+      width: '100px',
     },
     {
       title: '站点类型',
       dataIndex: 'site_type',
-      sorter: true,
+      width: '80px',
       render: val => {
         return val == 1 ? '普通站点' : '装配站';
       },
@@ -180,7 +181,7 @@ class TableList extends PureComponent {
     {
       title: '订单号前缀',
       dataIndex: 'site_orderprefix',
-      sorter: true,
+      width: '80px',
     },
   ];
 

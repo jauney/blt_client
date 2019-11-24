@@ -926,6 +926,13 @@ export async function getOrderList(params) {
   if (params.filter && params.filter.abnormal_status) {
     params.filter.abnormal_status = Number(params.filter.abnormal_status);
   }
+
+  if (!params.filter.getcustomer_mobile) {
+    delete params.filter.getcustomer_mobile;
+  }
+  if (!params.filter.sendcustomer_mobile) {
+    delete params.filter.sendcustomer_mobile;
+  }
   return client
     .query({
       query: gql`
@@ -1086,6 +1093,12 @@ export async function deleteOrder(params) {
 }
 
 export async function getOrderStatistic(params) {
+  if (!params.filter.getcustomer_mobile) {
+    delete params.filter.getcustomer_mobile;
+  }
+  if (!params.filter.sendcustomer_mobile) {
+    delete params.filter.sendcustomer_mobile;
+  }
   return client
     .query({
       query: gql`

@@ -458,31 +458,34 @@ class TableList extends PureComponent {
     {
       title: '打款日期',
       dataIndex: 'transfer_date',
+      width: '170px',
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '打款金额',
       dataIndex: 'transfer_money',
+      width: '80px',
     },
     {
       title: '打款人',
       dataIndex: 'transfer_user',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '确认人',
       dataIndex: 'confirm_operator_name',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '确认日期',
       dataIndex: 'confirm_date',
-      sorter: true,
+      width: '170px',
+      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '打款公司',
       dataIndex: 'company_name',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '备注',
@@ -938,7 +941,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" style={{ width: '150px' }} onSelect={this.onCompanySelect}>
+            <Select placeholder="请选择" style={{ width: '80px' }} onSelect={this.onCompanySelect}>
               {companyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -952,7 +955,7 @@ class TableList extends PureComponent {
 
         <FormItem label="确认打款">
           {getFieldDecorator('transfer_type', {})(
-            <Select placeholder="请选择" style={{ width: '200px' }} allowClear>
+            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               <Option value="1">已确认打款</Option>
               <Option value="2">未确认打款</Option>
             </Select>

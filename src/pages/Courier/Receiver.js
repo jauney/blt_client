@@ -665,7 +665,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '200px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -682,7 +682,7 @@ class TableList extends PureComponent {
               placeholder="请选择"
               onSelect={this.onSiteSelect}
               onChange={this.onSiteSelect}
-              style={{ width: '150px' }}
+              style={{ width: '100px' }}
               allowClear
             >
               {siteList.map(ele => {
@@ -696,7 +696,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="运单日期">
-          {getFieldDecorator('create_date', {})(<RangePicker style={{ width: '250px' }} />)}
+          {getFieldDecorator('create_date', {})(<RangePicker style={{ width: '150px' }} />)}
         </FormItem>
         <FormItem label="运单号" {...formItemLayout}>
           {getFieldDecorator('order_code', {})(
@@ -704,13 +704,12 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="货车编号" {...formItemLayout}>
-          {getFieldDecorator('shipsite_id', {
-            initialValue: entrunkSiteList.length > 0 ? entrunkSiteList[0].site_id : '',
-          })(
+          {getFieldDecorator('shipsite_id', {})(
             <Select
               placeholder="请选择"
               onSelect={this.onShipSiteSelect}
               style={{ width: '100px' }}
+              allowClear
             >
               {(entrunkSiteList || []).map(ele => {
                 return (
@@ -722,12 +721,12 @@ class TableList extends PureComponent {
             </Select>
           )}
           {getFieldDecorator('car_code', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+            <Input placeholder="请输入" style={{ width: '80px' }} />
           )}
         </FormItem>
         <FormItem label="接货人" {...formItemLayout}>
           {getFieldDecorator('receiver_id', {})(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
               {receiverList.map(ele => {
                 return (
                   <Option key={ele.courier_id} value={ele.courier_id}>
@@ -743,7 +742,7 @@ class TableList extends PureComponent {
             <Select
               placeholder="请选择"
               onSelect={this.onSendCustomerSelect}
-              style={{ width: '200px' }}
+              style={{ width: '100px' }}
               allowClear
               showSearch
               optionLabelProp="children"

@@ -189,21 +189,22 @@ class TableList extends PureComponent {
     {
       title: '用户名',
       dataIndex: 'user_name',
+      width: '80px',
     },
     {
       title: '用户电话',
       dataIndex: 'user_mobile',
-      sorter: true,
+      width: '130px',
     },
     {
       title: '站点',
       dataIndex: 'site_name',
-      sorter: true,
+      width: '100px',
     },
     {
       title: '角色',
       dataIndex: 'role.role_name',
-      sorter: true,
+      width: '100px',
     },
   ];
 

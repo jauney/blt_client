@@ -204,7 +204,7 @@ class TableList extends PureComponent {
     {
       title: '货单号',
       dataIndex: 'order_code',
-      sorter: true,
+
       align: 'right',
       render: val => `${val}`,
       // mark to display a total number
@@ -219,31 +219,31 @@ class TableList extends PureComponent {
     {
       title: '收获客户',
       dataIndex: 'getcustomer_name',
-      sorter: true,
+
       width: '80px',
     },
     {
       title: '应收货款',
       dataIndex: 'order_amount',
-      sorter: true,
+
       width: '80px',
     },
     {
       title: '实收货款',
       dataIndex: 'order_real',
-      sorter: true,
+
       width: '80px',
     },
     {
       title: '实收运费',
       dataIndex: 'trans_discount',
-      sorter: true,
+
       width: '80px',
     },
     {
       title: '运费方式',
       dataIndex: 'trans_type',
-      sorter: true,
+
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -260,26 +260,26 @@ class TableList extends PureComponent {
     {
       title: '垫付',
       dataIndex: 'order_advancepay_amount',
-      sorter: true,
+
       width: '80px',
     },
     {
       title: '送货费',
       dataIndex: 'deliver_amount',
-      sorter: true,
+
       width: '80px',
     },
     {
       title: '保价费',
       dataIndex: 'insurance_fee',
-      sorter: true,
+
       width: '80px',
     },
     {
       title: '货物名称',
       dataIndex: 'order_name',
-      sorter: true,
-      width: '250px',
+
+      width: '150px',
     },
     {
       title: '录票时间',
@@ -287,7 +287,7 @@ class TableList extends PureComponent {
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
-      width: '190px',
+      width: '170px',
     },
     {
       title: '结算时间',
@@ -295,7 +295,7 @@ class TableList extends PureComponent {
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
-      width: '190px',
+      width: '170px',
     },
     {
       title: '付款时间',
@@ -303,12 +303,12 @@ class TableList extends PureComponent {
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
-      width: '190px',
+      width: '170px',
     },
     {
       title: '站点',
       dataIndex: 'site_name',
-      sorter: true,
+
       width: '80px',
     },
     {
@@ -680,7 +680,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '200px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '80px' }}>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -698,7 +698,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="站点">
           {getFieldDecorator('site_id', {})(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select placeholder="请选择" style={{ width: '80px' }} allowClear>
               {normalSiteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
@@ -714,7 +714,7 @@ class TableList extends PureComponent {
             <Select
               placeholder="请选择"
               onSelect={this.onSendCustomerSelect}
-              style={{ width: '200px' }}
+              style={{ width: '80px' }}
               allowClear
               showSearch
               optionLabelProp="children"
@@ -735,7 +735,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="发货人电话">
           {getFieldDecorator('sendcustomer_mobile', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+            <Input placeholder="请输入" style={{ width: '130px' }} />
           )}
         </FormItem>
         <FormItem>

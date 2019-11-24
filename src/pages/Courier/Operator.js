@@ -159,13 +159,11 @@ class TableList extends PureComponent {
       title: '经办人',
       width: '80px',
       dataIndex: 'operator_name',
-      sorter: true,
     },
     {
       title: '货单号',
       width: '80px',
       dataIndex: 'order_code',
-      sorter: true,
     },
     {
       title: '发货客户',
@@ -182,24 +180,23 @@ class TableList extends PureComponent {
       title: '应收货款',
       width: '80px',
       dataIndex: 'order_amount',
-      sorter: true,
     },
     {
       title: '实收货款',
       dataIndex: 'order_real',
-      sorter: true,
+
+      width: '80px',
     },
     {
       title: '折后运费',
       width: '80px',
       dataIndex: 'trans_discount',
-      sorter: true,
     },
     {
       title: '运费方式',
       width: '80px',
       dataIndex: 'trans_type',
-      sorter: true,
+
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -216,29 +213,25 @@ class TableList extends PureComponent {
       title: '垫付',
       width: '80px',
       dataIndex: 'order_advancepay_amount',
-      sorter: true,
     },
     {
       title: '送货费',
       width: '80px',
       dataIndex: 'deliver_amount',
-      sorter: true,
     },
     {
       title: '保价费',
       width: '80px',
       dataIndex: 'insurance_fee',
-      sorter: true,
     },
     {
       title: '货物名称',
-      width: '250px',
+      width: '150px',
       dataIndex: 'order_name',
-      sorter: true,
     },
     {
       title: '录票时间',
-      width: '190px',
+      width: '170px',
       dataIndex: 'create_date',
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
@@ -246,7 +239,7 @@ class TableList extends PureComponent {
     },
     {
       title: '结算时间',
-      width: '190px',
+      width: '170px',
       dataIndex: 'settle_date',
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
@@ -254,33 +247,32 @@ class TableList extends PureComponent {
     },
     {
       title: '付款日期',
-      width: '80px',
+      width: '170px',
       dataIndex: 'pay_date',
-      sorter: true,
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
     },
     {
       title: '分公司',
       width: '80px',
       dataIndex: 'car_code',
-      sorter: true,
     },
     {
       title: '站点',
       width: '80px',
       dataIndex: 'site_name',
-      sorter: true,
     },
     {
       title: '配载站',
       width: '80px',
       dataIndex: 'shipsite_name',
-      sorter: true,
     },
     {
       title: '中转',
       width: '80px',
       dataIndex: 'transfer_type',
-      sorter: true,
+
       render: val => {
         let $transferType = '';
         if (val == 1) {
@@ -295,7 +287,6 @@ class TableList extends PureComponent {
       title: '异常情况',
       width: '80px',
       dataIndex: 'abnormal_type',
-      sorter: true,
     },
     {
       title: '备注',
@@ -637,7 +628,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司" {...formItemLayout}>
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
               {(CacheCompany.company_type == 2 ? [CacheCompany] : branchCompanyList).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -655,7 +646,7 @@ class TableList extends PureComponent {
                 placeholder="请选择"
                 onSelect={this.onSiteSelect}
                 onChange={this.onSiteSelect}
-                style={{ width: '150px' }}
+                style={{ width: '100px' }}
                 allowClear
               >
                 {siteList.map(ele => {
@@ -678,13 +669,12 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="货车编号" {...formItemLayout}>
-          {getFieldDecorator('shipsite_id', {
-            initialValue: entrunkSiteList.length > 0 ? entrunkSiteList[0].site_id : '',
-          })(
+          {getFieldDecorator('shipsite_id', {})(
             <Select
               placeholder="请选择"
               onSelect={this.onShipSiteSelect}
               style={{ width: '100px' }}
+              allowClear
             >
               {(entrunkSiteList || []).map(ele => {
                 return (
@@ -696,12 +686,12 @@ class TableList extends PureComponent {
             </Select>
           )}
           {getFieldDecorator('car_code', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+            <Input placeholder="请输入" style={{ width: '100px' }} />
           )}
         </FormItem>
         <FormItem label="经办人" {...formItemLayout}>
           {getFieldDecorator('operator_id', {})(
-            <Select placeholder="请选择" style={{ width: '150px' }}>
+            <Select placeholder="请选择" style={{ width: '100px' }}>
               {operatorList.map(ele => {
                 return (
                   <Option key={ele.user_id} value={ele.user_id}>

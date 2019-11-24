@@ -156,11 +156,12 @@ class TableList extends PureComponent {
     {
       title: '姓名',
       dataIndex: 'courier_name',
+      width: '100px',
     },
     {
       title: '用户电话',
       dataIndex: 'courier_mobile',
-      sorter: true,
+      width: '150px',
     },
   ];
 
@@ -392,7 +393,7 @@ class TableList extends PureComponent {
                   <Select
                     placeholder="请选择"
                     onSelect={this.onCompanySelect}
-                    style={{ width: '150px' }}
+                    style={{ width: '100px' }}
                     defaultValue={CacheCompany.company_id}
                   >
                     {[CacheCompany].map(ele => {

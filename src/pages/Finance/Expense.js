@@ -207,36 +207,39 @@ class TableList extends PureComponent {
     {
       title: '支出日期',
       dataIndex: 'expense_date',
+      width: '170px',
       render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '支出金额',
       dataIndex: 'expense_money',
+
+      width: '80px',
     },
     {
       title: '支出类型',
       dataIndex: 'expensetype',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '支出原因',
       dataIndex: 'expense_reason',
-      sorter: true,
+      width: '100px',
     },
     {
       title: '站点',
       dataIndex: 'site_name',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '分公司',
       dataIndex: 'company_name',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '操作用户',
       dataIndex: 'operator_name',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '备注',
@@ -552,7 +555,7 @@ class TableList extends PureComponent {
                 placeholder="请选择"
                 onSelect={this.onSiteSelect}
                 onChange={this.onSiteChange}
-                style={{ width: '150px' }}
+                style={{ width: '100px' }}
               >
                 {[CacheSite].map(ele => {
                   return (
@@ -572,7 +575,7 @@ class TableList extends PureComponent {
 
         <FormItem label="支出类型">
           {getFieldDecorator('expensetype_id')(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               {expenseTypes.map(ele => {
                 return (
                   <Option key={ele.expensetype_id} value={ele.expensetype_id}>

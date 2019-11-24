@@ -377,22 +377,23 @@ class TableList extends PureComponent {
   columns = [
     {
       title: '公司名称',
+      width: '100px',
       dataIndex: 'company_name',
     },
     {
       title: '公司电话',
       dataIndex: 'company_mobile',
-      sorter: true,
+      width: '130px',
     },
     {
       title: '地域系数',
       dataIndex: 'trans_regional_ratio',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '地址',
       dataIndex: 'company_address',
-      sorter: true,
+      width: '100px',
     },
   ];
 

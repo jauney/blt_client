@@ -213,7 +213,7 @@ class TableList extends PureComponent {
       render: val => `${val}`,
       // mark to display a total number
       needTotal: true,
-      width: '80px',
+      width: '60px',
     },
     {
       title: '发货客户',
@@ -229,26 +229,23 @@ class TableList extends PureComponent {
     {
       title: '应收货款',
       dataIndex: 'order_amount',
-      sorter: true,
       width: '80px',
     },
     {
       title: '实收货款',
       dataIndex: 'order_real',
-      sorter: true,
       width: '80px',
     },
     {
       title: '折后运费',
       dataIndex: 'trans_discount',
-      sorter: true,
       width: '80px',
     },
     {
       title: '运费方式',
       dataIndex: 'trans_type',
       sorter: true,
-      width: '60',
+      width: '80px',
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -264,26 +261,22 @@ class TableList extends PureComponent {
     {
       title: '垫付',
       dataIndex: 'order_advancepay_amount',
-      sorter: true,
       width: '80px',
     },
     {
       title: '送货费',
       dataIndex: 'deliver_amount',
-      sorter: true,
       width: '80px',
     },
     {
       title: '保价费',
       dataIndex: 'insurance_fee',
-      sorter: true,
       width: '80px',
     },
     {
       title: '货物名称',
       dataIndex: 'order_name',
-      sorter: true,
-      width: '250px',
+      width: '150px',
     },
     {
       title: '录票时间',
@@ -291,7 +284,7 @@ class TableList extends PureComponent {
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
-      width: '190px',
+      width: '170px',
     },
     {
       title: '结算时间',
@@ -299,7 +292,7 @@ class TableList extends PureComponent {
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
-      width: '190px',
+      width: '170px',
     },
     {
       title: '结算人',
@@ -309,13 +302,11 @@ class TableList extends PureComponent {
     {
       title: '站点',
       dataIndex: 'site_name',
-      sorter: true,
       width: '80px',
     },
     {
       title: '中转',
       dataIndex: 'transfer_type',
-      sorter: true,
       render: val => {
         let $transferType = '';
         if (val == 1) {
@@ -777,7 +768,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '200px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -794,11 +785,12 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="货车编号">
-          {getFieldDecorator('shipsite_id', { initialValue: currentShipSite.site_id })(
+          {getFieldDecorator('shipsite_id', {})(
             <Select
               placeholder="请选择"
               onSelect={this.onShipSiteSelect}
               style={{ width: '100px' }}
+              allowClear
             >
               {(entrunkSiteList || []).map(ele => {
                 return (
@@ -810,7 +802,7 @@ class TableList extends PureComponent {
             </Select>
           )}
           {getFieldDecorator('car_code', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+            <Input placeholder="请输入" style={{ width: '80px' }} />
           )}
         </FormItem>
         <FormItem label="收货人姓名">
@@ -818,7 +810,7 @@ class TableList extends PureComponent {
             <Select
               placeholder="请选择"
               onSelect={this.onGetCustomerSelect}
-              style={{ width: '200px' }}
+              style={{ width: '100px' }}
               allowClear
               showSearch
               optionLabelProp="children"
@@ -839,7 +831,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="收货人电话">
           {getFieldDecorator('getcustomer_mobile', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+            <Input placeholder="请输入" style={{ width: '130px' }} />
           )}
         </FormItem>
         <FormItem label="发货人姓名">
@@ -847,7 +839,7 @@ class TableList extends PureComponent {
             <Select
               placeholder="请选择"
               onSelect={this.onSendCustomerSelect}
-              style={{ width: '200px' }}
+              style={{ width: '100px' }}
               allowClear
               showSearch
               optionLabelProp="children"
@@ -868,7 +860,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="收货人电话">
           {getFieldDecorator('sendcustomer_mobile', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+            <Input placeholder="请输入" style={{ width: '130px' }} />
           )}
         </FormItem>
         <FormItem>

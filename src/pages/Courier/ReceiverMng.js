@@ -156,11 +156,12 @@ class TableList extends PureComponent {
     {
       title: '姓名',
       dataIndex: 'courier_name',
+      width: '100px',
     },
     {
       title: '用户电话',
       dataIndex: 'courier_mobile',
-      sorter: true,
+      width: '150px',
     },
   ];
 

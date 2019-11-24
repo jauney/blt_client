@@ -280,25 +280,27 @@ class TableList extends PureComponent {
       dataIndex: 'customertype_name',
       sorter: true,
       align: 'right',
+      width: '80px',
     },
     {
       title: '姓名',
       dataIndex: 'customer_name',
+      width: '100px',
     },
     {
       title: '电话',
       dataIndex: 'customer_mobile',
-      sorter: true,
+      width: '100px',
     },
     {
       title: '账户',
       dataIndex: 'bank_account',
-      sorter: true,
+      width: '150px',
     },
     {
       title: '收货地址',
       dataIndex: 'customer_address',
-      sorter: true,
+      width: '150px',
     },
     {
       title: '备注',
@@ -501,7 +503,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -517,7 +519,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="客户分类">
           {getFieldDecorator('customer_type', {})(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               {customerTypes.map(ele => {
                 return (
                   <Option key={ele.customertype} value={ele.customertype}>
@@ -530,7 +532,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="站点">
           {getFieldDecorator('site_id', {})(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               {normalSiteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
@@ -543,12 +545,12 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="姓名">
           {getFieldDecorator('customer_name', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+            <Input placeholder="请输入" style={{ width: '100px' }} />
           )}
         </FormItem>
         <FormItem label="电话">
           {getFieldDecorator('customer_mobile', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+            <Input placeholder="请输入" style={{ width: '130px' }} />
           )}
         </FormItem>
         <FormItem>

@@ -407,7 +407,12 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '200px' }}>
+            <Select
+              placeholder="请选择"
+              onSelect={this.onCompanySelect}
+              style={{ width: '200px' }}
+              allowClear
+            >
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -420,7 +425,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-            <Select placeholder="请选择" style={{ width: '150px' }}>
+            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
               {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>

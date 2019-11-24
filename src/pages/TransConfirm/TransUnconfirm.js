@@ -443,7 +443,12 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-            <Select placeholder="请选择" style={{ width: '150px' }} onSelect={this.onSiteSelect}>
+            <Select
+              placeholder="请选择"
+              style={{ width: '150px' }}
+              onSelect={this.onSiteSelect}
+              allowClear
+            >
               {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>

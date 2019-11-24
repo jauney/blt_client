@@ -285,25 +285,27 @@ class TableList extends PureComponent {
       dataIndex: 'customertype_name',
       sorter: true,
       align: 'right',
+      width: '80px',
     },
     {
       title: '姓名',
       dataIndex: 'customer_name',
+      width: '100px',
     },
     {
       title: '电话',
       dataIndex: 'customer_mobile',
-      sorter: true,
+      width: '100px',
     },
     {
       title: '账户',
       dataIndex: 'bank_account',
-      sorter: true,
+      width: '150px',
     },
     {
       title: '收货地址',
       dataIndex: 'customer_address',
-      sorter: true,
+      width: '150px',
     },
     {
       title: '备注',
@@ -507,7 +509,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="客户分类">
           {getFieldDecorator('customer_type', {})(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               {customerTypes.map(ele => {
                 return (
                   <Option key={ele.customertype} value={ele.customertype}>
@@ -522,7 +524,7 @@ class TableList extends PureComponent {
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
             <Select
               placeholder="请选择"
-              style={{ width: '150px' }}
+              style={{ width: '100px' }}
               onSelect={this.onSiteSelect}
               allowClear
             >
@@ -538,12 +540,12 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="姓名">
           {getFieldDecorator('customer_name', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+            <Input placeholder="请输入" style={{ width: '100px' }} />
           )}
         </FormItem>
         <FormItem label="电话">
           {getFieldDecorator('customer_mobile', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
+            <Input placeholder="请输入" style={{ width: '130px' }} />
           )}
         </FormItem>
         <FormItem>

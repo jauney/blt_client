@@ -196,7 +196,7 @@ class TableList extends PureComponent {
     {
       title: '货单号',
       dataIndex: 'order_code',
-      sorter: true,
+      width: '80px',
       align: 'right',
       render: val => `${val}`,
       // mark to display a total number
@@ -205,31 +205,34 @@ class TableList extends PureComponent {
     {
       title: '发货客户',
       dataIndex: 'sendcustomer_name',
+      width: '80px',
     },
     {
       title: '收获客户',
       dataIndex: 'getcustomer_name',
       sorter: true,
+      width: '80px',
     },
     {
       title: '应收货款',
       dataIndex: 'order_amount',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '实收货款',
       dataIndex: 'order_real',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '折后运费',
       dataIndex: 'trans_discount',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '运费方式',
       dataIndex: 'trans_type',
-      sorter: true,
+      width: '80px',
+
       render: val => {
         if (val == 1) {
           return '现付';
@@ -242,37 +245,40 @@ class TableList extends PureComponent {
     {
       title: '垫付',
       dataIndex: 'order_advancepay_amount',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '送货费',
       dataIndex: 'deliver_amount',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '保价费',
       dataIndex: 'insurance_fee',
-      sorter: true,
+
+      width: '80px',
     },
     {
       title: '货物名称',
       dataIndex: 'order_name',
       sorter: true,
+      width: '150px',
     },
     {
       title: '录票时间',
       dataIndex: 'create_date',
+      width: '170px',
       render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '站点',
       dataIndex: 'site_name',
-      sorter: true,
+      width: '80px',
     },
     {
       title: '中转',
       dataIndex: 'transfer_type',
-      sorter: true,
+      width: '80px',
       render: val => {
         let $transferType = '';
         if (val == 1) {
@@ -582,7 +588,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '150px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -601,7 +607,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-            <Select placeholder="请选择" style={{ width: '150px' }}>
+            <Select placeholder="请选择" style={{ width: '100px' }}>
               {siteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
