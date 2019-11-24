@@ -89,6 +89,7 @@ class TableList extends PureComponent {
     },
     {
       title: '实收货款',
+      width: '80px',
       dataIndex: 'order_real',
     },
     {

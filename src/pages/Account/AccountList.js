@@ -94,6 +94,7 @@ class TableList extends PureComponent {
     {
       title: '实收货款',
       dataIndex: 'order_real',
+      width: '80px',
     },
     {
       title: '折后运费',

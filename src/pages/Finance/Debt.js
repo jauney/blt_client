@@ -286,7 +286,7 @@ class TableList extends PureComponent {
     {
       title: '日期',
       dataIndex: 'debt_date',
-      width: '130px',
+      width: '170px',
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {

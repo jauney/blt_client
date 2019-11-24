@@ -152,7 +152,6 @@ class TableList extends PureComponent {
       title: '货单号',
       width: '80px',
       dataIndex: 'order_code',
-      sorter: true,
     },
     {
       title: '发货客户',
@@ -163,30 +162,27 @@ class TableList extends PureComponent {
       title: '收获客户',
       width: '80px',
       dataIndex: 'getcustomer_name',
-      sorter: true,
     },
     {
       title: '应收货款',
       width: '80px',
       dataIndex: 'order_amount',
-      sorter: true,
     },
     {
       title: '实收货款',
+      width: '80px',
       dataIndex: 'order_real',
-      sorter: true,
     },
     {
       title: '折后运费',
       width: '80px',
       dataIndex: 'trans_discount',
-      sorter: true,
     },
     {
       title: '运费方式',
       width: '80px',
       dataIndex: 'trans_type',
-      sorter: true,
+
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -203,25 +199,21 @@ class TableList extends PureComponent {
       title: '垫付',
       width: '80px',
       dataIndex: 'order_advancepay_amount',
-      sorter: true,
     },
     {
       title: '送货费',
       width: '80px',
       dataIndex: 'deliver_amount',
-      sorter: true,
     },
     {
       title: '保价费',
       width: '80px',
       dataIndex: 'insurance_fee',
-      sorter: true,
     },
     {
       title: '货物名称',
       width: '250px',
       dataIndex: 'order_name',
-      sorter: true,
     },
     {
       title: '录票时间',
@@ -243,31 +235,27 @@ class TableList extends PureComponent {
       title: '付款日期',
       width: '80px',
       dataIndex: 'pay_date',
-      sorter: true,
     },
     {
       title: '货车编号',
       width: '80px',
       dataIndex: 'car_code',
-      sorter: true,
     },
     {
       title: '站点',
       width: '80px',
       dataIndex: 'site_name',
-      sorter: true,
     },
     {
       title: '配载站',
       width: '80px',
       dataIndex: 'shipsite_name',
-      sorter: true,
     },
     {
       title: '中转',
       width: '80px',
       dataIndex: 'transfer_type',
-      sorter: true,
+
       render: val => {
         let $transferType = '';
         if (val == 1) {
@@ -282,7 +270,6 @@ class TableList extends PureComponent {
       title: '异常情况',
       width: '80px',
       dataIndex: 'abnormal_type',
-      sorter: true,
     },
     {
       title: '备注',
