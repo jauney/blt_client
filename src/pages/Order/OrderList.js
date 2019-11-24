@@ -145,7 +145,7 @@ class TableList extends PureComponent {
     },
     {
       title: '录票时间',
-      width: '80px',
+      width: '170px',
       dataIndex: 'create_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD HH:mm:ss') : ''}</span>,
     },
@@ -156,13 +156,13 @@ class TableList extends PureComponent {
     },
     {
       title: '结算日期',
-      width: '170px',
+      width: '100px',
       dataIndex: 'settle_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD') : ''}</span>,
     },
     {
       title: '付款日期',
-      width: '170px',
+      width: '100px',
       dataIndex: 'pay_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD') : ''}</span>,
     },
