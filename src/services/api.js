@@ -866,6 +866,10 @@ export async function getCustomerList(params) {
               receiver_id
               password
               username
+              site_ids
+              site_names
+              total_trans
+              order_num
               customerMobiles {
                 mobile_id
                 mobile

@@ -539,7 +539,7 @@ class TableList extends PureComponent {
                   current,
                 },
               }}
-              rowClassName={(record, index) => {
+              rowClassNameHandler={(record, index) => {
                 if (record.order_status === 6) {
                   return styles.settleColor;
                 } else if (record.order_status === 7) {

@@ -20,34 +20,24 @@ class StandardTable extends PureComponent {
 
     this.state = {
       selectedRowKeys: [],
+      selectedRows: [],
       needTotalList,
     };
   }
 
-  static getDerivedStateFromProps(nextProps) {
-    // clean state
-    if (nextProps.selectedRows.length === 0) {
-      const needTotalList = initTotalList(nextProps.columns);
-      return {
-        selectedRowKeys: [],
-        needTotalList,
-      };
-    }
-    return null;
-  }
-
   handleRowSelectChange = (selectedRowKeys, selectedRows) => {
-    let { needTotalList } = this.state;
-    needTotalList = needTotalList.map(item => ({
-      ...item,
-      total: selectedRows.reduce((sum, val) => sum + parseFloat(val[item.dataIndex], 10), 0),
-    }));
+    console.log(selectedRowKeys, selectedRows);
+    // let { needTotalList } = this.state;
+    // needTotalList = needTotalList.map(item => ({
+    //   ...item,
+    //   total: selectedRows.reduce((sum, val) => sum + parseFloat(val[item.dataIndex], 10), 0),
+    // }));
     const { onSelectRow } = this.props;
     if (onSelectRow) {
       onSelectRow(selectedRows);
     }
 
-    this.setState({ selectedRowKeys, needTotalList });
+    this.setState({ selectedRowKeys, selectedRows });
   };
 
   handleTableChange = (pagination, filters, sorter) => {
@@ -61,9 +51,43 @@ class StandardTable extends PureComponent {
     this.handleRowSelectChange([], []);
   };
 
+  selectRow = record => {
+    const { rowKey, onSelectRow } = this.props;
+    const selectedRowKeys = [...this.state.selectedRowKeys];
+    const selectedRows = [...this.state.selectedRows];
+
+    let checkedRecord;
+    let checkedIndex;
+    selectedRows.forEach((item, index) => {
+      if (item[rowKey] == record[rowKey]) {
+        checkedRecord = item;
+        checkedIndex = index;
+      }
+    });
+
+    if (checkedRecord) {
+      selectedRowKeys.splice(checkedIndex, 1);
+      selectedRows.splice(checkedIndex, 1);
+    } else {
+      selectedRowKeys.push(record[rowKey]);
+      selectedRows.push(record);
+    }
+    if (onSelectRow) {
+      onSelectRow(selectedRows);
+    }
+    this.setState({ selectedRowKeys, selectedRows });
+  };
+
   render() {
     const { selectedRowKeys, needTotalList } = this.state;
-    const { data = {}, rowKey, ...rest } = this.props;
+    const {
+      data = {},
+      rowKey,
+      rowClassNameHandler,
+      onClickHander,
+      onDoubleClickHander,
+      ...rest
+    } = this.props;
     const { list = [], pagination } = data;
     const paginationProps = {
       showSizeChanger: true,
@@ -74,11 +98,10 @@ class StandardTable extends PureComponent {
     const rowSelection = {
       selectedRowKeys,
       onChange: this.handleRowSelectChange,
-      getCheckboxProps: record => ({
-        disabled: record.disabled,
-      }),
+      // getCheckboxProps: record => ({
+      //   disabled: record.disabled,
+      // }),
     };
-    console.log('$$$$$$$$$', rowKey);
     return (
       <div className={styles.standardTable}>
         <div className={styles.tableAlert}>
@@ -101,6 +124,37 @@ class StandardTable extends PureComponent {
           dataSource={list}
           pagination={paginationProps}
           onChange={this.handleTableChange}
+          rowClassName={(record, index) => {
+            if (typeof rowClassNameHandler == 'function') {
+              return rowClassNameHandler(record, index);
+            }
+
+            let selectedFlag = false;
+            selectedRowKeys.forEach(key => {
+              if (record[rowKey] == key) {
+                selectedFlag = true;
+              }
+            });
+
+            if (selectedFlag) {
+              return styles.selectedColor;
+            }
+
+            return '';
+          }}
+          onRow={(record, rowIndex) => ({
+            onClick: event => {
+              this.selectRow(record);
+              if (typeof onClickHander == 'function') {
+                onClickHander(record, rowIndex, event);
+              }
+            },
+            onDoubleClick: event => {
+              if (typeof onDoubleClickHander == 'function') {
+                onDoubleClickHander(record, rowIndex, event);
+              }
+            },
+          })}
           {...rest}
         />
       </div>

@@ -309,16 +309,20 @@ class CreateForm extends PureComponent {
   setSelectedCustomer = async (fieldName, customer = {}) => {
     const { form } = this.props;
     const fieldObject = {};
+    const orderAmount = form.getFieldValue('order_amount');
     fieldObject[fieldName] = customer.customer_id || ''; // customer.customer_id;
     form.setFieldsValue(fieldObject);
+
     // setFieldsValue不会触发select的onSelect事件，因此需要手动再触发一次计算：
     // 1）是否VIP 2）计算折后运费 3）发货人银行账号
     if (fieldName == 'sendcustomer_id') {
       // update bankaccoount
       // 设置发货人账号
-      form.setFieldsValue({
-        bank_account: customer.bank_account || '',
-      });
+      if (+orderAmount > 0) {
+        form.setFieldsValue({
+          bank_account: customer.bank_account || '',
+        });
+      }
     } else {
       await this.setState({
         currentGetCustomer: customer,
@@ -392,6 +396,7 @@ class CreateForm extends PureComponent {
   onSendCustomerSelect = async (value, option) => {
     const { props } = option;
     const { sendCustomerList, form } = this.props;
+    const orderAmount = form.getFieldValue('order_amount');
     let currentCustomer;
     for (let i = 0; i < sendCustomerList.length; i++) {
       const customer = sendCustomerList[i];
@@ -406,9 +411,11 @@ class CreateForm extends PureComponent {
     }
     if (currentCustomer) {
       // 设置发货人账号
-      form.setFieldsValue({
-        bank_account: currentCustomer.bank_account,
-      });
+      if (+orderAmount > 0) {
+        form.setFieldsValue({
+          bank_account: currentCustomer.bank_account,
+        });
+      }
       await this.setState({
         currentSendCustomer: currentCustomer,
       });
@@ -543,6 +550,23 @@ class CreateForm extends PureComponent {
     this.computeTransDiscount();
   };
 
+  // 有货款时自动补齐银行账号
+  onOrderAmountBlur = event => {
+    const { form } = this.props;
+
+    const { currentSendCustomer } = this.state;
+    const totalAmount = event.target.value;
+    if (+totalAmount > 0) {
+      form.setFieldsValue({
+        bank_account: currentSendCustomer.bank_account || '',
+      });
+    } else {
+      form.setFieldsValue({
+        bank_account: '',
+      });
+    }
+  };
+
   // 打印订单
   onOrderPrint = () => {
     this.okHandle();
@@ -550,6 +574,24 @@ class CreateForm extends PureComponent {
 
   onGetCustomerFilter = (inputValue, option) => {
     console.log(inputValue, option);
+  };
+
+  getCustomerTag = (customer = {}) => {
+    let tag = '';
+    if (customer.customer_type == 1) {
+      tag = (
+        <Tag color="orange" style={{ marginTop: 10 }}>
+          VIP
+        </Tag>
+      );
+    } else if (customer.customer_type == 9) {
+      tag = (
+        <Tag color="orange" style={{ marginTop: 10 }}>
+          黑
+        </Tag>
+      );
+    }
+    return tag;
   };
 
   // 渲染autocomplete的option
@@ -577,6 +619,7 @@ class CreateForm extends PureComponent {
       selectedGetCustomerMobile,
       selectedSendCustomerMobile,
       currentGetCustomer,
+      currentSendCustomer,
       currentCompany,
       currentSite,
     } = this.state;
@@ -697,15 +740,7 @@ class CreateForm extends PureComponent {
               )}
             </FormItem>
           </Col>
-          <Col {...this.colSmallLayout}>
-            {currentGetCustomer.customer_type == 1 ? (
-              <Tag color="orange" style={{ marginTop: 10 }}>
-                VIP
-              </Tag>
-            ) : (
-              ''
-            )}
-          </Col>
+          <Col {...this.colSmallLayout}>{this.getCustomerTag(currentGetCustomer)}</Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
@@ -746,6 +781,7 @@ class CreateForm extends PureComponent {
               )}
             </FormItem>
           </Col>
+          <Col {...this.colSmallLayout}>{this.getCustomerTag(currentSendCustomer)}</Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col span={38} className={styles.formItemFloat}>
@@ -800,7 +836,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="货款">
               {form.getFieldDecorator('order_amount', {})(
-                <Input placeholder="请输入货款" tabIndex={-1} />
+                <Input placeholder="请输入货款" onBlur={this.onOrderAmountBlur} tabIndex={-1} />
               )}
             </FormItem>
           </Col>
@@ -1557,16 +1593,8 @@ class TableList extends PureComponent {
                 },
               }}
               columns={this.columns}
-              onRow={(record, rowIndex) => {
-                return {
-                  onClick: event => {
-                    // this.onRowClick(record, rowIndex, event);
-                  },
-                  onDoubleClick: event => {
-                    this.onRowDoubleClick(record, rowIndex, event);
-                  },
-                };
-              }}
+              onClickHander={this.onRowClick}
+              onDoubleClickHander={this.onRowDoubleClick}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
               footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}

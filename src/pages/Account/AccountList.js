@@ -775,17 +775,9 @@ class TableList extends PureComponent {
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              onRow={(record, rowIndex) => {
-                return {
-                  onClick: event => {
-                    this.onRowClick(record, rowIndex, event);
-                  },
-                  onDoubleClick: event => {
-                    this.onRowDoubleClick(record, rowIndex, event);
-                  },
-                };
-              }}
-              rowClassName={(record, index) => {
+              onClickHander={this.onRowClick}
+              onDoubleClickHander={this.onRowDoubleClick}
+              rowClassNameHandler={(record, index) => {
                 if (record.order_status === 6) {
                   return styles.settleColor;
                 } else if (record.order_status === 7) {

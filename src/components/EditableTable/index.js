@@ -271,13 +271,6 @@ class EditableTable extends React.Component {
           columns={columns}
           rowKey="mobile_id"
           rowSelection={rowRadioSelection}
-          onRow={record => {
-            return {
-              onClick: () => {
-                //this.rowRadioSelected(record);
-              },
-            };
-          }}
           footer={() => (
             <Button onClick={this.handleAdd} type="primary">
               添加

@@ -30,6 +30,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { async } from 'q';
+import { CacheCompany } from '@/utils/storage';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -794,6 +795,36 @@ class TableList extends PureComponent {
     this.getLastCar();
   };
 
+  // 点击勾选
+  selectRow = record => {
+    const { selectedRows, selectedRowKeys } = this.state;
+    let recordFlag = false;
+    let recordIndex;
+    console.log(selectedRowKeys);
+    selectedRowKeys.forEach((item, index) => {
+      if (item == record.order_id) {
+        recordFlag = true;
+        recordIndex = index;
+      }
+    });
+    if (recordFlag) {
+      selectedRows.splice(recordIndex, 1);
+      selectedRowKeys.splice(recordIndex, 1);
+    } else {
+      selectedRows.push(record);
+      selectedRowKeys.push(record.order_id);
+    }
+
+    console.log(selectedRows);
+
+    this.setState({ selectedRows, selectedRowKeys });
+  };
+
+  onSelectedRowKeysChange = selectedRowKeys => {
+    console.log(selectedRowKeys);
+    //this.setState({ selectedRowKeys });
+  };
+
   tableFooter = () => {
     const {
       untrunkorder: {
@@ -826,9 +857,13 @@ class TableList extends PureComponent {
     } = this.props;
     const { currentShipSite = {} } = this.state;
     const companyOption = {};
+
     // 默认勾选第一个公司
     if (branchCompanyList.length > 0) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
+      companyOption.initialValue =
+        CacheCompany.company_type == 1
+          ? branchCompanyList[0].company_id || ''
+          : CacheCompany.company_id;
     }
     // 当前配载部只能装当前的车，不能装其他配载部的，所以用entrunkSiteList = [CacheSite]
     return (
@@ -839,9 +874,9 @@ class TableList extends PureComponent {
               placeholder="请选择"
               onChange={this.onCompanySelect}
               style={{ width: '100px' }}
-              allowClear
+              allowClear={CacheCompany.company_type == 2 ? false : true}
             >
-              {branchCompanyList.map(ele => {
+              {(CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany]).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
                     {ele.company_name}
@@ -853,9 +888,19 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="站点">
-          {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
+          {getFieldDecorator('site_id', {
+            initialValue:
+              CacheCompany.company_type == 1
+                ? CacheSite.site_id
+                : siteList.length > 0
+                ? siteList[0].site_id
+                : '',
+          })(
             <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
-              {(CacheSite.site_type != 3 ? [CacheSite] : siteList).map(ele => {
+              {(CacheSite.site_type != 3 && CacheCompany.company_type == 1
+                ? [CacheSite]
+                : siteList
+              ).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -931,6 +976,7 @@ class TableList extends PureComponent {
       currentShipSite,
       lastCar,
     } = this.state;
+    // const { selectedRowKeys } = this.state;
 
     return (
       <div>
@@ -938,7 +984,7 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {selectedRows.length > 0 && (
+              {selectedRows.length > 0 && CacheCompany.company_type == 1 && (
                 <span>
                   <Button onClick={this.onCancelShip}>取消装回</Button>
                   <Button onClick={this.onReceiverModalShow}>更改接货人</Button>
@@ -964,6 +1010,7 @@ class TableList extends PureComponent {
               }}
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
+              onClickRow={this.onClickRow}
               onChange={this.handleStandardTableChange}
               footer={this.tableFooter}
             />

@@ -33,7 +33,7 @@ export default [
             path: '/order/untrunkorder',
             name: 'untrunkorder',
             component: './Order/UntrunkOrder',
-            authority: ['site_orderuser', 'site_admin'],
+            authority: ['site_orderuser', 'site_admin', 'company_account', 'company_admin'],
           },
           {
             path: '/order/trunkedorder',

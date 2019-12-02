@@ -290,7 +290,7 @@ class TableList extends PureComponent {
     {
       title: '姓名',
       dataIndex: 'customer_name',
-      width: '100px',
+      width: '80px',
     },
     {
       title: '电话',
@@ -301,6 +301,24 @@ class TableList extends PureComponent {
       title: '账户',
       dataIndex: 'bank_account',
       width: '150px',
+    },
+    {
+      title: '站点',
+      dataIndex: 'site_names',
+      width: '100px',
+      render: val => {
+        return `${val}`;
+      },
+    },
+    {
+      title: '运费总额',
+      dataIndex: 'total_trans',
+      width: '80px',
+    },
+    {
+      title: '票数',
+      dataIndex: 'order_num',
+      width: '80px',
     },
     {
       title: '收货地址',
@@ -504,9 +522,6 @@ class TableList extends PureComponent {
 
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <FormItem label="时间段">
-          {getFieldDecorator('search_date', {})(<RangePicker style={{ width: '250px' }} />)}
-        </FormItem>
         <FormItem label="客户分类">
           {getFieldDecorator('customer_type', {})(
             <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
@@ -608,17 +623,8 @@ class TableList extends PureComponent {
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              onRow={(record, rowIndex) => {
-                return {
-                  onClick: event => {
-                    this.onRowClick(record, rowIndex, event);
-                  },
-                  onDoubleClick: event => {
-                    this.onRowDoubleClick(record, rowIndex, event);
-                  },
-                };
-              }}
-              rowClassName={(record, index) => {}}
+              onClickHander={this.onRowClick}
+              onDoubleClickHander={this.onRowDoubleClick}
               footer={() => ``}
             />
           </div>

@@ -524,17 +524,8 @@ class TableList extends PureComponent {
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              onRow={(record, rowIndex) => {
-                return {
-                  onClick: event => {
-                    this.onRowClick(record, rowIndex, event);
-                  },
-                  onDoubleClick: event => {
-                    this.onRowDoubleClick(record, rowIndex, event);
-                  },
-                };
-              }}
-              rowClassName={(record, index) => {}}
+              onClickHander={this.onRowClick}
+              onDoubleClickHander={this.onRowDoubleClick}
               footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
             />
           </div>
