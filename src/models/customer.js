@@ -2,6 +2,7 @@ import {
   queryCustomerList,
   getCustomerList,
   getCustomerTypes,
+  getCustomer,
   removeCustomer,
   createCustomer,
   updateCustomer,
@@ -33,6 +34,12 @@ export default {
         payload: response,
       });
     },
+    // 获取单个客户信息
+    *queryCustomerAction({ payload }, { call, put, select }) {
+      const response = yield call(getCustomer, payload);
+
+      return response;
+    },
     *queryCustomerTypesAction({ payload }, { call, put, select }) {
       const response = yield call(getCustomerTypes, payload);
 
@@ -42,7 +49,6 @@ export default {
       });
     },
     *createCustomerAction({ payload }, { call, put }) {
-      console.log(999999, payload);
       const response = yield call(createCustomer, payload);
       return response;
     },

@@ -891,6 +891,84 @@ export async function getCustomerList(params) {
     });
 }
 
+export async function getCustomer(params) {
+  return client
+    .query({
+      query: gql`
+        query getCustomer(
+          $type: Int
+          $getcustomer_id: Int
+          $sendcustomer_id: Int
+          $customer_mobile: String
+        ) {
+          getCustomer(
+            type: $type
+            getcustomer_id: $getcustomer_id
+            sendcustomer_id: $sendcustomer_id
+            customer_mobile: $customer_mobile
+          ) {
+            getCustomer {
+              customer_id
+              customer_name
+              customer_address
+              customer_type
+              customertype_name
+              customer_mobile
+              bank_account
+              company_id
+              sender_id
+              receiver_id
+              password
+              username
+              site_ids
+              site_names
+              total_trans
+              order_num
+              customerMobiles {
+                mobile_id
+                mobile
+                mobile_type
+                customer_id
+              }
+            }
+            sendCustomer {
+              customer_id
+              customer_name
+              customer_address
+              customer_type
+              customertype_name
+              customer_mobile
+              bank_account
+              company_id
+              sender_id
+              receiver_id
+              password
+              username
+              site_ids
+              site_names
+              total_trans
+              order_num
+              customerMobiles {
+                mobile_id
+                mobile
+                mobile_type
+                customer_id
+              }
+            }
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.getCustomer;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
 export async function getCustomerTypes(params) {
   return client
     .query({

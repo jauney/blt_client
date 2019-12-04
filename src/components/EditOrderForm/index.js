@@ -23,6 +23,8 @@ import {
   Tag,
 } from 'antd';
 import styles from './index.less';
+import { CacheRole } from '@/utils/storage';
+import { isTemplateElement } from '@babel/types';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -88,13 +90,89 @@ class OrderEditForm extends PureComponent {
     };
   }
 
+  /**
+   * 计算运费折扣
+   */
+  computeTransDiscount = changeType => {
+    const { currentCompany, currentGetCustomer, currentSendCustomer, form } = this.props;
+
+    let originalTransAmount = form.getFieldValue('trans_originalamount') || 0;
+    let transAmount = form.getFieldValue('trans_amount') || 0;
+    let transType = form.getFieldValue('trans_type') || 0;
+    let getCustomerTransVipRatio = currentGetCustomer.trans_vip_ratio || 1;
+    let sendCustomerTransVipRatio = currentSendCustomer.trans_vip_ratio || 1;
+    let transRegionalRatio = currentCompany.trans_regional_ratio || 1;
+    let transDiscount = transAmount;
+
+    let transVipRatio;
+    if (transType == 0) {
+      transVipRatio = getCustomerTransVipRatio;
+    } else {
+      transVipRatio = sendCustomerTransVipRatio;
+    }
+
+    if (changeType == 'type') {
+      // 折后运费=地域系数*客户VIP*小票费
+      transDiscount = (
+        Number(originalTransAmount) *
+        Number(transVipRatio) *
+        Number(transRegionalRatio)
+      ).toFixed(2);
+      form.setFieldsValue({
+        trans_discount: transDiscount || '',
+      });
+    } else if (changeType == 'original') {
+      if (originalTransAmount && transRegionalRatio) {
+        transAmount = (Number(originalTransAmount) * Number(transRegionalRatio)).toFixed(2);
+      }
+      if (transVipRatio && transRegionalRatio) {
+        // 折后运费=地域系数*客户VIP*小票费
+        transDiscount = (
+          Number(originalTransAmount) *
+          Number(transVipRatio) *
+          Number(transRegionalRatio)
+        ).toFixed(2);
+        form.setFieldsValue({
+          trans_discount: transDiscount || '',
+          trans_amount: transAmount || '',
+        });
+      }
+    } else if (transVipRatio && transRegionalRatio) {
+      // 折后运费=地域系数*客户VIP*小票费
+      transDiscount = (Number(transAmount) * Number(transVipRatio)).toFixed(2);
+      form.setFieldsValue({
+        trans_discount: transDiscount || '',
+      });
+    }
+  };
+
+  onTransTypeSelect = () => {
+    this.computeTransDiscount('type');
+  };
+
+  // 小票运费变更，自动计算折后运费
+  onTransOriginalBlur = event => {
+    this.computeTransDiscount('original');
+  };
+
+  // 运费变更，自动计算折后运费
+  onTransBlur = event => {
+    this.computeTransDiscount();
+  };
+
   okHandle = () => {
     const { form, record, dispatch, onCancelModal, handleSearch } = this.props;
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
-      if (fieldsValue.transfer_amount) {
-        fieldsValue.transfer_amount = Number(fieldsValue.transfer_amount);
-      }
+
+      Object.keys(fieldsValue).forEach(item => {
+        if (item.indexOf('amount') >= 0) {
+          fieldsValue[item] = Number(fieldsValue[item] || 0);
+        }
+      });
+
+      fieldsValue['trans_type'] = Number(fieldsValue['trans_type']);
+      fieldsValue['transfer_type'] = Number(fieldsValue['transfer_type']);
 
       const result = await dispatch({
         type: 'order/updateOrderAction',
@@ -129,6 +207,13 @@ class OrderEditForm extends PureComponent {
         </Button>
       );
     }
+
+    let payRoles = CacheRole.filter(item => {
+      return [('site_pay', 'site_admin')].indexOf(item.role_value) >= 0;
+    });
+
+    console.log(payRoles, CacheRole);
+
     return (
       <Modal
         destroyOnClose
@@ -191,18 +276,85 @@ class OrderEditForm extends PureComponent {
             </FormItem>
           </Col>
         </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="运费">
-              {record.trans_amount}({record.trans_type == 1 ? '现付' : '回付'})
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="折后运费">
-              {record.trans_discount}
-            </FormItem>
-          </Col>
-        </Row>
+        {payRoles.length > 0 ? (
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col span={38} className={styles.formItemFloat}>
+              <FormItem
+                style={{ width: '220px', display: 'inline-block' }}
+                labelCol={{ span: 7 }}
+                wrapperCol={{ span: 7 }}
+                label="小票运费"
+              >
+                {form.getFieldDecorator('trans_originalamount', {
+                  initialValue: record.trans_originalamount,
+                })(
+                  <Input
+                    placeholder="请输入小票运费"
+                    onBlur={this.onTransOriginalBlur}
+                    style={{ width: '100px' }}
+                  />
+                )}
+              </FormItem>
+              <FormItem
+                style={{ width: '180px', display: 'inline-block' }}
+                labelCol={{ span: 7 }}
+                wrapperCol={{ span: 7 }}
+                label="运费"
+              >
+                {form.getFieldDecorator('trans_amount', { initialValue: record.trans_amount })(
+                  <Input
+                    placeholder="请输入运费"
+                    onBlur={this.onTransBlur}
+                    style={{ width: '100px' }}
+                    tabIndex={-1}
+                  />
+                )}
+              </FormItem>
+              <FormItem
+                label=""
+                style={{ width: '100px', display: 'inline-block' }}
+                labelCol={{ span: 0 }}
+                wrapperCol={{ span: 4 }}
+              >
+                {form.getFieldDecorator('trans_type', { initialValue: record.trans_type })(
+                  <Select
+                    placeholder="请选择"
+                    style={{ width: '70px' }}
+                    tabIndex={-1}
+                    onSelect={this.onTransTypeSelect}
+                  >
+                    <Option value={0}>提付</Option>
+                    <Option value={1}>现付</Option>
+                    <Option value={2}>回付</Option>
+                  </Select>
+                )}
+              </FormItem>
+              <FormItem
+                style={{ width: '210px', display: 'inline-block' }}
+                labelCol={{ span: 7 }}
+                wrapperCol={{ span: 10 }}
+                label="折后运费"
+              >
+                {form.getFieldDecorator('trans_discount', { initialValue: record.trans_discount })(
+                  <Input placeholder="" tabIndex={-1} style={{ width: '80px' }} disabled />
+                )}
+              </FormItem>
+            </Col>
+          </Row>
+        ) : (
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col {...this.col2Layout}>
+              <FormItem {...this.formItemLayout} label="运费">
+                {record.trans_amount}({record.trans_type == 1 ? '现付' : '回付'})
+              </FormItem>
+            </Col>
+            <Col {...this.col2Layout}>
+              <FormItem {...this.formItemLayout} label="折后运费">
+                {record.trans_discount}
+              </FormItem>
+            </Col>
+          </Row>
+        )}
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="货款">

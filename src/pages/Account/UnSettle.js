@@ -29,7 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Account.less';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-
+console.log(CacheRole);
 const FormItem = Form.Item;
 const { Option } = Select;
 
@@ -63,6 +63,8 @@ class TableList extends PureComponent {
     printModalVisible: false,
     currentCompany: {},
     currentShipSite: {},
+    currentGetCustomer: {},
+    currentSendCustomer: {},
   };
 
   columns = [
@@ -552,10 +554,23 @@ class TableList extends PureComponent {
   };
 
   // 编辑订单信息
-  onRowDoubleClick = (record, index, event) => {
+  onRowDoubleClick = async (record, index, event) => {
+    const { dispatch } = this.props;
+    // 查询当前收货人、送货人
+    const customer = await dispatch({
+      type: 'customer/getCustomerAction',
+      payload: {
+        getcustomer_id: record.getcustomer_id,
+        sendcustomer_id: record.sendcustomer_id,
+      },
+    });
+
     this.setState({
       record,
+      currentGetCustomer: customer.getCustomer,
+      currentSendCustomer: customer.sendCustomer,
     });
+
     this.onUpdateOrderModalShow();
   };
 
@@ -590,17 +605,18 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       site: { entrunkSiteList },
     } = this.props;
-    const { currentShipSite = {} } = this.state;
+    const { currentShipSite = {}, currentCompany = {} } = this.state;
     const formItemLayout = {};
-    const companyOption = {};
     // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
+    if (!currentCompany.company_id && branchCompanyList.length > 0) {
+      this.setState({
+        currentCompany: branchCompanyList[0],
+      });
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司" {...formItemLayout}>
-          {getFieldDecorator('company_id', companyOption)(
+          {getFieldDecorator('company_id', { initialValue: currentCompany.company_id })(
             <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
               {branchCompanyList.map(ele => {
                 return (
@@ -711,7 +727,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      unsettle: { orderList, total, totalOrderAmount, totalTransAmount },
+      unsettle: { orderList, total },
       loading,
       dispatch,
     } = this.props;
@@ -728,6 +744,9 @@ class TableList extends PureComponent {
       downloadModalVisible,
       printModalVisible,
       record,
+      currentGetCustomer = {},
+      currentSendCustomer = {},
+      currentCompany,
     } = this.state;
 
     return (
@@ -779,6 +798,9 @@ class TableList extends PureComponent {
           handleSearch={this.handleSearch}
           isEdit={1}
           dispatch={dispatch}
+          currentCompany={currentCompany}
+          currentGetCustomer={currentGetCustomer}
+          currentSendCustomer={currentSendCustomer}
         />
         <Modal
           title="确认结账"
