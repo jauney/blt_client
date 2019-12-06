@@ -2217,6 +2217,7 @@ export async function getTodayAccountList(params) {
               company_id
               company_name
               account_name
+              account_reason
               serial_id
               origin_id
               origin_table

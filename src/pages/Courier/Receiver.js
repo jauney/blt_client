@@ -807,6 +807,15 @@ class TableList extends PureComponent {
                   current,
                 },
               }}
+              rowClassNameHandler={(record, index) => {
+                if (record.order_status === 6) {
+                  return styles.settleColor;
+                } else if (record.order_status === 7) {
+                  return styles.payColor;
+                } else {
+                  return '';
+                }
+              }}
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}

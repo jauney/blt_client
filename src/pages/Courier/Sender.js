@@ -247,7 +247,7 @@ class TableList extends PureComponent {
     },
     {
       title: '付款日期',
-      width: '17px',
+      width: '170px',
       dataIndex: 'pay_date',
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
@@ -834,6 +834,15 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                 },
+              }}
+              rowClassNameHandler={(record, index) => {
+                if (record.order_status === 6) {
+                  return styles.settleColor;
+                } else if (record.order_status === 7) {
+                  return styles.payColor;
+                } else {
+                  return '';
+                }
               }}
               columns={this.columns}
               onSelectRow={this.handleSelectRows}

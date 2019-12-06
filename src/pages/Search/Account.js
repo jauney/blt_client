@@ -80,6 +80,11 @@ class TableList extends PureComponent {
       width: '80px',
     },
     {
+      title: '原因',
+      dataIndex: 'account_reason',
+      width: '100px',
+    },
+    {
       title: '金额',
       dataIndex: 'account_amount',
       width: '80px',

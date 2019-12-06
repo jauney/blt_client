@@ -147,14 +147,25 @@ class TableList extends PureComponent {
       ),
     },
     {
-      title: '滞纳金',
-      width: '80px',
-      dataIndex: 'late_fee',
+      title: '结算时间',
+      width: '170px',
+      dataIndex: 'settle_date',
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
     },
     {
-      title: '货车编号',
+      title: '付款时间',
+      width: '170px',
+      dataIndex: 'pay_date',
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
+    },
+    {
+      title: '分公司',
       width: '80px',
-      dataIndex: 'car_code',
+      dataIndex: 'company_name',
     },
     {
       title: '站点',
@@ -337,6 +348,12 @@ class TableList extends PureComponent {
       } else {
         fieldsValue.order_status = [3, 7];
       }
+
+      // 上站非总部只能查看当前站点的
+      if (CacheCompany.company_type == 1 && CacheSite.site_type != 3) {
+        fieldsValue.site_id = CacheSite.site_id;
+      }
+
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'accountlist/getOrderListAction',
@@ -606,6 +623,7 @@ class TableList extends PureComponent {
     const { currentShipSite } = this.state;
     const formItemLayout = {};
     const companyOption = {};
+    const allowClearFlag = CacheCompany.company_type == 1 ? true : false;
     // 默认勾选第一个公司
     if (branchCompanyList.length > 0) {
       companyOption.initialValue = branchCompanyList[0].company_id || '';
@@ -614,8 +632,13 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司" {...formItemLayout}>
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
-              {branchCompanyList.map(ele => {
+            <Select
+              placeholder="请选择"
+              onSelect={this.onCompanySelect}
+              style={{ width: '100px' }}
+              allowClear={allowClearFlag}
+            >
+              {(CacheCompany.company_type == 2 ? [CacheCompany] : branchCompanyList).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
                     {ele.company_name}
@@ -630,25 +653,12 @@ class TableList extends PureComponent {
             <Input placeholder="请输入" style={{ width: '150px' }} />
           )}
         </FormItem>
-        <FormItem label="货车编号" {...formItemLayout}>
-          {getFieldDecorator('shipsite_id', {})(
-            <Select
-              placeholder="请选择"
-              onSelect={this.onShipSiteSelect}
-              style={{ width: '100px' }}
-              allowClear
-            >
-              {(entrunkSiteList || []).map(ele => {
-                return (
-                  <Option key={ele.site_id} value={ele.site_id}>
-                    {ele.site_name}
-                  </Option>
-                );
-              })}
+        <FormItem label="有无货款" {...formItemLayout}>
+          {getFieldDecorator('order_amount', { initialValue: -1 })(
+            <Select placeholder="请选择" style={{ width: '100px' }}>
+              <Option value={0}>无</Option>
+              <Option value={-1}>有</Option>
             </Select>
-          )}
-          {getFieldDecorator('car_code', {})(
-            <Input placeholder="请输入" style={{ width: '80px' }} />
           )}
         </FormItem>
         <FormItem label="收货人姓名" {...formItemLayout}>

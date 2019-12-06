@@ -207,29 +207,35 @@ class TableList extends PureComponent {
     {
       title: '收入日期',
       dataIndex: 'income_date',
+      width: '170px',
       render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '收入金额',
+      width: '80px',
       dataIndex: 'income_money',
     },
     {
       title: '收入类型',
+      width: '80px',
       dataIndex: 'incometype',
       sorter: true,
     },
     {
       title: '收入原因',
+      width: '100px',
       dataIndex: 'income_reason',
       sorter: true,
     },
     {
       title: '站点',
+      width: '80px',
       dataIndex: 'site_name',
       sorter: true,
     },
     {
       title: '分公司',
+      width: '80px',
       dataIndex: 'company_name',
       sorter: true,
     },
@@ -307,7 +313,7 @@ class TableList extends PureComponent {
     const {
       site: { normalSiteList = [] },
     } = this.props;
-    console.log(normalSiteList, value);
+
     const currentSite = normalSiteList.filter(item => {
       if (item.site_id == value) {
         return item;
@@ -475,6 +481,14 @@ class TableList extends PureComponent {
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
+    let startDate = moment(Number(record.income_date));
+    let endDate = moment(Number(new Date().getTime()));
+    let diffHours = endDate.diff(startDate, 'hours');
+
+    if (diffHours >= 24) {
+      message.error('超过24小时记录不可编辑');
+      return;
+    }
     this.setState({
       record,
     });

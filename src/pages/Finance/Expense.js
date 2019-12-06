@@ -528,6 +528,14 @@ class TableList extends PureComponent {
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
+    let startDate = moment(Number(record.expense_date));
+    let endDate = moment(Number(new Date().getTime()));
+    let diffHours = endDate.diff(startDate, 'hours');
+
+    if (diffHours >= 24) {
+      message.error('超过24小时记录不可编辑');
+      return;
+    }
     this.setState({
       record,
     });
