@@ -494,14 +494,19 @@ class TableList extends PureComponent {
   };
 
   getLastCarInfo = async companyId => {
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
     const { currentCompany = {}, currentShipSite = {} } = this.state;
+    const carCode = form.getFieldValue('car_code');
+    const param = {
+      company_id: companyId || currentCompany.company_id,
+      shipsite_id: currentShipSite.site_id,
+    };
+    if (carCode) {
+      param.car_code = carCode;
+    }
     const carInfo = await dispatch({
       type: 'car/getLastCarCodeAction',
-      payload: {
-        company_id: companyId || currentCompany.company_id,
-        shipsite_id: currentShipSite.site_id,
-      },
+      payload: param,
     });
 
     return carInfo;
