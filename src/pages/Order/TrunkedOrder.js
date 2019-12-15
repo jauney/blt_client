@@ -45,27 +45,44 @@ const getValue = obj =>
 const CacheSite = JSON.parse(localStorage.getItem('site') || '{}');
 const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
 
+
+
 /* eslint react/no-multi-comp:0 */
-@connect(({ trunkedorder }) => {
+@connect(({ untrunkorder }) => {
   return {
-    trunkedorder,
+    untrunkorder,
   };
 })
 @Form.create()
-class CreateDepartForm extends PureComponent {
+class CreateReceiverForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {};
   }
 
   getModalContent = () => {
-    const { lastCar, currentCompany } = this.props;
+    const {
+      form: { getFieldDecorator },
+      receiverList,
+    } = this.props;
 
     return (
       <Form layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={12} sm={24}>
-            {`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}
+            <FormItem label="接货人">
+              {getFieldDecorator('receiver_id', {})(
+                <Select placeholder="请选择" style={{ width: '150px' }}>
+                  {receiverList.map(ele => {
+                    return (
+                      <Option key={ele.courier_id} value={ele.courier_id}>
+                        {ele.courier_name}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              )}
+            </FormItem>
           </Col>
         </Row>
       </Form>
@@ -74,37 +91,271 @@ class CreateDepartForm extends PureComponent {
 
   onOkHandler = e => {
     e.preventDefault();
-    const { dispatch, form, onDepartModalCancel, lastCar, onSearch } = this.props;
+    const { dispatch, form, receiverList, selectedRows, onReceiverModalCancel } = this.props;
     form.validateFields(async (err, fieldsValue) => {
+      if (err) return;
+      const orderIds = selectedRows.map(item => {
+        return item.order_id;
+      });
+      const receivers = receiverList.filter(item => {
+        if (item.courier_id == fieldsValue.receiver_id) {
+          return item;
+        }
+      });
+
+      fieldsValue.order_id = orderIds;
+      fieldsValue.receiver_name = receivers[0] && receivers[0].courier_name;
+      console.log(fieldsValue);
       const result = await dispatch({
-        type: 'trunkedorder/departCarAction',
+        type: 'untrunkorder/changeOrderReceiverAction',
         payload: fieldsValue,
       });
 
       if (result.code == 0) {
-        onDepartModalCancel();
-        onSearch();
+        onReceiverModalCancel();
       }
     });
   };
 
   render() {
-    const { modalVisible, onDepartModalCancel } = this.props;
+    const { modalVisible, onReceiverModalCancel } = this.props;
     return (
       <Modal
-        title="发车"
+        title="更改接货人"
         className={styles.standardListForm}
         width={640}
         destroyOnClose
         visible={modalVisible}
         onOk={this.onOkHandler}
-        onCancel={onDepartModalCancel}
+        onCancel={onReceiverModalCancel}
       >
         {this.getModalContent()}
       </Modal>
     );
   }
 }
+
+/* eslint react/no-multi-comp:0 */
+@connect(({ trunkorder }) => {
+  return {
+    trunkorder,
+  };
+})
+@Form.create()
+class CreateDepartForm extends PureComponent {
+  constructor(props) {
+    super(props);
+  }
+
+  /**
+   * 编辑的时候初始化赋值表单
+   */
+  componentDidMount() {}
+
+  onCarChange = value => {
+    const { driverList, form } = this.props;
+    let currentDriver;
+    for (let i = 0; i < driverList.length; i++) {
+      const driver = driverList[i];
+      if (driver.driver_plate == value) {
+        currentDriver = driver;
+        break;
+      }
+    }
+    if (!currentDriver) {
+      // 设置发货人账号
+      form.setFieldsValue({
+        // driver_plate: currentDriver.driver_plate,
+        driver_id: '',
+        driver_name: '',
+        driver_mobile: '',
+      });
+    }
+  };
+
+  onCarSelect = (value, option) => {
+    const { props } = option;
+    const { driverList, form } = this.props;
+    let currentDriver;
+    for (let i = 0; i < driverList.length; i++) {
+      const driver = driverList[i];
+      if (driver.driver_id == props.driverid) {
+        currentDriver = driver;
+
+        break;
+      }
+    }
+    if (currentDriver) {
+      // 设置发货人账号
+      form.setFieldsValue({
+        // driver_plate: currentDriver.driver_plate,
+        driver_name: currentDriver.driver_name,
+        driver_mobile: currentDriver.driver_mobile,
+      });
+    }
+  };
+
+  // 渲染autocomplete的option
+  renderCustomerOption = item => {
+    const AutoOption = AutoComplete.Option;
+    return (
+      <AutoOption
+        key={item.driver_id}
+        driverid={item.driver_id}
+        value={`${item.driver_id}`}
+        text={item.driver_plate}
+      >
+        {item.driver_plate}
+      </AutoOption>
+    );
+  };
+
+  getModalContent = () => {
+    let {
+      form: { getFieldDecorator },
+      branchCompanyList,
+      currentCompany,
+      driverList,
+      lastCar,
+    } = this.props;
+    let currentDriver = {};
+    driverList.forEach(item => {
+      if (item.driver_id == lastCar.driver_id && Number(lastCar.car_status) < 3) {
+        currentDriver = item;
+      }
+    });
+   
+    
+    return (
+      <Form layout="inline" className={styles.modalForm}>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col md={12} sm={24}>
+            <FormItem label="车牌号">
+              {getFieldDecorator('driver_id', {
+                rules: [{ required: true, message: '请填写收车牌号' }],
+                initialValue: `${lastCar.driver_id || ''}`,
+              })(
+                <AutoComplete
+                  size="large"
+                  style={{ width: '100%' }}
+                  dataSource={driverList.map(this.renderCustomerOption)}
+                  onSelect={this.onCarSelect}
+                  onChange={this.onCarChange}
+                  placeholder="请输入"
+                  optionLabelProp="text"
+                  filterOption={(inputValue, option) =>
+                    option.props.children.indexOf(inputValue) !== -1
+                  }
+                >
+                  {' '}
+                </AutoComplete>
+              )}
+            </FormItem>
+          </Col>
+          <Col md={12} sm={24}>
+            <FormItem label="车主姓名">
+              {getFieldDecorator('driver_name', {
+                rules: [{ required: true, message: '请填写车主姓名' }],
+                initialValue: currentDriver.driver_name,
+              })(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col md={12} sm={24}>
+            <FormItem label="联系电话">
+              {getFieldDecorator('driver_mobile', {
+                rules: [{ required: true, message: '请填写联系电话' }],
+                initialValue: currentDriver.driver_mobile,
+              })(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+          <Col md={12} sm={24}>
+            <FormItem label="货车编号">
+              {getFieldDecorator('car_code', {
+                initialValue: lastCar.car_code,
+                rules: [{ required: true, message: '请填写货车编号' }],
+              })(<Input placeholder="请输入" disabled />)}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col md={12} sm={24}>
+            <FormItem label="拉货日期">
+              {getFieldDecorator('car_date', {
+                rules: [{ required: true, message: '请填写拉货日期' }],
+                initialValue: moment(new Date().getTime()),
+              })(<DatePicker placeholder="请选择" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
+            </FormItem>
+          </Col>
+          <Col md={12} sm={24}>
+            <FormItem label="货车费用">
+              {getFieldDecorator('car_fee', {
+                rules: [{ required: true, message: '请填写货车费用' }],
+                initialValue: lastCar.car_fee || '',
+              })(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+        </Row>
+      </Form>
+    );
+  };
+
+  onOkHandler = e => {
+    e.preventDefault();
+    const {
+      dispatch,
+      form,
+      driverList = [],
+      onOk
+    } = this.props;
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) return;
+      const formValues = fieldsValue;
+      
+      if (formValues.car_date && formValues.car_date.valueOf) {
+        formValues.car_date = `${formValues.car_date.valueOf()}`;
+      }
+      const drivers = driverList.filter(item => {
+        if (item.driver_id == formValues.driver_id) {
+          return item;
+        }
+      });
+
+      if (drivers.length <= 0) {
+        formValues.driver_plate = formValues.driver_id;
+        formValues.driver_id = 0;
+      } else {
+        formValues.driver_plate = drivers[0].driver_plate;
+        formValues.driver_id = Number(formValues.driver_id);
+      }
+
+      formValues.car_fee = Number(formValues.car_fee || 0);
+      formValues.car_code = formValues.car_code + '';
+     
+      onOk(formValues)
+      
+    });
+  };
+
+  render() {
+    const { modalVisible, onEntrunkModalCancel } = this.props;
+    return (
+      <Modal
+        title="货物装车"
+        className={styles.standardListForm}
+        width={700}
+        destroyOnClose
+        visible={modalVisible}
+        onOk={this.onOkHandler}
+        onCancel={onEntrunkModalCancel}
+      >
+        {this.getModalContent()}
+      </Modal>
+    );
+  }
+}
+
 
 /* eslint react/no-multi-comp:0 */
 @connect(({ trunkedorder }) => {
@@ -202,9 +453,10 @@ class CreateEntrunkForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, trunkedorder, site, car, receiver, loading }) => {
+@connect(({ customer, driver, company, trunkedorder, site, car, receiver, loading }) => {
   return {
     customer,
+    driver,
     company,
     trunkedorder,
     site,
@@ -374,6 +626,20 @@ class TableList extends PureComponent {
     await this.getLastCarInfo();
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
+    this.getDriverList()
+  }
+
+  getDriverList = ()=>{
+    const { dispatch, form } = this.props;
+    const {currentCompany} = this.state
+    dispatch({
+      type: 'driver/getDriverListAction',
+      payload: {
+        pageNo: 1,
+        pageSize: 500,
+        company_id: currentCompany.company_id,
+      },
+    });
   }
 
   /**
@@ -471,6 +737,7 @@ class TableList extends PureComponent {
       });
     }
     this.getLastCarInfo();
+    this.getDriverList()
   };
 
   onShipSiteSelect = async value => {
@@ -576,19 +843,21 @@ class TableList extends PureComponent {
     });
   };
 
-  onDepartOk = async () => {
+  onDepartOk = async (formValues) => {
     const {
       dispatch,
       car: { lastCar },
     } = this.props;
-    const { currentCompany } = this.state;
+    const { currentCompany, currentShipSite } = this.state;
+ 
+    formValues.shipsite_id = currentShipSite.site_id;
+    formValues.company_id = currentCompany.company_id;
+
     let result = await dispatch({
-      type: 'trunkedorder/updateCarStatusAction',
+      type: 'trunkedorder/departOrderAction',
       payload: {
         car_id: lastCar.car_id,
-        car_status: 3,
-        car_code: lastCar.car_code,
-        company_id: currentCompany.company_id,
+        car: formValues
       },
     });
     if (result.code == 0) {
@@ -887,6 +1156,7 @@ class TableList extends PureComponent {
       trunkedorder: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },
       car: { carList, lastCar },
+      driver: {driverList},
       loading,
     } = this.props;
 
@@ -981,17 +1251,14 @@ class TableList extends PureComponent {
           lastCar={lastCar}
           onSearch={this.handleSearch}
         />
-        <Modal
-          title="确认"
-          visible={departModalVisible}
+        <CreateDepartForm
+          modalVisible={departModalVisible}
+          carList={carList}
+          lastCar={lastCar}
+          driverList={driverList}
           onOk={this.onDepartOk}
-          onCancel={this.onDepartCancel}
-        >
-          <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
-          <p>{`车牌号：${lastCar.driver_plate}      司机姓名： ${lastCar.driver_name} `}</p>
-          <p>{`司机电话：${lastCar.driver_mobile}   司机运费： ${lastCar.car_fee} `}</p>
-          <p>您确认发车么？</p>
-        </Modal>
+        />
+       
         <Modal
           title="确认"
           visible={cancelDepartModalVisible}

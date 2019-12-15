@@ -4,6 +4,7 @@ import {
   updateCarFee,
   updateCarStatus,
   cancelEntrunk,
+  departOrder
 } from '@/services/api';
 
 export default {
@@ -50,6 +51,9 @@ export default {
     *cancelEntrunkAction({ payload }, { call, put }) {
       console.log(payload);
       return yield call(cancelEntrunk, payload); // post
+    },
+    *departOrderAction({ payload }, { call, put }) {
+      return yield call(departOrder, payload); // post
     },
   },
 

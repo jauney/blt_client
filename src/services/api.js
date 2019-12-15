@@ -900,12 +900,14 @@ export async function getCustomer(params) {
           $getcustomer_id: Int
           $sendcustomer_id: Int
           $customer_mobile: String
+          $company_id: Int
         ) {
           getCustomer(
             type: $type
             getcustomer_id: $getcustomer_id
             sendcustomer_id: $sendcustomer_id
             customer_mobile: $customer_mobile
+            company_id: $company_id
           ) {
             getCustomer {
               customer_id
@@ -1316,6 +1318,28 @@ export async function entrunkOrder(params) {
       console.log(data);
       gotoLogin(data);
       return data.data.entrunkOrder;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function departOrder(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation departOrder($car_id: Int, $car: CarInput) {
+          departOrder(car_id: $car_id, car: $car) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.departOrder;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');

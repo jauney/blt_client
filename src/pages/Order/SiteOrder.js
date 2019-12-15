@@ -331,36 +331,43 @@ class CreateForm extends PureComponent {
     }
   };
 
-  onSendCustomerMobileBlur = event => {
-    const { sendCustomerList } = this.props;
+  onSendCustomerMobileBlur =async event => {
+    const { sendCustomerList, dispatch } = this.props;
+    const { currentCompany } = this.state
     let flag = false;
-    let customer;
-    for (let i = 0; i < sendCustomerList.length; i++) {
-      customer = sendCustomerList[i];
-      const mobiles = customer.customerMobiles || [];
+    let mobile = event && event.target && event.target.value
+    // let customer;
+    // for (let i = 0; i < sendCustomerList.length; i++) {
+    //   customer = sendCustomerList[i];
+    //   const mobiles = customer.customerMobiles || [];
 
-      if (event.target.value == customer.customer_mobile) {
-        flag = true;
-        break;
-      } else {
-        for (let j = 0; j < mobiles.length; j++) {
-          const mobile = mobiles[j];
-          if (event.target.value == mobile.mobile) {
-            flag = true;
-            break;
-          }
-        }
-      }
-    }
+    //   if (event.target.value == customer.customer_mobile) {
+    //     flag = true;
+    //     break;
+    //   } else {
+    //     for (let j = 0; j < mobiles.length; j++) {
+    //       const mobile = mobiles[j];
+    //       if (event.target.value == mobile.mobile) {
+    //         flag = true;
+    //         break;
+    //       }
+    //     }
+    //   }
+    // }
 
-    if (flag) {
-      this.setSelectedCustomer('sendcustomer_id', customer);
-      this.setState({
-        currentSendCustomer: customer,
-      });
-    } else if (event.target.value) {
-      this.setSelectedCustomer('sendcustomer_id', {});
-    }
+    let sendCustomer = await dispatch({
+      type: 'customer/queryCustomerAction',
+      payload: {
+        type: 1, customer_mobile: mobile, company_id: currentCompany.company_id
+      },
+    });
+
+    console.log(sendCustomer,'&&&&&&')
+
+    this.setSelectedCustomer('sendcustomer_id', sendCustomer.sendCustomer||{});
+    this.setState({
+      currentSendCustomer: sendCustomer.sendCustomer||{},
+    });
   };
 
   onGetCustomerMobileBlur = event => {
