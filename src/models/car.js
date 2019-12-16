@@ -27,6 +27,7 @@ export default {
       return response;
     },
     *getLastCarCodeAction({ payload }, { call, put }) {
+      console.log(payload, '********')
       const response = yield call(getLastCarCode, payload);
       yield put({
         type: 'getLastCarCodeReducer',

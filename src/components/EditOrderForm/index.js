@@ -113,25 +113,25 @@ class OrderEditForm extends PureComponent {
 
     if (changeType == 'type') {
       // 折后运费=地域系数*客户VIP*小票费
-      transDiscount = (
+      transDiscount =  Math.ceil(
         Number(originalTransAmount) *
         Number(transVipRatio) *
         Number(transRegionalRatio)
-      ).toFixed(2);
+      );
       form.setFieldsValue({
         trans_discount: transDiscount || '',
       });
     } else if (changeType == 'original') {
       if (originalTransAmount && transRegionalRatio) {
-        transAmount = (Number(originalTransAmount) * Number(transRegionalRatio)).toFixed(2);
+        transAmount =  Math.ceil(Number(originalTransAmount) * Number(transRegionalRatio));
       }
       if (transVipRatio && transRegionalRatio) {
         // 折后运费=地域系数*客户VIP*小票费
-        transDiscount = (
+        transDiscount =  Math.ceil(
           Number(originalTransAmount) *
           Number(transVipRatio) *
           Number(transRegionalRatio)
-        ).toFixed(2);
+        );
         form.setFieldsValue({
           trans_discount: transDiscount || '',
           trans_amount: transAmount || '',
@@ -139,7 +139,7 @@ class OrderEditForm extends PureComponent {
       }
     } else if (transVipRatio && transRegionalRatio) {
       // 折后运费=地域系数*客户VIP*小票费
-      transDiscount = (Number(transAmount) * Number(transVipRatio)).toFixed(2);
+      transDiscount =  Math.ceil(Number(transAmount) * Number(transVipRatio));
       form.setFieldsValue({
         trans_discount: transDiscount || '',
       });

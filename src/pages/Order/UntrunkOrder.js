@@ -193,6 +193,11 @@ class CreateEntrunkForm extends PureComponent {
     }
   };
 
+  onGetLastCar = (event) => {
+    const { getLastCar } = this.props
+    getLastCar(event.target.value)
+  }
+
   // 渲染autocomplete的option
   renderCustomerOption = item => {
     const AutoOption = AutoComplete.Option;
@@ -214,7 +219,8 @@ class CreateEntrunkForm extends PureComponent {
       branchCompanyList,
       currentCompany,
       driverList,
-      lastCar,
+      lastCar = {},
+      getLastCar
     } = this.props;
     let currentDriver = {};
     driverList.forEach(item => {
@@ -274,7 +280,7 @@ class CreateEntrunkForm extends PureComponent {
               {getFieldDecorator('car_code', {
                 initialValue: lastCar.car_code,
                 rules: [{ required: true, message: '请填写货车编号' }],
-              })(<Input placeholder="请输入" />)}
+              })(<Input placeholder="请输入" disabled/>)}
             </FormItem>
           </Col>
         </Row>
@@ -309,11 +315,13 @@ class CreateEntrunkForm extends PureComponent {
       onEntrunkModalCancel,
       driverList = [],
       onSearch,
+      lastCar = {},
       currentShipSite = {},
       currentCompany = {},
     } = this.props;
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
+     
       const formValues = fieldsValue;
       const orderIds = selectedRows.map(item => {
         return item.order_id;
@@ -757,22 +765,28 @@ class TableList extends PureComponent {
     this.handleSearch();
   };
 
-  getLastCar = async () => {
+  getLastCar = async (car_code) => {
     const { currentCompany = {}, currentShipSite = {} } = this.state;
     const { dispatch } = this.props;
 
     // 重新获取货车编号
+    const params = {
+      company_id: currentCompany.company_id,
+      shipsite_id: currentShipSite.site_id,
+    }
+    if (car_code) {
+      params.car_code = car_code
+    }
     const result = await dispatch({
       type: 'car/getLastCarCodeAction',
-      payload: {
-        company_id: currentCompany.company_id,
-        shipsite_id: currentShipSite.site_id,
-      },
+      payload: params,
     });
 
     this.setState({
       lastCar: result,
     });
+    
+    return result
   };
 
   onShipSiteSelect = async value => {
@@ -1025,6 +1039,7 @@ class TableList extends PureComponent {
             onEntrunkModalCancel={this.onEntrunkModalCancel}
             driverList={driverList}
             lastCar={lastCar}
+            getLastCar={this.getLastCar}
             onSearch={this.handleSearch}
             currentShipSite={currentShipSite}
           />
