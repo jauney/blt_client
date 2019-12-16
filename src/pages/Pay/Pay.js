@@ -689,9 +689,9 @@ class TableList extends PureComponent {
     } = this.props;
     const companyOption = {};
     // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
-    }
+    // if (branchCompanyList.length > 0) {
+    //   companyOption.initialValue = branchCompanyList[0].company_id || '';
+    // }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
@@ -819,6 +819,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  }
                 },
               }}
               columns={this.columns}

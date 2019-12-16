@@ -74,7 +74,7 @@ class AddFormDialog extends PureComponent {
 
       addFormDataHandle({
         expense_id: record.expense_id || 0,
-        expense_money: fieldsValue.expense_money,
+        expense_money: Number(fieldsValue.expense_money),
         expensetype_id: newExpenseType ? '' : fieldsValue.expensetype_id,
         expensetype: newExpenseType ? fieldsValue.expensetype_id : expenseType,
         expense_reason: fieldsValue.expense_reason,
@@ -219,12 +219,12 @@ class TableList extends PureComponent {
     {
       title: '支出类型',
       dataIndex: 'expensetype',
-      width: '80px',
+      width: '140px',
     },
     {
       title: '支出原因',
       dataIndex: 'expense_reason',
-      width: '100px',
+      width: '120px',
     },
     {
       title: '站点',
@@ -645,6 +645,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  }
                 },
               }}
               columns={this.columns}

@@ -436,9 +436,12 @@ class TableList extends PureComponent {
               data={{
                 list: receiverList,
                 pagination: {
-                  receiverTotal,
+                  total: receiverTotal,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  }
                 },
               }}
               columns={this.columns}

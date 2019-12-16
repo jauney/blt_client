@@ -625,7 +625,7 @@ class TableList extends PureComponent {
     const companyOption = {};
     const allowClearFlag = CacheCompany.company_type == 1 ? true : false;
     // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
+    if (branchCompanyList.length > 0 && CacheCompany.company_type != 1) {
       companyOption.initialValue = branchCompanyList[0].company_id || '';
     }
     return (
@@ -655,7 +655,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="有无货款" {...formItemLayout}>
           {getFieldDecorator('order_amount', { initialValue: -1 })(
-            <Select placeholder="请选择" style={{ width: '100px' }}>
+            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               <Option value={0}>无</Option>
               <Option value={-1}>有</Option>
             </Select>
@@ -780,6 +780,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  }
                 },
               }}
               columns={this.columns}

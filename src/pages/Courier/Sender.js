@@ -833,6 +833,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  }
                 },
               }}
               rowClassNameHandler={(record, index) => {

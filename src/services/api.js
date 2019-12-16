@@ -1554,6 +1554,7 @@ export async function getLastCarCode(params) {
             confirm
             company_id
             shipsite_id
+            shipsite_name
             car_status
           }
         }

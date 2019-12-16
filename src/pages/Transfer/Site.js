@@ -910,7 +910,7 @@ class TableList extends PureComponent {
 
   tableFooter = () => {
     const {
-      transfer: { totalTransferAmount, totalTransferConfirmAmount, totalTransferUnConfirmAmount },
+      transfer: { totalTransferAmount, totalTransferConfirmAmount, totalTransferUnConfirmAmount, totalShouldTransfer },
     } = this.props;
     return (
       <div>
@@ -920,6 +920,9 @@ class TableList extends PureComponent {
         </span>
         <span className={styles.footerSplit}>
           已确认打款总额：{totalTransferConfirmAmount || 0}
+        </span>
+        <span className={styles.footerSplit}>
+          应打款总额：{totalShouldTransfer || 0}
         </span>
       </div>
     );
@@ -942,7 +945,7 @@ class TableList extends PureComponent {
           {getFieldDecorator('site_id', {})(
             <Select
               placeholder="请选择"
-              style={{ width: '18px' }}
+              style={{ width: '100px' }}
               onSelect={this.onSiteSelect}
               allowClear
             >
@@ -1032,6 +1035,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  }
                 },
               }}
               columns={this.columns}

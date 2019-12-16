@@ -593,14 +593,15 @@ class TableList extends PureComponent {
     } = this.props;
     const companyOption = {};
     // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
+    if (branchCompanyList.length > 0 && CacheCompany.company_type != 1) {
       companyOption.initialValue = branchCompanyList[0].company_id || '';
     }
+    const allowClearFlag = CacheCompany.company_type == 1 ? true : false;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={allowClearFlag}>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -704,6 +705,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  }
                 },
               }}
               columns={this.columns}

@@ -77,7 +77,7 @@ class TableList extends PureComponent {
     {
       title: '类型项目',
       dataIndex: 'account_name',
-      width: '80px',
+      width: '150px',
     },
     {
       title: '原因',
@@ -356,9 +356,12 @@ class TableList extends PureComponent {
               data={{
                 list: accounts,
                 pagination: {
-                  accountTotal,
+                  total: accountTotal,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  },
                 },
               }}
               columns={this.columns}

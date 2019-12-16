@@ -13,6 +13,7 @@ export default {
     transferList: [],
     transferTotal: 0,
     totalTransferAmount: 0,
+    totalShouldTransfer: 0,
     totalTransferConfirmAmount: 0,
     totalTransferUnConfirmAmount: 0,
   },

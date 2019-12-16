@@ -1223,6 +1223,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  }
                 },
               }}
               rowClassNameHandler={(record, index) => {
@@ -1274,7 +1277,7 @@ class TableList extends PureComponent {
           onOk={this.onArriveOk}
           onCancel={this.onArriveCancel}
         >
-          <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
+          <p>{`${lastCar.shipsite_name}—》${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
           <p>您确认该车已经抵达了么？</p>
         </Modal>
         <Modal

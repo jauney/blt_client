@@ -652,9 +652,12 @@ class TableList extends PureComponent {
               data={{
                 list: branchCompanyList,
                 pagination: {
-                  branchTotal,
+                  total: branchTotal,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  }
                 },
               }}
               columns={this.columns}

@@ -74,7 +74,7 @@ class AddFormDialog extends PureComponent {
 
       addFormDataHandle({
         income_id: record.income_id || 0,
-        income_money: fieldsValue.income_money,
+        income_money: Number(fieldsValue.income_money),
         incometype_id: newIncomeType ? '' : fieldsValue.incometype_id,
         incometype: newIncomeType ? fieldsValue.incometype_id : incomeType,
         income_reason: fieldsValue.income_reason,
@@ -217,13 +217,13 @@ class TableList extends PureComponent {
     },
     {
       title: '收入类型',
-      width: '80px',
+      width: '140px',
       dataIndex: 'incometype',
       sorter: true,
     },
     {
       title: '收入原因',
-      width: '100px',
+      width: '120px',
       dataIndex: 'income_reason',
       sorter: true,
     },
@@ -593,6 +593,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
+                  onShowSizeChange: (currentPage, pageSize)=>{
+                    this.setState({pageSize})
+                  }
                 },
               }}
               columns={this.columns}
