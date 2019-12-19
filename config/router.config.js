@@ -20,7 +20,7 @@ export default [
       {
         path: '/order',
         name: 'order',
-        icon: 'ordered-list',
+        icon: '单',
         authority: ['site_orderuser', 'site_admin', 'company_account', 'company_admin'],
         routes: [
           {
@@ -50,7 +50,7 @@ export default [
       // 账目结算
       {
         path: '/account',
-        icon: 'form',
+        icon: '核',
         name: 'account',
         authority: ['company_account', 'company_admin', 'site_admin', 'site_orderuser', 'site_pay'],
         routes: [
@@ -107,7 +107,7 @@ export default [
       // 付款管理
       {
         path: '/pay',
-        icon: 'form',
+        icon: '付',
         name: 'pay',
         authority: ['site_pay', 'site_admin'],
         routes: [
@@ -134,7 +134,7 @@ export default [
       // abnormal
       {
         path: '/abnormal',
-        icon: 'table',
+        icon: '异',
         name: 'abnormal',
         authority: ['site_pay', 'site_admin', 'company_account', 'company_admin', 'site_orderuser'],
         routes: [
@@ -179,7 +179,7 @@ export default [
       // finance
       {
         path: '/finance',
-        icon: 'table',
+        icon: '财',
         name: 'finance',
         authority: ['site_admin', 'company_admin', 'site_pay'],
         routes: [
@@ -207,7 +207,7 @@ export default [
       {
         path: '/transfer',
         name: 'transfer',
-        icon: 'profile',
+        icon: '款',
         authority: ['site_user', 'site_admin', 'site_pay', 'company_admin', 'site_orderuser'],
         routes: [
           // transfer
@@ -228,7 +228,7 @@ export default [
       {
         path: '/customer',
         name: 'customer',
-        icon: 'profile',
+        icon: '客',
         authority: ['company_admin', 'company_account', 'site_admin', 'site_orderuser', 'site_pay'],
         routes: [
           // transfer
@@ -249,7 +249,7 @@ export default [
       {
         path: '/courier',
         name: 'courier',
-        icon: 'profile',
+        icon: '工',
         authority: ['company_admin', 'site_admin', 'company_account'],
         routes: [
           // transfer
@@ -288,7 +288,7 @@ export default [
       {
         path: '/search',
         name: 'search',
-        icon: 'profile',
+        icon: '查',
         authority: ['company_admin', 'site_admin', 'site_pay'],
         routes: [
           // transfer
@@ -309,7 +309,7 @@ export default [
       {
         path: '/transconfirm',
         name: 'transconfirm',
-        icon: 'profile',
+        icon: '结',
         authority: ['site_admin', 'site_pay'],
         routes: [
           // transfer
@@ -328,7 +328,7 @@ export default [
       {
         path: '/system',
         name: 'system',
-        icon: 'profile',
+        icon: '系',
         authority: ['admin'],
         routes: [
           // transfer

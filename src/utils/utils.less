@@ -3,6 +3,10 @@ body {
   overflow: hidden;
 }
 
+.antd-pro-components-global-header-index-header {
+  height: 30px;
+}
+
 .tableList {
   :global {
     .ant-table-body {
@@ -23,7 +27,7 @@ body {
   }
   .tableListOperator {
     min-height: 32px;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     button {
       margin-right: 8px;
     }
@@ -122,4 +126,88 @@ body {
       border: 1px solid #ccc;
     }
   }
+}
+
+
+.modalForm {
+  :global {
+    .ant-form-item {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.formItemFloat {
+  :global {
+    .ant-form-item {
+      float: left;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.tableListForm {
+  :global {
+    .ant-form-item {
+      margin-bottom: 12px;
+      margin-right: 0;
+      > .ant-form-item-label {
+        min-width: 110px;
+        line-height: 32px;
+        padding-right: 8px;
+      }
+      .ant-form-item-control {
+        line-height: 32px;
+      }
+    }
+    .ant-form-item-control-wrapper {
+      flex: 1;
+    }
+    .ant-btn-primary {
+      margin-left: 20px;
+    }
+  }
+  .submitButtons {
+    display: block;
+    white-space: nowrap;
+    margin-bottom: 24px;
+  }
+}
+
+.dataTable {
+  :global {
+    .ant-table-column-title,
+    .ant-table-row td,
+    .ant-table-row span {
+      word-break: keep-all;
+      white-space: nowrap;
+    }
+    .ant-table-thead tr th {
+      padding: 12px 6px !important;
+    }
+    .ant-table-tbody tr td {
+      padding: 6px !important;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-lg) {
+  .tableListForm :global(.ant-form-item) {
+    margin-right: 24px;
+  }
+}
+
+@media screen and (max-width: @screen-md) {
+  .tableListForm :global(.ant-form-item) {
+    margin-right: 8px;
+  }
+}
+
+
+.ant-form-item {
+  margin-bottom: 14px;
+}
+
+.ant-select {
+  max-width: 200px;
 }

@@ -49,6 +49,7 @@ export default class BaseMenu extends PureComponent {
    */
   getSubMenuOrItem = item => {
     // doc: add hideChildrenInMenu
+    console.log(item,'&&&&&&&')
     if (item.children && !item.hideChildrenInMenu && item.children.some(child => child.name)) {
       const { name } = item;
       return (
@@ -56,8 +57,8 @@ export default class BaseMenu extends PureComponent {
           title={
             item.icon ? (
               <span>
-                {getIcon(item.icon)}
-                <span>{name}</span>
+                <span className="sidemenu-icon">{item.icon}</span>
+                <span className="sidemenu-text">{name}</span>
               </span>
             ) : (
               name
