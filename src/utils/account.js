@@ -14,6 +14,8 @@ export function getSelectedAccount(sltDatas, type) {
   var totalShouldTransFunds = 0;
   var totalActualGoodsFunds = 0;
   var totalActualTransFunds = 0;
+  var totalTifuInsurance = 0;
+  var totalXianInsurance = 0;
   // 垫付金额
   var totalAdvancepayAmount = 0;
   // 货款为0，运费结算方式为 回付、现付的记录，不能取消结算，因为这些记录是自动结算的。
@@ -27,17 +29,24 @@ export function getSelectedAccount(sltDatas, type) {
     totalActualGoodsFunds += Number(realOrderAmount);
     // trans_discount即为实付运费，去掉trans_real字段
     var realTransAmount = order.trans_discount ? order.trans_discount : order.trans_amount;
+    var insuranceFee = 0;
+    if (order.insurance_fee) {
+      insuranceFee += order.insurance_fee;
+    }
 
     if (order.trans_type == 0) {
       totalActualTransFunds += Number(realTransAmount || 0);
       totalAdvancepayAmount += Number(order.order_advancepay_amount || 0);
+      totalTifuInsurance += insuranceFee;
     } else {
       totalXianSettleTransFunds += Number(realTransAmount || 0);
+      totalXianInsurance += insuranceFee;
     }
     totalShouldTransFunds += Number(order.trans_amount || 0);
     totalShouldGoodsFunds += Number(order.order_amount || 0);
 
-    totalAccount = totalActualGoodsFunds + totalShouldTransFunds + totalAdvancepayAmount;
+    totalAccount =
+      totalActualGoodsFunds + totalActualTransFunds + totalAdvancepayAmount + totalTifuInsurance;
   }
   accountData.totalAccount = totalAccount;
   accountData.totalShouldGoodsFund = totalShouldGoodsFunds;
@@ -46,6 +55,8 @@ export function getSelectedAccount(sltDatas, type) {
   accountData.totalActualTransFund = totalActualTransFunds;
   accountData.totalXianSettleTransFunds = totalXianSettleTransFunds;
   accountData.totalAdvancepayAmount = totalAdvancepayAmount;
+  accountData.totalTifuInsurance = totalTifuInsurance;
+  accountData.totalXianInsurance = totalXianInsurance;
 
   return accountData;
 }

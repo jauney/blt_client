@@ -631,6 +631,45 @@ class TableList extends PureComponent {
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => {};
 
+  tableFooter = () => {
+    const {
+      courier: {
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalRealTransAmount,
+        totalRealOrderAmount,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+        totalTifuTransAmount,
+        totalXianTransAmount,
+        totalLatefee,
+        totalBonusfee,
+        totalCarFeeConfirm,
+        totalCarFee,
+        totalTifuInsurance,
+        totalXianInsurence,
+      },
+    } = this.props;
+    return (
+      <div>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span>实收货款：{totalRealOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>提付运费：{totalTifuTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>西安保费：{totalXianInsurence || '0'}</span>
+        <span className={styles.footerSplit}>提付保费：{totalTifuInsurance || '0'}</span>
+        <span className={styles.footerSplit}>滞纳金：{totalLatefee || '0'}</span>
+        <span className={styles.footerSplit}>奖金：{totalBonusfee || '0'}</span>
+        <span className={styles.footerSplit}>未结算货车运费：{totalCarFee || '0'}</span>
+        <span className={styles.footerSplit}>已结算货车运费：{totalCarFeeConfirm || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -807,9 +846,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
-                  }
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               rowClassNameHandler={(record, index) => {
@@ -826,7 +865,7 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={this.tableFooter}
             />
           </div>
         </Card>

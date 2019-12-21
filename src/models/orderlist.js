@@ -19,6 +19,8 @@ export default {
     totalBonusfee: 0,
     totalCarFeeConfirm: 0,
     totalCarFee: 0,
+    totalXianInsurence: 0,
+    totalTifuInsurance: 0,
   },
 
   effects: {

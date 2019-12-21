@@ -665,10 +665,19 @@ class TableList extends PureComponent {
       courier: {
         totalOrderAmount,
         totalTransAmount,
+        totalInsurancefee,
+        totalRealTransAmount,
         totalRealOrderAmount,
+        totalAdvancepayAmount,
         totalDeliverAmount,
+        totalTifuTransAmount,
+        totalXianTransAmount,
         totalLatefee,
         totalBonusfee,
+        totalCarFeeConfirm,
+        totalCarFee,
+        totalTifuInsurance,
+        totalXianInsurence,
       },
     } = this.props;
     return (
@@ -676,9 +685,16 @@ class TableList extends PureComponent {
         <span>货款总额：{totalOrderAmount || '0'}</span>
         <span>实收货款：{totalRealOrderAmount || '0'}</span>
         <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>提付运费：{totalTifuTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
         <span className={styles.footerSplit}>送货费：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>西安保费：{totalXianInsurence || '0'}</span>
+        <span className={styles.footerSplit}>提付保费：{totalTifuInsurance || '0'}</span>
         <span className={styles.footerSplit}>滞纳金：{totalLatefee || '0'}</span>
         <span className={styles.footerSplit}>奖金：{totalBonusfee || '0'}</span>
+        <span className={styles.footerSplit}>未结算货车运费：{totalCarFee || '0'}</span>
+        <span className={styles.footerSplit}>已结算货车运费：{totalCarFeeConfirm || '0'}</span>
       </div>
     );
   };
@@ -744,6 +760,9 @@ class TableList extends PureComponent {
         <FormItem label="送货人" {...formItemLayout}>
           {getFieldDecorator('sender_id', {})(
             <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
+              <Option key={-1} value={-1}>
+                未送货
+              </Option>
               {senderList.map(ele => {
                 return (
                   <Option key={ele.courier_id} value={ele.courier_id}>
@@ -835,9 +854,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
-                  }
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               rowClassNameHandler={(record, index) => {

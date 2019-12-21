@@ -391,6 +391,8 @@ class TableList extends PureComponent {
         totalBonusfee,
         totalCarFeeConfirm,
         totalCarFee,
+        totalTifuInsurance,
+        totalXianInsurence,
       },
       car: { lastCar },
     } = this.props;
@@ -403,7 +405,8 @@ class TableList extends PureComponent {
         <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
         <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
         <span className={styles.footerSplit}>送货费：{totalDeliverAmount || '0'}</span>
-        <span className={styles.footerSplit}>保价费：{totalInsurancefee || '0'}</span>
+        <span className={styles.footerSplit}>西安保费：{totalXianInsurence || '0'}</span>
+        <span className={styles.footerSplit}>提付保费：{totalTifuInsurance || '0'}</span>
         <span className={styles.footerSplit}>滞纳金：{totalLatefee || '0'}</span>
         <span className={styles.footerSplit}>奖金：{totalBonusfee || '0'}</span>
         <span className={styles.footerSplit}>未结算货车运费：{totalCarFee || '0'}</span>
@@ -537,9 +540,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
-                  }
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               rowClassNameHandler={(record, index) => {

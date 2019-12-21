@@ -409,6 +409,38 @@ class TableList extends PureComponent {
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => {};
 
+  tableFooter = () => {
+    const {
+      transconfirm: {
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalRealTransAmount,
+        totalRealOrderAmount,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+        totalTifuTransAmount,
+        totalXianTransAmount,
+        totalLatefee,
+        totalBonusfee,
+        totalCarFeeConfirm,
+        totalCarFee,
+        totalTifuInsurance,
+        totalXianInsurence,
+      },
+    } = this.props;
+    return (
+      <div>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span>实收货款：{totalRealOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>西安保费：{totalXianInsurence || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -542,9 +574,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
-                  }
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}
@@ -552,7 +584,7 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
+              footer={this.footer}
             />
           </div>
         </Card>

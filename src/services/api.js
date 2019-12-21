@@ -1203,6 +1203,8 @@ export async function getOrderStatistic(params) {
             totalAbnormalAmount
             totalCarFeeConfirm
             totalCarFee
+            totalXianInsurence
+            totalTifuInsurance
           }
         }
       `,
