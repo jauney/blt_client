@@ -118,6 +118,8 @@ class AddFormDialog extends PureComponent {
       <Modal
         destroyOnClose
         title="添加公司"
+        okText="确认"
+        cancelText="取消"
         visible={modalVisible}
         onCancel={() => onCancelHandler()}
         footer={[
@@ -144,12 +146,12 @@ class AddFormDialog extends PureComponent {
           </Row>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
-              <FormItem {...this.formItemLayout} label="分红算法">
+              <FormItem {...this.formItemLayout} label="应打款">
                 {form.getFieldDecorator('bonus_type', {
                   initialValue: record.bonus_type,
                   rules: [
-                    { required: true, message: '请选择分红算法' },
-                    { pattern: /^\d+(\.\d+)?$/, message: '分红算法格式错误' },
+                    { required: true, message: '请选择应打款' },
+                    { pattern: /^\d+(\.\d+)?$/, message: '应打款格式错误' },
                   ],
                 })(
                   <Radio.Group>

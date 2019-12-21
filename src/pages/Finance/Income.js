@@ -103,6 +103,8 @@ class AddFormDialog extends PureComponent {
       <Modal
         destroyOnClose
         title="添加收入"
+        okText="确认"
+        cancelText="取消"
         visible={modalVisible}
         onCancel={() => onCancelHandler()}
         footer={[
@@ -617,6 +619,8 @@ class TableList extends PureComponent {
         />
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={printModalVisible}
           onOk={this.onPrintOk}
           onCancel={this.onPrintCancel}
@@ -625,6 +629,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={downloadModalVisible}
           onOk={this.onDownloadOk}
           onCancel={this.onDownloadCancel}

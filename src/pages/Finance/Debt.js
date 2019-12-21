@@ -71,6 +71,7 @@ class AddFormDialog extends PureComponent {
       } else {
         fieldsValue.debttype_id = Number(fieldsValue.debttype_id);
         fieldsValue.debttype = debtType.debttype;
+        fieldsValue.debttype_type = debtType.debttype_type;
       }
 
       // 如果姓名不在列表中，则使用姓名查询
@@ -156,6 +157,8 @@ class AddFormDialog extends PureComponent {
       <Modal
         destroyOnClose
         title="添加收欠条"
+        okText="确认"
+        cancelText="取消"
         visible={modalVisible}
         onCancel={() => onCancelHandler()}
         footer={[
@@ -218,27 +221,17 @@ class AddFormDialog extends PureComponent {
                 {form.getFieldDecorator('debttype_id', {
                   rules: [{ required: true, message: '请填写类型' }],
                 })(
-                  <AutoComplete
-                    size="large"
-                    style={{ width: '280px' }}
-                    dataSource={debtTypes.map(this.renderCustomerOption)}
-                    onSelect={this.onDebtTypeSelect}
-                    placeholder="请输入"
-                    optionLabelProp="text"
-                    allowClear
-                  >
-                    {' '}
-                  </AutoComplete>
-                )}
-                {form.getFieldDecorator('debttype_type', { initialValue: 0 })(
                   <Select
                     placeholder="请选择"
-                    style={{ width: '70px' }}
-                    tabIndex={-1}
-                    onSelect={this.onTransTypeSelect}
+                    style={{ width: '150px' }}
                   >
-                    <Option value={0}>支</Option>
-                    <Option value={1}>收</Option>
+                    {debtTypes.map(ele => {
+                      return (
+                        <Option key={ele.debttype_id} value={ele.debttype_id}>
+                          {ele.debttype}
+                        </Option>
+                      );
+                    })}
                   </Select>
                 )}
               </FormItem>
@@ -303,12 +296,6 @@ class TableList extends PureComponent {
       title: '客户姓名',
       dataIndex: 'debtuser_name',
       width: '80px',
-    },
-    {
-      title: '收/支',
-      dataIndex: 'debttype_type',
-      width: '80px',
-      render: val => (val == 0 ? '支' : '收'),
     },
     {
       title: '备注',

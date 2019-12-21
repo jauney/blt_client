@@ -55,6 +55,9 @@ class AddFormDialog extends PureComponent {
     const { addFormDataHandle, form, record = {} } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      if(fieldsValue.trans_ratio) {
+        fieldsValue.trans_ratio = Number(fieldsValue.trans_ratio)
+      }
       const data = {
         site: fieldsValue,
       };
@@ -84,6 +87,8 @@ class AddFormDialog extends PureComponent {
       <Modal
         destroyOnClose
         title="添加站点"
+        okText="确认"
+        cancelText="取消"
         visible={modalVisible}
         onCancel={() => onCancelHandler()}
         footer={[
@@ -134,6 +139,17 @@ class AddFormDialog extends PureComponent {
                   initialValue: record.site_orderprefix,
                   rules: [{ required: true, message: '请填写该站点的订单号前缀' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem {...this.formItemLayout} className={styles.formItemNoBreak} label="应打款">
+                西安收运费 + 送货费 - 垫付 - 总运费*
+                {form.getFieldDecorator('trans_ratio', {
+                  initialValue: record.trans_ratio,
+                  rules: [{ required: true, message: '请填写总运费系数' }],
+                })(<Input placeholder="" style={{ width: '60px' }} />)} - 已打款
               </FormItem>
             </Col>
           </Row>

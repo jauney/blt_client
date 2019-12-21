@@ -77,6 +77,8 @@ class DownAccountForm extends PureComponent {
       <Modal
         destroyOnClose
         title="下账"
+        okText="确认"
+        cancelText="取消"
         visible={modalVisible}
         onCancel={() => downCancel()}
         footer={[
@@ -256,6 +258,8 @@ class CreateForm extends PureComponent {
       <Modal
         destroyOnClose
         title="编辑托运单"
+        okText="确认"
+        cancelText="取消"
         visible={modalVisible}
         onCancel={() => onCancelModal()}
         footer={[
@@ -1134,6 +1138,8 @@ class TableList extends PureComponent {
         />
         <Modal
           title="取消结账"
+          okText="确认"
+          cancelText="取消"
           visible={settleModalVisible}
           onOk={this.onSettleOk}
           onCancel={this.onSettleCancel}
@@ -1145,6 +1151,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={signModalVisible}
           onOk={this.onSignOk}
           onCancel={this.onSignCancel}
@@ -1153,6 +1161,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={cancelSignModalVisible}
           onOk={this.onCancelSignOk}
           onCancel={this.onCancelSignCancel}
@@ -1161,6 +1171,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={printModalVisible}
           onOk={this.onPrintOk}
           onCancel={this.onPrintCancel}
@@ -1169,6 +1181,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={downloadModalVisible}
           onOk={this.onDownloadOk}
           onCancel={this.onDownloadCancel}

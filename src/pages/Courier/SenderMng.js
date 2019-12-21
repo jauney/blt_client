@@ -89,6 +89,8 @@ class AddFormDialog extends PureComponent {
       <Modal
         destroyOnClose
         title="添加送货人"
+        okText="确认"
+        cancelText="取消"
         visible={modalVisible}
         onCancel={() => onCancelHandler()}
         footer={[

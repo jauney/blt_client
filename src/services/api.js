@@ -508,6 +508,7 @@ export async function querySiteList(params) {
               site_type
               company_id
               site_orderprefix
+              trans_ratio
             }
           }
         }

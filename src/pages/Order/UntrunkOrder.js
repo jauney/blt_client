@@ -120,6 +120,8 @@ class CreateReceiverForm extends PureComponent {
     return (
       <Modal
         title="更改接货人"
+        okText="确认"
+        cancelText="取消"
         className={styles.standardListForm}
         width={640}
         destroyOnClose
@@ -368,6 +370,8 @@ class CreateEntrunkForm extends PureComponent {
     return (
       <Modal
         title="货物装车"
+        okText="确认"
+        cancelText="取消"
         className={styles.standardListForm}
         width={700}
         destroyOnClose
@@ -1057,6 +1061,8 @@ class TableList extends PureComponent {
         />
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={cancelShipModalVisible}
           onOk={this.onCancelShipOk}
           onCancel={this.onCancelShipCancel}

@@ -218,6 +218,8 @@ class OrderEditForm extends PureComponent {
       <Modal
         destroyOnClose
         title="编辑托运单"
+        okText="确认"
+        cancelText="取消"
         visible={modalVisible}
         onCancel={() => onCancelModal()}
         footer={buttons}

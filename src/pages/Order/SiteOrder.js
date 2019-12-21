@@ -188,6 +188,10 @@ class CreateForm extends PureComponent {
       handleAdd(fieldsValue, selectedOrder);
 
       form.resetFields();
+      this.setState({
+        currentSendCustomer: {},
+        currentGetCustomer: {}
+      })
     });
   };
 
@@ -361,8 +365,6 @@ class CreateForm extends PureComponent {
         type: 1, customer_mobile: mobile, company_id: currentCompany.company_id
       },
     });
-
-    console.log(sendCustomer,'&&&&&&')
 
     this.setSelectedCustomer('sendcustomer_id', sendCustomer.sendCustomer||{});
     this.setState({
@@ -649,6 +651,8 @@ class CreateForm extends PureComponent {
       <Modal
         destroyOnClose
         title="新建托运单"
+        okText="确认"
+        cancelText="取消"
         visible={modalVisible}
         className={styles.modalForm}
         onCancel={() => handleModalVisible()}
@@ -1108,6 +1112,8 @@ class CreateEntrunkForm extends PureComponent {
     return (
       <Modal
         title="装回配载部"
+        okText="确认"
+        cancelText="取消"
         className={styles.standardListForm}
         width={640}
         destroyOnClose

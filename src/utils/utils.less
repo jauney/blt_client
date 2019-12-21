@@ -211,3 +211,13 @@ body {
 .ant-select {
   max-width: 200px;
 }
+
+.formItemNoBreak {
+  :global {
+    .ant-form-item-children {
+      white-space: nowrap;  
+      text-overflow:ellipsis; 
+      overflow:hidden;
+    }
+  }
+}

@@ -99,6 +99,8 @@ class AddFormDialog extends PureComponent {
       <Modal
         destroyOnClose
         title="添加打款"
+        okText="确认"
+        cancelText="取消"
         visible={modalVisible}
         onCancel={() => onCancelHandler()}
         footer={[
@@ -1070,6 +1072,8 @@ class TableList extends PureComponent {
         />
         <Modal
           title="确认打款"
+          okText="确认"
+          cancelText="取消"
           visible={settleModalVisible}
           onOk={this.onSettleOk}
           onCancel={this.onSettleCancel}
@@ -1078,6 +1082,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="取消确认打款"
+          okText="确认"
+          cancelText="取消"
           visible={cancelConfirmTransferModalVisible}
           onOk={this.onCancelConfirmTransferOk}
           onCancel={this.onCancelConfirmTransferCancel}
@@ -1086,6 +1092,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="删除确认打款"
+          okText="确认"
+          cancelText="取消"
           visible={delTransferModalVisible}
           onOk={this.onDelConfirmTransferOk}
           onCancel={this.onDelConfirmTransferCancel}
@@ -1094,6 +1102,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={signModalVisible}
           onOk={this.onSignOk}
           onCancel={this.onSignCancel}
@@ -1102,6 +1112,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={cancelSignModalVisible}
           onOk={this.onCancelSignOk}
           onCancel={this.onCancelSignCancel}
@@ -1110,6 +1122,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={printModalVisible}
           onOk={this.onPrintOk}
           onCancel={this.onPrintCancel}
@@ -1118,6 +1132,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={downloadModalVisible}
           onOk={this.onDownloadOk}
           onCancel={this.onDownloadCancel}

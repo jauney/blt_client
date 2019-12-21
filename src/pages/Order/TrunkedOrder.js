@@ -122,6 +122,8 @@ class CreateReceiverForm extends PureComponent {
     return (
       <Modal
         title="更改接货人"
+        okText="确认"
+        cancelText="取消"
         className={styles.standardListForm}
         width={640}
         destroyOnClose
@@ -339,16 +341,18 @@ class CreateDepartForm extends PureComponent {
   };
 
   render() {
-    const { modalVisible, onEntrunkModalCancel } = this.props;
+    const { modalVisible, onCancel } = this.props;
     return (
       <Modal
         title="货物装车"
+        okText="确认"
+        cancelText="取消"
         className={styles.standardListForm}
         width={700}
         destroyOnClose
         visible={modalVisible}
         onOk={this.onOkHandler}
-        onCancel={onEntrunkModalCancel}
+        onCancel={onCancel}
       >
         {this.getModalContent()}
       </Modal>
@@ -439,6 +443,8 @@ class CreateEntrunkForm extends PureComponent {
     return (
       <Modal
         title="货物装车"
+        okText="确认"
+        cancelText="取消"
         className={styles.standardListForm}
         width={700}
         destroyOnClose
@@ -1260,10 +1266,13 @@ class TableList extends PureComponent {
           lastCar={lastCar}
           driverList={driverList}
           onOk={this.onDepartOk}
+          onCancel={this.onDepartCancel}
         />
        
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={cancelDepartModalVisible}
           onOk={this.onCancelDepartOk}
           onCancel={this.onCancelDepartCancel}
@@ -1273,6 +1282,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={arriveModalVisible}
           onOk={this.onArriveOk}
           onCancel={this.onArriveCancel}
@@ -1282,6 +1293,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={cancelArriveModalVisible}
           onOk={this.onCancelArriveOk}
           onCancel={this.onCancelArriveCancel}
@@ -1291,6 +1304,8 @@ class TableList extends PureComponent {
         </Modal>
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={cancelEntrunkModalVisible}
           onOk={this.onCancelEntrunkOk}
           onCancel={this.onCancelEntrunkCancel}

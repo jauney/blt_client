@@ -561,6 +561,8 @@ class TableList extends PureComponent {
 
         <Modal
           title="确认"
+          okText="确认"
+          cancelText="取消"
           visible={departModalVisible}
           onOk={this.onDepartOk}
           onCancel={this.onDepartCancel}
