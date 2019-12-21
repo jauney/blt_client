@@ -482,7 +482,9 @@ class TableList extends PureComponent {
       title: '确认日期',
       dataIndex: 'confirm_date',
       width: '170px',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
     },
     {
       title: '打款公司',
@@ -736,6 +738,7 @@ class TableList extends PureComponent {
       message.success('删除确认打款成功！');
 
       this.onDelConfirmTransferCancel();
+      this.getOrderList();
     } else {
       message.error(result.msg);
     }
@@ -956,10 +959,10 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="确认打款">
-          {getFieldDecorator('transfer_type', {})(
+          {getFieldDecorator('transfer_type', { initialValue: '0' })(
             <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               <Option value="1">已确认打款</Option>
-              <Option value="2">未确认打款</Option>
+              <Option value="0">未确认打款</Option>
             </Select>
           )}
         </FormItem>
@@ -1039,9 +1042,9 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
-                  }
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}

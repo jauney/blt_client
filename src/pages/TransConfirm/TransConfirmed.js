@@ -290,6 +290,9 @@ class TableList extends PureComponent {
       if (!fieldsValue.trans_type) {
         fieldsValue.trans_type = 9;
       }
+      if (fieldsValue.trans_confirmdate) {
+        fieldsValue.trans_confirmdate = fieldsValue.trans_confirmdate.valueOf()
+      }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'transconfirm/getOrderListAction',
@@ -472,6 +475,9 @@ class TableList extends PureComponent {
           {getFieldDecorator('sendcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '150px' }} />
           )}
+        </FormItem>
+        <FormItem label="日期">
+          {getFieldDecorator('trans_confirmdate', {initialValue: moment()})(<DatePicker format={'YYYY-MM-DD'} />)}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

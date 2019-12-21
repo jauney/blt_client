@@ -857,6 +857,7 @@ class TableList extends PureComponent {
     const { currentCompany, currentShipSite } = this.state;
  
     formValues.shipsite_id = currentShipSite.site_id;
+    formValues.shipsite_name = currentShipSite.site_name;
     formValues.company_id = currentCompany.company_id;
 
     let result = await dispatch({
@@ -933,7 +934,7 @@ class TableList extends PureComponent {
       dispatch,
       car: { lastCar },
     } = this.props;
-    const { currentCompany } = this.state;
+    const { currentCompany, currentShipSite } = this.state;
     let result = await dispatch({
       type: 'trunkedorder/updateCarStatusAction',
       payload: {
@@ -941,6 +942,7 @@ class TableList extends PureComponent {
         car_status: 4,
         car_code: lastCar.car_code,
         company_id: currentCompany.company_id,
+        shipsite_id: currentShipSite.site_id
       },
     });
     if (result.code == 0) {
@@ -951,6 +953,7 @@ class TableList extends PureComponent {
         type: 'car/getLastCarCodeAction',
         payload: {
           company_id: currentCompany.company_id,
+          shipsite_id: currentShipSite.site_id
         },
       });
       this.onArriveCancel();
@@ -977,7 +980,7 @@ class TableList extends PureComponent {
       dispatch,
       car: { lastCar },
     } = this.props;
-    const { currentCompany } = this.state;
+    const { currentCompany, currentShipSite } = this.state;
     let result = await dispatch({
       type: 'trunkedorder/updateCarStatusAction',
       payload: {
@@ -985,6 +988,7 @@ class TableList extends PureComponent {
         car_status: 3,
         car_code: lastCar.car_code,
         company_id: currentCompany.company_id,
+        shipsite_id: currentShipSite.site_id
       },
     });
     if (result.code == 0) {
@@ -995,6 +999,7 @@ class TableList extends PureComponent {
         type: 'car/getLastCarCodeAction',
         payload: {
           company_id: currentCompany.company_id,
+          shipsite_id: currentShipSite.site_id
         },
       });
       this.onCancelArriveCancel();

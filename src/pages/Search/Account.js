@@ -251,9 +251,9 @@ class TableList extends PureComponent {
     } = this.props;
     return (
       <div>
-        <span>总额：{totalAccount || ''}</span>
-        <span className={styles.footerSplit}>收入总额：{totalIncomeAccount || ''}</span>
-        <span className={styles.footerSplit}>支出总额：{totalExpenseAccount || ''}</span>
+        <span>总额：{totalAccount || '0'}</span>
+        <span className={styles.footerSplit}>收入总额：{totalIncomeAccount || '0'}</span>
+        <span className={styles.footerSplit}>支出总额：{totalExpenseAccount || '0'}</span>
       </div>
     );
   };
@@ -359,8 +359,8 @@ class TableList extends PureComponent {
                   total: accountTotal,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize });
                   },
                 },
               }}

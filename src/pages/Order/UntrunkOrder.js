@@ -347,6 +347,7 @@ class CreateEntrunkForm extends PureComponent {
 
       formValues.car_fee = Number(formValues.car_fee || 0);
       formValues.shipsite_id = currentShipSite.site_id;
+      formValues.shipsite_name = currentShipSite.site_name;
       formValues.car_code = formValues.car_code + '';
       formValues.company_id = currentCompany.company_id;
 

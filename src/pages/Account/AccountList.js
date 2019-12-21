@@ -349,6 +349,10 @@ class TableList extends PureComponent {
         fieldsValue.order_status = [3, 7];
       }
 
+      if (fieldsValue.settle_date) {
+        fieldsValue.settle_date = fieldsValue.settle_date.valueOf()
+      }
+
       // 上站非总部只能查看当前站点的
       if (CacheCompany.company_type == 1 && CacheSite.site_type != 3) {
         fieldsValue.site_id = CacheSite.site_id;
@@ -726,6 +730,9 @@ class TableList extends PureComponent {
               <Option value={5}>未结算</Option>
             </Select>
           )}
+        </FormItem>
+        <FormItem label="日期" {...formItemLayout}>
+          {getFieldDecorator('settle_date', {initialValue: moment()})(<DatePicker format={'YYYY-MM-DD'} />)}
         </FormItem>
         <Form.Item {...formItemLayout} className={styles.tableListOperator}>
           <Button type="primary" htmlType="submit">

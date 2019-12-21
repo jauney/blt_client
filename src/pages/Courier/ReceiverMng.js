@@ -329,6 +329,11 @@ class TableList extends PureComponent {
 
   // 打开添加对话框
   onAddClick = async () => {
+    const { currentSite = {} } = this.state
+    if (!currentSite.site_id) {
+      message.info('请选择站点')
+      return
+    }
     this.setState({
       addModalVisible: true,
       record: {},
@@ -358,7 +363,6 @@ class TableList extends PureComponent {
   };
 
   onSiteChange = value => {
-    console.log('site', value);
     if (!value) {
       this.setState({
         currentSite: {},
@@ -405,6 +409,7 @@ class TableList extends PureComponent {
                   <Select
                     placeholder="请选择"
                     onSelect={this.onSiteSelect}
+                    onChange={this.onSiteChange}
                     style={{ width: '150px' }}
                     allowClear
                   >
