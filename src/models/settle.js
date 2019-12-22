@@ -46,7 +46,6 @@ export default {
       return yield call(downAccount, payload); // post
     },
     *cancelDownAccountAction({ payload }, { call, put }) {
-      payload.sign_status = 0;
       return yield call(cancelDownAccountOrder, payload); // post
     },
   },

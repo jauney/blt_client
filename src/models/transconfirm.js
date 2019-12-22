@@ -1,4 +1,10 @@
-import { getOrderList, getOrderStatistic, confirmTrans, cancelConfirmTrans } from '@/services/api';
+import {
+  getOrderList,
+  getOrderStatistic,
+  confirmTrans,
+  cancelConfirmTrans,
+  updateTransSign,
+} from '@/services/api';
 
 export default {
   namespace: 'transconfirm',
@@ -47,6 +53,14 @@ export default {
     },
     *confirmTransAction({ payload }, { call, put }) {
       return yield call(confirmTrans, payload); // post
+    },
+    *signAction({ payload }, { call, put }) {
+      payload.trans_sign = 1;
+      return yield call(updateTransSign, payload); // post
+    },
+    *cancelSignAction({ payload }, { call, put }) {
+      payload.trans_sign = 0;
+      return yield call(updateTransSign, payload); // post
     },
   },
 

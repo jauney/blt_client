@@ -812,6 +812,29 @@ export async function cancelDownAccountOrder(params) {
 }
 
 // 签字、取消签字
+export async function updateTransSign(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation updateTransSign($order_id: [Int], $trans_sign: Int) {
+          updateTransSign(order_id: $order_id, trans_sign: $trans_sign) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.updateTransSign;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+// 签字、取消签字
 export async function updateOrderSign(params) {
   return client
     .mutate({

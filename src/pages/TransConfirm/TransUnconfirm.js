@@ -406,6 +406,64 @@ class TableList extends PureComponent {
     this.onUpdateOrderModalShow();
   };
 
+  onTransSign = () => {
+    Modal.confirm({
+      title: '确认',
+      content: '确定要签字吗？',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: this.onTransSignOk,
+    });
+  };
+
+  onTransSignOk = async () => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
+    const orderIds = selectedRows.map(item => {
+      return item.order_id;
+    });
+    let result = await dispatch({
+      type: 'transconfirm/signAction',
+      payload: { order_id: orderIds },
+    });
+
+    if (result.code == 0) {
+      message.success('签字成功！');
+      this.handleSearch();
+    } else {
+      message.error(result.msg);
+    }
+  };
+
+  onCancelTransSign = () => {
+    Modal.confirm({
+      title: '确认',
+      content: '确定要取消签字吗？',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: this.onCancelTransSignOk,
+    });
+  };
+
+  onCancelTransSignOk = async () => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
+    const orderIds = selectedRows.map(item => {
+      return item.order_id;
+    });
+    let result = await dispatch({
+      type: 'transconfirm/cancelSignAction',
+      payload: { order_id: orderIds },
+    });
+
+    if (result.code == 0) {
+      message.success('取消签字成功！');
+      this.handleSearch();
+    } else {
+      message.error(result.msg);
+    }
+  };
+
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => {};
 
@@ -558,6 +616,8 @@ class TableList extends PureComponent {
               {selectedRows.length > 0 && (
                 <span>
                   <Button onClick={this.onConfirmTransModal}>确认运费</Button>
+                  <Button onClick={this.onTransSign}>签字</Button>
+                  <Button onClick={this.onCancelTransSign}>取消签字</Button>
                   <Button onClick={this.onPrint}>打印</Button>
                 </span>
               )}
@@ -583,6 +643,9 @@ class TableList extends PureComponent {
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
+              rowClassNameHandler={(record, index) => {
+                return record.trans_sign == 1 ? styles.signColor : '';
+              }}
               onDoubleClickHander={this.onRowDoubleClick}
               footer={this.footer}
             />
