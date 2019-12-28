@@ -29,6 +29,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
+import { print } from '@/utils/print'
 import { async } from 'q';
 
 const FormItem = Form.Item;
@@ -335,7 +336,7 @@ class CreateForm extends PureComponent {
     }
   };
 
-  onSendCustomerMobileBlur =async event => {
+  onSendCustomerMobileBlur = async event => {
     const { sendCustomerList, dispatch } = this.props;
     const { currentCompany } = this.state
     let flag = false;
@@ -366,9 +367,9 @@ class CreateForm extends PureComponent {
       },
     });
 
-    this.setSelectedCustomer('sendcustomer_id', sendCustomer.sendCustomer||{});
+    this.setSelectedCustomer('sendcustomer_id', sendCustomer.sendCustomer || {});
     this.setState({
-      currentSendCustomer: sendCustomer.sendCustomer||{},
+      currentSendCustomer: sendCustomer.sendCustomer || {},
     });
   };
 
@@ -538,7 +539,7 @@ class CreateForm extends PureComponent {
       }
     } else if (transVipRatio && transRegionalRatio) {
       // 折后运费=地域系数*客户VIP*小票费
-      transDiscount =  Math.ceil(Number(transAmount) * Number(transVipRatio));
+      transDiscount = Math.ceil(Number(transAmount) * Number(transVipRatio));
       form.setFieldsValue({
         trans_discount: transDiscount || '',
       });
@@ -578,7 +579,8 @@ class CreateForm extends PureComponent {
 
   // 打印订单
   onOrderPrint = () => {
-    this.okHandle();
+    print({ html: '<div>7777</div>' })
+    //this.okHandle();
   };
 
   onGetCustomerFilter = (inputValue, option) => {
@@ -1603,8 +1605,8 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize })
                   }
                 },
               }}
