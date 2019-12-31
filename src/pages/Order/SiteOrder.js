@@ -1422,7 +1422,7 @@ class TableList extends PureComponent {
     }
 
     if (option.type == 'print') {
-      this.printOrder(Object.assign({ order_code }, fields, option))
+      this.printOrder(Object.assign({ order_code: orderCode }, fields, option))
     }
     setTimeout(() => {
       this.handleSearch();
@@ -1553,7 +1553,7 @@ class TableList extends PureComponent {
       </tbody>
     </table>
     `
-    print({ html: '<div class=“header”>陕西远诚宝路通物流</div>' })
+    print({ html: `${styles}${html}` })
   }
 
   onDelete = async () => {
