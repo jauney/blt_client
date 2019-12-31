@@ -1,6 +1,7 @@
-import { getLodop } from './LodopFuncs';
+import getLodop from './LodopFuncs';
 
 export function print({ width = '80mm', height = '200mm', html = '' }) {
+  console.log(getLodop)
   let LODOP = getLodop();
   LODOP.PRINT_INIT("托运单");
   LODOP.SET_PRINT_PAGESIZE(1, width, height, '')
