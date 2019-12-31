@@ -1434,21 +1434,21 @@ class TableList extends PureComponent {
   printOrder = (data) => {
     let styles = `
     <style>
-    .header: {
-      text-align: center;
-    }
+    .content, .header {text-align: center;}
     table {width: 100%; border-collapse: collapse; border-spacing: 0;}
     table td {border: 1px solid #ccc; font-size: 10px;}
     .col3 {width: 33%;}
     .col3-1 {width: 10%;}
     .col3-2 {width: 45%;}
-    .split {width: 100%; height: 10px;}
+    .split {width: 100%; height: 5px;}
     .col4 {width: 25%;}
     .col2-1 {width: 35%;}
     .col2-2 {width: 65%;}
+    .desc {font-size: 8px;}
     </style>`
     let html = `
-    <div style="text-align:center">陕西远诚宝路通物流</div>
+    <div class="header">陕西远诚宝路通物流</div>
+    <div class="content">
     <table>
       <tr>
         <td class="col3">到货站:${data.company_name || ''}</td>
@@ -1458,12 +1458,12 @@ class TableList extends PureComponent {
     </table>
     <table>
       <tr>
-        <th class="col3-1">${data.getcustomer_type || ''}</th>
+        <td class="col3-1">${data.getcustomer_type || ''}</td>
         <td class="col3-2">收货人:${data.getcustomer_name || ''}</td>
         <td class="col3-2">电话:${data.getcustomer_mobile || ''}</td>
       </tr>
       <tr>
-        <th class="col3-1">${data.sendcustomer_type || ''}</th>
+        <td class="col3-1">${data.sendcustomer_type || ''}</td>
         <td class="col3-2">发货人:${data.sendcustomer_name || ''}</td>
         <td class="col3-2">电话:${data.sendcustomer_mobile || ''}</td>
       </tr>
@@ -1546,7 +1546,7 @@ class TableList extends PureComponent {
     </table>
     <table>
       <tr>
-        <td>申明：1.托运方必须如实提供货物类型、名称、数量，要求包装完好、捆扎牢固；交货只负责包装无损，不负责包装内质量与数量问题。2.公司严禁托运危险品及国家禁运品，若经欺瞒货品造成损失则由托运方承担。3.所有货品均实行自愿投保，若出现货损，3%以内的货损为正常损耗，不予赔付；若未保价出现货损或丢失，承运方则按运费的1-5倍赔付；若保价后出现货损或丢失，承运方则按货物平均保价金额进行赔付，且不超过货物价值的80%。4.文物、珠宝、陶瓷、玻璃、水果、海鲜、鲜肉制品等易碎、易腐烂变质的货品不在保险范围内（投保无效），本公司只负责丢失责任，不负责损坏、变质等赔偿。5.收货方接到提货通知后须及时取货，提货后出现的任何货物问题公司概不受理；到货通知后一周任不提货则原货返货，运费翻倍。6.承运期间若因人为无法控制的自然灾害而造成的损失，承运方不承担任何责任。7.托运单经开出，且托运方继续托运货物，则默认托运方同意公司托运协议，本协议及时生效；货物确认收货，运费及货款结算清后，本协议终止，且该托运单作废。</td>
+        <td class="desc">申明：1.托运方必须如实提供货物类型、名称、数量，要求包装完好、捆扎牢固；交货只负责包装无损，不负责包装内质量与数量问题。2.公司严禁托运危险品及国家禁运品，若经欺瞒货品造成损失则由托运方承担。3.所有货品均实行自愿投保，若出现货损，3%以内的货损为正常损耗，不予赔付；若未保价出现货损或丢失，承运方则按运费的1-5倍赔付；若保价后出现货损或丢失，承运方则按货物平均保价金额进行赔付，且不超过货物价值的80%。4.文物、珠宝、陶瓷、玻璃、水果、海鲜、鲜肉制品等易碎、易腐烂变质的货品不在保险范围内（投保无效），本公司只负责丢失责任，不负责损坏、变质等赔偿。5.收货方接到提货通知后须及时取货，提货后出现的任何货物问题公司概不受理；到货通知后一周任不提货则原货返货，运费翻倍。6.承运期间若因人为无法控制的自然灾害而造成的损失，承运方不承担任何责任。7.托运单经开出，且托运方继续托运货物，则默认托运方同意公司托运协议，本协议及时生效；货物确认收货，运费及货款结算清后，本协议终止，且该托运单作废。</td>
       </tr>
     </table>
     <table>
@@ -1564,6 +1564,7 @@ class TableList extends PureComponent {
         </td>
       </tr>
     </table>
+    </div>
     `
     print({ html: `${styles}${html}` })
   }
