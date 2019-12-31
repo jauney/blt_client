@@ -1390,6 +1390,7 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
 
     // 更新订单号
+    let orderCode = selectedOrder.order_code
     if (selectedOrder.order_id) {
       const result = await dispatch({
         type: 'order/updateOrderAction',
@@ -1410,19 +1411,18 @@ class TableList extends PureComponent {
         type: 'order/createOrderAction',
         payload: fields,
       });
-
+      orderCode = result && result.data && result.data.order_code || ''
       // TODO: 拿到order_code用于打印
       console.log(result.data);
-
-      if (option.type == 'print') {
-        this.printOrder(Object.assign({ order_code: result && result.data && result.data.order_code || '' }, fields, option))
-      }
-
       if (result && result.code == 0) {
         message.success('添加成功');
       } else {
         message.error('添加失败');
       }
+    }
+
+    if (option.type == 'print') {
+      this.printOrder(Object.assign({ order_code }, fields, option))
     }
     setTimeout(() => {
       this.handleSearch();
