@@ -1436,7 +1436,7 @@ class TableList extends PureComponent {
     <style>
     .content, .header {text-align: center;}
     table {width: 100%; border-collapse: collapse; border-spacing: 0;}
-    table td {border: 1px solid #ccc; font-size: 10px;}
+    table td {border: 1px solid #ccc; font-size: 9px;}
     .col3 {width: 33%;}
     .col3-1 {width: 10%;}
     .col3-2 {width: 45%;}
@@ -1444,7 +1444,7 @@ class TableList extends PureComponent {
     .col4 {width: 25%;}
     .col2-1 {width: 35%;}
     .col2-2 {width: 65%;}
-    .desc {font-size: 8px;}
+    .desc {font-size: 6px;}
     </style>`
     let html = `
     <div class="header">陕西远诚宝路通物流</div>
