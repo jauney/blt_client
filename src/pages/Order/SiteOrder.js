@@ -1437,9 +1437,11 @@ class TableList extends PureComponent {
     .header: {
       text-align: center;
     }
+    table td {border: 1px solid #ccc; font-size: 10px;}
+
     </style>`
     let html = `
-    <div class=“header”>陕西远诚宝路通物流</div>
+    <div style="text-align:center">陕西远诚宝路通物流</div>
     <table>
       <tbody>
       <tr>
