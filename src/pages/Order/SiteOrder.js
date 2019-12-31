@@ -1435,7 +1435,7 @@ class TableList extends PureComponent {
     let styles = `
     <style>
     .header: {
-
+      text-align: center;
     }
     </style>`
     let html = `
