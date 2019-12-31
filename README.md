@@ -42,3 +42,34 @@ https://github.com/settings/security
 jauney
 
 Cp4*****5
+
+## 服务器部署
+
+#### 服务器按照nginx，nginx配置
+```
+  server {
+      listen       8001;
+      # 按实际部署路径修改
+      root   /home/source/blt_client/dist;
+      index  index.html;
+      location / {
+          try_files $uri $uri/ /index.html;
+          # index index.html;
+          # alias /opt/tiger/caijing/fe/wallet_portal/html;
+      }
+
+      # 按实际部署路径修改
+
+      #index  index.html;
+      #root   /opt/tiger/caijing/fe/cashdesk_spa/html;
+      #location /activity {
+      #    alias   /opt/tiger/static/cashdesk_spa/html/;
+      #}
+  }
+```
+#### git clone 代码到服务器目录，修改 src/services/api.js 中的 127.0.0.1:3008 为 [服务器IP]:3008
+
+#### 编译
+```
+npm run build
+```
