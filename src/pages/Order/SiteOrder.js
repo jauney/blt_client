@@ -129,7 +129,7 @@ class CreateForm extends PureComponent {
     }
   }
 
-  okHandle = () => {
+  okHandle = (options = {}) => {
     const {
       form,
       handleAdd,
@@ -140,6 +140,7 @@ class CreateForm extends PureComponent {
     } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+
       // 有货款必须有银行账号
       if (fieldsValue.order_amount && !fieldsValue.bank_account) {
         message.error('请填写银行账号');
@@ -186,7 +187,7 @@ class CreateForm extends PureComponent {
 
       fieldsValue.site_name = CacheSite.site_name;
 
-      handleAdd(fieldsValue, selectedOrder);
+      handleAdd(fieldsValue, selectedOrder, Object.assign({}, options, { getcustomer_type: getCustomer && getCustomer.customer_type || '', sendcustomer_type: sendCustomer && sendCustomer.customer_type || '' }));
 
       form.resetFields();
       this.setState({
@@ -579,8 +580,7 @@ class CreateForm extends PureComponent {
 
   // 打印订单
   onOrderPrint = () => {
-    print({ html: '<div>7777</div>' })
-    //this.okHandle();
+    this.okHandle({ type: 'print' });
   };
 
   onGetCustomerFilter = (inputValue, option) => {
@@ -1386,7 +1386,7 @@ class TableList extends PureComponent {
   };
 
   // 添加托运单
-  handleAdd = async (fields, selectedOrder = {}) => {
+  handleAdd = async (fields, selectedOrder = {}, option) => {
     const { dispatch } = this.props;
 
     // 更新订单号
@@ -1414,6 +1414,10 @@ class TableList extends PureComponent {
       // TODO: 拿到order_code用于打印
       console.log(result.data);
 
+      if (option.type == 'print') {
+        this.printOrder(Object.assign({ order_code: result && result.data && result.data.order_code || '' }, fields, option))
+      }
+
       if (result && result.code == 0) {
         message.success('添加成功');
       } else {
@@ -1424,6 +1428,133 @@ class TableList extends PureComponent {
       this.handleSearch();
     }, 1000);
   };
+
+
+  // 打印订单
+  printOrder = (data) => {
+    let styles = `
+    <style>
+    .header: {
+
+    }
+    </style>`
+    let html = `
+    <div class=“header”>陕西远诚宝路通物流</div>
+    <table>
+      <tbody>
+      <tr>
+        <td>到货站:${data.company_name}</td>
+        <td>发货站:${data.site_name}</td>
+        <td>单号:${data.order_code}</td>
+      </tr>
+      </tbody>
+      <tbody>
+      <tr>
+        <th>${data.getcustomer_type}</th>
+        <td>收货人:${data.getcustomer_name}</td>
+        <td>电话:${data.getcustomer_mobile}</td>
+      </tr>
+      <tr>
+        <th>${data.sendcustomer_type}</th>
+        <td>发货人:${data.sendcustomer_name}</td>
+        <td>电话:${data.sendcustomer_mobile}</td>
+      </tr>
+      </tbody>
+      <tbody>
+      <tr>
+        <th></th>
+      </tr>
+      </tbody>
+      <tbody>
+      <tr>
+        <td>货款:${data.order_amount}</td>
+        <td>运费:${data.trans_amount}</td>
+        <td>运价:</td>
+        <td>折后:${data.trans_discount}</td>
+      </tr>
+      <tr>
+        <td>保额:${data.insurance_amount}</td>
+        <td>保费:${data.insurance_fee}</td>
+        <td>垫付:${data.order_advancepay_amount}</td>
+        <td>送货费:${data.deliver_amount}</td>
+      </tr>
+      </tbody>
+      <tbody>
+      <tr>
+        <td>合计:</td>
+        <td>账号:${data.bank_account}</td>
+      </tr>
+      </tbody>
+      <tbody>
+      <tr>
+        <th></th>
+      </tr>
+      </tbody>
+      <tbody>
+      <tr>
+        <td>货物名称:${data.order_name}</td>
+        <td>标签:${data.order_label_num}</td>
+      </tr>
+      </tbody>
+      <tbody>
+      <tr>
+        <td>收货地址:${data.getcustomer_address}</td>
+      </tr>
+      <tr>
+        <td>备注:${data.remark}</td>
+      </tr>
+      </tbody>
+      <tbody>
+      <tr>
+        <th></th>
+      </tr>
+      </tbody>
+      <tbody>
+      <tr>
+        <td>转进:</td>
+        <td>中转费:</td>
+        <td>地址:</td>
+      </tr>
+      <tr>
+        <td>物流:</td>
+        <td>单号:</td>
+        <td>电话:</td>
+      </tr>
+      <tbody>
+      <tr>
+        <th></th>
+      </tr>
+      </tbody>
+      <tbody>
+      <tr>
+        <td>到货站:</td>
+        <td>电话:</td>
+      </tr>
+      <tr>
+        <td>发货站:</td>
+        <td>电话:</td>
+      </tr>
+      <tr>
+        <td>申明：1.托运方必须如实提供货物类型、名称、数量，要求包装完好、捆扎牢固；交货只负责包装无损，不负责包装内质量与数量问题。2.公司严禁托运危险品及国家禁运品，若经欺瞒货品造成损失则由托运方承担。3.所有货品均实行自愿投保，若出现货损，3%以内的货损为正常损耗，不予赔付；若未保价出现货损或丢失，承运方则按运费的1-5倍赔付；若保价后出现货损或丢失，承运方则按货物平均保价金额进行赔付，且不超过货物价值的80%。4.文物、珠宝、陶瓷、玻璃、水果、海鲜、鲜肉制品等易碎、易腐烂变质的货品不在保险范围内（投保无效），本公司只负责丢失责任，不负责损坏、变质等赔偿。5.收货方接到提货通知后须及时取货，提货后出现的任何货物问题公司概不受理；到货通知后一周任不提货则原货返货，运费翻倍。6.承运期间若因人为无法控制的自然灾害而造成的损失，承运方不承担任何责任。7.托运单经开出，且托运方继续托运货物，则默认托运方同意公司托运协议，本协议及时生效；货物确认收货，运费及货款结算清后，本协议终止，且该托运单作废。</td>
+      </tr>
+      <tr>
+        <td>
+          <img src="https://sf3-ttcdn-tos.pstatp.com/obj/dump-v2-public/2019/12/31/ca7ea0aee0567014386fda40e67de226.jpeg" width="50px" height="50px">
+        </td>
+        <td>
+          <div>总公司地址：西安市港务区港务南路百利威国际电商产业园</div>
+          <div>公司网址：www.bltwlgs.com</div>
+          <div>业务电话：02986253988，13309221294</div>
+          <div>财务电话：02986237928</div>
+          <div>客服电话：13324583349</div>
+          <div>投诉电话：15389278107</div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    `
+    print({ html: '<div class=“header”>陕西远诚宝路通物流</div>' })
+  }
 
   onDelete = async () => {
     const { selectedRows } = this.state;
