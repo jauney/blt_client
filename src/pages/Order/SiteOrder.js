@@ -1444,7 +1444,7 @@ class TableList extends PureComponent {
     .col4 {width: 25%;}
     .col2-1 {width: 35%;}
     .col2-2 {width: 65%;}
-    .desc {font-size: 6px;}
+    .desc {font-size: 7px;}
     </style>`
     let html = `
     <div class="header">陕西远诚宝路通物流</div>
