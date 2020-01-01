@@ -1440,6 +1440,7 @@ class TableList extends PureComponent {
     .col3 {width: 33%;}
     .col3-1 {width: 10%;}
     .col3-2 {width: 45%;}
+    .txt-bold {font-weight: bold; font-size: 10px;}
     .split {width: 100%; height: 5px;}
     .col4 {width: 25%;}
     .col2-1 {width: 35%;}
@@ -1451,9 +1452,9 @@ class TableList extends PureComponent {
     <div class="content">
     <table>
       <tr>
-        <td class="col3">到货站:${data.company_name || ''}</td>
-        <td class="col3">发货站:${data.site_name || ''}</td>
-        <td class="col3">单号:${data.order_code || ''}</td>
+        <td class="col3 txt-bold">到货站:${data.company_name || ''}</td>
+        <td class="col3 txt-bold">发货站:${data.site_name || ''}</td>
+        <td class="col3 txt-bold">单号:${data.order_code || ''}</td>
       </tr>
     </table>
     <table>
