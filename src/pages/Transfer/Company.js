@@ -911,6 +911,7 @@ class TableList extends PureComponent {
   tableFooter = () => {
     const {
       transfer: {
+        total,
         totalTransferAmount,
         totalTransferConfirmAmount,
         totalTransferUnConfirmAmount,
@@ -918,7 +919,7 @@ class TableList extends PureComponent {
       },
     } = this.props;
     return (
-      <div>
+      <div className={styles.tableFooter}>
         <span>打款总额：{totalTransferAmount || 0}</span>
         <span className={styles.footerSplit}>
           未确认打款总额：{totalTransferUnConfirmAmount || 0}
@@ -927,6 +928,7 @@ class TableList extends PureComponent {
           已确认打款总额：{totalTransferConfirmAmount || 0}
         </span>
         <span className={styles.footerSplit}>应打款总额：{totalShouldTransfer || 0}</span>
+        <span className={styles.footerSplit}>票数：{total || '0'}</span>
       </div>
     );
   };
@@ -1058,9 +1060,9 @@ class TableList extends PureComponent {
                   return styles.payColor;
                 }
               }}
-              footer={this.tableFooter}
             />
           </div>
+          {this.tableFooter()}
         </Card>
         <CreateForm
           modalVisible={orderModalVisible}

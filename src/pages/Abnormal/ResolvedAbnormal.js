@@ -576,13 +576,23 @@ class TableList extends PureComponent {
 
   tableFooter = () => {
     const {
-      abnormal: { totalOrderAmount, totalTransAmount, totalAbnormalAmount },
+      abnormal: {
+        total,
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+      },
     } = this.props;
     return (
-      <div>
+      <div className={styles.tableFooter}>
         <span>货款总额：{totalOrderAmount || '0'}</span>
         <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
-        <span className={styles.footerSplit}>异常费用总额：{totalAbnormalAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付总额：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
+        <span className={styles.footerSplit}>票数：{total || '0'}</span>
       </div>
     );
   };
@@ -718,9 +728,9 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={this.tableFooter}
             />
           </div>
+          {this.tableFooter()}
         </Card>
         <OrderEditForm
           modalVisible={updateOrderModalVisible}

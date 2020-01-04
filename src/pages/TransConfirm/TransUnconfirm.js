@@ -471,6 +471,7 @@ class TableList extends PureComponent {
   tableFooter = () => {
     const {
       transconfirm: {
+        total,
         totalOrderAmount,
         totalTransAmount,
         totalInsurancefee,
@@ -489,13 +490,14 @@ class TableList extends PureComponent {
       },
     } = this.props;
     return (
-      <div>
+      <div className={styles.tableFooter}>
         <span>货款总额：{totalOrderAmount || '0'}</span>
         <span>实收货款：{totalRealOrderAmount || '0'}</span>
         <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
         <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
         <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
         <span className={styles.footerSplit}>西安保费：{totalXianInsurence || '0'}</span>
+        <span className={styles.footerSplit}>票数：{total || '0'}</span>
       </div>
     );
   };
@@ -648,9 +650,9 @@ class TableList extends PureComponent {
                 return record.trans_sign == 1 ? styles.signColor : '';
               }}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={this.footer}
             />
           </div>
+          {this.tableFooter()}
         </Card>
         <OrderEditForm
           modalVisible={updateOrderModalVisible}

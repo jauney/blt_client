@@ -395,6 +395,29 @@ class TableList extends PureComponent {
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => { };
 
+  tableFooter = () => {
+    const {
+      transconfirm: {
+        total,
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+      },
+    } = this.props;
+    return (
+      <div className={styles.tableFooter}>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付总额：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
+        <span className={styles.footerSplit}>票数：{total || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -536,9 +559,9 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
             />
           </div>
+          {this.tableFooter()}
         </Card>
         <OrderEditForm
           modalVisible={updateOrderModalVisible}
