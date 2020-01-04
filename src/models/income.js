@@ -5,7 +5,7 @@ export default {
 
   state: {
     incomeList: [],
-    incomeTotal: 0,
+    total: 0,
     incomeTypes: [],
     incomeDetails: [],
     totalIncome: 0,
@@ -57,7 +57,7 @@ export default {
       return {
         ...state,
         incomeList: action.payload.incomes,
-        incomeTotal: action.payload.total,
+        total: action.payload.total,
         totalIncome: action.payload.totalIncome,
       };
     },

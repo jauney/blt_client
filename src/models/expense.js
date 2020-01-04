@@ -5,7 +5,7 @@ export default {
 
   state: {
     expenseList: [],
-    expenseTotal: 0,
+    total: 0,
     expenseTypes: [],
     expenseDetails: [],
     totalExpense: 0,
@@ -56,7 +56,7 @@ export default {
       return {
         ...state,
         expenseList: action.payload.expenses,
-        expenseTotal: action.payload.total,
+        total: action.payload.total,
         totalExpense: action.payload.totalExpense,
       };
     },

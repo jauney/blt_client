@@ -61,7 +61,7 @@ class AddFormDialog extends PureComponent {
 
   onAddHandler = () => {
     const { addFormDataHandle, form, incomeTypes = [], record = {} } = this.props;
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields(async (err, fieldsValue) => {
       if (err) return;
       let newIncomeType = true;
       let incomeType = '';
@@ -72,7 +72,7 @@ class AddFormDialog extends PureComponent {
         }
       });
 
-      addFormDataHandle({
+      await addFormDataHandle({
         income_id: record.income_id || 0,
         income_money: Number(fieldsValue.income_money),
         incometype_id: newIncomeType ? '' : fieldsValue.incometype_id,
@@ -80,6 +80,14 @@ class AddFormDialog extends PureComponent {
         income_reason: fieldsValue.income_reason,
         remark: fieldsValue.income_reason,
       });
+
+      if (!record.income_id) {
+        form.setFieldsValue({
+          income_money: '',
+          income_reason: '',
+          remark: ''
+        })
+      }
     });
   };
 
@@ -415,9 +423,8 @@ class TableList extends PureComponent {
       payload: income,
     });
     if (result && result.code == 0) {
-      message.success('添加成功！');
-
-      this.onCancelIncomeClick();
+      message.success(income.income_id ? '编辑成功' : '添加成功！');
+      income.income_id && this.onIncomeModalCancel()
     } else {
       message.error((result && result.msg) || '添加失败');
     }
@@ -497,6 +504,19 @@ class TableList extends PureComponent {
     });
     this.onIncomeModalShow();
   };
+
+  tableFooter = () => {
+    const {
+      income: { total, totalIncome }
+    } = this.props;
+    return (
+      <div className={styles.tableFooter}>
+        <span>收入总额：{totalIncome || '0'}</span>
+        <span className={styles.footerSplit}>票数：{total || '0'}</span>
+      </div>
+    );
+  };
+
 
   renderSimpleForm() {
     const {
@@ -606,9 +626,9 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={() => `收入总额：${totalIncome || ''}`}
             />
           </div>
+          {this.tableFooter()}
         </Card>
         <AddFormDialog
           modalVisible={addIncomeModalVisible}

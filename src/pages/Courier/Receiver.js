@@ -635,6 +635,7 @@ class TableList extends PureComponent {
   tableFooter = () => {
     const {
       courier: {
+        total,
         totalOrderAmount,
         totalTransAmount,
         totalInsurancefee,
@@ -653,9 +654,9 @@ class TableList extends PureComponent {
       },
     } = this.props;
     return (
-      <div>
+      <div className={styles.tableFooter}>
         <span>货款总额：{totalOrderAmount || '0'}</span>
-        <span>实收货款：{totalRealOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>实收货款：{totalRealOrderAmount || '0'}</span>
         <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
         <span className={styles.footerSplit}>提付运费：{totalTifuTransAmount || '0'}</span>
         <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
@@ -667,6 +668,7 @@ class TableList extends PureComponent {
         <span className={styles.footerSplit}>奖金：{totalBonusfee || '0'}</span>
         <span className={styles.footerSplit}>未结算货车运费：{totalCarFee || '0'}</span>
         <span className={styles.footerSplit}>已结算货车运费：{totalCarFeeConfirm || '0'}</span>
+        <span className={styles.footerSplit}>票数：{total || '0'}</span>
       </div>
     );
   };
@@ -866,9 +868,9 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={this.tableFooter}
             />
           </div>
+          {this.tableFooter()}
         </Card>
         <OrderEditForm
           modalVisible={updateOrderModalVisible}

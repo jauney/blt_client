@@ -597,13 +597,14 @@ class TableList extends PureComponent {
 
   tableFooter = () => {
     const {
-      debt: { totalDebtMoney = 0, totalIncome, totalExpense },
+      debt: { total, totalDebtMoney = 0, totalIncome, totalExpense },
     } = this.props;
     console.log(this.props.debt, totalExpense);
     return (
-      <div>
+      <div className={styles.tableFooter}>
         <span>收入总额：{totalIncome || '0'}</span>
         <span className={styles.footerSplit}>支出总额：{totalExpense || '0'}</span>
+        <span className={styles.footerSplit}>票数：{total || '0'}</span>
       </div>
     );
   };
@@ -759,9 +760,9 @@ class TableList extends PureComponent {
                   return '';
                 }
               }}
-              footer={this.tableFooter}
             />
           </div>
+          {this.tableFooter()}
         </Card>
         <AddFormDialog
           modalVisible={addDebtModalVisible}

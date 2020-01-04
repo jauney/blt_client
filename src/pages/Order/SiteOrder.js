@@ -1606,6 +1606,47 @@ class TableList extends PureComponent {
     this.showEntruckModal();
   };
 
+  tableFooter = () => {
+    const {
+      order: {
+        total,
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalRealTransAmount,
+        totalRealOrderAmount,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+        totalTifuTransAmount,
+        totalXianTransAmount,
+        totalLatefee,
+        totalBonusfee,
+        totalCarFeeConfirm,
+        totalCarFee,
+        totalTifuInsurance,
+        totalXianInsurence,
+      }
+    } = this.props;
+    return (
+      <div className={styles.tableFooter}>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>实收货款：{totalRealOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>提付运费：{totalTifuTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>西安保费：{totalXianInsurence || '0'}</span>
+        <span className={styles.footerSplit}>提付保费：{totalTifuInsurance || '0'}</span>
+        <span className={styles.footerSplit}>滞纳金：{totalLatefee || '0'}</span>
+        <span className={styles.footerSplit}>奖金：{totalBonusfee || '0'}</span>
+        <span className={styles.footerSplit}>未结算货车运费：{totalCarFee || '0'}</span>
+        <span className={styles.footerSplit}>已结算货车运费：{totalCarFeeConfirm || '0'}</span>
+        <span className={styles.footerSplit}>票数：{total || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -1733,9 +1774,9 @@ class TableList extends PureComponent {
               onDoubleClickHander={this.onRowDoubleClick}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
             />
           </div>
+          {this.tableFooter()}
         </Card>
         {modalVisible && (
           <CreateForm

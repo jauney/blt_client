@@ -61,7 +61,7 @@ class AddFormDialog extends PureComponent {
 
   onAddHandler = () => {
     const { addFormDataHandle, form, expenseTypes = [], record } = this.props;
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields(async (err, fieldsValue) => {
       if (err) return;
       let newExpenseType = true;
       let expenseType = '';
@@ -72,7 +72,7 @@ class AddFormDialog extends PureComponent {
         }
       });
 
-      addFormDataHandle({
+      await addFormDataHandle({
         expense_id: record.expense_id || 0,
         expense_money: Number(fieldsValue.expense_money),
         expensetype_id: newExpenseType ? '' : fieldsValue.expensetype_id,
@@ -80,6 +80,14 @@ class AddFormDialog extends PureComponent {
         expense_reason: fieldsValue.expense_reason,
         remark: fieldsValue.expense_reason,
       });
+
+      if (!record.expense_id) {
+        form.setFieldsValue({
+          expense_money: '',
+          expense_reason: '',
+          remark: ''
+        })
+      }
     });
   };
 
@@ -437,9 +445,8 @@ class TableList extends PureComponent {
       payload: expense,
     });
     if (result && result.code == 0) {
-      message.success('添加成功！');
-
-      this.onCancelExpenseClick();
+      message.success(expense.expense_id ? '编辑成功！' : '添加成功！');
+      expense.expense_id && this.onCancelExpenseClick();
     } else {
       message.error((result && result.msg) || '添加失败');
     }
@@ -543,6 +550,21 @@ class TableList extends PureComponent {
       record,
     });
     this.onExpenseModalShow();
+  };
+
+  tableFooter = () => {
+    const {
+      expense: {
+        total,
+        totalExpense
+      },
+    } = this.props;
+    return (
+      <div className={styles.tableFooter}>
+        <span>支出总额：{totalExpense || '0'}</span>
+        <span className={styles.footerSplit}>票数：{total || '0'}</span>
+      </div>
+    );
   };
 
   renderSimpleForm() {
@@ -658,9 +680,9 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={() => `支出总额：${totalExpense || ''}`}
             />
           </div>
+          {this.tableFooter()}
         </Card>
         <AddFormDialog
           modalVisible={addExpenseModalVisible}

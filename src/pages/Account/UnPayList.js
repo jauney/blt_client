@@ -953,6 +953,29 @@ class TableList extends PureComponent {
     this.onEntrunkModalShow();
   };
 
+  tableFooter = () => {
+    const {
+      unpaylist: {
+        total,
+        totalOrderAmount,
+        totalTransAmount,
+        totalInsurancefee,
+        totalAdvancepayAmount,
+        totalDeliverAmount,
+      },
+    } = this.props;
+    return (
+      <div className={styles.tableFooter}>
+        <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付总额：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
+        <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
+        <span className={styles.footerSplit}>票数：{total || '0'}</span>
+      </div>
+    );
+  };
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -1121,9 +1144,9 @@ class TableList extends PureComponent {
               rowClassNameHandler={(record, index) => {
                 return record.sign_status == 1 ? styles.signColor : '';
               }}
-              footer={() => `货款总额：${totalOrderAmount}   运费总额：${totalTransAmount}`}
             />
           </div>
+          {this.tableFooter()}
         </Card>
         <CreateForm
           modalVisible={orderModalVisible}

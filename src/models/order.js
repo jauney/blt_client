@@ -17,7 +17,6 @@ export default {
     orderList: [],
     orderCode: {},
     total: 0,
-    current: 1,
     totalOrderAmount: 0,
     totalTransAmount: 0,
     totalInsurancefee: 0,
@@ -25,6 +24,14 @@ export default {
     totalRealOrderAmount: 0,
     totalAdvancepayAmount: 0,
     totalDeliverAmount: 0,
+    totalTifuTransAmount: 0,
+    totalXianTransAmount: 0,
+    totalLatefee: 0,
+    totalBonusfee: 0,
+    totalCarFeeConfirm: 0,
+    totalCarFee: 0,
+    totalXianInsurence: 0,
+    totalTifuInsurance: 0,
   },
 
   effects: {
