@@ -950,6 +950,8 @@ export async function getCustomer(params) {
               site_names
               total_trans
               order_num
+              trans_vip_ratio
+              customertype_name
               customerMobiles {
                 mobile_id
                 mobile
@@ -974,6 +976,8 @@ export async function getCustomer(params) {
               site_names
               total_trans
               order_num
+              trans_vip_ratio
+              customertype_name
               customerMobiles {
                 mobile_id
                 mobile

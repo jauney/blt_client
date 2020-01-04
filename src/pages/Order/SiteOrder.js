@@ -342,24 +342,6 @@ class CreateForm extends PureComponent {
     const { currentCompany } = this.state
     let flag = false;
     let mobile = event && event.target && event.target.value
-    // let customer;
-    // for (let i = 0; i < sendCustomerList.length; i++) {
-    //   customer = sendCustomerList[i];
-    //   const mobiles = customer.customerMobiles || [];
-
-    //   if (event.target.value == customer.customer_mobile) {
-    //     flag = true;
-    //     break;
-    //   } else {
-    //     for (let j = 0; j < mobiles.length; j++) {
-    //       const mobile = mobiles[j];
-    //       if (event.target.value == mobile.mobile) {
-    //         flag = true;
-    //         break;
-    //       }
-    //     }
-    //   }
-    // }
 
     let sendCustomer = await dispatch({
       type: 'customer/queryCustomerAction',
@@ -374,34 +356,24 @@ class CreateForm extends PureComponent {
     });
   };
 
-  onGetCustomerMobileBlur = event => {
-    const { getCustomerList } = this.props;
+  onGetCustomerMobileBlur = async event => {
+    const { getCustomerList, dispatch } = this.props;
+    const { currentCompany } = this.state
     let flag = false;
-    let customer;
-    for (let i = 0; i < getCustomerList.length; i++) {
-      customer = getCustomerList[i];
-      const mobiles = customer.customerMobiles || [];
-      if (event.target.value == customer.customer_mobile) {
-        flag = true;
-        break;
-      } else {
-        for (let j = 0; j < mobiles.length; j++) {
-          const mobile = mobiles[j];
-          if (event.target.value == mobile.mobile) {
-            flag = true;
-            break;
-          }
-        }
-      }
-    }
-    if (flag) {
-      this.setSelectedCustomer('getcustomer_id', customer);
-      this.setState({
-        currentGetCustomer: customer,
-      });
-    } else if (event.target.value) {
-      this.setSelectedCustomer('getcustomer_id', {});
-    }
+    let mobile = event && event.target && event.target.value
+
+
+    let customer = await dispatch({
+      type: 'customer/queryCustomerAction',
+      payload: {
+        type: 0, customer_mobile: mobile, company_id: currentCompany.company_id
+      },
+    });
+    this.setSelectedCustomer('getcustomer_id', customer.getCustomer || {});
+    this.setState({
+      currentGetCustomer: customer.getCustomer || {},
+    });
+
   };
 
   onSendCustomerSelect = async (value, option) => {
@@ -504,7 +476,7 @@ class CreateForm extends PureComponent {
     let sendCustomerTransVipRatio = currentSendCustomer.trans_vip_ratio || 1;
     let transRegionalRatio = currentCompany.trans_regional_ratio || 1;
     let transDiscount = transAmount;
-
+    console.log(getCustomerTransVipRatio)
     let transVipRatio;
     if (transType == 0) {
       transVipRatio = getCustomerTransVipRatio;
@@ -1262,6 +1234,7 @@ class TableList extends PureComponent {
     },
     {
       title: '备注',
+      width: '150px',
       dataIndex: 'remark',
     },
   ];

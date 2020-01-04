@@ -178,6 +178,7 @@ class TableList extends PureComponent {
     },
     {
       title: '备注',
+      width: '150px',
       dataIndex: 'remark',
     },
   ];

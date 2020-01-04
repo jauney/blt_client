@@ -299,6 +299,7 @@ class TableList extends PureComponent {
     },
     {
       title: '备注',
+      width: '150px',
       dataIndex: 'remark',
     },
   ];
@@ -513,7 +514,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => {};
+  onRowClick = (record, index, event) => { };
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
@@ -563,7 +564,7 @@ class TableList extends PureComponent {
     }
   };
 
-  onDebtUserSelect = () => {};
+  onDebtUserSelect = () => { };
 
   // 归零
   onSettleModal = () => {
@@ -741,8 +742,8 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize })
                   }
                 },
               }}

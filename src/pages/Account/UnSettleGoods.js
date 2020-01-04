@@ -179,6 +179,7 @@ class TableList extends PureComponent {
     },
     {
       title: '备注',
+      width: '150px',
       dataIndex: 'remark',
     },
   ];
@@ -567,7 +568,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => {};
+  onRowClick = (record, index, event) => { };
 
   tableFooter = () => {
     const {
@@ -759,8 +760,8 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize })
                   }
                 },
               }}

@@ -152,7 +152,7 @@ class CreateDepartForm extends PureComponent {
   /**
    * 编辑的时候初始化赋值表单
    */
-  componentDidMount() {}
+  componentDidMount() { }
 
   onCarChange = value => {
     const { driverList, form } = this.props;
@@ -226,8 +226,8 @@ class CreateDepartForm extends PureComponent {
         currentDriver = item;
       }
     });
-   
-    
+
+
     return (
       <Form layout="inline" className={styles.modalForm}>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
@@ -314,7 +314,7 @@ class CreateDepartForm extends PureComponent {
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
       const formValues = fieldsValue;
-      
+
       if (formValues.car_date && formValues.car_date.valueOf) {
         formValues.car_date = `${formValues.car_date.valueOf()}`;
       }
@@ -334,9 +334,9 @@ class CreateDepartForm extends PureComponent {
 
       formValues.car_fee = Number(formValues.car_fee || 0);
       formValues.car_code = formValues.car_code + '';
-     
+
       onOk(formValues)
-      
+
     });
   };
 
@@ -594,6 +594,7 @@ class TableList extends PureComponent {
     },
     {
       title: '备注',
+      width: '150px',
       dataIndex: 'remark',
     },
   ];
@@ -635,9 +636,9 @@ class TableList extends PureComponent {
     this.getDriverList()
   }
 
-  getDriverList = ()=>{
+  getDriverList = () => {
     const { dispatch, form } = this.props;
-    const {currentCompany} = this.state
+    const { currentCompany } = this.state
     dispatch({
       type: 'driver/getDriverListAction',
       payload: {
@@ -855,7 +856,7 @@ class TableList extends PureComponent {
       car: { lastCar },
     } = this.props;
     const { currentCompany, currentShipSite } = this.state;
- 
+
     formValues.shipsite_id = currentShipSite.site_id;
     formValues.shipsite_name = currentShipSite.site_name;
     formValues.company_id = currentCompany.company_id;
@@ -1167,7 +1168,7 @@ class TableList extends PureComponent {
       trunkedorder: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },
       car: { carList, lastCar },
-      driver: {driverList},
+      driver: { driverList },
       loading,
     } = this.props;
 
@@ -1234,8 +1235,8 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize })
                   }
                 },
               }}
@@ -1273,7 +1274,7 @@ class TableList extends PureComponent {
           onOk={this.onDepartOk}
           onCancel={this.onDepartCancel}
         />
-       
+
         <Modal
           title="确认"
           okText="确认"

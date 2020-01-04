@@ -150,7 +150,7 @@ class CreateEntrunkForm extends PureComponent {
   /**
    * 编辑的时候初始化赋值表单
    */
-  componentDidMount() {}
+  componentDidMount() { }
 
   onCarChange = value => {
     const { driverList, form } = this.props;
@@ -282,7 +282,7 @@ class CreateEntrunkForm extends PureComponent {
               {getFieldDecorator('car_code', {
                 initialValue: lastCar.car_code,
                 rules: [{ required: true, message: '请填写货车编号' }],
-              })(<Input placeholder="请输入" disabled/>)}
+              })(<Input placeholder="请输入" disabled />)}
             </FormItem>
           </Col>
         </Row>
@@ -323,7 +323,7 @@ class CreateEntrunkForm extends PureComponent {
     } = this.props;
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
-     
+
       const formValues = fieldsValue;
       const orderIds = selectedRows.map(item => {
         return item.order_id;
@@ -534,6 +534,7 @@ class TableList extends PureComponent {
     },
     {
       title: '备注',
+      width: '150px',
       dataIndex: 'remark',
     },
   ];
@@ -705,7 +706,7 @@ class TableList extends PureComponent {
     });
   };
 
-  onChangeReceiver = () => {};
+  onChangeReceiver = () => { };
 
   /**
    * 装车弹窗
@@ -790,7 +791,7 @@ class TableList extends PureComponent {
     this.setState({
       lastCar: result,
     });
-    
+
     return result
   };
 
@@ -912,8 +913,8 @@ class TableList extends PureComponent {
               CacheCompany.company_type == 1
                 ? CacheSite.site_id
                 : siteList.length > 0
-                ? siteList[0].site_id
-                : '',
+                  ? siteList[0].site_id
+                  : '',
           })(
             <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               {(CacheSite.site_type != 3 && CacheCompany.company_type == 1
@@ -1025,8 +1026,8 @@ class TableList extends PureComponent {
                   total,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize })
                   }
                 },
               }}
