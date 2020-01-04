@@ -879,13 +879,14 @@ class TableList extends PureComponent {
     } = this.props;
     const { currentShipSite = {} } = this.state;
     const companyOption = {};
+    const siteOption = {}
 
     // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
-      companyOption.initialValue =
-        CacheCompany.company_type == 1
-          ? branchCompanyList[0].company_id || ''
-          : CacheCompany.company_id;
+    if (CacheCompany.company_type != 1) {
+      companyOption.initialValue = CacheCompany.company_id;
+    }
+    if (CacheSite.site_type == 1) {
+      siteOption.initialValue = CacheSite.site_id;
     }
     // 当前配载部只能装当前的车，不能装其他配载部的，所以用entrunkSiteList = [CacheSite]
     return (
@@ -910,14 +911,7 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="站点">
-          {getFieldDecorator('site_id', {
-            initialValue:
-              CacheCompany.company_type == 1
-                ? CacheSite.site_id
-                : siteList.length > 0
-                  ? siteList[0].site_id
-                  : '',
-          })(
+          {getFieldDecorator('site_id', siteOption)(
             <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               {(CacheSite.site_type != 3 && CacheCompany.company_type == 1
                 ? [CacheSite]
@@ -939,6 +933,7 @@ class TableList extends PureComponent {
               placeholder="请选择"
               style={{ width: '100px' }}
               onChange={this.onShipSiteSelect}
+              allowClear
             >
               {entrunkSiteList.map(ele => {
                 return (

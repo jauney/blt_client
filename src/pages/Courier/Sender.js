@@ -175,7 +175,7 @@ class TableList extends PureComponent {
       dataIndex: 'sendcustomer_name',
     },
     {
-      title: '收获客户',
+      title: '收货客户',
       width: '80px',
       dataIndex: 'getcustomer_name',
     },
@@ -331,7 +331,24 @@ class TableList extends PureComponent {
 
       this.fetchSenderList();
     }
+
+    // 获取最后一车信息
+    this.getLastCarInfo()
   }
+
+  getLastCarInfo = async () => {
+    const { dispatch, site: { entrunkSiteList = [] } } = this.props;
+    const { currentCompany = {} } = this.state;
+    if (entrunkSiteList.length > 0) {
+      await dispatch({
+        type: 'car/getLastCarCodeAction',
+        payload: {
+          company_id: currentCompany.company_id,
+          shipsite_id: entrunkSiteList[0].site_id,
+        },
+      });
+    }
+  };
 
   handleSelectRows = rows => {
     this.setState({
@@ -487,6 +504,12 @@ class TableList extends PureComponent {
     });
     this.getOrderList(sort, current);
   };
+
+  // 打印托运单
+  onPrintCheckList = () => { }
+
+  // 到货通知
+  onArriveNotify = () => { }
 
   // 打印
   onPrint = async () => {
@@ -709,6 +732,7 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       courier: { senderList = [] },
       site: { entrunkSiteList = [] },
+      car: { lastCar },
     } = this.props;
     const formItemLayout = {};
     const companyOption = {};
@@ -740,7 +764,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="货车编号" {...formItemLayout}>
-          {getFieldDecorator('shipsite_id', {})(
+          {getFieldDecorator('shipsite_id', entrunkSiteList.length > 0 ? { initialValue: entrunkSiteList[0].site_id } : {})(
             <Select
               placeholder="请选择"
               onSelect={this.onShipSiteSelect}
@@ -756,13 +780,13 @@ class TableList extends PureComponent {
               })}
             </Select>
           )}
-          {getFieldDecorator('car_code', {})(
+          {getFieldDecorator('car_code', { initialValue: lastCar.car_code })(
             <Input placeholder="请输入" style={{ width: '80px' }} />
           )}
         </FormItem>
         <FormItem label="送货人" {...formItemLayout}>
           {getFieldDecorator('sender_id', {})(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear>
               <Option key={-1} value={-1}>
                 未送货
               </Option>
@@ -819,6 +843,7 @@ class TableList extends PureComponent {
       courier: { senderList },
       loading,
       dispatch,
+      car: { lastCar },
     } = this.props;
 
     const {
@@ -842,6 +867,8 @@ class TableList extends PureComponent {
                   <Button onClick={this.onUpdateSenderModal}>更改送货人</Button>
                   <Button onClick={this.onDelSender}>取消送货人</Button>
                   <Button onClick={this.onDownload}>下载</Button>
+                  <Button onClick={this.onPrintCheckList}>托运单打印</Button>
+                  <Button onClick={this.onArriveNotify}>到货通知</Button>
                 </span>
               )}
             </div>

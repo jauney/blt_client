@@ -1115,7 +1115,7 @@ class TableList extends PureComponent {
         </FormItem>
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
-            {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
+            {getFieldDecorator('site_id', {})(
               <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
                 {(CacheSite.site_type != 3 ? [CacheSite] : siteList).map(ele => {
                   return (

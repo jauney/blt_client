@@ -167,7 +167,7 @@ class TableList extends PureComponent {
     });
   };
 
-  onCompanySelect = async (value, option) => {};
+  onCompanySelect = async (value, option) => { };
 
   handleSearch = e => {
     e && e.preventDefault();
@@ -243,7 +243,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => {};
+  onRowClick = (record, index, event) => { };
 
   tableFooter = () => {
     const {
@@ -369,9 +369,9 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={this.tableFooter}
             />
           </div>
+          {this.tableFooter()}
         </Card>
       </div>
     );
