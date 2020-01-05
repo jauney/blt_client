@@ -510,10 +510,7 @@ class TableList extends PureComponent {
       site: { siteList },
     } = this.props;
     const companyOption = {};
-    // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
-    }
+
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
@@ -535,7 +532,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="站点">
-          {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
+          {getFieldDecorator('site_id', {})(
             <Select
               placeholder="请选择"
               style={{ width: '150px' }}

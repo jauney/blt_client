@@ -383,6 +383,12 @@ class TableList extends PureComponent {
       // fieldsValue.pay_status = 0;
       fieldsValue.order_amount = -1;
       fieldsValue.order_status = 7;
+      if (fieldsValue.pay_date) {
+        fieldsValue.pay_date = fieldsValue.pay_date.valueOf()
+      }
+      else {
+        delete fieldsValue.pay_date
+      }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'pay/getOrderListAction',
@@ -801,6 +807,11 @@ class TableList extends PureComponent {
         <FormItem label="发货人电话">
           {getFieldDecorator('sendcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '130px' }} />
+          )}
+        </FormItem>
+        <FormItem label="付款日期">
+          {getFieldDecorator('pay_date', {})(
+            <DatePicker format={'YYYY-MM-DD'} />
           )}
         </FormItem>
         <FormItem>

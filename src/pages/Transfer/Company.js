@@ -461,7 +461,9 @@ class TableList extends PureComponent {
       title: '打款日期',
       dataIndex: 'transfer_date',
       width: '170px',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
     },
     {
       title: '打款金额',

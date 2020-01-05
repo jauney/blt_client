@@ -294,6 +294,9 @@ class TableList extends PureComponent {
       if (fieldsValue.trans_confirmdate) {
         fieldsValue.trans_confirmdate = fieldsValue.trans_confirmdate.valueOf()
       }
+      else {
+        delete fieldsValue.trans_confirmdate
+      }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'transconfirm/getOrderListAction',
@@ -426,10 +429,7 @@ class TableList extends PureComponent {
       site: { siteList },
     } = this.props;
     const companyOption = {};
-    // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
-    }
+
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
@@ -451,7 +451,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="站点">
-          {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
+          {getFieldDecorator('site_id', {})(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
               {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(ele => {
                 return (
@@ -464,7 +464,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="运费">
-          {getFieldDecorator('trans_type', {})(
+          {getFieldDecorator('trans_type', { initialValue: 2 })(
             <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
               <Option value={1}>现付</Option>
               <Option value={2}>回付</Option>
@@ -501,7 +501,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="日期">
-          {getFieldDecorator('trans_confirmdate', { initialValue: moment() })(<DatePicker format={'YYYY-MM-DD'} />)}
+          {getFieldDecorator('trans_confirmdate', { initialValue: moment() })(<DatePicker format={'YYYY-MM-DD'} allowClear />)}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

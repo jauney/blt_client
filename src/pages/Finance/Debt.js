@@ -175,6 +175,28 @@ class AddFormDialog extends PureComponent {
         <Form>
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
+              <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 14 }} label="类型">
+                {form.getFieldDecorator('debttype_id', {
+                  rules: [{ required: true, message: '请填写类型' }],
+                })(
+                  <Select
+                    placeholder="请选择"
+                    style={{ width: '150px' }}
+                  >
+                    {debtTypes.map(ele => {
+                      return (
+                        <Option key={ele.debttype_id} value={ele.debttype_id}>
+                          {ele.debttype}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                )}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
               <FormItem {...this.formItemLayout} label="姓名">
                 {form.getFieldDecorator('debtuser_id', {
                   rules: [{ required: true, message: '请填写姓名' }],
@@ -215,28 +237,7 @@ class AddFormDialog extends PureComponent {
               </FormItem>
             </Col>
           </Row>
-          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col>
-              <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 14 }} label="类型">
-                {form.getFieldDecorator('debttype_id', {
-                  rules: [{ required: true, message: '请填写类型' }],
-                })(
-                  <Select
-                    placeholder="请选择"
-                    style={{ width: '150px' }}
-                  >
-                    {debtTypes.map(ele => {
-                      return (
-                        <Option key={ele.debttype_id} value={ele.debttype_id}>
-                          {ele.debttype}
-                        </Option>
-                      );
-                    })}
-                  </Select>
-                )}
-              </FormItem>
-            </Col>
-          </Row>
+
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem labelCol={{ span: 3, offset: 2 }} label="备注">

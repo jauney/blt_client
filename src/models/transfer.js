@@ -11,7 +11,7 @@ export default {
 
   state: {
     transferList: [],
-    transferTotal: 0,
+    total: 0,
     totalTransferAmount: 0,
     totalShouldTransfer: 0,
     totalTransferConfirmAmount: 0,
@@ -52,7 +52,7 @@ export default {
       return {
         ...state,
         transferList: action.payload.transfers,
-        transferTotal: action.payload.total,
+        total: action.payload.total,
       };
     },
     getTransferStatisticReducer(state, action) {

@@ -458,7 +458,9 @@ class TableList extends PureComponent {
     {
       title: '打款日期',
       dataIndex: 'transfer_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
       width: '170px',
     },
     {
@@ -479,7 +481,9 @@ class TableList extends PureComponent {
     {
       title: '确认日期',
       dataIndex: 'confirm_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => (
+        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+      ),
       width: '170px',
     },
     {
@@ -572,6 +576,7 @@ class TableList extends PureComponent {
         });
       }
       fieldsValue.company_id = CacheCompany.company_id;
+      fieldsValue.site_id = CacheCompany.site_id;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -944,14 +949,14 @@ class TableList extends PureComponent {
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="站点">
-          {getFieldDecorator('site_id', {})(
+          {getFieldDecorator('site_id', CacheSite.site_type == 1 ? { initialValue: CacheSite.site_id } : {})(
             <Select
               placeholder="请选择"
               style={{ width: '100px' }}
               onSelect={this.onSiteSelect}
-              allowClear
+              allowClear={CacheSite.site_type == 1 ? false : true}
             >
-              {siteList.map(ele => {
+              {(CacheSite.site_type == 1 ? [CacheSite] : siteList).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
