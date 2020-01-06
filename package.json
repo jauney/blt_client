@@ -1,6 +1,6 @@
 {
   "name": "bltwlgs",
-  "productName": "宝路通物流",
+  "productName": "远诚宝路通物流",
   "version": "2.2.1",
   "description": "An out-of-box UI solution for enterprise applications",
   "private": true,
@@ -36,7 +36,8 @@
     "extends": null,
     "files": [
       "main.js",
-      "package.json"
+      "package.json",
+      "public/*"
     ],
     "nsis": {
       "oneClick": false,
