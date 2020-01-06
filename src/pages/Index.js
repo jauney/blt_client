@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import router from 'umi/router';
 import { CacheUser } from '../utils/storage';
+import back from '../assets/back.jpeg'
+import { urlToList } from '@/components/_utils/pathTools';
 /* eslint react/no-multi-comp:0 */
 
 class Main extends PureComponent {
@@ -23,7 +25,7 @@ class Main extends PureComponent {
   };
 
   render() {
-    return <div />;
+    return <div style={{ backgroundImage: `url(${back})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', width: '100%', minHeight: '100vh' }} >test</div>;
   }
 }
 

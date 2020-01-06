@@ -194,7 +194,8 @@ class AddFormDialog extends PureComponent {
                 )}
               </FormItem>
             </Col>
-          </Row>
+          </Row>、
+
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem {...this.formItemLayout} label="姓名">
