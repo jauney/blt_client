@@ -5,7 +5,8 @@ import { Icon } from 'antd';
 import GlobalFooter from '@/components/GlobalFooter';
 import SelectLang from '@/components/SelectLang';
 import styles from './UserLayout.less';
-import logo from '../assets/logo.svg';
+import logo from '../assets/logo.png';
+import logoName from '../assets/logo_name.png';
 
 const links = [];
 
@@ -40,7 +41,7 @@ class UserLayout extends React.PureComponent {
             <div className={styles.header}>
               <Link to="/">
                 <img alt="logo" className={styles.logo} src={logo} />
-                <span className={styles.title}>远诚宝路通物流</span>
+                <img alt="logo" className={styles.logo} src={logoName} />
               </Link>
             </div>
             <div className={styles.desc}>财务管理系统</div>
