@@ -10,12 +10,13 @@ function createWindow() {
   // 创建浏览器窗口,宽高自定义具体大小你开心就好
   mainWindow = new BrowserWindow({
     width: 1280, height: 1024, webPreferences: {
-      // javascript: true,
-      // plugins: true,
-      // nodeIntegration: false, // 不集成 Nodejs
-      // webSecurity: false,
-      // preload: path.join(__dirname, './public/renderer.js') // 但预加载的 js 文件内仍可以使用 Nodejs 的 API
-    }
+      javascript: true,
+      plugins: true,
+      nodeIntegration: false, // 不集成 Nodejs
+      webSecurity: false,
+      preload: path.join(__dirname, 'renderer.js') // 但预加载的 js 文件内仍可以使用 Nodejs 的 API
+    },
+    icon: path.join(__dirname, 'favicon.png')
   });
 
   // 加载应用-----  electron-quick-start中默认的加载入口

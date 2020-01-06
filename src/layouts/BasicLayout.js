@@ -10,7 +10,7 @@ import pathToRegexp from 'path-to-regexp';
 import Media from 'react-media';
 import { formatMessage } from 'umi/locale';
 import Authorized from '@/utils/Authorized';
-import logo from '../assets/logo.svg';
+import logo from '../assets/logo.png';
 import Footer from './Footer';
 import Header from './Header';
 import Context from './MenuContext';
@@ -123,9 +123,9 @@ class BasicLayout extends React.PureComponent {
     const pageName = menu.disableLocal
       ? currRouterData.name
       : formatMessage({
-          id: currRouterData.locale || currRouterData.name,
-          defaultMessage: currRouterData.name,
-        });
+        id: currRouterData.locale || currRouterData.name,
+        defaultMessage: currRouterData.name,
+      });
 
     return `${pageName} - ${title}`;
   };
