@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body,
+    html {
+      padding: 0px;
+      margin: 0px;
+    }
+
+    @page {
+      margin: 10px;
+    }
+
+    .div1 {
+      background-color: #aaaaaa;
+      overflow: hidden;
+      height: 100px;
+    }
+  </style>
+</head>
+
+<body id='bd'>
+</body>
+<script>
+  const { ipcRenderer } = window.require('electron')
+  ipcRenderer.on('webview-print-render', (event, deviceName, printHtml) => {
+    //执行渲染
+    let html = '';
+    for (let index = 0; index < 5; index++) {
+      html += `<div class="div1"><p id="time">${deviceName}hahahah</p> </div>`
+    }
+    document.getElementById('bd').innerHTML = html;
+    ipcRenderer.sendToHost('webview-print-do')
+  })
+</script>
+
+</html>

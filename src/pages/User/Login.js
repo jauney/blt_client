@@ -5,7 +5,7 @@ import Link from 'umi/link';
 import { Checkbox, Alert, Icon, message } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
-
+const { ipcRenderer } = window.require('electron');
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
 
 @connect(({ login, loading }) => ({
@@ -56,6 +56,18 @@ class LoginPage extends Component {
       }
     }
   };
+
+  print = () => {
+    //告诉渲染进程，开始渲染打印内容
+    const webview = document.querySelector('#printWebview')
+    console.log(webview)
+
+    webview.send('webview-print-render', 'GT800')
+
+    ipcRenderer.on('print-error', (event, err) => {
+      alert(err);
+    })
+  }
 
   changeAutoLogin = e => {
     this.setState({
@@ -112,6 +124,7 @@ class LoginPage extends Component {
               <FormattedMessage id="app.login.remember-me" />
             </Checkbox>
           </div>
+          <button onClick={this.print}>print</button>
           <Submit loading={submitting}>
             <FormattedMessage id="app.login.login" />
           </Submit>

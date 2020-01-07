@@ -32,12 +32,12 @@ const plugins = [
       },
       ...(!process.env.TEST && os.platform() === 'darwin'
         ? {
-            dll: {
-              include: ['dva', 'dva/router', 'dva/saga', 'dva/fetch'],
-              exclude: ['@babel/runtime'],
-            },
-            hardSource: false,
-          }
+          dll: {
+            include: ['dva', 'dva/router', 'dva/saga', 'dva/fetch'],
+            exclude: ['@babel/runtime'],
+          },
+          hardSource: false,
+        }
         : {}),
     },
   ],
@@ -72,7 +72,7 @@ export default {
   //publicPath: 'http://127.0.0.1:3005/cardbind/public/',
   //base: '/',
 
-  //publicPath: './',
+  publicPath: './',
   //outputPath: './dist/static/',
   // 路由配置
   routes: pageRoutes,

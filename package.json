@@ -48,7 +48,8 @@
       "target": [
         "dmg",
         "zip"
-      ]
+      ],
+      "icon": "./public/favicon.png"
     },
     "dmg": {
       "contents": [
@@ -68,7 +69,8 @@
       "target": [
         "nsis",
         "zip"
-      ]
+      ],
+      "icon": "./public/favicon.png"
     },
     "directories": {
       "app": "./",
