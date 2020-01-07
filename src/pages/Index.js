@@ -25,7 +25,7 @@ class Main extends PureComponent {
   };
 
   render() {
-    return <div style={{ backgroundImage: `url(${back})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', width: '100%', minHeight: '100vh' }} >test</div>;
+    return <div style={{ backgroundImage: `url(${back})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', width: '100%', minHeight: '100vh', backgroundAttachment: "fixed" }} ></div>;
   }
 }
 
