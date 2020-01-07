@@ -1409,7 +1409,7 @@ class TableList extends PureComponent {
     <style>
     .content, .header {text-align: center;}
     table {width: 100%; border-collapse: collapse; border-spacing: 0;}
-    table td {border: 1px solid #ccc; font-size: 10px; padding: 4px 0; line-height: 150%;}
+    table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
     .col3 {width: 33%;}
     .col3-1 {width: 10%;}
     .col3-2 {width: 45%;}
