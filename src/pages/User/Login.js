@@ -111,7 +111,6 @@ class LoginPage extends Component {
               <FormattedMessage id="app.login.remember-me" />
             </Checkbox>
           </div>
-          <button onClick={this.print}>print</button>
           <Submit loading={submitting}>
             <FormattedMessage id="app.login.login" />
           </Submit>
