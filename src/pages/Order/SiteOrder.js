@@ -1541,8 +1541,8 @@ class TableList extends PureComponent {
     </div>
     `
     //告诉渲染进程，开始渲染打印内容
-    const webview = document.querySelector('#printWebview')
-    webview.send('webview-print-render', 'GT800', `${styles}${html}`)
+    const printOrderWebview = document.querySelector('#printOrderWebview')
+    printOrderWebview.send('webview-print-render', 'GT800', `${styles}${html}`)
 
     //print({ html: `${styles}${html}` })
   }

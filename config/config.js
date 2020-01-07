@@ -71,7 +71,6 @@ export default {
   // TODO:开发时先注释
   //publicPath: 'http://127.0.0.1:3005/cardbind/public/',
   //base: '/',
-
   publicPath: './',
   //outputPath: './dist/static/',
   // 路由配置

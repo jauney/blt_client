@@ -11,20 +11,28 @@
 <body>
   <noscript>Sorry, we need js to run correctly!</noscript>
   <div id="root"></div>
-  <button id="btnPrint">print</button>
-  <div class="container">
-    <webview id="printWebview" src="/print.html" nodeintegration style="width: 500px; height:100px;"></webview>
-  </div>
+  <webview id="printOrderWebview" src="/print_order.html" nodeintegration style="visibility: hidden;"></webview>
+  <webview id="printLabelWebview" src="/print_label.html" nodeintegration style="visibility: hidden;"></webview>
+  <webview id="printWebview" src="/print.html" nodeintegration style="visibility: hidden;"></webview>
   <script>
-      const webview = document.querySelector('#printWebview')
-
-      webview.addEventListener('dom-ready', () => {
-        console.log(888888888888888)
-      })
-      webview.addEventListener('ipc-message', () => {
+      const printOrderWebview = document.querySelector('#printOrderWebview')
+      printOrderWebview.addEventListener('ipc-message', () => {
         if (event.channel === 'webview-print-do') {
-          console.timeEnd('webview');
-          webview.print({ silent: true, printBackground: true })
+          printOrderWebview.print({ silent: true, printBackground: true })
+        }
+      })
+
+      const printLabelWebview = document.querySelector('#printLabelWebview')
+      printLabelWebview.addEventListener('ipc-message', () => {
+        if (event.channel === 'webview-print-do') {
+          printLabelWebview.print({ silent: true, printBackground: true })
+        }
+      })
+
+      const printWebview = document.querySelector('#printWebview')
+      printWebview.addEventListener('ipc-message', () => {
+        if (event.channel === 'webview-print-do') {
+          printWebview.print({ silent: true, printBackground: true })
         }
       })
   </script>
