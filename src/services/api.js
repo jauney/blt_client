@@ -2147,7 +2147,7 @@ export async function getTransfers(params) {
               transfer_date
               transfer_type
               transfer_user
-              confirm_opetrator_name
+              confirm_operator_name
               confirm_date
               remark
             }

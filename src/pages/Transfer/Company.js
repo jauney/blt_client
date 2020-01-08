@@ -645,7 +645,15 @@ class TableList extends PureComponent {
   // 确认打款
   onConfirmTransfer = async () => {
     const { selectedRows } = this.state;
-
+    const confirmedRecords = selectedRows.filter(item => {
+      return item.transfer_type == 1
+    })
+    if (confirmedRecords.length > 0) {
+      Modal.info({
+        content: '已确认的打款不能重复确认！',
+      });
+      return
+    }
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, settleModalVisible: true });
   };
@@ -680,7 +688,15 @@ class TableList extends PureComponent {
   // 取消确认打款
   onCancelConfirmTransfer = async () => {
     const { selectedRows } = this.state;
-
+    const confirmedRecords = selectedRows.filter(item => {
+      return item.transfer_type == 0
+    })
+    if (confirmedRecords.length > 0) {
+      Modal.info({
+        content: '未确认的打款不能取消确认！',
+      });
+      return
+    }
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, cancelConfirmTransferModalVisible: true });
   };
@@ -714,7 +730,15 @@ class TableList extends PureComponent {
 
   onDelTransfer = async () => {
     const { selectedRows } = this.state;
-
+    const confirmedRecords = selectedRows.filter(item => {
+      return item.transfer_type === 1
+    })
+    if (confirmedRecords.length > 0) {
+      Modal.info({
+        content: '已经确认的打款不能删除！',
+      });
+      return
+    }
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, delTransferModalVisible: true });
   };

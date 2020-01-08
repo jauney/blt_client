@@ -29,7 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Account.less';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-console.log(CacheRole);
+
 const FormItem = Form.Item;
 const { Option } = Select;
 

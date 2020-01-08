@@ -214,9 +214,7 @@ class OrderEditForm extends PureComponent {
       );
     }
 
-    let payRoles = CacheRole.filter(item => {
-      return [('site_pay', 'site_admin')].indexOf(item.role_value) >= 0;
-    });
+    let payRoles = [('site_pay', 'site_admin')].indexOf(CacheRole.role_value) >= 0;
 
     return (
       <Modal
@@ -282,7 +280,7 @@ class OrderEditForm extends PureComponent {
             </FormItem>
           </Col>
         </Row>
-        {payRoles.length > 0 ? (
+        {payRoles ? (
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col span={38} className={styles.formItemFloat}>
               <FormItem

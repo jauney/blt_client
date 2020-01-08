@@ -487,6 +487,11 @@ class TableList extends PureComponent {
       width: '170px',
     },
     {
+      title: '站点',
+      dataIndex: 'site_name',
+      width: '80px',
+    },
+    {
       title: '打款公司',
       dataIndex: 'company_name',
       width: '80px',
@@ -501,6 +506,7 @@ class TableList extends PureComponent {
   async componentDidMount() {
     const { dispatch } = this.props;
     this.fetchCompanySiteList(CacheCompany.company_id);
+    this.setState({ currentSite: CacheSite })
     this.handleSearch();
   }
 
@@ -576,7 +582,6 @@ class TableList extends PureComponent {
         });
       }
       fieldsValue.company_id = CacheCompany.company_id;
-      fieldsValue.site_id = CacheCompany.site_id;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -667,7 +672,15 @@ class TableList extends PureComponent {
   // 确认打款
   onConfirmTransfer = async () => {
     const { selectedRows } = this.state;
-
+    const confirmedRecords = selectedRows.filter(item => {
+      return item.transfer_type == 1
+    })
+    if (confirmedRecords.length > 0) {
+      Modal.info({
+        content: '已经确认的打款不能重复确认！',
+      });
+      return
+    }
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, settleModalVisible: true });
   };
@@ -702,7 +715,15 @@ class TableList extends PureComponent {
   // 取消确认打款
   onCancelConfirmTransfer = async () => {
     const { selectedRows } = this.state;
-
+    const confirmedRecords = selectedRows.filter(item => {
+      return item.transfer_type == 0
+    })
+    if (confirmedRecords.length > 0) {
+      Modal.info({
+        content: '未确认的打款不能取消确认！',
+      });
+      return
+    }
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, cancelConfirmTransferModalVisible: true });
   };
@@ -736,7 +757,15 @@ class TableList extends PureComponent {
 
   onDelTransfer = async () => {
     const { selectedRows } = this.state;
-
+    const confirmedRecords = selectedRows.filter(item => {
+      return item.transfer_type == 1
+    })
+    if (confirmedRecords.length > 0) {
+      Modal.info({
+        content: '已经确认的打款不能删除！',
+      });
+      return
+    }
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, delTransferModalVisible: true });
   };
@@ -954,8 +983,9 @@ class TableList extends PureComponent {
               placeholder="请选择"
               style={{ width: '100px' }}
               onSelect={this.onSiteSelect}
+              allowClear={CacheRole.role_value == 'site_pay' ? true : false}
             >
-              {[CacheSite].map(ele => {
+              {(CacheRole.role_value == 'site_pay' ? siteList : [CacheSite]).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -966,10 +996,10 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="确认打款">
-          {getFieldDecorator('transfer_type', {})(
+          {getFieldDecorator('transfer_type', { initialValue: '0' })(
             <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
               <Option value="1">已确认打款</Option>
-              <Option value="2">未确认打款</Option>
+              <Option value="0">未确认打款</Option>
             </Select>
           )}
         </FormItem>
@@ -1018,16 +1048,15 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={() => this.onAddIncomeClick(true)}>
-                添加
-              </Button>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button onClick={this.onConfirmTransfer}>打款确认</Button>
-                  <Button onClick={this.onCancelConfirmTransfer}>取消确认</Button>
-                  <Button onClick={this.onDelTransfer}>删除打款</Button>
-                </span>
-              )}
+              {CacheRole.role_value != 'site_pay' &&
+                <Button icon="plus" type="primary" onClick={() => this.onAddIncomeClick(true)}>
+                  添加
+              </Button>}
+              {selectedRows.length > 0 && CacheRole.role_value == 'site_pay' && <div>
+                <Button onClick={this.onConfirmTransfer}>打款确认</Button>
+                <Button onClick={this.onCancelConfirmTransfer}>取消确认</Button>
+              </div>}
+              {selectedRows.length > 0 && CacheRole.role_value != 'site_pay' && <Button onClick={this.onDelTransfer}>删除打款</Button>}
             </div>
             <StandardTable
               selectedRows={selectedRows}
