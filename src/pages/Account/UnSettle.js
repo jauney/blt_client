@@ -833,7 +833,7 @@ class TableList extends PureComponent {
           record={record}
           onCancelModal={this.onUpdateOrderModalCancel}
           handleSearch={this.handleSearch}
-          isEdit={1}
+          isEdit={['site_admin', 'site_pay', 'site_receipt'].indexOf(CacheRole.role_value) >= 0 ? 1 : 0}
           dispatch={dispatch}
           currentCompany={currentCompany}
           currentGetCustomer={currentGetCustomer}

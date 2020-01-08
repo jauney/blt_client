@@ -269,7 +269,7 @@ export default [
             path: '/courier/operator',
             name: 'operator',
             component: './Courier/Operator',
-            authority: ['company_admin', 'site_admin', 'company_account'],
+            authority: ['site_admin', 'company_account'],
           },
           {
             path: '/courier/sendermng',
