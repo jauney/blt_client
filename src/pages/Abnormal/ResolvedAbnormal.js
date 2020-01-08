@@ -344,21 +344,40 @@ class TableList extends PureComponent {
       payload: { pageNo: 1, pageSize: 100 },
     });
 
-    // 初始渲染的是否，先加载第一个分公司的收货人信息
-    if (branchCompanyList && branchCompanyList.length > 0) {
-      this.setState({
-        currentCompany: branchCompanyList[0],
-      });
-      await dispatch({
-        type: 'abnormal/getAbnormalTypeListAction',
-        payload: {
-          pageNo: 1,
-          pageSize: 100,
-          company_id: branchCompanyList[0].company_id,
-        },
-      });
-    }
+
+    let currentCompany = this.setCurrentCompany(branchCompanyList)
+    await dispatch({
+      type: 'abnormal/getAbnormalTypeListAction',
+      payload: {
+        pageNo: 1,
+        pageSize: 100,
+        company_id: currentCompany.company_id,
+      },
+    });
+
   }
+
+  // 设置当前公司
+  setCurrentCompany = (branchCompanyList = []) => {
+    // 初始渲染的是否，先加载第一个分公司的收货人信息
+    if (CacheCompany.company_type == 2) {
+      this.setState({
+        currentCompany: CacheCompany
+      });
+
+      return CacheCompany
+    }
+    else if (branchCompanyList && branchCompanyList.length > 0) {
+      this.setState({
+        currentCompany: branchCompanyList[0]
+      });
+
+      return branchCompanyList[0]
+    }
+
+    return {}
+  }
+
 
   handleFormReset = () => {
     const { form, dispatch } = this.props;

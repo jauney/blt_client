@@ -196,12 +196,8 @@ class TableList extends PureComponent {
       payload: {},
     });
 
-    // 初始渲染的是否，先加载第一个分公司的收货人信息
-    if (branchCompanyList && branchCompanyList.length > 0) {
-      this.setState({
-        currentCompany: branchCompanyList[0],
-      });
-    }
+    this.setCurrentCompany(branchCompanyList)
+
     if (siteList && siteList.length > 0) {
       const shipSiteList = siteList.filter(item => {
         return item.site_type == 3 || item.site_type == 2;
@@ -216,6 +212,27 @@ class TableList extends PureComponent {
     this.getLastCarInfo();
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
+  }
+
+  // 设置当前公司
+  setCurrentCompany = (branchCompanyList = []) => {
+    // 初始渲染的是否，先加载第一个分公司的收货人信息
+    if (CacheCompany.company_type == 2) {
+      this.setState({
+        currentCompany: CacheCompany
+      });
+
+      return CacheCompany
+    }
+    else if (branchCompanyList && branchCompanyList.length > 0) {
+      this.setState({
+        currentCompany: branchCompanyList[0]
+      });
+
+      return branchCompanyList[0]
+    }
+
+    return {}
   }
 
   getLastCarInfo = async () => {
