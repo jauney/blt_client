@@ -24,6 +24,7 @@ export default {
     totalRealOrderAmount: 0,
     totalAdvancepayAmount: 0,
     totalDeliverAmount: 0,
+    totalAbnormalAmount: 0,
     abnormalTypes: [],
     abnormalTotal: 0,
   },

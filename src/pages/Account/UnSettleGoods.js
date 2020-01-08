@@ -70,7 +70,7 @@ class TableList extends PureComponent {
       title: '货单号',
       width: '80px',
       dataIndex: 'order_code',
-
+      sorter: true,
       align: 'right',
       render: val => `${val}`,
       // mark to display a total number
@@ -80,6 +80,7 @@ class TableList extends PureComponent {
       title: '发货客户',
       width: '80px',
       dataIndex: 'sendcustomer_name',
+      sorter: true,
     },
     {
       title: '收获客户',
@@ -91,6 +92,7 @@ class TableList extends PureComponent {
       title: '应收货款',
       width: '80px',
       dataIndex: 'order_amount',
+      sorter: true,
     },
     {
       title: '实收货款',
@@ -101,12 +103,13 @@ class TableList extends PureComponent {
       title: '折后运费',
       width: '80px',
       dataIndex: 'trans_discount',
+      sorter: true,
     },
     {
       title: '运费方式',
       width: '80px',
       dataIndex: 'trans_type',
-
+      sorter: true,
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -357,6 +360,8 @@ class TableList extends PureComponent {
         type: 'unsettlegoods/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+
+      this.standardTable.cleanSelectedKeys()
     });
   };
 
@@ -585,6 +590,11 @@ class TableList extends PureComponent {
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => { };
 
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
+
   tableFooter = () => {
     const {
       unsettlegoods: {
@@ -766,6 +776,7 @@ class TableList extends PureComponent {
             <div className={styles.tableListForm}>{this.renderForm()}</div>
 
             <StandardTable
+              onRef={this.onRefTable}
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}

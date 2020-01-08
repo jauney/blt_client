@@ -215,7 +215,7 @@ export default [
             path: '/transfer/company',
             name: 'company',
             component: './Transfer/Company',
-            authority: ['site_user', 'site_admin', 'site_pay', 'company_admin'],
+            authority: ['company_admin'],
           },
           {
             path: '/transfer/site',

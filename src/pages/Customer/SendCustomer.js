@@ -308,6 +308,7 @@ class TableList extends PureComponent {
       title: '站点',
       dataIndex: 'site_names',
       width: '100px',
+      sorter: true,
       render: val => {
         return `${val}`;
       },
@@ -316,11 +317,13 @@ class TableList extends PureComponent {
       title: '运费总额',
       dataIndex: 'total_trans',
       width: '80px',
+      sorter: true,
     },
     {
       title: '票数',
       dataIndex: 'order_num',
       width: '80px',
+      sorter: true,
     },
     {
       title: '收货地址',
@@ -546,7 +549,7 @@ class TableList extends PureComponent {
               onSelect={this.onSiteSelect}
               allowClear
             >
-              {siteList.map(ele => {
+              {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}

@@ -26,9 +26,11 @@ export function getSelectedAccount(sltDatas, type) {
     var order = sltDatas[i];
 
     var realOrderAmount = order.order_real ? order.order_real : order.order_amount;
+    console.log('$$$$$$', realOrderAmount, order)
     totalActualGoodsFunds += Number(realOrderAmount);
     // trans_discount即为实付运费，去掉trans_real字段
     var realTransAmount = order.trans_discount ? order.trans_discount : order.trans_amount;
+    console.log('#######', realTransAmount, order)
     var insuranceFee = 0;
     if (order.insurance_fee) {
       insuranceFee += order.insurance_fee;

@@ -218,11 +218,13 @@ class TableList extends PureComponent {
       title: '收入日期',
       dataIndex: 'income_date',
       width: '170px',
+      sorter: true,
       render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '收入金额',
       width: '80px',
+      sorter: true,
       dataIndex: 'income_money',
     },
     {

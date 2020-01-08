@@ -221,22 +221,26 @@ class TableList extends PureComponent {
       title: '发货客户',
       dataIndex: 'sendcustomer_name',
       width: '80px',
+      sorter: true,
     },
     {
       title: '收获客户',
       dataIndex: 'getcustomer_name',
       sorter: true,
       width: '80px',
+      sorter: true,
     },
     {
       title: '应收货款',
       dataIndex: 'order_amount',
       width: '80px',
+      sorter: true,
     },
     {
       title: '实收货款',
       dataIndex: 'order_real',
       width: '80px',
+      sorter: true,
     },
     {
       title: '折后运费',

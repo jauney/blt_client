@@ -125,7 +125,7 @@ class DownAccountForm extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem labelCol={{ span: 3, offset: 2 }} label="户主">
-                {record.getcustomer_name || ''}
+                {record.sendcustomer_name || ''}
               </FormItem>
             </Col>
             <Col>
@@ -207,7 +207,7 @@ class TableList extends PureComponent {
     {
       title: '货单号',
       dataIndex: 'order_code',
-
+      sorter: true,
       align: 'right',
       render: val => `${val}`,
       // mark to display a total number
@@ -218,11 +218,12 @@ class TableList extends PureComponent {
       title: '发货客户',
       dataIndex: 'sendcustomer_name',
       width: '80px',
+      sorter: true,
     },
     {
       title: '收获客户',
       dataIndex: 'getcustomer_name',
-
+      sorter: true,
       width: '80px',
     },
     {
@@ -234,19 +235,19 @@ class TableList extends PureComponent {
     {
       title: '实收货款',
       dataIndex: 'order_real',
-
+      sorter: true,
       width: '80px',
     },
     {
       title: '实收运费',
       dataIndex: 'trans_discount',
-
+      sorter: true,
       width: '80px',
     },
     {
       title: '运费方式',
       dataIndex: 'trans_type',
-
+      sorter: true,
       render: val => {
         let transType = '';
         if (val === 1) {

@@ -72,11 +72,13 @@ class TableList extends PureComponent {
       title: '货单号',
       width: '80px',
       dataIndex: 'order_code',
+      sorter: true,
     },
     {
       title: '发货客户',
       width: '80px',
       dataIndex: 'sendcustomer_name',
+      sorter: true,
     },
     {
       title: '收获客户',
@@ -88,16 +90,19 @@ class TableList extends PureComponent {
       title: '应收货款',
       width: '80px',
       dataIndex: 'order_amount',
+      sorter: true,
     },
     {
       title: '实收货款',
       width: '80px',
       dataIndex: 'order_real',
+      sorter: true,
     },
     {
       title: '折后运费',
       width: '80px',
       dataIndex: 'trans_discount',
+      sorter: true,
     },
     {
       title: '运费方式',
@@ -354,6 +359,8 @@ class TableList extends PureComponent {
         type: 'unsettle/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+
+      this.standardTable.cleanSelectedKeys()
     });
   };
 
@@ -595,6 +602,11 @@ class TableList extends PureComponent {
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => { };
 
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
+
   tableFooter = () => {
     const {
       unsettle: {
@@ -787,6 +799,7 @@ class TableList extends PureComponent {
               )}
             </div>
             <StandardTable
+              onRef={this.onRefTable}
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}

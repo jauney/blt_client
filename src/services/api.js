@@ -1045,6 +1045,9 @@ export async function getOrderList(params) {
   if (!params.filter.sendcustomer_mobile) {
     delete params.filter.sendcustomer_mobile;
   }
+  if (!params.filter.settle_date) {
+    delete params.filter.settle_date
+  }
   return client
     .query({
       query: gql`
@@ -1074,6 +1077,7 @@ export async function getOrderList(params) {
               trans_real
               trans_discount
               trans_type
+              trans_sign
               deliver_amount
               insurance_amount
               insurance_fee
@@ -1210,6 +1214,9 @@ export async function getOrderStatistic(params) {
   }
   if (!params.filter.sendcustomer_mobile) {
     delete params.filter.sendcustomer_mobile;
+  }
+  if (!params.filter.settle_date) {
+    delete params.filter.settle_date
   }
   return client
     .query({

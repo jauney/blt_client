@@ -829,7 +829,12 @@ class TableList extends PureComponent {
       currentShipSite: site,
     });
     this.getLastCar();
+    this.handleSearch();
   };
+
+  onSiteSelect = async value => {
+    this.handleSearch();
+  }
 
   // 点击勾选
   selectRow = record => {
@@ -928,7 +933,7 @@ class TableList extends PureComponent {
 
         <FormItem label="站点">
           {getFieldDecorator('site_id', siteOption)(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+            <Select placeholder="请选择" style={{ width: '100px' }} onChange={this.onSiteSelect} allowClear>
               {(CacheSite.site_type != 3 && CacheCompany.company_type == 1
                 ? [CacheSite]
                 : siteList

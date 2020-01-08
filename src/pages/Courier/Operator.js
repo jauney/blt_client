@@ -161,16 +161,19 @@ class TableList extends PureComponent {
       title: '经办人',
       width: '80px',
       dataIndex: 'operator_name',
+      sorter: true,
     },
     {
       title: '货单号',
       width: '80px',
       dataIndex: 'order_code',
+      sorter: true,
     },
     {
       title: '发货客户',
       width: '80px',
       dataIndex: 'sendcustomer_name',
+      sorter: true,
     },
     {
       title: '收获客户',
@@ -182,22 +185,25 @@ class TableList extends PureComponent {
       title: '应收货款',
       width: '80px',
       dataIndex: 'order_amount',
+      sorter: true,
     },
     {
       title: '实收货款',
       dataIndex: 'order_real',
       width: '80px',
+      sorter: true,
     },
     {
       title: '折后运费',
       width: '80px',
       dataIndex: 'trans_discount',
+      sorter: true,
     },
     {
       title: '运费方式',
       width: '80px',
       dataIndex: 'trans_type',
-
+      sorter: true,
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -257,7 +263,7 @@ class TableList extends PureComponent {
     {
       title: '分公司',
       width: '80px',
-      dataIndex: 'car_code',
+      dataIndex: 'company_name',
     },
     {
       title: '站点',
@@ -660,8 +666,9 @@ class TableList extends PureComponent {
     if (siteList.length > 0) {
       siteOption.initialValue = siteList[0].company_id || '';
     }
-
+    let allowClear = false
     if (CacheCompany.company_type == 1) {
+      allowClear = true
       companyOption = {
         initialValue: branchCompanyList.length > 0 ? branchCompanyList[0].company_id : '',
       };
@@ -671,7 +678,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司" {...formItemLayout}>
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={allowClear}>
               {(CacheCompany.company_type == 2 ? [CacheCompany] : branchCompanyList).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>

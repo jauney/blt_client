@@ -154,37 +154,43 @@ class TableList extends PureComponent {
       title: '货单号',
       width: '80px',
       dataIndex: 'order_code',
+      sorter: true,
     },
     {
       title: '发货客户',
       width: '80px',
       dataIndex: 'sendcustomer_name',
+      sorter: true,
     },
     {
       title: '收获客户',
       width: '80px',
       dataIndex: 'getcustomer_name',
+      sorter: true,
     },
     {
       title: '应收货款',
       width: '80px',
       dataIndex: 'order_amount',
+      sorter: true,
     },
     {
       title: '实收货款',
       width: '80px',
       dataIndex: 'order_real',
+      sorter: true,
     },
     {
       title: '折后运费',
       width: '80px',
       dataIndex: 'trans_discount',
+      sorter: true,
     },
     {
       title: '运费方式',
       width: '80px',
       dataIndex: 'trans_type',
-
+      sorter: true,
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -696,7 +702,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
+            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>

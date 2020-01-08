@@ -344,7 +344,7 @@ class TableList extends PureComponent {
   onConfirmTransModal = () => {
     Modal.confirm({
       title: '确认',
-      content: '确定取消确认所选订单的运费吗？',
+      content: '确定取消所选订单的运费吗？',
       okText: '确认',
       cancelText: '取消',
       onOk: this.onConfirmTrans,
@@ -364,7 +364,7 @@ class TableList extends PureComponent {
       payload: order,
     });
     if (result.code == 0) {
-      message.success('取消确认成功！');
+      message.success('取消成功！');
       this.handleSearch();
     } else {
       message.error(result.msg);
@@ -495,7 +495,7 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="收货人电话">
+        <FormItem label="发货人电话">
           {getFieldDecorator('sendcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '150px' }} />
           )}

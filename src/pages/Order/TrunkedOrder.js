@@ -491,6 +491,7 @@ class TableList extends PureComponent {
     {
       title: '货单号',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_code',
 
       align: 'right',
@@ -501,21 +502,25 @@ class TableList extends PureComponent {
     {
       title: '发货客户',
       width: '80px',
+      sorter: true,
       dataIndex: 'sendcustomer_name',
     },
     {
       title: '收获客户',
       width: '80px',
+      sorter: true,
       dataIndex: 'getcustomer_name',
     },
     {
       title: '应收货款',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_amount',
     },
     {
       title: '实收货款',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_real',
     },
     {
@@ -527,7 +532,7 @@ class TableList extends PureComponent {
       title: '运费方式',
       width: '80px',
       dataIndex: 'trans_type',
-
+      sorter: true,
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -630,7 +635,6 @@ class TableList extends PureComponent {
     this.getOrderList();
     this.getDriverList()
   }
-
 
   // 设置当前公司
   setCurrentCompany = (branchCompanyList = []) => {

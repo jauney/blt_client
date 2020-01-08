@@ -218,23 +218,26 @@ class TableList extends PureComponent {
       title: '支出日期',
       dataIndex: 'expense_date',
       width: '170px',
+      sorter: true,
       render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '支出金额',
       dataIndex: 'expense_money',
-
+      sorter: true,
       width: '80px',
     },
     {
       title: '支出类型',
       dataIndex: 'expensetype',
       width: '140px',
+      sorter: true,
     },
     {
       title: '支出原因',
       dataIndex: 'expense_reason',
       width: '120px',
+      sorter: true,
     },
     {
       title: '站点',
@@ -245,6 +248,7 @@ class TableList extends PureComponent {
       title: '分公司',
       dataIndex: 'company_name',
       width: '80px',
+      sorter: true,
     },
     {
       title: '操作用户',

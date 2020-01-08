@@ -113,7 +113,7 @@ class OrderEditForm extends PureComponent {
 
     if (changeType == 'type') {
       // 折后运费=地域系数*客户VIP*小票费
-      transDiscount =  Math.ceil(
+      transDiscount = Math.ceil(
         Number(originalTransAmount) *
         Number(transVipRatio) *
         Number(transRegionalRatio)
@@ -123,11 +123,11 @@ class OrderEditForm extends PureComponent {
       });
     } else if (changeType == 'original') {
       if (originalTransAmount && transRegionalRatio) {
-        transAmount =  Math.ceil(Number(originalTransAmount) * Number(transRegionalRatio));
+        transAmount = Math.ceil(Number(originalTransAmount) * Number(transRegionalRatio));
       }
       if (transVipRatio && transRegionalRatio) {
         // 折后运费=地域系数*客户VIP*小票费
-        transDiscount =  Math.ceil(
+        transDiscount = Math.ceil(
           Number(originalTransAmount) *
           Number(transVipRatio) *
           Number(transRegionalRatio)
@@ -139,7 +139,7 @@ class OrderEditForm extends PureComponent {
       }
     } else if (transVipRatio && transRegionalRatio) {
       // 折后运费=地域系数*客户VIP*小票费
-      transDiscount =  Math.ceil(Number(transAmount) * Number(transVipRatio));
+      transDiscount = Math.ceil(Number(transAmount) * Number(transVipRatio));
       form.setFieldsValue({
         trans_discount: transDiscount || '',
       });
@@ -169,10 +169,16 @@ class OrderEditForm extends PureComponent {
         if (item.indexOf('amount') >= 0) {
           fieldsValue[item] = Number(fieldsValue[item] || 0);
         }
+        else if (!fieldsValue[item]) {
+          delete fieldsValue[item]
+        }
       });
-
-      fieldsValue['trans_type'] = Number(fieldsValue['trans_type']);
-      fieldsValue['transfer_type'] = Number(fieldsValue['transfer_type']);
+      if (typeof fieldsValue['trans_type'] != 'undefined') {
+        fieldsValue['trans_type'] = Number(fieldsValue['trans_type']);
+      }
+      if (typeof fieldsValue['transfer_type'] != 'undefined') {
+        fieldsValue['transfer_type'] = Number(fieldsValue['transfer_type']);
+      }
 
       const result = await dispatch({
         type: 'order/updateOrderAction',
@@ -211,8 +217,6 @@ class OrderEditForm extends PureComponent {
     let payRoles = CacheRole.filter(item => {
       return [('site_pay', 'site_admin')].indexOf(item.role_value) >= 0;
     });
-
-    console.log(payRoles, CacheRole);
 
     return (
       <Modal
@@ -262,8 +266,8 @@ class OrderEditForm extends PureComponent {
                 VIP
               </Tag>
             ) : (
-              ''
-            )}
+                ''
+              )}
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
@@ -344,19 +348,19 @@ class OrderEditForm extends PureComponent {
             </Col>
           </Row>
         ) : (
-          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col {...this.col2Layout}>
-              <FormItem {...this.formItemLayout} label="运费">
-                {record.trans_amount}({record.trans_type == 1 ? '现付' : '回付'})
+            <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+              <Col {...this.col2Layout}>
+                <FormItem {...this.formItemLayout} label="运费">
+                  {record.trans_amount}({record.trans_type == 1 ? '现付' : '回付'})
               </FormItem>
-            </Col>
-            <Col {...this.col2Layout}>
-              <FormItem {...this.formItemLayout} label="折后运费">
-                {record.trans_discount}
-              </FormItem>
-            </Col>
-          </Row>
-        )}
+              </Col>
+              <Col {...this.col2Layout}>
+                <FormItem {...this.formItemLayout} label="折后运费">
+                  {record.trans_discount}
+                </FormItem>
+              </Col>
+            </Row>
+          )}
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="货款">

@@ -23,15 +23,12 @@ class StandardTable extends PureComponent {
       selectedRows: [],
       needTotalList,
     };
+    if (typeof this.props.onRef == 'function') {
+      this.props.onRef(this)
+    }
   }
 
   handleRowSelectChange = (selectedRowKeys, selectedRows) => {
-    console.log(selectedRowKeys, selectedRows);
-    // let { needTotalList } = this.state;
-    // needTotalList = needTotalList.map(item => ({
-    //   ...item,
-    //   total: selectedRows.reduce((sum, val) => sum + parseFloat(val[item.dataIndex], 10), 0),
-    // }));
     const { onSelectRow } = this.props;
     if (onSelectRow) {
       onSelectRow(selectedRows);
@@ -92,7 +89,7 @@ class StandardTable extends PureComponent {
     const paginationProps = {
       showSizeChanger: true,
       showQuickJumper: true,
-      pageSizeOptions: ["20","40","60"],
+      pageSizeOptions: ["20", "40", "60"],
       ...pagination,
     };
 

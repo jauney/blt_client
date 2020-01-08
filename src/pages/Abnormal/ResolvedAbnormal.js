@@ -602,6 +602,7 @@ class TableList extends PureComponent {
         totalInsurancefee,
         totalAdvancepayAmount,
         totalDeliverAmount,
+        totalAbnormalAmount
       },
     } = this.props;
     return (
@@ -612,6 +613,7 @@ class TableList extends PureComponent {
         <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
         <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
         <span className={styles.footerSplit}>票数：{total || '0'}</span>
+        <span className={styles.footerSplit}>赔付金额：{totalAbnormalAmount || '0'}</span>
       </div>
     );
   };

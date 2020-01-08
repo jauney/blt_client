@@ -282,22 +282,26 @@ class TableList extends PureComponent {
       title: '日期',
       dataIndex: 'debt_date',
       width: '170px',
+      sorter: true,
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '金额',
       dataIndex: 'debt_money',
       width: '80px',
+      sorter: true,
     },
     {
       title: '类型',
       dataIndex: 'debttype',
       width: '80px',
+      sorter: true,
     },
     {
       title: '客户姓名',
       dataIndex: 'debtuser_name',
       width: '80px',
+      sorter: true,
     },
     {
       title: '备注',

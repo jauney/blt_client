@@ -75,7 +75,7 @@ class TableList extends PureComponent {
       title: '货单号',
       width: '80px',
       dataIndex: 'order_code',
-
+      sorter: true,
       align: 'right',
       render: val => `${val}`,
       // mark to display a total number
@@ -84,16 +84,19 @@ class TableList extends PureComponent {
     {
       title: '发货客户',
       width: '80px',
+      sorter: true,
       dataIndex: 'sendcustomer_name',
     },
     {
       title: '收获客户',
       width: '80px',
+      sorter: true,
       dataIndex: 'getcustomer_name',
     },
     {
       title: '应收货款',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_amount',
     },
     {
@@ -104,13 +107,14 @@ class TableList extends PureComponent {
     {
       title: '折后运费',
       width: '80px',
+      sorter: true,
       dataIndex: 'trans_discount',
     },
     {
       title: '运费方式',
       width: '80px',
       dataIndex: 'trans_type',
-
+      sorter: true,
       render: val => {
         let transType = '';
         if (val === 1) {

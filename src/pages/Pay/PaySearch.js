@@ -206,7 +206,7 @@ class TableList extends PureComponent {
     {
       title: '货单号',
       dataIndex: 'order_code',
-
+      sorter: true,
       align: 'right',
       render: val => `${val}`,
       // mark to display a total number
@@ -217,35 +217,36 @@ class TableList extends PureComponent {
       title: '发货客户',
       dataIndex: 'sendcustomer_name',
       width: '80px',
+      sorter: true,
     },
     {
       title: '收获客户',
       dataIndex: 'getcustomer_name',
-
+      sorter: true,
       width: '80px',
     },
     {
       title: '应收货款',
       dataIndex: 'order_amount',
-
+      sorter: true,
       width: '80px',
     },
     {
       title: '实收货款',
       dataIndex: 'order_real',
-
+      sorter: true,
       width: '80px',
     },
     {
       title: '实收运费',
       dataIndex: 'trans_discount',
-
+      sorter: true,
       width: '80px',
     },
     {
       title: '运费方式',
       dataIndex: 'trans_type',
-
+      sorter: true,
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -810,7 +811,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="付款日期">
-          {getFieldDecorator('pay_date', {})(
+          {getFieldDecorator('pay_date', { initialValue: moment(new Date().getTime()) })(
             <DatePicker format={'YYYY-MM-DD'} />
           )}
         </FormItem>
