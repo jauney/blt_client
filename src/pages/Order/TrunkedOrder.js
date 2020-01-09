@@ -1211,6 +1211,10 @@ class TableList extends PureComponent {
     if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
       showOperateButton = false
     }
+    // 未发车时，下站不允许操作
+    if (lastCar.car_status < 2 && CacheCompany.company_type == 2) {
+      showOperateButton = false
+    }
     return (
       <div>
         <Card bordered={false}>

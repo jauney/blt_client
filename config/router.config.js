@@ -137,6 +137,12 @@ export default [
             component: './Pay/PaySearch',
             authority: ['site_pay', 'site_receipt', 'site_searchuser', 'site_admin'],
           },
+          {
+            path: '/pay/paytoday',
+            name: 'paytoday',
+            component: './Pay/PayToday',
+            authority: ['site_pay', 'site_receipt', 'site_searchuser', 'site_admin'],
+          },
         ],
       },
       // abnormal

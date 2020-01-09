@@ -5,6 +5,7 @@ import Link from 'umi/link';
 import { Checkbox, Alert, Icon, message } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
+import { machineId, machineIdSync } from 'node-machine-id';
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
 
 @connect(({ login, loading }) => ({
@@ -40,18 +41,26 @@ class LoginPage extends Component {
 
   handleSubmit = async (err, values) => {
     const { type } = this.state;
+    let macId = ''//machineIdSync({ original: true })
+
     if (!err) {
       const { dispatch } = this.props;
       const result = await dispatch({
         type: 'login/login',
         payload: {
           ...values,
-          type,
+          mac_id: macId,
+          type
         },
       });
-
-      if (result && result.code == 1001) {
+      if (!result) {
+        message.error('系统异常，稍后再试')
+      }
+      else if (result.code == 1001) {
         message.error(result.msg);
+      }
+      else if (result.code == 1002) {
+        message.error('用户电脑认证失败');
       }
     }
   };

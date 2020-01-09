@@ -63,8 +63,8 @@ export async function fakeAccountLogin(params) {
   return client
     .query({
       query: gql`
-        query login($userName: String, $password: String) {
-          login(user_name: $userName, user_pass: $password) {
+        query login($userName: String, $password: String, $mac_id: String) {
+          login(user_name: $userName, user_pass: $password, mac_id: $mac_id) {
             token
             user {
               user_id
