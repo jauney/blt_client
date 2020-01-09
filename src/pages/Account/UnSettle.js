@@ -782,13 +782,19 @@ class TableList extends PureComponent {
       currentCompany,
     } = this.state;
 
+    // 是否显示操作按钮
+    let showOperateButton = true
+    if (['site_admin', 'site_orderuser', 'site_pay', 'site_receipt', 'site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+      showOperateButton = false
+    }
+
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {selectedRows.length > 0 && (
+              {selectedRows.length > 0 && showOperateButton && (
                 <span>
                   <Button onClick={this.onSettle}>账目核对</Button>
                   <Button onClick={this.onSign}>签字</Button>

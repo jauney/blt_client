@@ -21,19 +21,19 @@ export default [
         path: '/order',
         name: 'order',
         icon: '单',
-        authority: ['site_orderuser', 'site_admin', 'company_account', 'company_admin'],
+        authority: ['site_orderuser', 'site_admin', 'site_searchuser', 'company_account', 'company_admin'],
         routes: [
           {
             path: '/order/siteorder',
             name: 'siteorder',
             component: './Order/SiteOrder',
-            authority: ['site_orderuser', 'site_admin'],
+            authority: ['site_orderuser', 'site_admin', 'site_searchuser'],
           },
           {
             path: '/order/untrunkorder',
             name: 'untrunkorder',
             component: './Order/UntrunkOrder',
-            authority: ['site_orderuser', 'site_admin', 'company_account', 'company_admin'],
+            authority: ['site_orderuser', 'site_admin', 'site_searchuser', 'company_account', 'company_admin'],
           },
           {
             path: '/order/trunkedorder',
@@ -52,7 +52,7 @@ export default [
         path: '/account',
         icon: '核',
         name: 'account',
-        authority: ['company_account', 'company_admin', 'site_admin', 'site_orderuser', 'site_pay'],
+        authority: ['company_account', 'company_admin', 'site_admin', 'site_searchuser', 'site_orderuser', 'site_pay', 'site_receipt'],
         routes: [
           {
             path: '/account/unsettle',
@@ -62,8 +62,10 @@ export default [
               'company_account',
               'company_admin',
               'site_admin',
+              'site_searchuser',
               'site_orderuser',
               'site_pay',
+              'site_receipt'
             ],
           },
           {
@@ -74,8 +76,10 @@ export default [
               'company_account',
               'company_admin',
               'site_admin',
+              'site_searchuser',
               'site_orderuser',
               'site_pay',
+              'site_receipt'
             ],
           },
           {
@@ -86,8 +90,10 @@ export default [
               'company_account',
               'company_admin',
               'site_admin',
+              'site_searchuser',
               'site_orderuser',
               'site_pay',
+              'site_receipt'
             ],
           },
           {
@@ -98,8 +104,10 @@ export default [
               'company_account',
               'company_admin',
               'site_admin',
+              'site_searchuser',
               'site_orderuser',
               'site_pay',
+              'site_receipt'
             ],
           },
         ],
@@ -109,25 +117,25 @@ export default [
         path: '/pay',
         icon: '付',
         name: 'pay',
-        authority: ['site_pay', 'site_admin'],
+        authority: ['site_pay', 'site_admin', 'site_searchuser', 'site_receipt'],
         routes: [
           {
             path: '/pay/pay',
             name: 'pay',
             component: './Pay/Pay',
-            authority: ['site_pay', 'site_admin'],
+            authority: ['site_pay', 'site_receipt', 'site_searchuser', 'site_admin'],
           },
           {
             path: '/pay/payabnormal',
             name: 'payabnormal',
             component: './Pay/PayAbnormal',
-            authority: ['site_pay', 'site_admin'],
+            authority: ['site_pay', 'site_receipt', 'site_searchuser', 'site_admin'],
           },
           {
             path: '/pay/paysearch',
             name: 'paysearch',
             component: './Pay/PaySearch',
-            authority: ['site_pay', 'site_admin'],
+            authority: ['site_pay', 'site_receipt', 'site_searchuser', 'site_admin'],
           },
         ],
       },
@@ -136,7 +144,7 @@ export default [
         path: '/abnormal',
         icon: '异',
         name: 'abnormal',
-        authority: ['site_pay', 'site_admin', 'company_account', 'company_admin', 'site_orderuser'],
+        authority: ['site_pay', 'site_searchuser', 'site_receipt', 'site_admin', 'company_account', 'company_admin', 'site_orderuser'],
         routes: [
           {
             path: '/abnormal/addabnormal',
@@ -144,6 +152,8 @@ export default [
             component: './Abnormal/AddAbnormal',
             authority: [
               'site_pay',
+              'site_searchuser',
+              'site_receipt',
               'site_admin',
               'company_account',
               'company_admin',
@@ -156,7 +166,9 @@ export default [
             component: './Abnormal/UnResolvedAbnormal',
             authority: [
               'site_pay',
+              'site_receipt',
               'site_admin',
+              'site_searchuser',
               'company_account',
               'company_admin',
               'site_orderuser',
@@ -168,6 +180,8 @@ export default [
             component: './Abnormal/ResolvedAbnormal',
             authority: [
               'site_pay',
+              'site_searchuser',
+              'site_receipt',
               'site_admin',
               'company_account',
               'company_admin',
@@ -181,25 +195,25 @@ export default [
         path: '/finance',
         icon: '财',
         name: 'finance',
-        authority: ['site_admin', 'company_admin', 'site_pay'],
+        authority: ['site_admin', 'site_searchuser', 'company_admin', 'site_pay'],
         routes: [
           {
             path: '/finance/income',
             name: 'income',
             component: './Finance/Income',
-            authority: ['site_admin', 'company_admin', 'site_pay'],
+            authority: ['site_admin', 'site_searchuser', 'company_admin', 'site_pay'],
           },
           {
             path: '/finance/expense',
             name: 'expense',
             component: './Finance/Expense',
-            authority: ['site_admin', 'company_admin', 'site_pay'],
+            authority: ['site_admin', 'site_searchuser', 'company_admin', 'site_pay'],
           },
           {
             path: '/finance/debt',
             name: 'debt',
             component: './Finance/Debt',
-            authority: ['site_admin', 'company_admin', 'site_pay'],
+            authority: ['site_admin', 'site_searchuser', 'company_admin', 'site_pay'],
           },
         ],
       },
@@ -208,7 +222,7 @@ export default [
         path: '/transfer',
         name: 'transfer',
         icon: '款',
-        authority: ['site_user', 'site_admin', 'site_pay', 'company_admin', 'site_orderuser'],
+        authority: ['site_user', 'site_admin', 'site_searchuser', 'site_pay', 'company_admin', 'site_orderuser'],
         routes: [
           // transfer
           {
@@ -221,7 +235,7 @@ export default [
             path: '/transfer/site',
             name: 'site',
             component: './Transfer/Site',
-            authority: ['site_user', 'site_admin', 'site_pay', 'site_orderuser'],
+            authority: ['site_user', 'site_admin', 'site_searchuser', 'site_pay', 'site_orderuser'],
           },
         ],
       },
@@ -229,7 +243,7 @@ export default [
         path: '/customer',
         name: 'customer',
         icon: '客',
-        authority: ['company_admin', 'company_account', 'site_admin', 'site_orderuser', 'site_pay'],
+        authority: ['company_admin', 'company_account', 'site_admin', 'site_searchuser', 'site_orderuser', 'site_pay', 'site_receipt'],
         routes: [
           // transfer
           {
@@ -242,7 +256,7 @@ export default [
             path: '/customer/sendcustomer',
             name: 'sendcustomer',
             component: './Customer/SendCustomer',
-            authority: ['site_admin', 'site_orderuser', 'site_pay'],
+            authority: ['site_admin', 'site_searchuser', 'site_orderuser', 'site_pay', 'site_receipt'],
           },
         ],
       },
@@ -250,7 +264,7 @@ export default [
         path: '/courier',
         name: 'courier',
         icon: '工',
-        authority: ['company_admin', 'site_admin', 'company_account'],
+        authority: ['company_admin', 'site_admin', 'site_searchuser', 'company_account'],
         routes: [
           // transfer
           {
@@ -263,13 +277,13 @@ export default [
             path: '/courier/receiver',
             name: 'receiver',
             component: './Courier/Receiver',
-            authority: ['site_admin'],
+            authority: ['site_admin', 'site_searchuser'],
           },
           {
             path: '/courier/operator',
             name: 'operator',
             component: './Courier/Operator',
-            authority: ['site_admin', 'company_account'],
+            authority: ['site_admin', 'site_searchuser', 'company_account'],
           },
           {
             path: '/courier/sendermng',
@@ -281,7 +295,7 @@ export default [
             path: '/courier/receivermng',
             name: 'receivermng',
             component: './Courier/ReceiverMng',
-            authority: ['site_admin'],
+            authority: ['site_admin', 'site_searchuser'],
           },
         ],
       },
@@ -289,14 +303,14 @@ export default [
         path: '/search',
         name: 'search',
         icon: '查',
-        authority: ['company_admin', 'site_admin', 'site_pay'],
+        authority: ['company_admin', 'site_admin', 'site_pay', 'site_receipt'],
         routes: [
           // transfer
           {
             path: '/search/account',
             name: 'todayaccount',
             component: './Search/Account',
-            authority: ['company_admin', 'site_admin', 'site_pay'],
+            authority: ['company_admin', 'site_admin', 'site_pay', 'site_receipt'],
           },
           {
             path: '/search/stock',
@@ -310,7 +324,7 @@ export default [
         path: '/transconfirm',
         name: 'transconfirm',
         icon: '结',
-        authority: ['site_admin', 'site_pay'],
+        authority: ['site_admin', 'site_searchuser', 'site_pay', 'site_receipt'],
         routes: [
           // transfer
           {

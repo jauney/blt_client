@@ -924,16 +924,24 @@ class TableList extends PureComponent {
       printModalVisible,
       record,
     } = this.state;
-
+    // 是否显示操作按钮
+    let showOperateButton = true
+    if (CacheRole.role_value == 'site_admin') {
+      showOperateButton = false
+    }
+    let showCancelSettle = true
+    if (['site_orderuser', 'site_pay', 'site_receipt', 'site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+      showCancelSettle = false
+    }
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {selectedRows.length > 0 && (
+              {selectedRows.length > 0 && showOperateButton && (
                 <span>
-                  <Button onClick={this.onSettle}>取消结算</Button>
+                  {showCancelSettle && <Button onClick={this.onSettle}>取消结算</Button>}
                   <Button onClick={this.onPrint}>打印</Button>
                 </span>
               )}

@@ -398,7 +398,11 @@ class TableList extends PureComponent {
     } = this.props;
 
     const { selectedRows, current, pageSize, addModalVisible, record, currentCompany } = this.state;
-
+    // 是否显示操作按钮
+    let showOperateButton = true
+    if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+      showOperateButton = false
+    }
     return (
       <div>
         <Card bordered={false}>
@@ -428,9 +432,9 @@ class TableList extends PureComponent {
                   </Button>
                 </FormItem>
                 <FormItem>
-                  <Button icon="plus" type="primary" onClick={() => this.onAddClick(true)}>
+                  {showOperateButton && <Button icon="plus" type="primary" onClick={() => this.onAddClick(true)}>
                     添加
-                  </Button>
+                  </Button>}
                 </FormItem>
               </Form>
             </div>

@@ -722,16 +722,21 @@ class TableList extends PureComponent {
 
     const { selectedRows, current, pageSize, addDebtModalVisible, record } = this.state;
 
+    // 是否显示操作按钮
+    let showOperateButton = true
+    if (['site_searchuser', 'site_admin'].indexOf(CacheRole.role_value) >= 0) {
+      showOperateButton = false
+    }
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={() => this.onAddDebtClick(true)}>
+              {showOperateButton && <Button icon="plus" type="primary" onClick={() => this.onAddDebtClick(true)}>
                 添加
-              </Button>
-              {selectedRows.length > 0 && (
+              </Button>}
+              {selectedRows.length > 0 && showOperateButton && (
                 <span>
                   <Button onClick={this.onSettleModal}>归零</Button>
                 </span>

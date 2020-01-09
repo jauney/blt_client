@@ -718,14 +718,18 @@ class TableList extends PureComponent {
       printModalVisible,
       record,
     } = this.state;
-
+    // 是否显示操作按钮
+    let showOperateButton = true
+    if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+      showOperateButton = false
+    }
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {selectedRows.length > 0 && (
+              {selectedRows.length > 0 && showOperateButton && (
                 <span>
                   <Button onClick={this.onCancelAbnormalModal}>取消异常</Button>
                   <Button onClick={this.onResolveAbnormalModal}>处理异常</Button>

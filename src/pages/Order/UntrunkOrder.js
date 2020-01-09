@@ -1014,15 +1014,22 @@ class TableList extends PureComponent {
       currentShipSite,
       lastCar,
     } = this.state;
-    // const { selectedRowKeys } = this.state;
 
+    // 是否显示操作按钮
+    let showOperateButton = true
+    if (CacheCompany.company_type != 1) {
+      showOperateButton = false
+    }
+    if ((CacheRole.role_value == 'site_admin' && CacheSite.site_type != 2) || ['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+      showOperateButton = false
+    }
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {selectedRows.length > 0 && CacheCompany.company_type == 1 && (
+              {selectedRows.length > 0 && showOperateButton && (
                 <span>
                   <Button onClick={this.onCancelShip}>取消装回</Button>
                   <Button onClick={this.onReceiverModalShow}>更改接货人</Button>

@@ -652,15 +652,20 @@ class TableList extends PureComponent {
       record,
     } = this.state;
 
+    // 是否显示操作按钮
+    let showOperateButton = true
+    if (['site_searchuser', 'site_admin'].indexOf(CacheRole.role_value) >= 0) {
+      showOperateButton = false
+    }
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={() => this.onAddExpenseClick(true)}>
+              {showOperateButton && <Button icon="plus" type="primary" onClick={() => this.onAddExpenseClick(true)}>
                 添加
-              </Button>
+              </Button>}
             </div>
             <StandardTable
               selectedRows={selectedRows}

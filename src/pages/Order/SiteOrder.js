@@ -1739,17 +1739,22 @@ class TableList extends PureComponent {
       handleAdd: this.handleAdd,
       handleModalVisible: this.handleModalVisible,
     };
+
+    let showOperateButton = true
+    if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+      showOperateButton = false
+    }
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
+              {showOperateButton && <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
                 录入托运单
-              </Button>
+              </Button>}
 
-              {selectedRows.length > 0 && (
+              {selectedRows.length > 0 && showOperateButton && (
                 <span>
                   <Button onClick={this.onDelete}>删除托运单</Button>
                   <Button onClick={this.onEntruckModalShow}>装回配载部</Button>

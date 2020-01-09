@@ -1042,21 +1042,31 @@ class TableList extends PureComponent {
       record,
     } = this.state;
 
+    // 是否显示操作按钮
+    let showOperateButton = false
+    if (['site_pay'].indexOf(CacheRole.role_value) >= 0) {
+      showOperateButton = true
+    }
+
+    let showAddOperateButton = true
+    if (['site_searchuser', 'site_pay'].indexOf(CacheRole.role_value) >= 0) {
+      showAddOperateButton = false
+    }
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {CacheRole.role_value != 'site_pay' &&
+              {showAddOperateButton &&
                 <Button icon="plus" type="primary" onClick={() => this.onAddIncomeClick(true)}>
                   添加
               </Button>}
-              {selectedRows.length > 0 && CacheRole.role_value == 'site_pay' && <div>
+              {selectedRows.length > 0 && showOperateButton && <div>
                 <Button onClick={this.onConfirmTransfer}>打款确认</Button>
                 <Button onClick={this.onCancelConfirmTransfer}>取消确认</Button>
               </div>}
-              {selectedRows.length > 0 && CacheRole.role_value != 'site_pay' && <Button onClick={this.onDelTransfer}>删除打款</Button>}
+              {selectedRows.length > 0 && showAddOperateButton && <Button onClick={this.onDelTransfer}>删除打款</Button>}
             </div>
             <StandardTable
               selectedRows={selectedRows}
