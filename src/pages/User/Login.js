@@ -5,7 +5,7 @@ import Link from 'umi/link';
 import { Checkbox, Alert, Icon, message, Button } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
-const { machineId, machineIdSync } = window.require('node-machine-id');
+//const { machineId, machineIdSync } = window.require('node-machine-id');
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
 
 @connect(({ login, loading }) => ({
