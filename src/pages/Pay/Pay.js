@@ -463,8 +463,8 @@ class TableList extends PureComponent {
   onDownAccount = async () => {
     const { selectedRows } = this.state;
     const accountData = getSelectedDownAccount(selectedRows);
-    if (!accountData.isSameSendCustomer) {
-      message.error('请选择相同客户的订单进行下账');
+    if (!accountData.isSameSendCustomer || !accountData.isSameBankAccount) {
+      message.error('请选择相同客户/账号的订单进行下账');
       return;
     }
     if (!accountData.isSettled) {

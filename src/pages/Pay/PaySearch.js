@@ -854,11 +854,6 @@ class TableList extends PureComponent {
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
-            {selectedRows.length > 0 && (
-              <span>
-                <Button onClick={this.onCancelPay}>取消下账</Button>
-              </span>
-            )}
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}

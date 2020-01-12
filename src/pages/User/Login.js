@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi/locale';
 import Link from 'umi/link';
-import { Checkbox, Alert, Icon, message } from 'antd';
+import { Checkbox, Alert, Icon, message, Button } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
 import { machineId, machineIdSync } from 'node-machine-id';
@@ -70,6 +70,12 @@ class LoginPage extends Component {
       autoLogin: e.target.checked,
     });
   };
+
+  print = () => {
+    //告诉渲染进程，开始渲染打印内容
+    const printOrderWebview = document.querySelector('#printLabelWebview')
+    printOrderWebview.send('webview-print-render', `<div>888888888</div><div>888888888</div><div>888888888</div><div>888888888</div>`)
+  }
 
   renderMessage = content => (
     <Alert style={{ marginBottom: 24 }} message={content} type="error" showIcon />

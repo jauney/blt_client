@@ -247,13 +247,14 @@ class TableList extends PureComponent {
 
   tableFooter = () => {
     const {
-      search: { totalAccount, totalIncomeAccount, totalExpenseAccount },
+      search: { accountTotal, totalAccount, totalIncomeAccount, totalExpenseAccount },
     } = this.props;
     return (
-      <div>
+      <div className={styles.tableFooter}>
         <span>总额：{totalAccount || '0'}</span>
         <span className={styles.footerSplit}>收入总额：{totalIncomeAccount || '0'}</span>
         <span className={styles.footerSplit}>支出总额：{totalExpenseAccount || '0'}</span>
+        <span className={styles.footerSplit}>票数：{accountTotal || '0'}</span>
       </div>
     );
   };

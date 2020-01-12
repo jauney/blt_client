@@ -70,13 +70,22 @@ export function getSelectedDownAccount(sltDatas = []) {
   let totalActualGoodsFunds = 0;
   let totalTransFunds = 0;
   let sendCustomerId = '';
+  let bankAccount = ''
   let isSameSendCustomer = true;
+  let isSameBankAccount = true;
   let isSettled = true;
   for (var i = 0; i < sltDatas.length; i++) {
     if (i == 0) {
       sendCustomerId = sltDatas[i]['sendcustomer_id'];
-    } else if (sendCustomerId && sendCustomerId != sltDatas[i]['sendcustomer_id']) {
+      bankAccount = sltDatas[i]['bank_account'];
+    }
+
+    if (sendCustomerId && sendCustomerId != sltDatas[i]['sendcustomer_id']) {
       isSameSendCustomer = false;
+      break;
+    }
+    if (bankAccount && bankAccount != sltDatas[i]['bank_account']) {
+      isSameBankAccount = false;
       break;
     }
 
@@ -103,6 +112,7 @@ export function getSelectedDownAccount(sltDatas = []) {
   accountData.totalActualGoodsFund = totalActualGoodsFunds;
   accountData.totalTransFunds = totalTransFunds;
   accountData.isSameSendCustomer = isSameSendCustomer;
+  accountData.isSameBankAccount = isSameBankAccount;
   accountData.isSettled = isSettled;
 
   return accountData;

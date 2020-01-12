@@ -6,6 +6,7 @@ import {
   cancelSettleOrder,
   downAccount,
   cancelDownAccountOrder,
+  cancelTodayDownAccountOrder,
   updateOrder,
 } from '@/services/api';
 
@@ -72,6 +73,9 @@ export default {
     },
     *cancelDownAccountAction({ payload }, { call, put }) {
       return yield call(cancelDownAccountOrder, payload); // post
+    },
+    *cancelTodayDownAccountOrderAction({ payload }, { call, put }) {
+      return yield call(cancelTodayDownAccountOrder, payload); // post
     },
   },
 

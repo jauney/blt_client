@@ -25,7 +25,7 @@
 </body>
 <script>
   const { ipcRenderer } = window.require('electron')
-  ipcRenderer.on('webview-print-render', (event, deviceName, printHtml) => {
+  ipcRenderer.on('webview-print-render', (event, printHtml, deviceName) => {
     document.getElementById('bd').innerHTML = printHtml;
     ipcRenderer.sendToHost('webview-print-do')
   })

@@ -789,6 +789,28 @@ export async function downAccount(params) {
     });
 }
 
+export async function cancelTodayDownAccountOrder(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation cancelTodayDownAccountOrder($pay_id: [Int]) {
+          cancelTodayDownAccountOrder(pay_id: $pay_id) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.cancelTodayDownAccountOrder;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
 export async function cancelDownAccountOrder(params) {
   return client
     .mutate({
@@ -1151,6 +1173,7 @@ export async function getTodayPayList(params) {
           getTodayPays(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
             total
             todaypays {
+              pay_id
               operator_id
               operator_name
               company_id

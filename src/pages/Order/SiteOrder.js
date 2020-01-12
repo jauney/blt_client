@@ -1402,9 +1402,9 @@ class TableList extends PureComponent {
     }, 1000);
   };
 
-
   // 打印订单
   printOrder = (data) => {
+    console.log(data)
     let styles = `
     <style>
     .content, .header {text-align: center;}
@@ -1475,7 +1475,7 @@ class TableList extends PureComponent {
     <table>
       <tr>
         <td class="col2-2">货物名称:${data.order_name || ''}</td>
-        <td class="col2-1">标签:${data.order_label_num || ''}</td>
+        <td class="col2-1">标签:${data.order_num || ''}</td>
       </tr>
     </table>
     <table>
@@ -1542,9 +1542,24 @@ class TableList extends PureComponent {
     `
     //告诉渲染进程，开始渲染打印内容
     const printOrderWebview = document.querySelector('#printOrderWebview')
-    printOrderWebview.send('webview-print-render', 'GT800', `${styles}${html}`)
+    printOrderWebview.send('webview-print-render', `${styles}${html}`)
 
-    //print({ html: `${styles}${html}` })
+    for (let i = 0; i < data.order_num; i++) {
+      const printLableWebview = document.querySelector('#printLabelWebview')
+      let labelHtml = `
+      <div class="header">远诚宝路通物流</div>
+      <div class="label">${moment(new Date).format('YYYY-MM-DD HH:mm:ss')}</div>
+      <div class="label">
+      <span class="label-left">${data.site_name}</span> &rarr; <span class="label-right">${data.company_name}</span>
+      </div>
+      <div class="label label-name">
+      <span>${data.getcustomer_name}</span> <span class="">${data.order_code} - ${i + 1}</span>
+      </div>
+      <div class="label">货物名称：${data.order_name}</div>
+      <div class="footer">http://www.bltwlgs.com</div>
+      `
+      printLableWebview.send('webview-print-render', labelHtml)
+    }
   }
 
   onDelete = async () => {

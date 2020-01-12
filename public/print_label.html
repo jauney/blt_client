@@ -15,21 +15,45 @@
 
     @page {
       margin: 0px;
-      padding: 0px;
-      width: 450px;
+      padding: 10px;
+      height: 200px;
+      width: 300px;
     }
     th, td {
       padding: 0px 5px;
       text-align: left;
     }
+    .label {
+      padding: 0 8px;
+    }
+    .header, .footer {
+      text-align: center;
+    }
+    .header {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .label-right {
+      font-size: 30px;
+      font-weight: 700;
+    }
+    .label-name {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    div {
+      margin: 0;
+      width: 100%;
+    }
   </style>
 </head>
 
 <body id='bd'>
+
 </body>
 <script>
   const { ipcRenderer } = window.require('electron')
-  ipcRenderer.on('webview-print-render', (event, deviceName, printHtml) => {
+  ipcRenderer.on('webview-print-render', (event, printHtml, deviceName) => {
     document.getElementById('bd').innerHTML = printHtml;
     ipcRenderer.sendToHost('webview-print-do')
   })

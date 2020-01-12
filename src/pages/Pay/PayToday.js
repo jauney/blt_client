@@ -211,9 +211,12 @@ class TableList extends PureComponent {
     },
     {
       title: '合计票数',
-      dataIndex: 'pay_num',
+      dataIndex: 'order_code',
       sorter: true,
       width: '80px',
+      render: val => (
+        <span>{(val && val.split(',').length) || ''}</span>
+      ),
     },
     {
       title: '合计货款',
@@ -251,6 +254,10 @@ class TableList extends PureComponent {
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
+    }, {
+      title: '票号',
+      dataIndex: 'order_code',
+      width: '150px',
     }
   ];
 
@@ -608,8 +615,8 @@ class TableList extends PureComponent {
       if (diffHours >= 24) {
         canCancelFlag = false;
       }
-      orderIds.push(item.order_id);
-      totalAmount += Number(item.order_real || item.order_amount || 0);
+      orderIds.push(item.pay_id);
+      totalAmount += Number(item.pay_amount || item.order_amount || 0);
     });
 
     if (!canCancelFlag) {
@@ -624,9 +631,9 @@ class TableList extends PureComponent {
       ),
       onOk: async () => {
         let result = await dispatch({
-          type: 'pay/cancelDownAccountAction',
+          type: 'pay/cancelTodayDownAccountOrderAction',
           payload: {
-            order_id: orderIds,
+            pay_id: orderIds,
           },
         });
         if (result && result.code == 0) {
@@ -646,22 +653,17 @@ class TableList extends PureComponent {
   tableFooter = () => {
     const {
       pay: {
-        total,
-        totalOrderAmount,
-        totalTransAmount,
-        totalInsurancefee,
-        totalAdvancepayAmount,
-        totalDeliverAmount,
+        todayPayTotal,
+        todayPayStatistic = {}
       },
     } = this.props;
     return (
       <div className={styles.tableFooter}>
-        <span>货款总额：{totalOrderAmount || '0'}</span>
-        <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
-        <span className={styles.footerSplit}>垫付总额：{totalAdvancepayAmount || '0'}</span>
-        <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
-        <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
-        <span className={styles.footerSplit}>票数：{total || '0'}</span>
+        <span>货款总额：{todayPayStatistic.totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>运费总额：{todayPayStatistic.totalTransAmount || '0'}</span>
+        <span className={styles.footerSplit}>付款总额：{todayPayStatistic.totalPayAmount || '0'}</span>
+        <span className={styles.footerSplit}>代办费总额：{todayPayStatistic.totalAgencyFee || '0'}</span>
+        <span className={styles.footerSplit}>票数：{todayPayTotal || '0'}</span>
       </div>
     );
   };
@@ -683,6 +685,24 @@ class TableList extends PureComponent {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
                     {ele.company_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="运单号">
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem label="站点">
+          {getFieldDecorator('site_id', {})(
+            <Select placeholder="请选择" style={{ width: '80px' }} allowClear>
+              {normalSiteList.map(ele => {
+                return (
+                  <Option key={ele.site_id} value={ele.site_id}>
+                    {ele.site_name}
                   </Option>
                 );
               })}
@@ -738,7 +758,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      pay: { orderList, total },
+      pay: { todayPayList, todayPayTotal },
       loading,
     } = this.props;
 
@@ -774,9 +794,9 @@ class TableList extends PureComponent {
               scroll={{ x: 900, y: 350 }}
               rowKey="order_id"
               data={{
-                list: orderList,
+                list: todayPayList,
                 pagination: {
-                  total,
+                  total: todayPayTotal,
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
