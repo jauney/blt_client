@@ -9,9 +9,9 @@ import gql from 'graphql-tag';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { async } from 'q';
 
-// const httpLink = new HttpLink({ uri: 'http://47.105.84.59:3008/graphql' });
+const httpLink = new HttpLink({ uri: 'http://47.105.84.59:3008/graphql' });
 
-const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3008/graphql' });
+//const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3008/graphql' });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
   // add the authorization to the headers

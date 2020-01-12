@@ -56,11 +56,11 @@ self.__precacheManifest = [
     "url": "./p__User__models__register.js.async.js"
   },
   {
-    "revision": "142d8e1b6deda4ed6e7b",
+    "revision": "153cde6f22eaaec4ccb1",
     "url": "./umi.css"
   },
   {
-    "revision": "142d8e1b6deda4ed6e7b",
+    "revision": "153cde6f22eaaec4ccb1",
     "url": "./umi.js"
   },
   {
@@ -88,36 +88,20 @@ self.__precacheManifest = [
     "url": "./index.html"
   },
   {
-    "revision": "b2ba58fbfc5befc5278c6a9daadfef12",
-    "url": "./icons/.DS_Store"
-  },
-  {
-    "revision": "0349134aedb7e9c372200f436a4a20ff",
-    "url": "./icons/icon-128x128.png"
-  },
-  {
-    "revision": "0349134aedb7e9c372200f436a4a20ff",
-    "url": "./icons/icon-192x192.png"
-  },
-  {
-    "revision": "0349134aedb7e9c372200f436a4a20ff",
-    "url": "./icons/icon-512x512.png"
-  },
-  {
-    "revision": "6204cb9267852883d7ef99fb13982a6a",
-    "url": "./print.html"
-  },
-  {
     "revision": "bc04c9af0141e1411fb09f494650dd1c",
     "url": "./print_label.html"
+  },
+  {
+    "revision": "b2ba58fbfc5befc5278c6a9daadfef12",
+    "url": "./icons/.DS_Store"
   },
   {
     "revision": "3c4856f69dad857f34f3fd7632e03eca",
     "url": "./.DS_Store"
   },
   {
-    "revision": "4a5be94c0b628c576002d656bb279c96",
-    "url": "./print.js"
+    "revision": "0349134aedb7e9c372200f436a4a20ff",
+    "url": "./icons/icon-128x128.png"
   },
   {
     "revision": "73dc8172aa3b8fde78d8c0d9b7660f85",
@@ -128,8 +112,24 @@ self.__precacheManifest = [
     "url": "./print_order.html"
   },
   {
+    "revision": "0349134aedb7e9c372200f436a4a20ff",
+    "url": "./icons/icon-192x192.png"
+  },
+  {
+    "revision": "4a5be94c0b628c576002d656bb279c96",
+    "url": "./print.js"
+  },
+  {
     "revision": "ccfe68570e4271473f71484f441962dd",
     "url": "./renderer.js"
+  },
+  {
+    "revision": "6204cb9267852883d7ef99fb13982a6a",
+    "url": "./print.html"
+  },
+  {
+    "revision": "0349134aedb7e9c372200f436a4a20ff",
+    "url": "./icons/icon-512x512.png"
   },
   {
     "revision": "0ddd3ce0ead1190b79aeaac0c67e3b01",
