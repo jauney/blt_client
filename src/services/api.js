@@ -108,8 +108,8 @@ export async function fakeAccountLogin(params) {
       variables: params,
     })
     .then(data => {
-      if (data.errors && data.errors.length > 0 && data.errors[0].message == 'login') {
-        return { code: 1001, msg: '用户名密码错误' };
+      if (data.errors && data.errors.length > 0 && data.errors[0].extensions && data.errors[0].extensions.exception) {
+        return data.errors[0].extensions.exception.data
       }
       return data.data.login;
     })

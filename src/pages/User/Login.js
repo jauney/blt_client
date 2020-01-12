@@ -5,7 +5,7 @@ import Link from 'umi/link';
 import { Checkbox, Alert, Icon, message, Button } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
-import { machineId, machineIdSync } from 'node-machine-id';
+const { machineId, machineIdSync } = window.require('node-machine-id');
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
 
 @connect(({ login, loading }) => ({
@@ -41,7 +41,7 @@ class LoginPage extends Component {
 
   handleSubmit = async (err, values) => {
     const { type } = this.state;
-    let macId = ''//machineIdSync({ original: true })
+    let macId = machineIdSync({ original: true })
 
     if (!err) {
       const { dispatch } = this.props;
@@ -53,6 +53,7 @@ class LoginPage extends Component {
           type
         },
       });
+      console.log(result)
       if (!result) {
         message.error('系统异常，稍后再试')
       }

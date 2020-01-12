@@ -15,7 +15,7 @@ export default {
   effects: {
     *login({ payload }, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
-      if (response.code == 1001) {
+      if (response.code) {
         return response;
       }
       yield put({
