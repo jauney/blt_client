@@ -41,7 +41,7 @@ class LoginPage extends Component {
 
   handleSubmit = async (err, values) => {
     const { type } = this.state;
-    let macId = machineIdSync({ original: true })
+    let macId = '' //machineIdSync({ original: true })
 
     if (!err) {
       const { dispatch } = this.props;
