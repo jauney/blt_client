@@ -547,7 +547,7 @@ class TableList extends PureComponent {
               placeholder="请选择"
               style={{ width: '100px' }}
               onSelect={this.onSiteSelect}
-              allowClear
+              allowClear={CacheSite.site_type == 3 ? true : false}
             >
               {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(ele => {
                 return (

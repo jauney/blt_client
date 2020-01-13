@@ -57,6 +57,8 @@ class TableList extends PureComponent {
     updateOrderModalVisible: false,
   };
 
+  ButtonClicked = false
+
   columns = [
     {
       title: '货单号',
@@ -352,6 +354,11 @@ class TableList extends PureComponent {
   };
 
   onConfirmTrans = async () => {
+    if (this.ButtonClicked) {
+      return
+    }
+    this.ButtonClicked = true
+    setTimeout(() => { this.ButtonClicked = false }, 2000)
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {

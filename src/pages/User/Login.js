@@ -53,7 +53,7 @@ class LoginPage extends Component {
           type
         },
       });
-      console.log(result)
+
       if (!result) {
         message.error('系统异常，稍后再试')
       }

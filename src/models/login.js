@@ -45,6 +45,7 @@ export default {
         window.location.href = redirect || '/';
         // yield put(routerRedux.replace({ pathname: redirect || '/' }));
       }
+      return { code: 0 }
     },
 
     *getCaptcha({ payload }, { call }) {
