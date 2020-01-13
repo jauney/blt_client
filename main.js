@@ -14,20 +14,12 @@ function createWindow() {
       plugins: true,
       nodeIntegration: true, // 不集成 Nodejs
       webSecurity: false,
-      webviewTag: true
+      webviewTag: true,
+      allowRunningInsecureContent: true
       // preload: path.join(__dirname, './public/renderer.js') // 但预加载的 js 文件内仍可以使用 Nodejs 的 API
     },
     icon: path.join(__dirname, './public/favicon.png')
   });
-
-  // 加载应用-----  electron-quick-start中默认的加载入口
-  // mainWindow.loadURL(
-  //   url.format({
-  //     pathname: path.join(__dirname, 'index.html'),
-  //     protocol: 'file:',
-  //     slashes: true,
-  //   })
-  // );
 
   // 本地资源
   // const startUrl = url.format({
@@ -39,6 +31,7 @@ function createWindow() {
 
   // dev 加载应用----适用于 react 项目
   mainWindow.loadURL('http://47.105.84.59:8001');
+  // mainWindow.loadURL('http://127.0.0.1:8080');
 
   // 打开开发者工具，默认不打开
   // mainWindow.webContents.openDevTools();

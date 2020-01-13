@@ -5,7 +5,6 @@ import AntDesignThemePlugin from 'antd-theme-webpack-plugin';
 import path from 'path';
 
 export default config => {
-  console.log(config);
   // pro 和 开发环境再添加这个插件
   if (process.env.APP_TYPE === 'site' || process.env.NODE_ENV !== 'production') {
     // 将所有 less 合并为一个供 themePlugin使用
@@ -35,4 +34,8 @@ export default config => {
     // TODO: dev时注释
     //config.target('electron-renderer');
   }
+  else {
+    // config.target('electron-renderer');
+  }
+
 };
