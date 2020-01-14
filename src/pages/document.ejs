@@ -6,13 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;">
   <title>远诚宝路通物流</title>
   <link rel="icon" href="/favicon.png" type="image/x-icon">
+  <style>
+  .print-view {
+    height: 0px;
+  }
+  </style>
 </head>
 <body>
   <noscript>Sorry, we need js to run correctly!</noscript>
   <div id="root"></div>
-  <webview id="printOrderWebview" src="/print_order.html" nodeintegration style="visibility: hidden;"></webview>
-  <webview id="printLabelWebview" src="/print_label.html" nodeintegration style="visibility: hidden;"></webview>
-  <webview id="printWebview" src="/print.html" nodeintegration style="visibility: hidden;"></webview>
+  <div class="print-view">
+    <webview id="printOrderWebview" src="/print_order.html" nodeintegration style="visibility: hidden;"></webview>
+    <webview id="printLabelWebview" src="/print_label.html" nodeintegration style="visibility: hidden;"></webview>
+    <webview id="printWebview" src="/print.html" nodeintegration style="visibility: hidden;"></webview>
+  </div>
   <script>
       const printOrderWebview = document.querySelector('#printOrderWebview')
       printOrderWebview.addEventListener('ipc-message', () => {
