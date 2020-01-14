@@ -3,6 +3,7 @@ import {
   getTransferStatistic,
   addTransfer,
   updateTransfer,
+  updateTransferType,
   delTransfer,
 } from '@/services/api';
 
@@ -34,16 +35,19 @@ export default {
       });
     },
     *confirmTransferAction({ payload }, { call, put }) {
-      return yield call(updateTransfer, Object.assign(payload, { transfer_type: 1 })); // post
+      return yield call(updateTransferType, Object.assign(payload, { transfer: { transfer_type: 1 } })); // post
     },
     *cancelConfirmTransferAction({ payload }, { call, put }) {
-      return yield call(updateTransfer, Object.assign(payload, { transfer_type: 0 })); // post
+      return yield call(updateTransferType, Object.assign(payload, { transfer: { transfer_type: 0 } })); // post
     },
     *delTransferAction({ payload }, { call, put }) {
       return yield call(delTransfer, payload); // post
     },
     *addTransferAction({ payload }, { call, put }) {
       return yield call(addTransfer, payload); // post
+    },
+    *updateTransferAction({ payload }, { call, put }) {
+      return yield call(updateTransfer, payload); // post
     },
   },
 

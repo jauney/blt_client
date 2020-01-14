@@ -2247,8 +2247,8 @@ export async function updateTransfer(params) {
   return client
     .mutate({
       mutation: gql`
-        mutation updateTransfer($transfer_id: [Int], $transfer_type: Int) {
-          updateTransfer(transfer_id: $transfer_id, transfer_type: $transfer_type) {
+        mutation updateTransfer($transfer_id: [Int], $transfer: TransferInput) {
+          updateTransfer(transfer_id: $transfer_id, transfer: $transfer) {
             code
             msg
           }
@@ -2259,6 +2259,29 @@ export async function updateTransfer(params) {
     .then(data => {
       gotoLogin(data);
       return data.data.updateTransfer;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+
+export async function updateTransferType(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation updateTransferType($transfer_id: [Int], $transfer: TransferInput) {
+          updateTransferType(transfer_id: $transfer_id, transfer: $transfer) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.updateTransferType;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');

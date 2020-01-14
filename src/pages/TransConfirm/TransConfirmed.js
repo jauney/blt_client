@@ -396,10 +396,7 @@ class TableList extends PureComponent {
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
-    this.setState({
-      record,
-    });
-    this.onUpdateOrderModalShow();
+
   };
 
   // 已结算账目核对中，计算付款日期

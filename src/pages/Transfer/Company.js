@@ -56,19 +56,15 @@ class AddFormDialog extends PureComponent {
   }
 
   onAbnormalSelect = (value, option) => {
-    console.log('####', option.props.abnormal_type_id);
     this.setState({
       abnormal_type_id: option.props.abnormal_type_id,
       abnormal_type: option.props.text,
     });
-    console.log(value, option);
-    console.log(this.state);
   };
 
   onAddHandler = () => {
     const { addFormDataHandle, form } = this.props;
     form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
       if (err) return;
 
       addFormDataHandle({
@@ -94,7 +90,7 @@ class AddFormDialog extends PureComponent {
   };
 
   render() {
-    const { modalVisible, onCancelHandler, selectedRows, form, incomeTypes = [] } = this.props;
+    const { modalVisible, onCancelHandler, selectedRows, form, incomeTypes = [], record = {} } = this.props;
     return (
       <Modal
         destroyOnClose
@@ -119,7 +115,7 @@ class AddFormDialog extends PureComponent {
             <Col>
               <FormItem {...this.formItemLayout} label="打款金额">
                 {form.getFieldDecorator('transfer_money', {
-                  initialValue: '',
+                  initialValue: record.transfer_money || '',
                   rules: [{ required: true, message: '请填写打款金额' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
@@ -128,7 +124,7 @@ class AddFormDialog extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem {...this.formItemLayout} label="打款人">
-                {form.getFieldDecorator('transfer_user', { initialValue: '' })(
+                {form.getFieldDecorator('transfer_user', { initialValue: record.transfer_user || '' })(
                   <Input placeholder="请输入" style={{ width: '280px' }} />
                 )}
               </FormItem>
@@ -137,288 +133,13 @@ class AddFormDialog extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem labelCol={{ span: 3, offset: 2 }} label="备注">
-                {form.getFieldDecorator('remark', { initialValue: '' })(
+                {form.getFieldDecorator('remark', { initialValue: record.remark || '' })(
                   <Input placeholder="请输入" style={{ width: '280px' }} />
                 )}
               </FormItem>
             </Col>
           </Row>
         </Form>
-      </Modal>
-    );
-  }
-}
-
-@Form.create()
-class CreateForm extends PureComponent {
-  constructor(props) {
-    super(props);
-
-    this.formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 8 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 },
-      },
-    };
-    // label列可以放下4个字
-    this.formItemSmallLayout = {
-      labelCol: {
-        xs: { span: 25 },
-        sm: { span: 9 },
-      },
-      wrapperCol: {
-        xs: { span: 23 },
-        sm: { span: 15 },
-      },
-    };
-
-    this.colLayout = {
-      md: 8,
-      sm: 24,
-    };
-
-    this.colSmallLayout = {
-      md: 4,
-      sm: 20,
-    };
-    this.col2Layout = {
-      md: 10,
-      sm: 26,
-    };
-    // colLargeLayout && formItemMiniLayout
-    this.colLargeLayout = {
-      md: 16,
-      sm: 32,
-    };
-    this.formItemMiniLayout = {
-      labelCol: {
-        xs: { span: 22 },
-        sm: { span: 6 },
-      },
-      wrapperCol: {
-        xs: { span: 26 },
-        sm: { span: 18 },
-      },
-    };
-
-    this.formLayout = {
-      labelCol: { span: 7 },
-      wrapperCol: { span: 13 },
-    };
-  }
-
-  okHandle = () => {
-    const { form, record, onUpdateOrder } = this.props;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-
-      form.resetFields();
-      onUpdateOrder(record, fieldsValue);
-    });
-  };
-
-  render() {
-    const { record, modalVisible, onCancelModal, form } = this.props;
-
-    return (
-      <Modal
-        destroyOnClose
-        title="编辑托运单"
-        visible={modalVisible}
-        onCancel={() => onCancelModal()}
-        footer={[
-          <Button key="btn-cancel" onClick={() => onCancelModal()}>
-            取 消
-          </Button>,
-          <Button key="btn-print" onClick={this.onOrderPrint}>
-            打 印
-          </Button>,
-          <Button key="btn-save" type="primary" onClick={this.okHandle}>
-            保 存
-          </Button>,
-        ]}
-        width={800}
-        className={styles.modalForm}
-      >
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="分公司">
-              {record.company_name}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="站点">
-              {record.site_name}
-            </FormItem>
-          </Col>
-          {/* <Col {...this.colLayout}>
-          <FormItem {...this.formItemLayout} label="运单号">
-            {getFieldDecorator('orderCode', { initialValue: orderCode.order_code })(
-              <Input placeholder="" />
-            )}
-          </FormItem>
-        </Col> */}
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="收货人电话">
-              {record.getcustomer_mobile}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="收货人姓名">
-              {record.getcustomer_name}
-            </FormItem>
-          </Col>
-          <Col>
-            {record.customer_type == 1 ? (
-              <Tag color="orange" style={{ marginTop: 10 }}>
-                VIP
-              </Tag>
-            ) : (
-                ''
-              )}
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="发货人电话">
-              {record.sendcustomer_mobile}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="发货人姓名">
-              {record.sendcustomer_name}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLayout}>
-            <FormItem {...this.formItemLayout} label="运费">
-              {record.trans_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.colSmallLayout}>
-            <FormItem label="">{record.trans_type == 1 ? '现付' : '回付'}</FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="折后运费">
-              {record.trans_discount}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLayout}>
-            <FormItem {...this.formItemLayout} label="货款">
-              {record.order_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.colLayout}>
-            <FormItem label="">{record.bank_account}</FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="保价金额">
-              {record.insurance_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="保价费">
-              {record.insurance_fee}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="送货费">
-              {record.deliver_amount}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="垫付金额">
-              {record.order_advancepay_amount}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLargeLayout}>
-            <FormItem {...this.formItemMiniLayout} label="货物名称">
-              {record.order_name}
-            </FormItem>
-          </Col>
-          <Col {...this.colSmallLayout}>
-            <FormItem {...this.formItemLayout} label="">
-              {record.order_num}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="转进/转出">
-              {record.transfer_type == 1 ? '转出' : '转入'}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转费">
-              {record.transfer_amount}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转地址">
-              {record.transfer_address}
-            </FormItem>
-          </Col>
-
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转物流">
-              {record.transfer_company_name}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转单号">
-              {record.transfer_order_code}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="中转电话">
-              {record.transfer_company_mobile}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="实收货款">
-              {form.getFieldDecorator('order_real', { initialValue: record.order_real })(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-          <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label="实收运费">
-              {form.getFieldDecorator('trans_real', { initialValue: record.trans_real })(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLargeLayout}>
-            <FormItem {...this.formItemMiniLayout} label="备注">
-              {form.getFieldDecorator('remark', { initialValue: record.remark })(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-        </Row>
       </Modal>
     );
   }
@@ -612,27 +333,53 @@ class TableList extends PureComponent {
   // 添加收入
   addFormDataHandle = async data => {
     const { dispatch } = this.props;
-    const result = await dispatch({
-      type: 'transfer/addTransferAction',
-      payload: {
-        ...data,
-        company_id: CacheCompany.company_id,
-        company_name: CacheCompany.company_name,
-      },
-    });
-    if (result.code == 0) {
-      message.success('添加成功！');
-      this.handleSearch();
-      this.onCancelIncomeClick();
-    } else {
-      message.error(result.msg);
+    const { record = {} } = this.state
+
+    if (!record || !record.transfer_id) {
+      const result = await dispatch({
+        type: 'transfer/addTransferAction',
+        payload: {
+          ...data,
+          company_id: CacheCompany.company_id,
+          company_name: CacheCompany.company_name,
+        },
+      });
+
+      if (result.code == 0) {
+        message.success('添加成功！');
+
+      } else {
+        message.error(result.msg);
+      }
     }
+    else {
+      data.transfer_money = Number(data.transfer_money || 0)
+      const result = await dispatch({
+        type: 'transfer/updateTransferAction',
+        payload: {
+          transfer: Object.assign({ transfer_type: 0 }, data),
+          transfer_id: [record.transfer_id],
+        },
+      });
+
+      if (result.code == 0) {
+        message.success('编辑成功！');
+
+      } else {
+        message.error(result.msg);
+      }
+    }
+    this.handleSearch();
+    this.onCancelIncomeClick();
   };
 
   // 打开添加收入对话框
   onAddIncomeClick = async () => {
     this.setState({
-      addIncomeModalVisible: true,
+      record: {}
+    });
+    this.setState({
+      addIncomeModalVisible: true
     });
   };
 
@@ -891,13 +638,13 @@ class TableList extends PureComponent {
   /**
    * 修改订单信息弹窗
    */
-  onEntrunkModalShow = () => {
+  onTransferModalShow = () => {
     this.setState({
       orderModalVisible: true,
     });
   };
 
-  onEntrunkModalCancel = () => {
+  onTransferModalCancel = () => {
     // setTimeout(() => this.addBtn.blur(), 0);
     this.setState({
       orderModalVisible: false,
@@ -917,7 +664,7 @@ class TableList extends PureComponent {
     });
     if (result.code == 0) {
       message.success('修改成功！');
-      this.onEntrunkModalCancel();
+      this.onTransferModalCancel();
     } else {
       message.error(result.msg);
     }
@@ -928,10 +675,14 @@ class TableList extends PureComponent {
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
+    // 确认打款不可编辑
+    if (record.transfer_type == 1) {
+      return
+    }
     this.setState({
       record,
+      addIncomeModalVisible: true
     });
-    this.onEntrunkModalShow();
   };
 
   tableFooter = () => {
@@ -1052,7 +803,7 @@ class TableList extends PureComponent {
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
               {CacheCompany.company_type == 2 ? (
-                <Button icon="plus" type="primary" onClick={() => this.onAddIncomeClick(true)}>
+                <Button icon="plus" type="primary" onClick={this.onAddIncomeClick}>
                   添加
                 </Button>
               ) : null}
@@ -1090,14 +841,9 @@ class TableList extends PureComponent {
           </div>
           {this.tableFooter()}
         </Card>
-        <CreateForm
-          modalVisible={orderModalVisible}
-          record={record}
-          onCancelModal={this.onEntrunkModalCancel}
-          onUpdateOrder={this.onUpdateOrder}
-        />
         <AddFormDialog
           modalVisible={addIncomeModalVisible}
+          record={record}
           addFormDataHandle={this.addFormDataHandle}
           onCancelHandler={this.onCancelIncomeClick}
           selectedRows={selectedRows}
