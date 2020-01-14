@@ -1404,7 +1404,30 @@ class TableList extends PureComponent {
 
   // 打印订单
   printOrder = (data) => {
-    console.log(data)
+    const {
+      company: { branchCompanyList },
+      site: { siteList },
+    } = this.props;
+    let getCustomerType = ''
+    if (data.getcustomer_type == 1) { getCustomerType = 'V' } else if (data.getcustomer_type == 9) { getCustomerType = 'H' }
+    let sendCustomerType = ''
+    if (data.sendcustomer_type == 1) { sendCustomerType = 'V' } else if (data.sendcustomer_type == 9) { sendCustomerType = 'H' }
+    let transType = '提付'
+    if (data.trans_type == 1) { transType = '现付' } else if (data.trans_type == 2) { transType = '回付' }
+    let transferType = ''
+    if (data.transfer_type == 1) { transferType = '转出' } else if (data.transfer_type == 2) { transferType = '转入' }
+    let printSite = {}
+    let printCompany = {}
+    branchCompanyList.forEach(item => {
+      if (item.company_name == data.company_name) {
+        printCompany = item
+      }
+    })
+    siteList.forEach(item => {
+      if (item.site_name == data.site_name) {
+        printSite = item
+      }
+    })
     let styles = `
     <style>
     .content, .header {text-align: center;}
@@ -1432,12 +1455,12 @@ class TableList extends PureComponent {
     </table>
     <table>
       <tr>
-        <td class="col3-1">${data.getcustomer_type || ''}</td>
+        <td class="col3-1">${getCustomerType}</td>
         <td class="col3-2">收货人:${data.getcustomer_name || ''}</td>
         <td class="col3-2">电话:${data.getcustomer_mobile || ''}</td>
       </tr>
       <tr>
-        <td class="col3-1">${data.sendcustomer_type || ''}</td>
+        <td class="col3-1">${sendCustomerType}</td>
         <td class="col3-2">发货人:${data.sendcustomer_name || ''}</td>
         <td class="col3-2">电话:${data.sendcustomer_mobile || ''}</td>
       </tr>
@@ -1450,8 +1473,8 @@ class TableList extends PureComponent {
     <table>
       <tr>
         <td class="col4">货款:${data.order_amount || ''}</td>
-        <td class="col4">运费:${data.trans_amount || ''}</td>
-        <td class="col4">运价:</td>
+        <td class="col4">运费:${data.trans_amount || ''}(${transType})</td>
+        <td class="col4">运价:${data.trans_amount || ''}</td>
         <td class="col4">折后:${data.trans_discount || ''}</td>
       </tr>
       <tr>
@@ -1493,14 +1516,14 @@ class TableList extends PureComponent {
     </table>
     <table>
       <tr>
-        <td class="col3">转进:</td>
-        <td class="col3">中转费:</td>
-        <td class="col3">地址:</td>
+        <td class="col3">转进:${transferType}</td>
+        <td class="col3">中转费:${data.transfer_amount}</td>
+        <td class="col3">地址:${data.transfer_address}</td>
       </tr>
       <tr>
-        <td class="col3">物流:</td>
-        <td class="col3">单号:</td>
-        <td class="col3">电话:</td>
+        <td class="col3">物流:${data.transfer_company_name}</td>
+        <td class="col3">单号:${data.transfer_order_code}</td>
+        <td class="col3">电话:${data.transfer_company_mobile}</td>
       </tr>
     </table>
     <table>
@@ -1510,12 +1533,12 @@ class TableList extends PureComponent {
     </table>
     <table>
       <tr>
-        <td class="col2-1">到货站:</td>
-        <td class="col2-2">电话:</td>
+        <td class="col2-1">到货站:${printCompany.company_name}</td>
+        <td class="col2-2">电话:${printCompany.company_mobile}</td>
       </tr>
       <tr>
-        <td class="col2-1">发货站:</td>
-        <td class="col2-2">电话:</td>
+        <td class="col2-1">发货站:${data.site_name}</td>
+        <td class="col2-2">电话:${printSite.site_mobile}</td>
       </tr>
     </table>
     <table>

@@ -49,13 +49,13 @@ class AddFormDialog extends PureComponent {
     };
   }
 
-  onAbnormalSelect = (value, option) => {};
+  onAbnormalSelect = (value, option) => { };
 
   onAddHandler = () => {
     const { addFormDataHandle, form, record = {} } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      if(fieldsValue.trans_ratio) {
+      if (fieldsValue.trans_ratio) {
         fieldsValue.trans_ratio = Number(fieldsValue.trans_ratio)
       }
       const data = {
@@ -109,6 +109,16 @@ class AddFormDialog extends PureComponent {
                 {form.getFieldDecorator('site_name', {
                   initialValue: record.site_name,
                   rules: [{ required: true, message: '请填写站点名称' }],
+                })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem {...this.formItemLayout} label="站点电话">
+                {form.getFieldDecorator('site_mobile', {
+                  initialValue: record.site_mobile,
+                  rules: [{ required: true, message: '请填写站点电话' }],
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
               </FormItem>
             </Col>
@@ -184,7 +194,12 @@ class TableList extends PureComponent {
     {
       title: '站点名称',
       dataIndex: 'site_name',
-      width: '100px',
+      width: '80px',
+    },
+    {
+      title: '站点电话',
+      dataIndex: 'site_mobile',
+      width: '80px',
     },
     {
       title: '站点类型',
@@ -416,7 +431,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => {};
+  onRowClick = (record, index, event) => { };
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
@@ -456,8 +471,8 @@ class TableList extends PureComponent {
                   total: siteTotal,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize })
                   }
                 },
               }}
@@ -466,7 +481,7 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={() => {}}
+              footer={() => { }}
             />
           </div>
         </Card>
