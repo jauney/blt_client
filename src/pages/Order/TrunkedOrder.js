@@ -30,7 +30,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { async } from 'q';
-import { CacheCompany } from '@/utils/storage';
+import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -41,11 +41,6 @@ const getValue = obj =>
   Object.keys(obj)
     .map(key => obj[key])
     .join(',');
-
-const CacheSite = JSON.parse(localStorage.getItem('site') || '{}');
-const CacheUser = JSON.parse(localStorage.getItem('user') || '{}');
-
-
 
 /* eslint react/no-multi-comp:0 */
 @connect(({ untrunkorder }) => {
