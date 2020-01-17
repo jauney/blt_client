@@ -241,16 +241,6 @@ class CreateForm extends PureComponent {
     };
   }
 
-  okHandle = () => {
-    const { form, record, onUpdateOrder } = this.props;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-
-      form.resetFields();
-      onUpdateOrder(record, fieldsValue);
-    });
-  };
-
   render() {
     const { record, modalVisible, onCancelModal, form } = this.props;
 
@@ -265,13 +255,7 @@ class CreateForm extends PureComponent {
         footer={[
           <Button key="btn-cancel" onClick={() => onCancelModal()}>
             取 消
-          </Button>,
-          <Button key="btn-print" onClick={this.onOrderPrint}>
-            打 印
-          </Button>,
-          <Button key="btn-save" type="primary" onClick={this.okHandle}>
-            保 存
-          </Button>,
+          </Button>
         ]}
         width={800}
         className={styles.modalForm}
@@ -941,25 +925,6 @@ class TableList extends PureComponent {
     });
   };
 
-  // 更新订单
-  onUpdateOrder = async (record, fieldsValue) => {
-    const { dispatch } = this.props;
-    console.log(record, fieldsValue);
-    const result = await dispatch({
-      type: 'order/updateOrderAction',
-      payload: {
-        orderIds: [record.order_id],
-        order: { trans_real: fieldsValue.trans_real, order_real: fieldsValue.order_real },
-      },
-    });
-    if (result.code == 0) {
-      message.success('修改成功！');
-      this.onEntrunkModalCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => { };
 
@@ -1170,7 +1135,6 @@ class TableList extends PureComponent {
           modalVisible={orderModalVisible}
           record={record}
           onCancelModal={this.onEntrunkModalCancel}
-          onUpdateOrder={this.onUpdateOrder}
         />
         <DownAccountForm
           modalVisible={downModalVisible}

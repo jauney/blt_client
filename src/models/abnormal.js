@@ -4,6 +4,7 @@ import {
   downAccount,
   updateOrderSign,
   updateAbnormal,
+  cancelAbnormal,
   updateOrder,
   getAbnormalTypes,
 } from '@/services/api';
@@ -63,7 +64,7 @@ export default {
       });
     },
     *cancelAbnormalAction({ payload }, { call, put }) {
-      return yield call(updateOrder, payload); // post
+      return yield call(cancelAbnormal, payload); // post
     },
     *resolveAbnormalAction({ payload }, { call, put }) {
       return yield call(updateAbnormal, payload); // post

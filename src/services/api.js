@@ -1691,7 +1691,6 @@ export async function queryDriverList(params) {
 }
 
 export async function updateAbnormal(params) {
-  console.log('api.... ', params);
   if (typeof params.abnormal_type_id == 'undefined') {
     params.abnormal_type_id = 0;
   }
@@ -1740,6 +1739,62 @@ export async function updateAbnormal(params) {
     .then(data => {
       gotoLogin(data);
       return data.data.updateAbnormal;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function updatePayStatus(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation updatePayStatus(
+          $order_id: [Int]
+          $order: OrderInput
+        ) {
+          updatePayStatus(
+            order_id: $order_id
+            order: $order
+          ) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.updatePayStatus;
+    })
+    .catch(error => {
+      message.error('系统繁忙，请稍后再试');
+    });
+}
+
+export async function cancelAbnormal(params) {
+  return client
+    .mutate({
+      mutation: gql`
+        mutation cancelAbnormal(
+          $order_id: [Int]
+          $abnormal_status: Int
+        ) {
+          cancelAbnormal(
+            order_id: $order_id
+            abnormal_status: $abnormal_status
+          ) {
+            code
+            msg
+          }
+        }
+      `,
+      variables: params,
+    })
+    .then(data => {
+      gotoLogin(data);
+      return data.data.cancelAbnormal;
     })
     .catch(error => {
       message.error('系统繁忙，请稍后再试');

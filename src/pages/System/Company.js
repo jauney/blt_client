@@ -52,7 +52,7 @@ class AddFormDialog extends PureComponent {
     };
   }
 
-  onAbnormalSelect = (value, option) => {};
+  onAbnormalSelect = (value, option) => { };
 
   onAddHandler = () => {
     const { addFormDataHandle, form, record = {} } = this.props;
@@ -598,27 +598,8 @@ class TableList extends PureComponent {
     }
   };
 
-  // 更新订单
-  onUpdateOrder = async (record, fieldsValue) => {
-    const { dispatch } = this.props;
-    console.log(record, fieldsValue);
-    const result = await dispatch({
-      type: 'order/updateOrderAction',
-      payload: {
-        orderIds: [record.order_id],
-        order: { trans_real: fieldsValue.trans_real, order_real: fieldsValue.order_real },
-      },
-    });
-    if (result.code == 0) {
-      message.success('修改成功！');
-      this.onModalCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => {};
+  onRowClick = (record, index, event) => { };
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
@@ -657,8 +638,8 @@ class TableList extends PureComponent {
                   total: branchTotal,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize })
                   }
                 },
               }}
@@ -667,7 +648,7 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={() => {}}
+              footer={() => { }}
             />
           </div>
         </Card>

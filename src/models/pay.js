@@ -8,6 +8,7 @@ import {
   cancelDownAccountOrder,
   cancelTodayDownAccountOrder,
   updateOrder,
+  updatePayStatus
 } from '@/services/api';
 
 export default {
@@ -65,8 +66,7 @@ export default {
       });
     },
     *updatePayAbnormalAction({ payload }, { call, put }) {
-      console.log(payload);
-      return yield call(updateOrder, payload); // post
+      return yield call(updatePayStatus, payload); // post
     },
     *downAccountAction({ payload }, { call, put }) {
       return yield call(downAccount, payload); // post

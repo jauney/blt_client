@@ -29,7 +29,6 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-import { print } from '@/utils/print'
 import { async } from 'q';
 
 const FormItem = Form.Item;

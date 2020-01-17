@@ -510,8 +510,8 @@ class TableList extends PureComponent {
     const result = await dispatch({
       type: 'abnormal/cancelAbnormalAction',
       payload: {
-        order: { abnormal_status: 0 },
-        orderIds,
+        abnormal_status: 0,
+        order_id: orderIds,
       },
     });
     if (result.code == 0) {

@@ -755,12 +755,13 @@ class TableList extends PureComponent {
       }
     });
     if (currentCompany.length > 0) {
-      this.setState({
+      await this.setState({
         currentCompany: currentCompany[0],
       });
     }
-    this.getLastCarInfo();
+    await this.getLastCarInfo();
     this.getDriverList()
+    this.handleSearch()
   };
 
   onShipSiteSelect = async value => {
@@ -783,7 +784,7 @@ class TableList extends PureComponent {
     this.getLastCarInfo();
   };
 
-  getLastCarInfo = async companyId => {
+  getLastCarInfo = async (companyId, isUseCarCode = false) => {
     const { dispatch, form } = this.props;
     const { currentCompany = {}, currentShipSite = {} } = this.state;
     const carCode = form.getFieldValue('car_code');
@@ -791,7 +792,7 @@ class TableList extends PureComponent {
       company_id: companyId || currentCompany.company_id,
       shipsite_id: currentShipSite.site_id,
     };
-    if (carCode) {
+    if (carCode && isUseCarCode) {
       param.car_code = carCode;
     }
     const carInfo = await dispatch({

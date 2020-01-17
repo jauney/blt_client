@@ -117,3 +117,64 @@ export function getSelectedDownAccount(sltDatas = []) {
 
   return accountData;
 }
+
+/**
+ * 计算滞纳金
+ * @param {*} item
+ * @param {*} company
+ */
+export function calLateFee(item = {}, company = {}) {
+  let lateFee = 0
+  let orderAmount = Number(item.order_amount)
+  // 计算滞纳金
+  if (
+    Number(item.order_status) < 6 &&
+    Number(item.order_status) >= 3 &&
+    orderAmount > 0
+  ) {
+    let departDate = moment(item.depart_date)
+    let curDate = moment(new Date())
+    let subDays = curDate.diff(departDate, 'days') // 1
+    let lateFee = company.late_fee_beginamount || 10
+
+    if (subDays >= company.late_fee_days) {
+      lateFee += Number((orderAmount * company.late_fee_rate || 0) / 1000)
+    }
+  }
+  return lateFee
+}
+
+/**
+ * 计算奖励金
+ * @param {*} item
+ * @param {*} company
+ */
+export function calBonusFee(item = {}, company = {}) {
+  let rewardFee = 0
+  let orderAmount = Number(item.order_amount)
+  // 计算奖励金
+  if (
+    Number(item.order_status) >= 6 &&
+    orderAmount > 0 &&
+    item.depart_date &&
+    item.settle_date
+  ) {
+    let departDate = moment(item.depart_date)
+    let settleDate = moment(item.settle_date)
+    let subHours = settleDate.diff(departDate, 'hours')
+
+    if (subHours <= 24) {
+      rewardFee += Number((orderAmount * company.rewards_24h || 1) / 1000)
+
+    } else if (subHours <= 48) {
+      rewardFee += Number(
+        (orderAmount * company.rewards_48h || 0.04) / 1000
+      )
+    } else if (subHours <= 72) {
+      rewardFee += Number(
+        (orderAmount * company.rewards_72h || 0.01) / 1000
+      )
+    }
+  }
+  return rewardFee
+}
