@@ -159,6 +159,11 @@ class TableList extends PureComponent {
       dataIndex: 'site_name',
     },
     {
+      title: '分公司',
+      width: '80px',
+      dataIndex: 'company_name',
+    },
+    {
       title: '结算日期',
       width: '100px',
       dataIndex: 'settle_date',
@@ -452,6 +457,15 @@ class TableList extends PureComponent {
     companyOption.initialValue =
       CacheCompany.company_type == 1 ? currentCompany.company_id || '' : CacheCompany.company_id;
 
+    let allowClearSite = true
+    let siteSelectList = siteList
+    let siteOption = {}
+    if (CacheSite.site_type != 3 || CacheCompany.company_type == 2) {
+      siteOption.initialValue = CacheSite.site_id;
+      allowClearSite = false
+      siteSelectList = [CacheSite]
+    }
+
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
@@ -474,9 +488,9 @@ class TableList extends PureComponent {
         </FormItem>
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
-            {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-              <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
-                {(CacheSite.site_type != 3 ? [CacheSite] : siteList).map(ele => {
+            {getFieldDecorator('site_id', siteOption)(
+              <Select placeholder="请选择" style={{ width: '100px' }} allowClear={allowClearSite}>
+                {siteSelectList.map(ele => {
                   return (
                     <Option key={ele.site_id} value={ele.site_id}>
                       {ele.site_name}
@@ -539,7 +553,6 @@ class TableList extends PureComponent {
     } = this.props;
 
     const { selectedRows, current, pageSize, currentCompany, departModalVisible } = this.state;
-
     return (
       <div>
         <Card bordered={false}>
@@ -554,7 +567,6 @@ class TableList extends PureComponent {
             </div>
             <StandardTable
               className={styles.dataTable}
-              scroll={{ x: 900, y: 350 }}
               selectedRows={selectedRows}
               loading={loading}
               rowKey="order_id"

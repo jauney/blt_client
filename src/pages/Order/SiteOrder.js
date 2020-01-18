@@ -168,6 +168,7 @@ class CreateForm extends PureComponent {
 
       if (getCustomer) {
         fieldsValue.getcustomer_name = getCustomer.customer_name;
+        fieldsValue.getcustomer_address = getCustomer.customer_address
         fieldsValue.sender_id = getCustomer.sender_id;
         fieldsValue.sender_name = getCustomer.sender_name;
       } else {
@@ -177,6 +178,7 @@ class CreateForm extends PureComponent {
 
       if (sendCustomer) {
         fieldsValue.sendcustomer_name = sendCustomer.customer_name;
+        fieldsValue.sendcustomer_address = sendCustomer.customer_address
         fieldsValue.receiver_id = sendCustomer.receiver_id;
         fieldsValue.receiver_name = sendCustomer.receiver_name;
       } else {
@@ -1472,7 +1474,7 @@ class TableList extends PureComponent {
     <table>
       <tr>
         <td class="col4">货款:${data.order_amount || ''}</td>
-        <td class="col4">运费:${data.trans_amount || ''}(${transType})</td>
+        <td class="col4">运费:${transType}</td>
         <td class="col4">运价:${data.trans_amount || ''}</td>
         <td class="col4">折后:${data.trans_discount || ''}</td>
       </tr>
@@ -1801,7 +1803,6 @@ class TableList extends PureComponent {
             <StandardTable
               selectedRows={selectedRows}
               className={styles.dataTable}
-              scroll={{ x: 900, y: 350 }}
               loading={loading}
               rowKey="order_id"
               data={{

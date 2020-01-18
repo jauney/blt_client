@@ -672,7 +672,7 @@ class TableList extends PureComponent {
     const { dispatch, form } = this.props;
     const { current, pageSize } = this.state;
 
-    this.getLastCarInfo();
+    this.getLastCarInfo({ isUseCarCode: true });
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       Object.keys(fieldsValue).forEach(item => {
@@ -784,12 +784,13 @@ class TableList extends PureComponent {
     this.getLastCarInfo();
   };
 
-  getLastCarInfo = async (companyId, isUseCarCode = false) => {
+  getLastCarInfo = async (option) => {
+    const isUseCarCode = option && option.isUseCarCode || false
     const { dispatch, form } = this.props;
     const { currentCompany = {}, currentShipSite = {} } = this.state;
     const carCode = form.getFieldValue('car_code');
     const param = {
-      company_id: companyId || currentCompany.company_id,
+      company_id: currentCompany.company_id,
       shipsite_id: currentShipSite.site_id,
     };
     if (carCode && isUseCarCode) {
@@ -1108,7 +1109,15 @@ class TableList extends PureComponent {
     } = this.props;
 
     const { currentCompany = {}, currentShipSite = {} } = this.state;
-    // 默认勾选第一个公司
+
+    let allowClearSite = true
+    let siteSelectList = siteList
+    let siteOption = {}
+    if (CacheSite.site_type != 3 || CacheCompany.company_type == 2) {
+      siteOption.initialValue = CacheSite.site_id;
+      allowClearSite = false
+      siteSelectList = [CacheSite]
+    }
 
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
@@ -1132,9 +1141,9 @@ class TableList extends PureComponent {
         </FormItem>
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
-            {getFieldDecorator('site_id', {})(
-              <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
-                {(CacheSite.site_type != 3 ? [CacheSite] : siteList).map(ele => {
+            {getFieldDecorator('site_id', siteOption)(
+              <Select placeholder="请选择" style={{ width: '100px' }} allowClear={allowClearSite}>
+                {siteSelectList.map(ele => {
                   return (
                     <Option key={ele.site_id} value={ele.site_id}>
                       {ele.site_name}
@@ -1253,7 +1262,6 @@ class TableList extends PureComponent {
             }
             <StandardTable
               className={styles.dataTable}
-              scroll={{ x: 900, y: 350 }}
               selectedRows={selectedRows}
               loading={loading}
               rowKey="order_id"

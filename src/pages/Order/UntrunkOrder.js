@@ -192,11 +192,6 @@ class CreateEntrunkForm extends PureComponent {
     }
   };
 
-  onGetLastCar = (event) => {
-    const { getLastCar } = this.props
-    getLastCar(event.target.value)
-  }
-
   // 渲染autocomplete的option
   renderCustomerOption = item => {
     const AutoOption = AutoComplete.Option;
@@ -219,7 +214,6 @@ class CreateEntrunkForm extends PureComponent {
       currentCompany,
       driverList,
       lastCar = {},
-      getLastCar
     } = this.props;
     let currentDriver = {};
     driverList.forEach(item => {
@@ -314,7 +308,6 @@ class CreateEntrunkForm extends PureComponent {
       onEntrunkModalCancel,
       driverList = [],
       onSearch,
-      lastCar = {},
       currentShipSite = {},
       currentCompany = {},
     } = this.props;
@@ -406,8 +399,7 @@ class TableList extends PureComponent {
     entrunkModalVisible: false,
     cancelShipModalVisible: false,
     currentCompany: {},
-    currentShipSite: {},
-    lastCar: {},
+    currentShipSite: {}
   };
 
   columns = [
@@ -559,7 +551,7 @@ class TableList extends PureComponent {
       payload: { pageNo: 1, pageSize: 100, type: 'receiver', filter: {} },
     });
 
-    let currentCompany = this.setCurrentCompany(branchCompanyList)
+    let currentCompany = await this.setCurrentCompany(branchCompanyList)
     dispatch({
       type: 'customer/getCustomerListAction',
       payload: {
@@ -587,26 +579,24 @@ class TableList extends PureComponent {
           currentShipSite: shipSiteList[0],
         });
       }
-
-      console.log(shipSiteList);
     }
-    this.getLastCar();
+    await this.getLastCarInfo();
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
   }
 
   // 设置当前公司
-  setCurrentCompany = (branchCompanyList = []) => {
+  setCurrentCompany = async (branchCompanyList = []) => {
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (CacheCompany.company_type == 2) {
-      this.setState({
+      await this.setState({
         currentCompany: CacheCompany
       });
 
       return CacheCompany
     }
     else if (branchCompanyList && branchCompanyList.length > 0) {
-      this.setState({
+      await this.setState({
         currentCompany: branchCompanyList[0]
       });
 
@@ -640,6 +630,7 @@ class TableList extends PureComponent {
     const { current, pageSize } = this.state;
     const { form } = this.props;
 
+    this.getLastCarInfo()
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
@@ -725,8 +716,9 @@ class TableList extends PureComponent {
    * 装车弹窗
    */
   onEntrunkModalShow = () => {
+    const { form } = this.props
     const { currentShipSite = {}, currentCompany = {} } = this.state;
-    if (!currentCompany.company_id) {
+    if (!currentCompany.company_id || !form.getFieldValue('company_id')) {
       message.error('请先选择公司');
       return;
     }
@@ -780,33 +772,44 @@ class TableList extends PureComponent {
       currentCompany: company,
     });
 
-    this.getLastCar();
+    this.getLastCarInfo();
     this.handleSearch();
   };
 
-  getLastCar = async (car_code) => {
+  getLastCarInfo = async (option) => {
+    const isUseCarCode = option && option.isUseCarCode || false
+    const { dispatch, form } = this.props;
     const { currentCompany = {}, currentShipSite = {} } = this.state;
-    const { dispatch } = this.props;
-
-    // 重新获取货车编号
-    const params = {
+    const carCode = form.getFieldValue('car_code');
+    const param = {
       company_id: currentCompany.company_id,
       shipsite_id: currentShipSite.site_id,
+    };
+    if (carCode && isUseCarCode) {
+      param.car_code = carCode;
     }
-    if (car_code) {
-      params.car_code = car_code
-    }
-    const result = await dispatch({
+    const carInfo = await dispatch({
       type: 'car/getLastCarCodeAction',
-      payload: params,
+      payload: param,
     });
 
-    this.setState({
-      lastCar: result,
-    });
+    this.getDriverList()
 
-    return result
+    return carInfo;
   };
+
+  getDriverList = () => {
+    const { dispatch, form } = this.props;
+    const { currentCompany } = this.state
+    dispatch({
+      type: 'driver/getDriverListAction',
+      payload: {
+        pageNo: 1,
+        pageSize: 500,
+        company_id: currentCompany.company_id,
+      },
+    });
+  }
 
   onShipSiteSelect = async value => {
     const {
@@ -825,7 +828,7 @@ class TableList extends PureComponent {
     await this.setState({
       currentShipSite: site,
     });
-    this.getLastCar();
+    this.getLastCarInfo();
     this.handleSearch();
   };
 
@@ -838,7 +841,7 @@ class TableList extends PureComponent {
     const { selectedRows, selectedRowKeys } = this.state;
     let recordFlag = false;
     let recordIndex;
-    console.log(selectedRowKeys);
+
     selectedRowKeys.forEach((item, index) => {
       if (item == record.order_id) {
         recordFlag = true;
@@ -852,8 +855,6 @@ class TableList extends PureComponent {
       selectedRows.push(record);
       selectedRowKeys.push(record.order_id);
     }
-
-    console.log(selectedRows);
 
     this.setState({ selectedRows, selectedRowKeys });
   };
@@ -898,14 +899,19 @@ class TableList extends PureComponent {
     const { currentShipSite = {} } = this.state;
     const companyOption = {};
     const siteOption = {}
-
     // 默认勾选第一个公司
     if (CacheCompany.company_type != 1) {
       companyOption.initialValue = CacheCompany.company_id;
     }
-    if (CacheSite.site_type == 1) {
+
+    let allowClearSite = true
+    let siteSelectList = siteList
+    if (CacheSite.site_type != 3 || CacheCompany.company_type == 2) {
       siteOption.initialValue = CacheSite.site_id;
+      allowClearSite = false
+      siteSelectList = [CacheSite]
     }
+
     // 当前配载部只能装当前的车，不能装其他配载部的，所以用entrunkSiteList = [CacheSite]
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
@@ -930,11 +936,8 @@ class TableList extends PureComponent {
 
         <FormItem label="站点">
           {getFieldDecorator('site_id', siteOption)(
-            <Select placeholder="请选择" style={{ width: '100px' }} onChange={this.onSiteSelect} allowClear>
-              {(CacheSite.site_type != 3 && CacheCompany.company_type == 1
-                ? [CacheSite]
-                : siteList
-              ).map(ele => {
+            <Select placeholder="请选择" style={{ width: '100px' }} onChange={this.onSiteSelect} allowClear={allowClearSite}>
+              {siteSelectList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}
@@ -997,6 +1000,7 @@ class TableList extends PureComponent {
       receiver: { receiverList },
       site: { entrunkSiteList },
       driver: { driverList },
+      car: { lastCar },
       loading,
     } = this.props;
 
@@ -1009,7 +1013,6 @@ class TableList extends PureComponent {
       currentCompany,
       cancelShipModalVisible,
       currentShipSite,
-      lastCar,
     } = this.state;
 
     // 是否显示操作按钮
@@ -1038,7 +1041,6 @@ class TableList extends PureComponent {
             </div>
             <StandardTable
               className={styles.dataTable}
-              scroll={{ x: 900, y: 350 }}
               selectedRows={selectedRows}
               loading={loading}
               rowKey="order_id"
@@ -1070,7 +1072,6 @@ class TableList extends PureComponent {
             onEntrunkModalCancel={this.onEntrunkModalCancel}
             driverList={driverList}
             lastCar={lastCar}
-            getLastCar={this.getLastCar}
             onSearch={this.handleSearch}
             currentShipSite={currentShipSite}
           />

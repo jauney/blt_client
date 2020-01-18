@@ -100,6 +100,8 @@ class StandardTable extends PureComponent {
       //   disabled: record.disabled,
       // }),
     };
+
+    const tableHeight = window.innerHeight - 360
     return (
       <div className={styles.standardTable}>
         <div className={styles.tableAlert}>
@@ -153,6 +155,7 @@ class StandardTable extends PureComponent {
               }
             },
           })}
+          scroll={{ x: 900, y: tableHeight }}
           {...rest}
         />
       </div>

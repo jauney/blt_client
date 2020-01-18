@@ -37,7 +37,10 @@ export default {
     // 获取单个客户信息
     *queryCustomerAction({ payload }, { call, put, select }) {
       const response = yield call(getCustomer, payload);
-
+      yield put({
+        type: 'queryCustomerReducer',
+        payload: Object.assign({ type: payload.type }, response),
+      });
       return response;
     },
     *queryCustomerTypesAction({ payload }, { call, put, select }) {
@@ -107,6 +110,37 @@ export default {
         ...state,
         ...action.payload,
       };
+    },
+    /**
+     * 将通过手机号，customer_id查询出来的用户信息push到list中
+     * @param {*} state
+     * @param {*} action
+     */
+    queryCustomerReducer(state, action) {
+      const customerList = action.payload.type == 1 ? state.sendCustomerList : state.getCustomerList
+      const customer = action.payload.type == 1 ? action.payload.sendCustomer : action.payload.getCustomer
+      let customerFlag = false
+      for (let i = 0; i < customerList.length; i++) {
+        let item = customerList[i]
+        if (customer && customer.customer_id == item.customer_id) {
+          customerFlag = true
+          break
+        }
+      };
+
+      if (!customerFlag && customer && customer.customer_id) { customerList.push(customer) }
+      if (action.payload.type == 1) {
+        return {
+          ...state,
+          sendCustomerList: customerList
+        }
+      }
+      else {
+        return {
+          ...state,
+          getCustomerList: customerList
+        }
+      }
     },
     queryGetCustomerTypesReducer(state, action) {
       return {
