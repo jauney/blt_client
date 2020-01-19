@@ -215,7 +215,13 @@ class OrderEditForm extends PureComponent {
     }
 
     let payRoles = [('site_pay', 'site_admin')].indexOf(CacheRole.role_value) >= 0;
-
+    let transType = '提付'
+    if (record.trans_type == 1) {
+      transType = '现付'
+    }
+    else if (record.trans_type == 2) {
+      transType = '回付'
+    }
     return (
       <Modal
         destroyOnClose
@@ -349,7 +355,7 @@ class OrderEditForm extends PureComponent {
             <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
               <Col {...this.col2Layout}>
                 <FormItem {...this.formItemLayout} label="运费">
-                  {record.trans_amount}({record.trans_type == 1 ? '现付' : '回付'})
+                  {record.trans_amount}({transType})
               </FormItem>
               </Col>
               <Col {...this.col2Layout}>

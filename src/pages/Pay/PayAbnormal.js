@@ -116,7 +116,7 @@ class DownAccountForm extends PureComponent {
                   )}
                 ={' '}
                 {accountData.totalActualGoodsFund -
-                  Math.ceil((accountData.totalActualGoodsFund * agencyFee) / 1000) -
+                  Math.ceil((accountData.totalShouldGoodsFund * agencyFee) / 1000) -
                   accountData.totalTransFunds || 0}
               </FormItem>
             </Col>

@@ -474,7 +474,7 @@ class TableList extends PureComponent {
               placeholder="请选择"
               onSelect={this.onCompanySelect}
               style={{ width: '100px' }}
-              allowClear
+              allowClear={CacheCompany.company_type == 1 ? true : false}
             >
               {(CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany]).map(ele => {
                 return (

@@ -451,6 +451,7 @@ class TableList extends PureComponent {
     if (result && result.code == 0) {
       message.success(expense.expense_id ? '编辑成功！' : '添加成功！');
       expense.expense_id && this.onCancelExpenseClick();
+      this.handleSearch()
     } else {
       message.error((result && result.msg) || '添加失败');
     }
@@ -588,7 +589,7 @@ class TableList extends PureComponent {
         )}
 
         <FormItem label="支出日期">
-          {getFieldDecorator('expense_date', {})(<RangePicker style={{ width: '250px' }} />)}
+          {getFieldDecorator('expense_date', { initialValue: [moment(new Date(), 'YYYY-MM-DD'), moment(new Date(), 'YYYY-MM-DD')] })(<RangePicker style={{ width: '250px' }} />)}
         </FormItem>
 
         <FormItem label="支出类型">

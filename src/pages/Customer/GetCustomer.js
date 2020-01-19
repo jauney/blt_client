@@ -287,6 +287,7 @@ class TableList extends PureComponent {
     {
       title: '姓名',
       dataIndex: 'customer_name',
+      sorter: true,
       width: '100px',
     },
     {
@@ -302,11 +303,13 @@ class TableList extends PureComponent {
     {
       title: '运费总额',
       dataIndex: 'total_trans',
+      sorter: true,
       width: '80px',
     },
     {
       title: '票数',
       dataIndex: 'order_num',
+      sorter: true,
       width: '80px',
     },
     {

@@ -427,6 +427,7 @@ class TableList extends PureComponent {
     if (result && result.code == 0) {
       message.success(income.income_id ? '编辑成功' : '添加成功！');
       income.income_id && this.onIncomeModalCancel()
+      this.handleSearch()
     } else {
       message.error((result && result.msg) || '添加失败');
     }
@@ -513,6 +514,8 @@ class TableList extends PureComponent {
     if (branchCompanyList.length > 0) {
       companyOption.initialValue = branchCompanyList[0].company_id || '';
     }
+
+    const dateFormat = 'YYYY/MM/DD';
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         {CacheCompany.company_type == 1 && (
@@ -532,7 +535,7 @@ class TableList extends PureComponent {
         )}
 
         <FormItem label="收入日期">
-          {getFieldDecorator('income_date', {})(<RangePicker style={{ width: '250px' }} />)}
+          {getFieldDecorator('income_date', { initialValue: [moment(new Date(), 'YYYY-MM-DD'), moment(new Date(), 'YYYY-MM-DD')] })(<RangePicker style={{ width: '250px' }} />)}
         </FormItem>
 
         <FormItem label="收入分类">

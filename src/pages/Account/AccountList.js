@@ -743,7 +743,7 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="收货人电话" {...formItemLayout}>
+        <FormItem label="发货人电话" {...formItemLayout}>
           {getFieldDecorator('sendcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '130px' }} />
           )}

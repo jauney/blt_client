@@ -24,28 +24,27 @@ export function getSelectedAccount(sltDatas, type) {
 
   for (var i = 0; i < sltDatas.length; i++) {
     var order = sltDatas[i];
-
     var realOrderAmount = order.order_real ? order.order_real : order.order_amount;
-    console.log('$$$$$$', realOrderAmount, order)
+
     totalActualGoodsFunds += Number(realOrderAmount);
     // trans_discount即为实付运费，去掉trans_real字段
     var realTransAmount = order.trans_discount ? order.trans_discount : order.trans_amount;
-    console.log('#######', realTransAmount, order)
     var insuranceFee = 0;
     if (order.insurance_fee) {
       insuranceFee += order.insurance_fee;
     }
+    // 所有垫付，都是提付，下站结算，和货款性质一样
+    totalAdvancepayAmount += Number(order.order_advancepay_amount || 0);
 
     if (order.trans_type == 0) {
       totalActualTransFunds += Number(realTransAmount || 0);
-      totalAdvancepayAmount += Number(order.order_advancepay_amount || 0);
       totalTifuInsurance += insuranceFee;
     } else {
       totalXianSettleTransFunds += Number(realTransAmount || 0);
       totalXianInsurance += insuranceFee;
     }
     totalShouldTransFunds += Number(order.trans_amount || 0);
-    totalShouldGoodsFunds += Number(order.order_amount || 0);
+    totalShouldGoodsFunds += Number(order.order_amount || order.order_real || 0);
 
     totalAccount =
       totalActualGoodsFunds + totalActualTransFunds + totalAdvancepayAmount + totalTifuInsurance;
