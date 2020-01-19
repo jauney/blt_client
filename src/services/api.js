@@ -95,6 +95,7 @@ export async function fakeAccountLogin(params) {
               sendfee_ratio
               unsendfee_ratio
               insurance_ratio
+              transfee_ratio
             }
             roles {
               role_id
@@ -146,6 +147,7 @@ export async function queryCompanyList(params) {
               sendfee_ratio
               unsendfee_ratio
               insurance_ratio
+              transfee_ratio
             }
           }
         }

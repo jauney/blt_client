@@ -58,8 +58,8 @@ class AddFormDialog extends PureComponent {
     const { addFormDataHandle, form, record = {} } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) {
-        const ratios = ['1', '2', '3'];
-        for (let i = 0; i < 3; i++) {
+        const ratios = ['1', '2'];
+        for (let i = 0; i < 2; i++) {
           const index = ratios[i];
           if (err[`sendfee_ratio_${index}`]) {
             const error = err[`sendfee_ratio_${index}`].errors[0] || {};
@@ -81,11 +81,16 @@ class AddFormDialog extends PureComponent {
       fieldsValue.alarm_days = Number(fieldsValue.alarm_days);
       fieldsValue.agency_fee = Number(fieldsValue.agency_fee);
       fieldsValue.bonus_type = Number(fieldsValue.bonus_type);
-      fieldsValue.sendfee_ratio = Number(fieldsValue[`sendfee_ratio_${fieldsValue.bonus_type}`]);
-      fieldsValue.unsendfee_ratio = Number(
-        fieldsValue[`unsendfee_ratio_${fieldsValue.bonus_type}`]
-      );
-      ['1', '2', '3'].forEach(index => {
+      if (fieldsValue.bonus_type == 3) {
+        fieldsValue.transfee_ratio = Number(fieldsValue.transfee_ratio)
+      }
+      else {
+        fieldsValue.sendfee_ratio = Number(fieldsValue[`sendfee_ratio_${fieldsValue.bonus_type}`]);
+        fieldsValue.unsendfee_ratio = Number(
+          fieldsValue[`unsendfee_ratio_${fieldsValue.bonus_type}`]
+        );
+      }
+      ['1', '2'].forEach(index => {
         delete fieldsValue[`sendfee_ratio_${index}`];
         delete fieldsValue[`unsendfee_ratio_${index}`];
       });
@@ -173,7 +178,7 @@ class AddFormDialog extends PureComponent {
                           { pattern: /^\d+(\.\d+)?$/, message: '不送货运费率格式错误' },
                         ],
                       })(<Input placeholder="" style={{ width: '60px' }} />)}
-                      - 西安收运费 + 实收货款 - 打款总额
+                      - 西安收运费 + 垫付 +  实收货款 - 打款总额
                     </Radio>
                     <Radio value={2}>
                       <strong>多劳多得：</strong> 运费总额 - 送货运费 ✕
@@ -193,26 +198,18 @@ class AddFormDialog extends PureComponent {
                           { pattern: /^\d+(\.\d+)?$/, message: '不送货运费率格式错误' },
                         ],
                       })(<Input placeholder="" style={{ width: '60px' }} />)}
-                      - 大车运费 - 西安收运费 + 实收货款 - 打款总额
+                      - 大车运费 - 西安收运费 + 垫付 + 实收货款 - 打款总额
                     </Radio>
                     <Radio value={3}>
-                      <strong>优惠法：</strong> 送货运费 ✕
-                      {form.getFieldDecorator('sendfee_ratio_3', {
-                        initialValue: record.bonus_type == 3 ? record.sendfee_ratio || 0.25 : 0.25,
+                      <strong>优惠法：</strong> 运费总额 ✕
+                      {form.getFieldDecorator('transfee_ratio', {
+                        initialValue: record.bonus_type == 3 ? record.transfee_ratio || 0.38 : 0.38,
                         rules: [
-                          { required: true, message: '请填写送货运费率' },
-                          { pattern: /^\d+(\.\d+)?$/, message: '送货运费率格式错误' },
+                          { required: true, message: '请填写运费费率' },
+                          { pattern: /^\d+(\.\d+)?$/, message: '费率格式错误' },
                         ],
                       })(<Input placeholder="" style={{ width: '60px' }} />)}
-                      + 不送货运费 ✕
-                      {form.getFieldDecorator('unsendfee_ratio_3', {
-                        initialValue: record.bonus_type == 3 ? record.unsendfee_ratio || 0.3 : 0.3,
-                        rules: [
-                          { required: true, message: '请填写不送货运费率' },
-                          { pattern: /^\d+(\.\d+)?$/, message: '不送货运费率格式错误' },
-                        ],
-                      })(<Input placeholder="" style={{ width: '60px' }} />)}
-                      - 上站运费 + 实收货款 - 打款总额
+                      - 上站运费 + 垫付 + 实收货款 - 打款总额
                     </Radio>
                   </Radio.Group>
                 )}

@@ -223,10 +223,15 @@ class TableList extends PureComponent {
 
   async componentDidMount() {
     const { dispatch } = this.props;
-    await dispatch({
+    const branchCompanyList = await dispatch({
       type: 'company/getBranchCompanyList',
       payload: { ...CacheCompany },
     });
+
+    const companyList = CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany];
+    this.setState({
+      currentCompany: companyList[0]
+    })
 
     this.handleSearch();
   }
@@ -285,6 +290,7 @@ class TableList extends PureComponent {
           return `${item.valueOf()}`;
         });
       }
+
       fieldsValue.company_id = currentCompany.company_id || CacheCompany.company_id;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
@@ -528,6 +534,7 @@ class TableList extends PureComponent {
         return item;
       }
     });
+
     if (currentCompany.length > 0) {
       this.setState({
         currentCompany: currentCompany[0],
@@ -700,9 +707,6 @@ class TableList extends PureComponent {
     // 上站需要对下站打款确认
     const companyList = CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany];
     const companyOption = { initialValue: companyList.length > 0 ? companyList[0].company_id : '' };
-    this.setState({
-      currentCompany: companyList[0],
-    });
 
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
