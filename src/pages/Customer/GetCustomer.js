@@ -293,7 +293,7 @@ class TableList extends PureComponent {
     {
       title: '电话',
       dataIndex: 'customer_mobile',
-      width: '100px',
+      width: '120px',
     },
     {
       title: '账户',

@@ -116,6 +116,7 @@ class DownAccountForm extends PureComponent {
                     <span />
                   )}
                 ={' '}
+                {console.log(accountData.totalActualGoodsFund, accountData.totalShouldGoodsFund, agencyFee, accountData.totalTransFunds)}
                 {accountData.totalActualGoodsFund -
                   Math.ceil((accountData.totalShouldGoodsFund * agencyFee) / 1000) -
                   accountData.totalTransFunds || 0}
@@ -527,7 +528,7 @@ class TableList extends PureComponent {
     const result = await dispatch({
       type: 'pay/updatePayAbnormalAction',
       payload: {
-        orderIds,
+        order_id: orderIds,
         order: { pay_status: 1 },
       },
     });

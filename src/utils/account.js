@@ -66,6 +66,8 @@ export function getSelectedAccount(sltDatas, type) {
 export function getSelectedDownAccount(sltDatas = []) {
   const accountData = {};
 
+
+  let totalShouldGoodsFunds = 0;
   let totalActualGoodsFunds = 0;
   let totalTransFunds = 0;
   let sendCustomerId = '';
@@ -74,40 +76,44 @@ export function getSelectedDownAccount(sltDatas = []) {
   let isSameBankAccount = true;
   let isSettled = true;
   for (var i = 0; i < sltDatas.length; i++) {
+    let order = sltDatas[i]
     if (i == 0) {
-      sendCustomerId = sltDatas[i]['sendcustomer_id'];
-      bankAccount = sltDatas[i]['bank_account'];
+      sendCustomerId = order['sendcustomer_id'];
+      bankAccount = order['bank_account'];
     }
 
-    if (sendCustomerId && sendCustomerId != sltDatas[i]['sendcustomer_id']) {
+    if (sendCustomerId && sendCustomerId != order['sendcustomer_id']) {
       isSameSendCustomer = false;
       break;
     }
-    if (bankAccount && bankAccount != sltDatas[i]['bank_account']) {
+    if (bankAccount && bankAccount != order['bank_account']) {
       isSameBankAccount = false;
       break;
     }
 
     //是否“回付”运费
     if (
-      sltDatas[i].trans_type &&
-      sltDatas[i].trans_type == 3 &&
-      Number(sltDatas[i].order_amount) > 0
+      order.trans_type &&
+      order.trans_type == 3 &&
+      Number(order.order_amount) > 0
     ) {
-      totalTransFunds += Number(sltDatas[i].trans_discount || sltDatas[i].trans_amount);
+      totalTransFunds += Number(order.trans_discount || order.trans_amount);
     }
 
-    if (sltDatas[i].order_status == 6) {
-      if (Number(sltDatas[i].order_real) > 0) {
-        totalActualGoodsFunds += Number(sltDatas[i].order_real);
+    if (order.order_status == 6) {
+      if (Number(order.order_real) > 0) {
+        totalActualGoodsFunds += Number(order.order_real);
       } else {
-        totalActualGoodsFunds += Number(sltDatas[i].order_amount);
+        totalActualGoodsFunds += Number(order.order_amount);
       }
+      totalShouldGoodsFunds += Number(order.order_amount || order.order_real || 0);
+
     } else {
       isSettled = false;
     }
   }
 
+  accountData.totalShouldGoodsFund = totalShouldGoodsFunds
   accountData.totalActualGoodsFund = totalActualGoodsFunds;
   accountData.totalTransFunds = totalTransFunds;
   accountData.isSameSendCustomer = isSameSendCustomer;

@@ -1517,14 +1517,14 @@ class TableList extends PureComponent {
     </table>
     <table>
       <tr>
-        <td class="col3">转进:${transferType}</td>
-        <td class="col3">中转费:${data.transfer_amount}</td>
-        <td class="col3">地址:${data.transfer_address}</td>
+        <td class="col3">转进:${transferType || ''}</td>
+        <td class="col3">中转费:${data.transfer_amount || ''}</td>
+        <td class="col3">地址:${data.transfer_address || ''}</td>
       </tr>
       <tr>
-        <td class="col3">物流:${data.transfer_company_name}</td>
-        <td class="col3">单号:${data.transfer_order_code}</td>
-        <td class="col3">电话:${data.transfer_company_mobile}</td>
+        <td class="col3">物流:${data.transfer_company_name || ''}</td>
+        <td class="col3">单号:${data.transfer_order_code || ''}</td>
+        <td class="col3">电话:${data.transfer_company_mobile || ''}</td>
       </tr>
     </table>
     <table>
@@ -1534,12 +1534,12 @@ class TableList extends PureComponent {
     </table>
     <table>
       <tr>
-        <td class="col2-1">到货站:${printCompany.company_name}</td>
-        <td class="col2-2">电话:${printCompany.company_mobile}</td>
+        <td class="col2-1">到货站:${printCompany.company_name || ''}</td>
+        <td class="col2-2">电话:${printCompany.company_mobile || ''}</td>
       </tr>
       <tr>
-        <td class="col2-1">发货站:${data.site_name}</td>
-        <td class="col2-2">电话:${printSite.site_mobile}</td>
+        <td class="col2-1">发货站:${data.site_name || ''}</td>
+        <td class="col2-2">电话:${printSite.site_mobile || ''}</td>
       </tr>
     </table>
     <table>

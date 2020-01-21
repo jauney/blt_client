@@ -23,6 +23,7 @@ import {
   Steps,
   Radio,
   Tag,
+  Spin
 } from 'antd';
 import { getSelectedAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
@@ -49,6 +50,7 @@ const { Option } = Select;
 @Form.create()
 class TableList extends PureComponent {
   state = {
+    loading: false,
     selectedRows: [],
     accountStatistic: {},
     formValues: {},
@@ -447,12 +449,15 @@ class TableList extends PureComponent {
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
+    this.setState({ loading: true })
     const result = await dispatch({
       type: 'unsettle/settleOrderAction',
       payload: {
         order_id: orderIds,
       },
     });
+
+    this.setState({ loading: false })
     if (result.code == 0) {
       message.success('核对成功！');
 
@@ -845,17 +850,20 @@ class TableList extends PureComponent {
           currentGetCustomer={currentGetCustomer}
           currentSendCustomer={currentSendCustomer}
         />
-        <Modal
-          title="确认结账"
-          okText="确认"
-          cancelText="取消"
-          visible={settleModalVisible}
-          onOk={this.onSettleOk}
-          onCancel={this.onSettleCancel}
-        >
-          <p>{`结算货款条数${selectedRows.length}，结算总额 ${accountStatistic.totalAccount} `}</p>
-          <p>您确认结账么？</p>
-        </Modal>
+        <Spin spinning={this.state.loading}>
+          <Modal
+            title="确认结账"
+            okText="确认"
+            cancelText="取消"
+            visible={settleModalVisible}
+            onOk={this.onSettleOk}
+            onCancel={this.onSettleCancel}
+          >
+            <p>{`结算货款条数${selectedRows.length}，结算总额 ${accountStatistic.totalAccount} `}</p>
+            <p>您确认结账么？</p>
+          </Modal>
+        </Spin>
+
         <Modal
           title="确认"
           okText="确认"

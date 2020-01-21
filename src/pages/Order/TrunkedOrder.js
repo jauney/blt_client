@@ -23,6 +23,7 @@ import {
   Steps,
   Radio,
   Tag,
+  Spin
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -469,6 +470,7 @@ class CreateEntrunkForm extends PureComponent {
 @Form.create()
 class TableList extends PureComponent {
   state = {
+    loading: false,
     selectedRows: [],
     current: 1,
     pageSize: 20,
@@ -916,6 +918,7 @@ class TableList extends PureComponent {
       car: { lastCar },
     } = this.props;
     const { currentCompany } = this.state;
+    this.setState({ loading: true })
     let result = await dispatch({
       type: 'trunkedorder/updateCarStatusAction',
       payload: {
@@ -925,6 +928,7 @@ class TableList extends PureComponent {
         company_id: currentCompany.company_id,
       },
     });
+    this.setState({ loading: false })
     if (result.code == 0) {
       message.success('取消发车成功！');
 
@@ -1112,9 +1116,8 @@ class TableList extends PureComponent {
 
     let allowClearSite = true
     let siteSelectList = siteList
-    let siteOption = {}
-    if (CacheSite.site_type != 3 || CacheCompany.company_type == 2) {
-      siteOption.initialValue = CacheSite.site_id;
+    let siteOption = { initialValue: CacheSite.site_id }
+    if (CacheSite.site_type == 1 || CacheCompany.company_type == 2) {
       allowClearSite = false
       siteSelectList = [CacheSite]
     }
@@ -1310,18 +1313,19 @@ class TableList extends PureComponent {
           onOk={this.onDepartOk}
           onCancel={this.onDepartCancel}
         />
-
-        <Modal
-          title="确认"
-          okText="确认"
-          cancelText="取消"
-          visible={cancelDepartModalVisible}
-          onOk={this.onCancelDepartOk}
-          onCancel={this.onCancelDepartCancel}
-        >
-          <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
-          <p>您确认取消发车么？</p>
-        </Modal>
+        <Spin spinning={this.state.loading} delay={100}>
+          <Modal
+            title="确认"
+            okText="确认"
+            cancelText="取消"
+            visible={cancelDepartModalVisible}
+            onOk={this.onCancelDepartOk}
+            onCancel={this.onCancelDepartCancel}
+          >
+            <p>{`${currentCompany.company_name}，第 ${lastCar.car_code} 车`}</p>
+            <p>您确认取消发车么？</p>
+          </Modal>
+        </Spin>
         <Modal
           title="确认"
           okText="确认"

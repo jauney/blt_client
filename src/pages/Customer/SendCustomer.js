@@ -297,7 +297,7 @@ class TableList extends PureComponent {
     {
       title: '电话',
       dataIndex: 'customer_mobile',
-      width: '100px',
+      width: '120px',
     },
     {
       title: '账户',
@@ -510,6 +510,7 @@ class TableList extends PureComponent {
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
+    console.log(record, '888888')
     this.setState({
       record,
     });

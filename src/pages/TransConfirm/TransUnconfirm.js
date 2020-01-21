@@ -357,9 +357,12 @@ class TableList extends PureComponent {
   };
 
   onConfirmTransModal = () => {
+    const { selectedRows, currentSite = CacheSite } = this.state;
+    // 计算需要确认的运费
+    const account = getSelectedAccount(selectedRows)
     Modal.confirm({
       title: '确认',
-      content: '确定确认所选订单的运费吗？',
+      content: `确定确认所选订单的运费吗(总计：${account.totalXianInsurance + account.totalXianSettleTransFunds}})？`,
       okText: '确认',
       cancelText: '取消',
       onOk: this.onConfirmTrans,

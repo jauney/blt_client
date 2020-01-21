@@ -315,10 +315,21 @@ class TableList extends PureComponent {
       payload: { ...CacheCompany },
     });
 
-    await dispatch({
+    const siteList = await dispatch({
       type: 'site/getSiteListAction',
-      payload: { pageNo: 1, pageSize: 100 },
+      payload: {},
     });
+
+    if (siteList && siteList.length > 0) {
+      const shipSiteList = siteList.filter(item => {
+        return item.site_type == 3 || item.site_type == 2;
+      });
+      if (shipSiteList.length > 0) {
+        this.setState({
+          currentShipSite: shipSiteList[0],
+        });
+      }
+    }
 
     let currentCompany = this.setCurrentCompany(branchCompanyList)
 
@@ -358,18 +369,24 @@ class TableList extends PureComponent {
     return {}
   }
 
-  getLastCarInfo = async () => {
-    const { dispatch, site: { entrunkSiteList = [] } } = this.props;
-    const { currentCompany = {} } = this.state;
-    if (entrunkSiteList.length > 0) {
-      await dispatch({
-        type: 'car/getLastCarCodeAction',
-        payload: {
-          company_id: currentCompany.company_id,
-          shipsite_id: entrunkSiteList[0].site_id,
-        },
-      });
+  getLastCarInfo = async (option) => {
+    const isUseCarCode = option && option.isUseCarCode || false
+    const { dispatch, form } = this.props;
+    const { currentCompany = {}, currentShipSite = {} } = this.state;
+    const carCode = form.getFieldValue('car_code');
+    const param = {
+      company_id: currentCompany.company_id,
+      shipsite_id: currentShipSite.site_id,
+    };
+    if (carCode && isUseCarCode) {
+      param.car_code = carCode;
     }
+    const carInfo = await dispatch({
+      type: 'car/getLastCarCodeAction',
+      payload: param,
+    });
+
+    return carInfo;
   };
 
   handleSelectRows = rows => {
@@ -473,6 +490,8 @@ class TableList extends PureComponent {
     const { dispatch, form } = this.props;
     const { current, pageSize } = this.state;
 
+    this.getLastCarInfo({ isUseCarCode: true });
+
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       // create_date
@@ -525,6 +544,26 @@ class TableList extends PureComponent {
       current,
     });
     this.getOrderList(sort, current);
+  };
+
+  onShipSiteSelect = async value => {
+    const {
+      site: { entrunkSiteList = [] },
+    } = this.props;
+
+    let site = {};
+    for (let i = 0; i < entrunkSiteList.length; i++) {
+      const c = entrunkSiteList[i];
+      if (c.site_id == value) {
+        site = c;
+        break;
+      }
+    }
+
+    await this.setState({
+      currentShipSite: site,
+    });
+    this.getLastCarInfo();
   };
 
   // 打印托运单

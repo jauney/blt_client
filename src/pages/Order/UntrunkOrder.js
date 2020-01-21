@@ -898,7 +898,7 @@ class TableList extends PureComponent {
     } = this.props;
     const { currentShipSite = {} } = this.state;
     const companyOption = {};
-    const siteOption = {}
+    const siteOption = { initialValue: CacheSite.site_id }
     // 默认勾选第一个公司
     if (CacheCompany.company_type != 1) {
       companyOption.initialValue = CacheCompany.company_id;
@@ -906,8 +906,7 @@ class TableList extends PureComponent {
 
     let allowClearSite = true
     let siteSelectList = siteList
-    if (CacheSite.site_type != 3 || CacheCompany.company_type == 2) {
-      siteOption.initialValue = CacheSite.site_id;
+    if (CacheSite.site_type == 1 || CacheCompany.company_type == 2) {
       allowClearSite = false
       siteSelectList = [CacheSite]
     }
