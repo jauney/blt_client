@@ -1016,11 +1016,16 @@ class TableList extends PureComponent {
 
     // 是否显示操作按钮
     let showOperateButton = true
+    let showPrintButton = true
     if (CacheCompany.company_type != 1) {
       showOperateButton = false
+      showPrintButton = false
     }
-    if ((CacheRole.role_value == 'site_admin' && CacheSite.site_type != 2) || ['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+    if (['site_searchuser', 'site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
       showOperateButton = false
+    }
+    if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+      showPrintButton = false
     }
     return (
       <div>
@@ -1033,6 +1038,10 @@ class TableList extends PureComponent {
                   <Button onClick={this.onCancelShip}>取消装回</Button>
                   <Button onClick={this.onReceiverModalShow}>更改接货人</Button>
                   <Button onClick={this.onEntrunkModalShow}>装车</Button>
+                </span>
+              )}
+              {selectedRows.length > 0 && showPrintButton && (
+                <span>
                   <Button onClick={this.onPrintOrder}>打印清单</Button>
                   <Button onClick={this.onDownloadOrder}>下载清单</Button>
                 </span>
@@ -1062,19 +1071,21 @@ class TableList extends PureComponent {
           </div>
           {this.tableFooter()}
         </Card>
-        {entrunkModalVisible && (
-          <CreateEntrunkForm
-            modalVisible={entrunkModalVisible}
-            selectedRows={selectedRows}
-            branchCompanyList={branchCompanyList}
-            currentCompany={currentCompany}
-            onEntrunkModalCancel={this.onEntrunkModalCancel}
-            driverList={driverList}
-            lastCar={lastCar}
-            onSearch={this.handleSearch}
-            currentShipSite={currentShipSite}
-          />
-        )}
+        {
+          entrunkModalVisible && (
+            <CreateEntrunkForm
+              modalVisible={entrunkModalVisible}
+              selectedRows={selectedRows}
+              branchCompanyList={branchCompanyList}
+              currentCompany={currentCompany}
+              onEntrunkModalCancel={this.onEntrunkModalCancel}
+              driverList={driverList}
+              lastCar={lastCar}
+              onSearch={this.handleSearch}
+              currentShipSite={currentShipSite}
+            />
+          )
+        }
         <CreateReceiverForm
           receiverList={receiverList}
           entrunkSiteList={entrunkSiteList}
@@ -1093,7 +1104,7 @@ class TableList extends PureComponent {
         >
           <p>您确认要取消装回么？</p>
         </Modal>
-      </div>
+      </div >
     );
   }
 }

@@ -1216,8 +1216,12 @@ class TableList extends PureComponent {
       cancelEntrunkModalVisible,
     } = this.state;
     let showOperateButton = true
-    if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+    let showPrintButton = true
+    if (['site_searchuser', 'site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
       showOperateButton = false
+    }
+    if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+      showPrintButton = false
     }
     // 未发车时，下站不允许操作
     if (lastCar.car_status < 2 && CacheCompany.company_type == 2) {
@@ -1252,17 +1256,17 @@ class TableList extends PureComponent {
                 {lastCar.car_status == 4 && CacheCompany.company_type != 1 && (
                   <Button onClick={this.onCancelArrive}>取消到车</Button>
                 )}
-                {selectedRows.length > 0 && (
-                  <span>
-                    {CacheCompany.company_type == 1 && (
-                      <Button onClick={this.onCancelEntrunk}>取消货物装车</Button>
-                    )}
-                    <Button onClick={this.onPrintOrder}>货物清单打印</Button>
-                    <Button onClick={this.onDownloadOrder}>货物清单下载</Button>
-                  </span>
+                {selectedRows.length > 0 && CacheCompany.company_type == 1 && (
+                  <Button onClick={this.onCancelEntrunk}>取消货物装车</Button>
                 )}
               </div>
             }
+            {showPrintButton && (
+              <span>
+                <Button onClick={this.onPrintOrder}>货物清单打印</Button>
+                <Button onClick={this.onDownloadOrder}>货物清单下载</Button>
+              </span>
+            )}
             <StandardTable
               className={styles.dataTable}
               selectedRows={selectedRows}
