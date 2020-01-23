@@ -1232,41 +1232,43 @@ class TableList extends PureComponent {
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
-            {showOperateButton &&
-              <div className={styles.tableListOperator}>
-                {lastCar.confirm == 0 && CacheCompany.company_type == 2 && (
-                  <Button type="primary" onClick={this.onCarFeeModalShow}>
-                    货车运费结算
+
+            <div className={styles.tableListOperator}>
+              {showOperateButton && (
+                <span>
+                  {lastCar.confirm == 0 && CacheCompany.company_type == 2 && (
+                    <Button type="primary" onClick={this.onCarFeeModalShow}>
+                      货车运费结算
                 </Button>
-                )}
-                {lastCar.confirm == 1 && CacheCompany.company_type == 2 && (
-                  <Button type="primary" onClick={this.onCancelCarFeeConfirmModalShow}>
-                    取消货车运费结算
+                  )}
+                  {lastCar.confirm == 1 && CacheCompany.company_type == 2 && (
+                    <Button type="primary" onClick={this.onCancelCarFeeConfirmModalShow}>
+                      取消货车运费结算
                 </Button>
-                )}
-                {lastCar.car_status < 3 && CacheCompany.company_type == 1 && (
-                  <Button onClick={this.onDepark}>发车</Button>
-                )}
-                {lastCar.car_status == 3 && CacheCompany.company_type == 1 && (
-                  <Button onClick={this.onCancelDepark}>取消发车</Button>
-                )}
-                {lastCar.car_status == 3 && CacheCompany.company_type != 1 && (
-                  <Button onClick={this.onArrive}>到车确认</Button>
-                )}
-                {lastCar.car_status == 4 && CacheCompany.company_type != 1 && (
-                  <Button onClick={this.onCancelArrive}>取消到车</Button>
-                )}
-                {selectedRows.length > 0 && CacheCompany.company_type == 1 && (
-                  <Button onClick={this.onCancelEntrunk}>取消货物装车</Button>
-                )}
-              </div>
-            }
-            {showPrintButton && (
-              <span>
-                <Button onClick={this.onPrintOrder}>货物清单打印</Button>
-                <Button onClick={this.onDownloadOrder}>货物清单下载</Button>
-              </span>
-            )}
+                  )}
+                  {lastCar.car_status < 3 && CacheCompany.company_type == 1 && (
+                    <Button onClick={this.onDepark}>发车</Button>
+                  )}
+                  {lastCar.car_status == 3 && CacheCompany.company_type == 1 && (
+                    <Button onClick={this.onCancelDepark}>取消发车</Button>
+                  )}
+                  {lastCar.car_status == 3 && CacheCompany.company_type != 1 && (
+                    <Button onClick={this.onArrive}>到车确认</Button>
+                  )}
+                  {lastCar.car_status == 4 && CacheCompany.company_type != 1 && (
+                    <Button onClick={this.onCancelArrive}>取消到车</Button>
+                  )}
+                  {selectedRows.length > 0 && CacheCompany.company_type == 1 && (
+                    <Button onClick={this.onCancelEntrunk}>取消货物装车</Button>
+                  )}
+                </span>)}
+              {showPrintButton && (
+                <span>
+                  <Button onClick={this.onPrintOrder}>货物清单打印</Button>
+                  <Button onClick={this.onDownloadOrder}>货物清单下载</Button>
+                </span>
+              )}
+            </div>
             <StandardTable
               className={styles.dataTable}
               selectedRows={selectedRows}
