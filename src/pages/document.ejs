@@ -21,6 +21,8 @@
     <webview id="printWebview" src="/print.html" nodeintegration style="visibility: hidden;"></webview>
   </div>
   <script>
+      const fs = window.require('fs');
+      const { remote } = window.require("electron");
       const printOrderWebview = document.querySelector('#printOrderWebview')
       printOrderWebview.addEventListener('ipc-message', () => {
         if (event.channel === 'webview-print-do') {
@@ -41,8 +43,18 @@
           printWebview.print({ silent: false, printBackground: true })
         }
         else if (event.channel === 'webview-print-pdf') {
-          console.log('pppppppppppppppppppppp')
-          printWebview.printToPDF({ silent: false, printBackground: true, pageSize: 'A4'})
+          const pdfData = printWebview.printToPDF({ printBackground: true, pageSize: 'A4'}, function(error, data) {
+            if (error) throw error;
+            let curDate = new Date()
+            let defaultFileName = `${curDate.getFullYear()}${curDate.getMonth()+1}${curDate.getDate()}${curDate.getTime()}.pdf`
+            const fileName = remote.dialog.showSaveDialogSync(remote.getCurrentWindow(), {defaultPath: defaultFileName});
+            fs.writeFile(fileName, data, function(error) {
+                if (error)
+                  throw error;
+                console.log('success')
+              })
+
+          })
         }
       })
   </script>
