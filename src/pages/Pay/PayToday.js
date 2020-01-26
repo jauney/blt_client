@@ -511,6 +511,7 @@ class TableList extends PureComponent {
 
   // 打印
   onPrint = async () => {
+    // 打印
     this.setState({
       printModalVisible: true,
     });
@@ -785,6 +786,7 @@ class TableList extends PureComponent {
             {selectedRows.length > 0 && (
               <span>
                 <Button onClick={this.onCancelPay}>取消下账</Button>
+                <Button onClick={this.onPrint}>下 载</Button>
               </span>
             )}
             <StandardTable

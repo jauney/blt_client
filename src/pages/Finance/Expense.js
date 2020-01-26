@@ -78,7 +78,7 @@ class AddFormDialog extends PureComponent {
         expensetype_id: newExpenseType ? '' : fieldsValue.expensetype_id,
         expensetype: newExpenseType ? fieldsValue.expensetype_id : expenseType,
         expense_reason: fieldsValue.expense_reason,
-        remark: fieldsValue.expense_reason,
+        remark: fieldsValue.remark,
       });
 
       if (!record.expense_id) {

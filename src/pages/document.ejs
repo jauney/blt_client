@@ -38,7 +38,11 @@
       const printWebview = document.querySelector('#printWebview')
       printWebview.addEventListener('ipc-message', () => {
         if (event.channel === 'webview-print-do') {
-          printWebview.print({ silent: true, printBackground: true })
+          printWebview.print({ silent: false, printBackground: true })
+        }
+        else if (event.channel === 'webview-print-pdf') {
+          console.log('pppppppppppppppppppppp')
+          printWebview.printToPDF({ silent: false, printBackground: true, pageSize: 'A4'})
         }
       })
   </script>

@@ -633,7 +633,9 @@ class TableList extends PureComponent {
     this.getLastCarInfo()
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
+      if (!fieldsValue.site_id) {
+        delete fieldsValue.site_id
+      }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'untrunkorder/getOrderListAction',
@@ -906,7 +908,7 @@ class TableList extends PureComponent {
 
     let allowClearSite = true
     let siteSelectList = siteList
-    if (CacheSite.site_type == 1 || CacheCompany.company_type == 2) {
+    if (CacheSite.site_type == 1) {
       allowClearSite = false
       siteSelectList = [CacheSite]
     }

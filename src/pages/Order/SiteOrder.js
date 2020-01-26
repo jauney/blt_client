@@ -1404,11 +1404,20 @@ class TableList extends PureComponent {
   };
 
   // 打印订单
-  printOrder = (data) => {
+  printOrder = async (data) => {
     const {
       company: { branchCompanyList },
       site: { siteList },
     } = this.props;
+    const { dispatch } = this.props;
+    // 获取收货人信息
+    const getCustomer = await dispatch({
+      type: 'customer/queryCustomerAction',
+      payload: {
+        type: 0, getcustomer_id: data.getcustomer_id
+      },
+    });
+
     let getCustomerType = ''
     if (data.getcustomer_type == 1) { getCustomerType = 'V' } else if (data.getcustomer_type == 9) { getCustomerType = 'H' }
     let sendCustomerType = ''
@@ -1504,7 +1513,7 @@ class TableList extends PureComponent {
     </table>
     <table>
       <tr>
-        <td>收货地址:${data.getcustomer_address || ''}</td>
+        <td>收货地址:${data.getcustomer_address || getCustomer.getcustomer_address || ''}</td>
       </tr>
       <tr>
         <td>备注:${data.remark || ''}</td>

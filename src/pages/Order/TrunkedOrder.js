@@ -1072,6 +1072,71 @@ class TableList extends PureComponent {
     }
   };
 
+  // 下载货物清单
+  onDownloadOrder = () => {
+    const { selectedRows } = this.state
+    let styles = `
+    <style>
+    .content, .header {text-align: center;}
+    table {width: 100%; border-collapse: collapse; border-spacing: 0;}
+    table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
+    .col3 {width: 33%;}
+    .col3-1 {width: 10%;}
+    .col3-2 {width: 45%;}
+    .txt-bold {font-weight: bold; font-size: 12px;}
+    .split {width: 100%; height: 5px;}
+    .col4 {width: 25%;}
+    .col2-1 {width: 35%;}
+    .col2-2 {width: 65%;}
+    .desc {font-size: 8px;}
+    </style>`
+    let html = `
+    <div class="header">陕西远诚宝路通物流</div>
+    <div class="content">
+    <table>
+      <tr>
+        <th class="col3 txt-bold">货单号</th>
+        <th class="col3 txt-bold">发货客户</th>
+        <th class="col3 txt-bold">收货客户</th>
+        <th class="col3 txt-bold">实收货款</th>
+        <th class="col3 txt-bold">折后运费</th>
+        <th class="col3 txt-bold">运费方式</th>
+        <th class="col3 txt-bold">垫付</th>
+        <th class="col3 txt-bold">保价费</th>
+        <th class="col3 txt-bold">货物名称</th>
+        <th class="col3 txt-bold">发车时间</th>
+        <th class="col3 txt-bold">站点</th>
+      </tr>
+      ${selectedRows.forEach(item => {
+      let transType = '提付'
+      if (item.trans_type == 1) {
+        transType = '回付'
+      }
+      else if (item.trans_type == 2) {
+        transType = '现付'
+      }
+      `<tr>
+        <td>${item.order_code}</td>
+        <td>${item.sendcustomer_name}</td>
+        <td>${item.getcustomer_name}</td>
+        <td>${item.order_real}</td>
+        <td>${item.trans_discount}</td>
+        <td>${item.order_advancepay_amount}</td>
+        <td>${item.insurance_fee}</td>
+        <td>${item.order_name}</td>
+        <td>${moment(Number(item.depart_date || 0)).format('YYYY-MM-DD HH:mm:ss')}</td>
+        <td>${item.site_name}</td>
+        </tr>`
+    })}
+    </table>
+    </div>
+    `
+    //告诉渲染进程，开始渲染打印内容
+    const printOrderWebview = document.querySelector('#printWebview')
+    console.log('&&&&&&&&&&&&&&&&&')
+    printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type: 'pdf' })
+  }
+
   onEntrunkModalCancel = () => {
     // setTimeout(() => this.addBtn.blur(), 0);
     this.setState({

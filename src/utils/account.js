@@ -92,11 +92,7 @@ export function getSelectedDownAccount(sltDatas = []) {
     }
 
     //是否“回付”运费
-    if (
-      order.trans_type &&
-      order.trans_type == 3 &&
-      Number(order.order_amount) > 0
-    ) {
+    if (order.trans_type == 1 || order.trans_type == 2) {
       totalTransFunds += Number(order.trans_discount || order.trans_amount);
     }
 
