@@ -28,6 +28,7 @@ import { getSelectedAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Courier.less';
+import { printOrder } from '@/utils/print'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
 const FormItem = Form.Item;
@@ -567,7 +568,30 @@ class TableList extends PureComponent {
   };
 
   // 打印托运单
-  onPrintCheckList = () => { }
+  onPrintCheckList = async () => {
+    const {
+      company: { branchCompanyList },
+      site: { siteList },
+      dispatch
+    } = this.props;
+    const { selectedRows } = this.state;
+    if (selectedRows.length <= 0) {
+      message.info('请选择需要打印的记录')
+      return
+    }
+    for (var i = 0; i < selectedRows.length; i++) {
+      const data = selectedRows[i]
+      // 获取收货人信息
+      const getCustomer = await dispatch({
+        type: 'customer/queryCustomerAction',
+        payload: {
+          type: 0, getcustomer_id: data.getcustomer_id
+        },
+      });
+
+      printOrder({ getCustomer, data, branchCompanyList, siteList })
+    }
+  }
 
   // 到货通知
   onArriveNotify = () => { }

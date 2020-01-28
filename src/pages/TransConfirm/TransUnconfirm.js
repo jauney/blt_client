@@ -362,7 +362,7 @@ class TableList extends PureComponent {
     const account = getSelectedAccount(selectedRows)
     Modal.confirm({
       title: '确认',
-      content: `确定确认所选订单的运费吗(总计：${account.totalXianInsurance + account.totalXianSettleTransFunds}})？`,
+      content: `确定确认所选订单的运费吗(总计：${account.totalXianInsurance + account.totalXianSettleTransFunds})？`,
       okText: '确认',
       cancelText: '取消',
       onOk: this.onConfirmTrans,

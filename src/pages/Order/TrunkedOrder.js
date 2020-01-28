@@ -1073,6 +1073,12 @@ class TableList extends PureComponent {
     }
   };
 
+  // 打印货物清单
+  onPrintOrder = () => {
+    const { selectedRows } = this.state
+    print({ selectedRows })
+  }
+
   // 下载货物清单
   onDownloadOrder = () => {
     const { selectedRows } = this.state
