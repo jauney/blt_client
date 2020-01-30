@@ -455,12 +455,12 @@ class TableList extends PureComponent {
     const companyOption = {};
     // 默认勾选第一个公司
     companyOption.initialValue =
-      CacheCompany.company_type == 1 ? currentCompany.company_id || '' : CacheCompany.company_id;
+      CacheCompany.company_type == 1 ? '' : CacheCompany.company_id;
 
     let allowClearSite = true
     let siteSelectList = siteList
     let siteOption = {}
-    if (CacheSite.site_type != 3 || CacheCompany.company_type == 2) {
+    if (CacheCompany.company_type == 2) {
       siteOption.initialValue = CacheSite.site_id;
       allowClearSite = false
       siteSelectList = [CacheSite]
@@ -471,7 +471,7 @@ class TableList extends PureComponent {
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onCompanySelect}
               style={{ width: '100px' }}
               allowClear={CacheCompany.company_type == 1 ? true : false}
@@ -489,7 +489,7 @@ class TableList extends PureComponent {
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
             {getFieldDecorator('site_id', siteOption)(
-              <Select placeholder="请选择" style={{ width: '100px' }} allowClear={allowClearSite}>
+              <Select placeholder="全部" style={{ width: '100px' }} allowClear={allowClearSite}>
                 {siteSelectList.map(ele => {
                   return (
                     <Option key={ele.site_id} value={ele.site_id}>
@@ -502,9 +502,9 @@ class TableList extends PureComponent {
           </FormItem>
         )}
         <FormItem label="配载部">
-          {getFieldDecorator('shipsite_id', { initialValue: currentShipSite.site_id })(
+          {getFieldDecorator('shipsite_id', {})(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               style={{ width: '100px' }}
               onSelect={this.onShipSiteSelect}
               allowClear
@@ -520,14 +520,14 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="货车编号">
-          {getFieldDecorator('car_code', { initialValue: lastCar.car_code })(
+          {getFieldDecorator('car_code', {})(
             <Input placeholder="请输入" style={{ width: '100px' }} />
           )}
         </FormItem>
         <FormItem label="录入日期">
           {getFieldDecorator('create_date', {
             initialValue: moment(new Date().getTime()),
-          })(<DatePicker placeholder="请选择" format="YYYY-MM-DD" style={{ width: '130px' }} />)}
+          })(<DatePicker placeholder="全部" format="YYYY-MM-DD" style={{ width: '130px' }} />)}
         </FormItem>
 
         <FormItem label="托运日期">

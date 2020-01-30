@@ -571,7 +571,7 @@ class TableList extends PureComponent {
           <FormItem label="站点">
             {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
               <Select
-                placeholder="请选择"
+                placeholder="全部"
                 onSelect={this.onSiteSelect}
                 onChange={this.onSiteChange}
                 style={{ width: '100px' }}
@@ -594,7 +594,7 @@ class TableList extends PureComponent {
 
         <FormItem label="支出类型">
           {getFieldDecorator('expensetype_id')(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               {expenseTypes.map(ele => {
                 return (
                   <Option key={ele.expensetype_id} value={ele.expensetype_id}>

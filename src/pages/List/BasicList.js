@@ -226,7 +226,7 @@ class BasicList extends PureComponent {
             })(
               <DatePicker
                 showTime
-                placeholder="请选择"
+                placeholder="全部"
                 format="YYYY-MM-DD HH:mm:ss"
                 style={{ width: '100%' }}
               />
@@ -237,7 +237,7 @@ class BasicList extends PureComponent {
               rules: [{ required: true, message: '请选择任务负责人' }],
               initialValue: current.owner,
             })(
-              <Select placeholder="请选择">
+              <Select placeholder="全部">
                 <SelectOption value="付晓晓">付晓晓</SelectOption>
                 <SelectOption value="周毛毛">周毛毛</SelectOption>
               </Select>

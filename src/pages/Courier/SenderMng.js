@@ -393,7 +393,7 @@ class TableList extends PureComponent {
               <Form onSubmit={this.handleSearch} layout="inline">
                 <FormItem label="公司">
                   <Select
-                    placeholder="请选择"
+                    placeholder="全部"
                     onSelect={this.onCompanySelect}
                     style={{ width: '100px' }}
                     defaultValue={CacheCompany.company_id}

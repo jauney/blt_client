@@ -187,7 +187,7 @@ class AddFormDialog extends PureComponent {
             <Col {...this.col2Layout}>
               <FormItem {...this.formItemLayout} label="类型">
                 {form.getFieldDecorator('customer_type', { initialValue: record.customer_type })(
-                  <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+                  <Select placeholder="全部" style={{ width: '150px' }} allowClear>
                     {customerTypes.map(ele => {
                       return (
                         <Option key={ele.customertype} value={ele.customertype}>
@@ -531,7 +531,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="客户分类">
           {getFieldDecorator('customer_type', {})(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               {customerTypes.map(ele => {
                 return (
                   <Option key={ele.customertype} value={ele.customertype}>
@@ -545,7 +545,7 @@ class TableList extends PureComponent {
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               style={{ width: '100px' }}
               onSelect={this.onSiteSelect}
               allowClear={CacheSite.site_type == 3 ? true : false}

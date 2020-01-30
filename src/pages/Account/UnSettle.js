@@ -656,7 +656,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司" {...formItemLayout}>
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={allowClearFlag}>
+            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={allowClearFlag}>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -675,7 +675,7 @@ class TableList extends PureComponent {
         <FormItem label="货车编号" {...formItemLayout}>
           {getFieldDecorator('shipsite_id', {})(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onShipSiteSelect}
               style={{ width: '100px' }}
               allowClear
@@ -696,7 +696,7 @@ class TableList extends PureComponent {
         <FormItem label="收货人姓名" {...formItemLayout}>
           {getFieldDecorator('getcustomer_id')(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onGetCustomerSelect}
               style={{ width: '100px' }}
               allowClear
@@ -725,7 +725,7 @@ class TableList extends PureComponent {
         <FormItem label="发货人姓名" {...formItemLayout}>
           {getFieldDecorator('sendcustomer_id')(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onSendCustomerSelect}
               style={{ width: '100px' }}
               allowClear

@@ -273,7 +273,7 @@ class TableList extends PureComponent {
           <FormItem label="分公司">
             {getFieldDecorator('company_id', companyOption)(
               <Select
-                placeholder="请选择"
+                placeholder="全部"
                 onSelect={this.onCompanySelect}
                 style={{ width: '200px' }}
               >
@@ -291,7 +291,7 @@ class TableList extends PureComponent {
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
             {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-              <Select placeholder="请选择" style={{ width: '150px' }}>
+              <Select placeholder="全部" style={{ width: '150px' }}>
                 {[CacheSite].map(ele => {
                   return (
                     <Option key={ele.site_id} value={ele.site_id}>
@@ -305,7 +305,7 @@ class TableList extends PureComponent {
         )}
         <FormItem label="经办人">
           {getFieldDecorator('operator_id', {})(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '150px' }} allowClear>
               {operatorList.map(ele => {
                 return (
                   <Option key={ele.user_id} value={ele.user_id}>
@@ -320,7 +320,7 @@ class TableList extends PureComponent {
           {getFieldDecorator('account_date', {
             rules: [{ required: true, message: '请填写日期' }],
             initialValue: moment(new Date().getTime()),
-          })(<DatePicker placeholder="请选择" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
+          })(<DatePicker placeholder="全部" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

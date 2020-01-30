@@ -180,7 +180,7 @@ class AddFormDialog extends PureComponent {
                   rules: [{ required: true, message: '请填写类型' }],
                 })(
                   <Select
-                    placeholder="请选择"
+                    placeholder="全部"
                     style={{ width: '150px' }}
                   >
                     {debtTypes.map(ele => {
@@ -203,7 +203,7 @@ class AddFormDialog extends PureComponent {
                   rules: [{ required: true, message: '请填写姓名' }],
                 })(
                   <Select
-                    placeholder="请选择"
+                    placeholder="全部"
                     onSelect={this.onGetCustomerSelect}
                     style={{ width: '150px' }}
                     allowClear
@@ -302,6 +302,13 @@ class TableList extends PureComponent {
       dataIndex: 'debtuser_name',
       width: '80px',
       sorter: true,
+    },
+    {
+      title: '归零日期',
+      dataIndex: 'settle_date',
+      width: '170px',
+      sorter: true,
+      render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss') || ''}</span>,
     },
     {
       title: '备注',
@@ -634,7 +641,7 @@ class TableList extends PureComponent {
           <FormItem label="站点">
             {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
               <Select
-                placeholder="请选择"
+                placeholder="全部"
                 onSelect={this.onSiteSelect}
                 onChange={this.onSiteChange}
                 style={{ width: '100px' }}
@@ -653,7 +660,7 @@ class TableList extends PureComponent {
         <FormItem label="姓名">
           {getFieldDecorator('debtuser_id')(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onDebtUserSelect}
               style={{ width: '100px' }}
               allowClear
@@ -682,7 +689,7 @@ class TableList extends PureComponent {
 
         <FormItem label="分类">
           {getFieldDecorator('debttype_id')(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               {debtTypes.map(ele => {
                 return (
                   <Option key={ele.debttype_id} value={ele.debttype_id}>
@@ -695,7 +702,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="归零项">
           {getFieldDecorator('debt_status')(
-            <Select placeholder="请选择" style={{ width: '80px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '80px' }} allowClear>
               <Option value={0}>未归零</Option>
               <Option value={1}>已归零</Option>
             </Select>

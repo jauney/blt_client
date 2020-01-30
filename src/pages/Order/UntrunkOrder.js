@@ -67,7 +67,7 @@ class CreateReceiverForm extends PureComponent {
           <Col md={12} sm={24}>
             <FormItem label="接货人">
               {getFieldDecorator('receiver_id', {})(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
+                <Select placeholder="全部" style={{ width: '150px' }}>
                   {receiverList.map(ele => {
                     return (
                       <Option key={ele.courier_id} value={ele.courier_id}>
@@ -283,7 +283,7 @@ class CreateEntrunkForm extends PureComponent {
               {getFieldDecorator('car_date', {
                 rules: [{ required: true, message: '请填写拉货日期' }],
                 initialValue: moment(new Date().getTime()),
-              })(<DatePicker placeholder="请选择" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
+              })(<DatePicker placeholder="全部" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
             </FormItem>
           </Col>
           <Col md={12} sm={24}>
@@ -919,7 +919,7 @@ class TableList extends PureComponent {
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onChange={this.onCompanySelect}
               style={{ width: '100px' }}
               allowClear={CacheCompany.company_type == 2 ? false : true}
@@ -937,7 +937,7 @@ class TableList extends PureComponent {
 
         <FormItem label="站点">
           {getFieldDecorator('site_id', siteOption)(
-            <Select placeholder="请选择" style={{ width: '100px' }} onChange={this.onSiteSelect} allowClear={allowClearSite}>
+            <Select placeholder="全部" style={{ width: '100px' }} onChange={this.onSiteSelect} allowClear={allowClearSite}>
               {siteSelectList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
@@ -952,7 +952,7 @@ class TableList extends PureComponent {
         <FormItem label="配载部">
           {getFieldDecorator('shipsite_id', { initialValue: currentShipSite.site_id })(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               style={{ width: '100px' }}
               onChange={this.onShipSiteSelect}
               allowClear
@@ -970,7 +970,7 @@ class TableList extends PureComponent {
 
         <FormItem label="接货人">
           {getFieldDecorator('receiver_id', {})(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               {receiverList.map(ele => {
                 return (
                   <Option key={ele.courier_id} value={ele.courier_id}>

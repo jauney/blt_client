@@ -707,13 +707,13 @@ class TableList extends PureComponent {
     } = this.props;
     // 上站需要对下站打款确认
     const companyList = CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany];
-    const companyOption = { initialValue: companyList.length > 0 ? companyList[0].company_id : '' };
+    const companyOption = { initialValue: CacheCompany.company_type == 1 ? '' : CacheCompany.company_id };
 
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" style={{ width: '80px' }} onSelect={this.onCompanySelect}>
+            <Select placeholder="全部" style={{ width: '80px' }} onSelect={this.onCompanySelect} allowClear={CacheCompany.company_type == 1 ? true : false}>
               {companyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -727,7 +727,7 @@ class TableList extends PureComponent {
 
         <FormItem label="确认打款">
           {getFieldDecorator('transfer_type', { initialValue: '0' })(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               <Option value="1">已确认打款</Option>
               <Option value="0">未确认打款</Option>
             </Select>

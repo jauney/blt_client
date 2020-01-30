@@ -133,7 +133,7 @@ class AddFormDialog extends PureComponent {
                   initialValue: (record.role && record.role.role_id) || '',
                   rules: [{ required: true, message: '请选择用户角色' }],
                 })(
-                  <Select placeholder="请选择" style={{ width: '150px' }}>
+                  <Select placeholder="全部" style={{ width: '150px' }}>
                     {roleList.map(ele => {
                       return (
                         ele.company_type == currentCompany.company_type && (
@@ -474,7 +474,7 @@ class TableList extends PureComponent {
                 <FormItem label="公司">
                   {getFieldDecorator('company_id', companyOption)(
                     <Select
-                      placeholder="请选择"
+                      placeholder="全部"
                       onSelect={this.onCompanySelect}
                       style={{ width: '150px' }}
                     >
@@ -491,7 +491,7 @@ class TableList extends PureComponent {
                 {currentCompany.company_type == 1 && (
                   <FormItem label="站点">
                     <Select
-                      placeholder="请选择"
+                      placeholder="全部"
                       onSelect={this.onSiteSelect}
                       style={{ width: '150px' }}
                       allowClear

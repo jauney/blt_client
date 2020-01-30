@@ -183,7 +183,7 @@ class AddFormDialog extends PureComponent {
             <Col {...this.col2Layout}>
               <FormItem {...this.formItemLayout} label="类型">
                 {form.getFieldDecorator('customer_type', { initialValue: record.customer_type })(
-                  <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+                  <Select placeholder="全部" style={{ width: '150px' }} allowClear>
                     {customerTypes.map(ele => {
                       return (
                         <Option key={ele.customertype} value={ele.customertype}>
@@ -537,7 +537,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
+            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -550,7 +550,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="客户分类">
           {getFieldDecorator('customer_type', {})(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               {customerTypes.map(ele => {
                 return (
                   <Option key={ele.customertype} value={ele.customertype}>
@@ -563,7 +563,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="站点">
           {getFieldDecorator('site_id', {})(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               {normalSiteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>

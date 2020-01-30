@@ -157,7 +157,7 @@ class TableList extends PureComponent {
     });
   };
 
-  onCompanySelect = async (value, option) => {};
+  onCompanySelect = async (value, option) => { };
 
   handleSearch = e => {
     e && e.preventDefault();
@@ -229,7 +229,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => {};
+  onRowClick = (record, index, event) => { };
 
   tableFooter = () => {
     const {
@@ -256,7 +256,7 @@ class TableList extends PureComponent {
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
             {getFieldDecorator('site_id', {})(
-              <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+              <Select placeholder="全部" style={{ width: '150px' }} allowClear>
                 {siteList.map(ele => {
                   return (
                     <Option key={ele.site_id} value={ele.site_id}>
@@ -273,7 +273,7 @@ class TableList extends PureComponent {
           {getFieldDecorator('account_date', {
             rules: [{ required: true, message: '请填写日期' }],
             initialValue: moment(new Date().getTime()),
-          })(<DatePicker placeholder="请选择" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
+          })(<DatePicker placeholder="请填写日期" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

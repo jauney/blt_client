@@ -130,7 +130,7 @@ class AddFormDialog extends PureComponent {
                   initialValue: record.site_type || 1,
                   rules: [{ required: true, message: '请填写站点类型' }],
                 })(
-                  <Select placeholder="请选择" style={{ width: '150px' }}>
+                  <Select placeholder="全部" style={{ width: '150px' }}>
                     <Option key={1} value={1}>
                       普通站点
                     </Option>

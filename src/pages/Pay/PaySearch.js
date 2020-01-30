@@ -97,7 +97,7 @@ class DownAccountForm extends PureComponent {
               <FormItem labelCol={{ span: 3, offset: 2 }} label="下账总金额">
                 {accountData.totalActualGoodsFund || '0'} - 代办费 *
                 <Select
-                  placeholder="请选择"
+                  placeholder="全部"
                   defaultValue="0"
                   onSelect={this.onAgencyFeeSelect}
                   style={{ width: '80px' }}
@@ -752,7 +752,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '80px' }} allowClear>
+            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '80px' }} allowClear>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -770,7 +770,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="站点">
           {getFieldDecorator('site_id', {})(
-            <Select placeholder="请选择" style={{ width: '80px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '80px' }} allowClear>
               {normalSiteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
@@ -784,7 +784,7 @@ class TableList extends PureComponent {
         <FormItem label="发货人姓名">
           {getFieldDecorator('sendcustomer_id')(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onSendCustomerSelect}
               style={{ width: '80px' }}
               allowClear

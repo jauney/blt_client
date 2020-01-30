@@ -322,7 +322,7 @@ export default [
             path: '/search/stock',
             name: 'stock',
             component: './Search/Stock',
-            authority: ['company_admin', 'site_admin'],
+            authority: ['company_admin', 'site_admin', 'site_pay'],
           },
         ],
       },

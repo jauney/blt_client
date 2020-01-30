@@ -97,7 +97,7 @@ class AddFormDialog extends PureComponent {
                   initialValue: '',
                   rules: [{ required: true, message: '请选择接货人' }],
                 })(
-                  <Select placeholder="请选择" style={{ width: '150px' }}>
+                  <Select placeholder="全部" style={{ width: '150px' }}>
                     {receiverList.map(ele => {
                       return (
                         <Option key={ele.courier_id} value={ele.courier_id}>
@@ -702,7 +702,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear>
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -716,7 +716,7 @@ class TableList extends PureComponent {
         <FormItem label="站点" {...formItemLayout}>
           {getFieldDecorator('site_id', siteOption)(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onSiteSelect}
               onChange={this.onSiteSelect}
               style={{ width: '100px' }}
@@ -743,7 +743,7 @@ class TableList extends PureComponent {
         <FormItem label="货车编号" {...formItemLayout}>
           {getFieldDecorator('shipsite_id', {})(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onShipSiteSelect}
               style={{ width: '100px' }}
               allowClear
@@ -763,7 +763,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="接货人" {...formItemLayout}>
           {getFieldDecorator('receiver_id', {})(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
+            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
               {receiverList.map(ele => {
                 return (
                   <Option key={ele.courier_id} value={ele.courier_id}>
@@ -777,7 +777,7 @@ class TableList extends PureComponent {
         <FormItem label="收货人姓名" {...formItemLayout}>
           {getFieldDecorator('sendcustomer_id')(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onSendCustomerSelect}
               style={{ width: '100px' }}
               allowClear

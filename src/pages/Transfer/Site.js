@@ -669,7 +669,7 @@ class TableList extends PureComponent {
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               style={{ width: '100px' }}
               onSelect={this.onSiteSelect}
               allowClear={CacheRole.role_value == 'site_pay' ? true : false}
@@ -686,7 +686,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="确认打款">
           {getFieldDecorator('transfer_type', { initialValue: '0' })(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               <Option value="1">已确认打款</Option>
               <Option value="0">未确认打款</Option>
             </Select>

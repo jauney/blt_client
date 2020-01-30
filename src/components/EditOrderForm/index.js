@@ -23,7 +23,7 @@ import {
   Tag,
 } from 'antd';
 import styles from './index.less';
-import { CacheRole } from '@/utils/storage';
+import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { isTemplateElement } from '@babel/types';
 
 const FormItem = Form.Item;
@@ -328,7 +328,7 @@ class OrderEditForm extends PureComponent {
               >
                 {form.getFieldDecorator('trans_type', { initialValue: record.trans_type })(
                   <Select
-                    placeholder="请选择"
+                    placeholder="全部"
                     style={{ width: '70px' }}
                     tabIndex={-1}
                     onSelect={this.onTransTypeSelect}
@@ -419,7 +419,7 @@ class OrderEditForm extends PureComponent {
               {form.getFieldDecorator('transfer_type', {
                 initialValue: record.transfer_type ? record.transfer_type : '',
               })(
-                <Select placeholder="请选择" style={{ width: '100%' }} tabIndex={-1}>
+                <Select placeholder="全部" style={{ width: '100%' }} tabIndex={-1}>
                   <Option value={1}>转出</Option>
                   <Option value={2}>转进</Option>
                 </Select>
@@ -470,14 +470,14 @@ class OrderEditForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="实收货款">
               {form.getFieldDecorator('order_real', { initialValue: record.order_real })(
-                <Input placeholder="请输入" />
+                <Input placeholder="请输入" readOnly={CacheCompany.company_type == 1 ? false : true} />
               )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="实收运费">
               {form.getFieldDecorator('trans_discount', { initialValue: record.trans_discount })(
-                <Input placeholder="请输入" />
+                <Input placeholder="请输入" readOnly={CacheCompany.company_type == 1 ? true : false} />
               )}
             </FormItem>
           </Col>

@@ -78,7 +78,7 @@ class AddFormDialog extends PureComponent {
         incometype_id: newIncomeType ? '' : fieldsValue.incometype_id,
         incometype: newIncomeType ? fieldsValue.incometype_id : incomeType,
         income_reason: fieldsValue.income_reason,
-        remark: fieldsValue.income_reason,
+        remark: fieldsValue.remark,
       });
 
       if (!record.income_id) {
@@ -521,7 +521,7 @@ class TableList extends PureComponent {
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
             {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-              <Select placeholder="请选择" onSelect={this.onSiteSelect} style={{ width: '150px' }}>
+              <Select placeholder="全部" onSelect={this.onSiteSelect} style={{ width: '150px' }}>
                 {[CacheSite].map(ele => {
                   return (
                     <Option key={ele.site_id} value={ele.site_id}>
@@ -540,7 +540,7 @@ class TableList extends PureComponent {
 
         <FormItem label="收入分类">
           {getFieldDecorator('incometype_id')(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '150px' }} allowClear>
               {incomeTypes.map(ele => {
                 return (
                   <Option key={ele.incometype_id} value={ele.incometype_id}>

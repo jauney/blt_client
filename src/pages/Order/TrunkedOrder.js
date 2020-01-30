@@ -69,7 +69,7 @@ class CreateReceiverForm extends PureComponent {
           <Col md={12} sm={24}>
             <FormItem label="接货人">
               {getFieldDecorator('receiver_id', {})(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
+                <Select placeholder="全部" style={{ width: '150px' }}>
                   {receiverList.map(ele => {
                     return (
                       <Option key={ele.courier_id} value={ele.courier_id}>
@@ -284,7 +284,7 @@ class CreateDepartForm extends PureComponent {
               {getFieldDecorator('car_date', {
                 rules: [{ required: true, message: '请填写拉货日期' }],
                 initialValue: moment(new Date().getTime()),
-              })(<DatePicker placeholder="请选择" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
+              })(<DatePicker placeholder="全部" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
             </FormItem>
           </Col>
           <Col md={12} sm={24}>
@@ -934,6 +934,7 @@ class TableList extends PureComponent {
       message.success('取消发车成功！');
 
       this.getLastCarInfo();
+      this.handleSearch()
       this.onCancelDepartCancel();
     } else {
       message.error(result.msg);
@@ -1129,7 +1130,7 @@ class TableList extends PureComponent {
 
     let allowClearSite = true
     let siteSelectList = siteList
-    let siteOption = { initialValue: CacheSite.site_id }
+    let siteOption = {}
     if (CacheSite.site_type == 1 || CacheCompany.company_type == 2) {
       allowClearSite = false
       siteSelectList = [CacheSite]
@@ -1140,7 +1141,7 @@ class TableList extends PureComponent {
         <FormItem label="分公司">
           {getFieldDecorator('company_id', { initialValue: currentCompany.company_id })(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onCompanySelect}
               allowClear={CacheCompany.company_type == 1 ? true : false}
               style={{ width: '100px' }}
@@ -1158,7 +1159,7 @@ class TableList extends PureComponent {
         {CacheCompany.company_type == 1 && (
           <FormItem label="站点">
             {getFieldDecorator('site_id', siteOption)(
-              <Select placeholder="请选择" style={{ width: '100px' }} allowClear={allowClearSite}>
+              <Select placeholder="全部" style={{ width: '100px' }} allowClear={allowClearSite}>
                 {siteSelectList.map(ele => {
                   return (
                     <Option key={ele.site_id} value={ele.site_id}>
@@ -1173,7 +1174,7 @@ class TableList extends PureComponent {
         <FormItem label="配载部">
           {getFieldDecorator('shipsite_id', { initialValue: currentShipSite.site_id })(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onShipSiteSelect}
               style={{ width: '100px' }}
               allowClear

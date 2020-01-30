@@ -528,7 +528,7 @@ class TableList extends PureComponent {
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onCompanySelect}
               style={{ width: '200px' }}
               allowClear
@@ -546,7 +546,7 @@ class TableList extends PureComponent {
         <FormItem label="站点">
           {getFieldDecorator('site_id', {})(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               style={{ width: '150px' }}
               onSelect={this.onSiteSelect}
               allowClear
@@ -563,7 +563,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="运费">
           {getFieldDecorator('trans_type', {})(
-            <Select placeholder="请选择" style={{ width: '150px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '150px' }} allowClear>
               <Option value={1}>现付</Option>
               <Option value={2}>回付</Option>
             </Select>
@@ -572,7 +572,7 @@ class TableList extends PureComponent {
         <FormItem label="发货人姓名">
           {getFieldDecorator('sendcustomer_id')(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onSendCustomerSelect}
               style={{ width: '200px' }}
               allowClear

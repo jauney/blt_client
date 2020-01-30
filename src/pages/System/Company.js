@@ -320,7 +320,7 @@ class AddFormDialog extends PureComponent {
                   initialValue: record.remember_sender || 1,
                   rules: [{ required: true, message: '' }],
                 })(
-                  <Select placeholder="请选择" style={{ width: '100px' }}>
+                  <Select placeholder="全部" style={{ width: '100px' }}>
                     <Option value={1}>是</Option>
                     <Option value={0}>否</Option>
                   </Select>

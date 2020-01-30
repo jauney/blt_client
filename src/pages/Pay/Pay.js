@@ -98,7 +98,7 @@ class DownAccountForm extends PureComponent {
               <FormItem labelCol={{ span: 3, offset: 2 }} label="下账总金额">
                 {accountData.totalActualGoodsFund || '0'} - 代办费 *
                 <Select
-                  placeholder="请选择"
+                  placeholder="全部"
                   defaultValue="4"
                   onSelect={this.onAgencyFeeSelect}
                   style={{ width: '80px' }}
@@ -110,16 +110,8 @@ class DownAccountForm extends PureComponent {
                   <Option value="4">4‰</Option>
                   <Option value="5">5‰</Option>
                 </Select>
-                {accountData.totalTransFunds ? (
-                  <span> `- (运费) ${accountData.totalTransFunds}`</span>
-                ) : (
-                    <span />
-                  )}
-                ={' '}
-                {console.log(accountData.totalActualGoodsFund, accountData.totalShouldGoodsFund, agencyFee, accountData.totalTransFunds)}
                 {accountData.totalActualGoodsFund -
-                  Math.ceil((accountData.totalShouldGoodsFund * agencyFee) / 1000) -
-                  accountData.totalTransFunds || 0}
+                  Math.ceil((accountData.totalShouldGoodsFund * agencyFee) / 1000)}
               </FormItem>
             </Col>
           </Row>
@@ -731,7 +723,7 @@ class TableList extends PureComponent {
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onCompanySelect}
               style={{ width: '80px' }}
               allowClear
@@ -753,7 +745,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="站点">
           {getFieldDecorator('site_id', {})(
-            <Select placeholder="请选择" style={{ width: '80px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '80px' }} allowClear>
               {normalSiteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
@@ -767,7 +759,7 @@ class TableList extends PureComponent {
         <FormItem label="发货人姓名">
           {getFieldDecorator('sendcustomer_id')(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onSendCustomerSelect}
               style={{ width: '80px' }}
               allowClear

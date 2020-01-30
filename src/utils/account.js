@@ -70,6 +70,7 @@ export function getSelectedDownAccount(sltDatas = []) {
   let totalShouldGoodsFunds = 0;
   let totalActualGoodsFunds = 0;
   let totalTransFunds = 0;
+  let totalPayTransFunds = 0;
   let sendCustomerId = '';
   let bankAccount = ''
   let isSameSendCustomer = true;
@@ -111,6 +112,7 @@ export function getSelectedDownAccount(sltDatas = []) {
 
   accountData.totalShouldGoodsFund = totalShouldGoodsFunds
   accountData.totalActualGoodsFund = totalActualGoodsFunds;
+  accountData.totalPayTransFunds = totalPayTransFunds;
   accountData.totalTransFunds = totalTransFunds;
   accountData.isSameSendCustomer = isSameSendCustomer;
   accountData.isSameBankAccount = isSameBankAccount;

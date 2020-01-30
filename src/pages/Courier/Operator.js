@@ -110,7 +110,7 @@ class AddFormDialog extends PureComponent {
                   initialValue: '',
                   rules: [{ required: true, message: '请选择送货人' }],
                 })(
-                  <Select placeholder="请选择" style={{ width: '150px' }}>
+                  <Select placeholder="全部" style={{ width: '150px' }}>
                     {senderList.map(ele => {
                       return (
                         <Option key={ele.courier_id} value={ele.courier_id}>
@@ -678,7 +678,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司" {...formItemLayout}>
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="请选择" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={allowClear}>
+            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={allowClear}>
               {(CacheCompany.company_type == 2 ? [CacheCompany] : branchCompanyList).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -693,7 +693,7 @@ class TableList extends PureComponent {
           <FormItem label="站点" {...formItemLayout}>
             {getFieldDecorator('site_id', siteOption)(
               <Select
-                placeholder="请选择"
+                placeholder="全部"
                 onSelect={this.onSiteSelect}
                 onChange={this.onSiteSelect}
                 style={{ width: '100px' }}
@@ -721,7 +721,7 @@ class TableList extends PureComponent {
         <FormItem label="货车编号" {...formItemLayout}>
           {getFieldDecorator('shipsite_id', {})(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onShipSiteSelect}
               style={{ width: '100px' }}
               allowClear
@@ -741,7 +741,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="经办人" {...formItemLayout}>
           {getFieldDecorator('operator_id', {})(
-            <Select placeholder="请选择" style={{ width: '100px' }}>
+            <Select placeholder="全部" style={{ width: '100px' }}>
               {operatorList.map(ele => {
                 return (
                   <Option key={ele.user_id} value={ele.user_id}>

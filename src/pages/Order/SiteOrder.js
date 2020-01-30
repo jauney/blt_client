@@ -650,7 +650,7 @@ class CreateForm extends PureComponent {
             <FormItem {...this.formItemLayout} label="分公司">
               {form.getFieldDecorator('company_id', companyOption)(
                 <Select
-                  placeholder="请选择"
+                  placeholder="全部"
                   onSelect={this.onCompanySelect}
                   style={{ width: '100%' }}
                 >
@@ -668,7 +668,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="站点">
               {form.getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-                <Select placeholder="请选择" style={{ width: '100%' }} tabIndex={-1}>
+                <Select placeholder="全部" style={{ width: '100%' }} tabIndex={-1}>
                   {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(ele => {
                     return (
                       <Option key={ele.site_id} value={ele.site_id}>
@@ -703,7 +703,7 @@ class CreateForm extends PureComponent {
                 rules: [{ required: true, message: '请填写收货人姓名' }],
               })(
                 <Select
-                  placeholder="请选择"
+                  placeholder="全部"
                   onSelect={this.onGetCustomerSelect}
                   style={{ width: '100%' }}
                   allowClear
@@ -744,7 +744,7 @@ class CreateForm extends PureComponent {
                 rules: [{ required: true, message: '请填写发货人姓名' }],
               })(
                 <Select
-                  placeholder="请选择"
+                  placeholder="全部"
                   onSelect={this.onSendCustomerSelect}
                   style={{ width: '100%' }}
                   allowClear
@@ -799,7 +799,7 @@ class CreateForm extends PureComponent {
             <FormItem label="" labelCol={{ span: 0 }} wrapperCol={{ span: 4 }}>
               {form.getFieldDecorator('trans_type', { initialValue: 0 })(
                 <Select
-                  placeholder="请选择"
+                  placeholder="全部"
                   style={{ width: '70px' }}
                   tabIndex={-1}
                   onSelect={this.onTransTypeSelect}
@@ -883,7 +883,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="转进/转出">
               {form.getFieldDecorator('transfer_type')(
-                <Select placeholder="请选择" style={{ width: '100%' }} tabIndex={-1}>
+                <Select placeholder="全部" style={{ width: '100%' }} tabIndex={-1}>
                   <Option value="1" sele>
                     转出
                   </Option>
@@ -996,9 +996,10 @@ class CreateEntrunkForm extends PureComponent {
           <Col md={12} sm={24}>
             <FormItem label="配载站">
               {getFieldDecorator('shipsite_id', {
+                initialValue: entrunkSiteList[0].site_id,
                 rules: [{ required: true, message: '请选择配载站' }],
               })(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
+                <Select placeholder="全部" style={{ width: '150px' }}>
                   {entrunkSiteList.map(ele => {
                     return (
                       <Option key={ele.site_id} value={ele.site_id}>
@@ -1015,7 +1016,7 @@ class CreateEntrunkForm extends PureComponent {
               {getFieldDecorator('receiver_id', {
                 rules: [{ required: true, message: '请选择接货人' }],
               })(
-                <Select placeholder="请选择" style={{ width: '150px' }}>
+                <Select placeholder="全部" style={{ width: '150px' }}>
                   {receiverList.map(ele => {
                     return (
                       <Option key={ele.courier_id} value={ele.courier_id}>
@@ -1551,16 +1552,12 @@ class TableList extends PureComponent {
     } = this.props;
     const companyOption = {};
 
-    // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
-    }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onCompanySelect}
               allowClear={CacheCompany.company_type == 1 ? true : false}
               style={{ width: '100px' }}
@@ -1577,8 +1574,8 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="站点">
-          {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-            <Select placeholder="请选择" style={{ width: '100px' }}>
+          {getFieldDecorator('site_id', {})(
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(item => {
                 return <Option value={item.site_id}>{item.site_name}</Option>;
               })}
@@ -1587,8 +1584,8 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="经办人">
-          {getFieldDecorator('operator_id', { initialValue: CacheUser.user_id })(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+          {getFieldDecorator('operator_id', {})(
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               <Option value={CacheUser.user_id} selected>
                 {CacheUser.user_name}
               </Option>

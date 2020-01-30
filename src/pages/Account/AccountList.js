@@ -662,7 +662,7 @@ class TableList extends PureComponent {
         <FormItem label="分公司" {...formItemLayout}>
           {getFieldDecorator('company_id', companyOption)(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onCompanySelect}
               style={{ width: '100px' }}
               allowClear={allowClearFlag}
@@ -684,7 +684,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="有无货款" {...formItemLayout}>
           {getFieldDecorator('order_amount', { initialValue: -1 })(
-            <Select placeholder="请选择" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               <Option value={0}>无</Option>
               <Option value={-1}>有</Option>
             </Select>
@@ -693,7 +693,7 @@ class TableList extends PureComponent {
         <FormItem label="收货人姓名" {...formItemLayout}>
           {getFieldDecorator('getcustomer_id')(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onGetCustomerSelect}
               style={{ width: '100px' }}
               allowClear
@@ -722,7 +722,7 @@ class TableList extends PureComponent {
         <FormItem label="发货人姓名" {...formItemLayout}>
           {getFieldDecorator('sendcustomer_id')(
             <Select
-              placeholder="请选择"
+              placeholder="全部"
               onSelect={this.onSendCustomerSelect}
               style={{ width: '100px' }}
               allowClear
@@ -750,7 +750,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="结算状态" {...formItemLayout}>
           {getFieldDecorator('order_status')(
-            <Select placeholder="请选择" style={{ width: '80px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '80px' }} allowClear>
               <Option value={6}>已结算</Option>
               <Option value={5}>未结算</Option>
             </Select>
