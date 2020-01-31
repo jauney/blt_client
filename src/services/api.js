@@ -11,7 +11,7 @@ import { async } from 'q';
 
 const httpLink = new HttpLink({ uri: 'http://47.105.84.59:3008/graphql' });
 
-//const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3008/graphql' });
+// const httpLink = new HttpLink({ uri: 'http://127.0.0.1:3008/graphql' });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
   // add the authorization to the headers
@@ -2248,7 +2248,7 @@ export async function getTransfers(params) {
 // getTransferStatistic
 export async function getTransferStatistic(params) {
   if (params.filter && params.filter.transfer_type) {
-    params.filter.transfer_type = Number(params.filter.transfer_type);
+    delete params.filter.transfer_type
   }
   return client
     .query({
