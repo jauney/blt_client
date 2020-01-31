@@ -1,8 +1,9 @@
 
 import moment from 'moment';
 
-export function print({ selectedRows = [], type = '' }) {
+export function print({ selectedRows = [], type = '', lastCar = {} }) {
   let bodyHTML = ''
+  let totalTransFund = 0
   selectedRows.forEach(item => {
     let transType = '提付'
     if (item.trans_type == 1) {
@@ -11,6 +12,7 @@ export function print({ selectedRows = [], type = '' }) {
     else if (item.trans_type == 2) {
       transType = '现付'
     }
+    totalTransFund += Number(item.trans_discount || 0)
     bodyHTML += `<tr>
         <td>${item.order_code || ''}</td>
         <td>${item.sendcustomer_name || ''}</td>
@@ -21,8 +23,8 @@ export function print({ selectedRows = [], type = '' }) {
         <td>${item.order_advancepay_amount || ''}</td>
         <td>${item.insurance_fee || ''}</td>
         <td>${item.order_name || ''}</td>
-        <td>${ item.depart_date ? moment(Number(item.depart_date || 0)).format('YYYY-MM-DD HH:mm:ss') : ''}</td>
         <td>${item.site_name || ''}</td>
+        <td>${item.remark || ''}</td>
         </tr>`
   })
   let styles = `
@@ -31,10 +33,20 @@ export function print({ selectedRows = [], type = '' }) {
     table {width: 100%; border-collapse: collapse; border-spacing: 0;}
     table th { font-weight: bold; }
     table th, table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
+    .carinfo th {border: 0;}
     </style>`
   let html = `
     <div class="header">陕西远诚宝路通物流</div>
     <div class="content">
+    <table class="carinfo">
+      <tr>
+      <th style="width:50px;">车牌号：${lastCar.driver_plate}</th>
+      <th style="width:50px;">电话：${lastCar.driver_mobile}</th>
+      <th style="width:50px;">姓名：${lastCar.driver_name}</th>
+      <th style="width:50px;">货车运费：${lastCar.car_fee}</th>
+      <th style="width:50px;">货车编号：${lastCar.car_code}</th>
+      </tr>
+    </table>
     <table>
       <tr>
         <th style="width:50px;">货单号</th>
@@ -46,10 +58,12 @@ export function print({ selectedRows = [], type = '' }) {
         <th style="width:50px;">垫付</th>
         <th style="width:50px;">保价费</th>
         <th style="width:120px;">货物名称</th>
-        <th style="width:110px;">发车时间</th>
         <th style="width:50px;">站点</th>
+        <th style="width:50px;">备注</th>
       </tr>
       ${bodyHTML}
+      <tr><td colspan="10">合计运费</td><td>${totalTransFund}</td></tr>
+      <tr><td colspan="10">日期</td><td>${new Date().toLocaleDateString()}</td></tr>
     </table>
     </div>
     `
@@ -59,9 +73,11 @@ export function print({ selectedRows = [], type = '' }) {
 }
 
 /**
+ *
  * 打印托运单
+ * @param {footer} 是否打印回执单
  */
-export function printOrder({ getCustomer = {}, data = {}, branchCompanyList = [], siteList = [] }) {
+export function printOrder({ getCustomer = {}, data = {}, branchCompanyList = [], siteList = [], footer = false }) {
   let getCustomerType = ''
   if (data.getcustomer_type == 1) { getCustomerType = 'V' } else if (data.getcustomer_type == 9) { getCustomerType = 'H' }
   let sendCustomerType = ''
@@ -217,7 +233,71 @@ export function printOrder({ getCustomer = {}, data = {}, branchCompanyList = []
     </table>
     </div>
     `
+
+  const footerHtml = `<div class="header">陕西远诚宝路通物流(回执单)</div>
+  <table>
+      <tr>
+        <td class="col3 txt-bold">到货站:${data.company_name || ''}</td>
+        <td class="col3 txt-bold">发货站:${data.site_name || ''}</td>
+        <td class="col3 txt-bold">单号:${data.order_code || ''}</td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td class="col3-1">${getCustomerType}</td>
+        <td class="col3-2">收货人:${data.getcustomer_name || ''}</td>
+        <td class="col3-2">电话:${data.getcustomer_mobile || ''}</td>
+      </tr>
+      <tr>
+        <td class="col3-1">${sendCustomerType}</td>
+        <td class="col3-2">发货人:${data.sendcustomer_name || ''}</td>
+        <td class="col3-2">电话:${data.sendcustomer_mobile || ''}</td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <th class="split"></th>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td class="col4">货款:${data.order_amount || ''}</td>
+        <td class="col4">运费:${transType}</td>
+        <td class="col4">运价:${data.trans_amount || ''}</td>
+        <td class="col4">折后:${data.trans_discount || ''}</td>
+      </tr>
+      <tr>
+        <td class="col4">保额:${data.insurance_amount || ''}</td>
+        <td class="col4">保费:${data.insurance_fee || ''}</td>
+        <td class="col4">垫付:${data.order_advancepay_amount || ''}</td>
+        <td class="col4">送货费:${data.deliver_amount || ''}</td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td class="col2-1">合计:</td>
+        <td class="col2-2">账号:${data.bank_account || ''}</td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td class="col2-2">货物名称:${data.order_name || ''}</td>
+        <td class="col2-1"> </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td class="col3-1">收货人签字:</td>
+        <td class="col3-2">付款方式：微信/支付宝/现金/银行转账 </td>
+        <td class="col3-3">送货人签字:</td>
+      </tr>
+    </table>
+  `
+  let printHtml = html
+  if (footer) {
+    printHtml = `${html}${footerHtml}`
+  }
   //告诉渲染进程，开始渲染打印内容
   const printOrderWebview = document.querySelector('#printOrderWebview')
-  printOrderWebview.send('webview-print-render', `${styles}${html}`)
+  printOrderWebview.send('webview-print-render', `${styles}${printHtml}`)
 }

@@ -589,7 +589,7 @@ class TableList extends PureComponent {
         },
       });
 
-      printOrder({ getCustomer, data, branchCompanyList, siteList })
+      printOrder({ getCustomer, data, branchCompanyList, siteList, footer: true })
     }
   }
 
@@ -675,10 +675,22 @@ class TableList extends PureComponent {
     const { selectedRows = [] } = this.state;
     const orderIds = [];
     const customerIds = [];
+    let endDate = moment(Number(new Date().getTime()));
+    let cannotEditFlag = false
     selectedRows.forEach(item => {
       orderIds.push(item.order_id);
       customerIds.push(item.getcustomer_id);
+
+      let startDate = moment(Number(item.settle_date));
+      let diffHours = endDate.diff(startDate, 'hours');
+      if (diffHours >= 48) {
+        cannotEditFlag = true
+      }
     });
+    if (cannotEditFlag) {
+      message.error('结账超过48小时记录不可编辑');
+      return;
+    }
 
     const result = await dispatch({
       type: 'courier/updateCustomerCourierAction',
@@ -996,7 +1008,7 @@ class TableList extends PureComponent {
           record={record}
           onCancelModal={this.onUpdateOrderModalCancel}
           handleSearch={this.handleSearch}
-          isEdit={1}
+          isEdit={0}
           dispatch={dispatch}
         />
         <AddFormDialog

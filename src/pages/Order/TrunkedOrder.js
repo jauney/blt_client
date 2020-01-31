@@ -1076,14 +1076,20 @@ class TableList extends PureComponent {
 
   // 打印货物清单
   onPrintOrder = () => {
+    const {
+      car: { lastCar },
+    } = this.props;
     const { selectedRows } = this.state
-    print({ selectedRows })
+    print({ selectedRows, lastCar })
   }
 
   // 下载货物清单
   onDownloadOrder = () => {
+    const {
+      car: { lastCar },
+    } = this.props;
     const { selectedRows } = this.state
-    print({ selectedRows, type: 'pdf' })
+    print({ selectedRows, type: 'pdf', lastCar })
   }
 
   onEntrunkModalCancel = () => {

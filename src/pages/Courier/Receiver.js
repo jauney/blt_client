@@ -886,7 +886,7 @@ class TableList extends PureComponent {
           record={record}
           onCancelModal={this.onUpdateOrderModalCancel}
           handleSearch={this.handleSearch}
-          isEdit={1}
+          isEdit={0}
           dispatch={dispatch}
         />
         <AddFormDialog
