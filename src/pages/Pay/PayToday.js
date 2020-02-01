@@ -29,6 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Pay.less';
 import { async } from 'q';
+import { printPayOrder } from '@/utils/print'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
 const FormItem = Form.Item;
@@ -503,72 +504,10 @@ class TableList extends PureComponent {
     }
   };
 
-  // 打印
-  onPrint = async () => {
-    // 打印
-    this.setState({
-      printModalVisible: true,
-    });
-  };
-
-  onPrintCancel = async () => {
-    this.setState({
-      printModalVisible: false,
-    });
-  };
-
-  onPrintOk = async () => {
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'pay/printAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('打印成功！');
-
-      this.onPrintCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
   // 下载
   onDownload = async () => {
-    this.setState({
-      downloadModalVisible: true,
-    });
-  };
-
-  onDownloadCancel = async () => {
-    this.setState({
-      downloadModalVisible: false,
-    });
-  };
-
-  onDownloadOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'pay/downloadAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('下载成功！');
-
-      this.onDownloadCancel();
-    } else {
-      message.error(result.msg);
-    }
+    const { selectedRows } = this.state
+    printPayOrder({ selectedRows, type: 'pdf' })
   };
 
   /**
@@ -779,7 +718,7 @@ class TableList extends PureComponent {
             {selectedRows.length > 0 && (
               <span>
                 <Button onClick={this.onCancelPay}>取消下账</Button>
-                <Button onClick={this.onPrint}>下 载</Button>
+                <Button onClick={this.onDownload}>下 载</Button>
               </span>
             )}
             <StandardTable
@@ -844,36 +783,7 @@ class TableList extends PureComponent {
         >
           <p>您确认签字么？</p>
         </Modal>
-        <Modal
-          title="确认"
-          okText="确认"
-          cancelText="取消"
-          visible={cancelDownAccountModalVisible}
-          onOk={this.onCancelDownAccountOk}
-          onCancel={this.onCancelDownAccountCancel}
-        >
-          <p>您确认取消下账么？</p>
-        </Modal>
-        <Modal
-          title="确认"
-          okText="确认"
-          cancelText="取消"
-          visible={printModalVisible}
-          onOk={this.onPrintOk}
-          onCancel={this.onPrintCancel}
-        >
-          <p>您确认结账打印么？</p>
-        </Modal>
-        <Modal
-          title="确认"
-          okText="确认"
-          cancelText="取消"
-          visible={downloadModalVisible}
-          onOk={this.onDownloadOk}
-          onCancel={this.onDownloadCancel}
-        >
-          <p>您确认要下载么？</p>
-        </Modal>
+
       </div>
     );
   }

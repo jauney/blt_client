@@ -2,6 +2,7 @@ export default {
   'menu.home': '首页',
   'menu.order': '托运单管理',
   'menu.order.siteorder': '站点货物清单',
+  'menu.order.untrunklist': '未装车总览',
   'menu.order.untrunkorder': '未装车清单',
   'menu.order.trunkedorder': '已装车清单',
   'menu.order.orderlist': '货物清单总览',

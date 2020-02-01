@@ -647,6 +647,8 @@ class TableList extends PureComponent {
         payload: { ...searchParams },
       });
     });
+
+    this.standardTable.cleanSelectedKeys()
   };
 
   /**
@@ -866,6 +868,11 @@ class TableList extends PureComponent {
     //this.setState({ selectedRowKeys });
   };
 
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
+
   tableFooter = () => {
     const {
       untrunkorder: {
@@ -1050,6 +1057,7 @@ class TableList extends PureComponent {
               )}
             </div>
             <StandardTable
+              onRef={this.onRefTable}
               className={styles.dataTable}
               selectedRows={selectedRows}
               loading={loading}

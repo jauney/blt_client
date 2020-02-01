@@ -301,3 +301,57 @@ export function printOrder({ getCustomer = {}, data = {}, branchCompanyList = []
   const printOrderWebview = document.querySelector('#printOrderWebview')
   printOrderWebview.send('webview-print-render', `${styles}${printHtml}`)
 }
+
+
+export function printPayOrder({ selectedRows = [] }) {
+  let bodyHTML = ''
+  let totalTransFund = 0
+  selectedRows.forEach(item => {
+    let orderNum = ''
+    if (item.order_code) {
+      orderNum = item.order_code.split(',').length
+    }
+
+    totalTransFund += Number(item.trans_discount || 0)
+    bodyHTML += `<tr>
+        <td>${item.sendcustomer_name || ''}</td>
+        <td>${orderNum || ''}</td>
+        <td>${item.order_amount || ''}</td>
+        <td>${item.pay_amount || ''}</td>
+        <td>${item.agency_fee || ''}</td>
+        <td>${item.bank_account || ''}</td>
+        <td>${item.pay_date && moment(Number(item.pay_date || 0)).format('YYYY-MM-DD HH:mm:ss') || ''}</td>
+        <td>${item.order_code || ''}</td>
+        </tr>`
+  })
+  let styles = `
+    <style>
+    .content, .header {text-align: center; padding: 10px 0 20px;}
+    table {width: 100%; border-collapse: collapse; border-spacing: 0;}
+    table th { font-weight: bold; }
+    table th, table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
+    .carinfo th {border: 0;}
+    </style>`
+  let html = `
+    <div class="header">陕西远诚宝路通物流</div>
+    <div class="content">
+    <table>
+      <tr>
+        <th style="width:50px;">发货客户</th>
+        <th style="width:50px;">合计票数</th>
+        <th style="width:50px;">合计货款</th>
+        <th style="width:50px;">合计付款</th>
+        <th style="width:50px;">代办费</th>
+        <th style="width:50px;">银行账号</th>
+        <th style="width:50px;">付款时间</th>
+        <th style="width:50px;">票号</th>
+      </tr>
+      ${bodyHTML}
+    </table>
+    </div>
+    `
+  //告诉渲染进程，开始渲染打印内容
+  const printOrderWebview = document.querySelector('#printWebview')
+  printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type: 'pdf' })
+}
+

@@ -24,6 +24,11 @@ export default [
         authority: ['site_orderuser', 'site_admin', 'site_searchuser', 'company_account', 'company_admin'],
         routes: [
           {
+            path: '/order/untrunklist',
+            name: 'untrunklist',
+            component: './Order/UntrunkList',
+          },
+          {
             path: '/order/siteorder',
             name: 'siteorder',
             component: './Order/SiteOrder',

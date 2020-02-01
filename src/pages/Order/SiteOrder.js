@@ -28,7 +28,7 @@ import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
-import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
+import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { async } from 'q';
 import { printOrder } from '@/utils/print'
 
@@ -1351,8 +1351,15 @@ class TableList extends PureComponent {
         type: 'order/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+
+      this.standardTable.cleanSelectedKeys()
     });
   };
+
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
 
   handleModalVisible = flag => {
     this.setState({
@@ -1651,6 +1658,7 @@ class TableList extends PureComponent {
               )}
             </div>
             <StandardTable
+              onRef={this.onRefTable}
               selectedRows={selectedRows}
               className={styles.dataTable}
               loading={loading}

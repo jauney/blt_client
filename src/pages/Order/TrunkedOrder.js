@@ -695,7 +695,14 @@ class TableList extends PureComponent {
         payload: { ...searchParams },
       });
     });
+
+    this.standardTable.cleanSelectedKeys()
   };
+
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
 
   /**
    * 表格排序、分页响应
@@ -1290,6 +1297,7 @@ class TableList extends PureComponent {
               )}
             </div>
             <StandardTable
+              onRef={this.onRefTable}
               className={styles.dataTable}
               selectedRows={selectedRows}
               loading={loading}
