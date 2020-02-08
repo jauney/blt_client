@@ -844,7 +844,7 @@ class TableList extends PureComponent {
           record={record}
           onCancelModal={this.onUpdateOrderModalCancel}
           handleSearch={this.handleSearch}
-          isEdit={['site_admin', 'site_pay', 'site_receipt'].indexOf(CacheRole.role_value) >= 0 ? 1 : 0}
+          isEdit={['site_admin', 'site_pay', 'site_receipt', 'company_admin', 'company_account'].indexOf(CacheRole.role_value) >= 0 ? 1 : 0}
           dispatch={dispatch}
           currentCompany={currentCompany}
           currentGetCustomer={currentGetCustomer}

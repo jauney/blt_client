@@ -33,7 +33,7 @@
       const printLabelWebview = document.querySelector('#printLabelWebview')
       printLabelWebview.addEventListener('ipc-message', () => {
         if (event.channel === 'webview-print-do') {
-          printLabelWebview.print({ silent: false, printBackground: true })
+          printLabelWebview.print({ silent: false, printBackground: true, deviceName: 'TSC TTP-244CE' })
         }
       })
 

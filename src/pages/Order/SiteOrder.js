@@ -979,7 +979,7 @@ class CreateEntrunkForm extends PureComponent {
     const {
       form: { getFieldDecorator },
       receiverList,
-      entrunkSiteList,
+      entrunkSiteList = [],
       selectedRows,
     } = this.props;
 
@@ -990,15 +990,17 @@ class CreateEntrunkForm extends PureComponent {
       });
       return `合计 ${selectedRows.length} 票，共计 ${totalOrders} 件`;
     };
+
+    let shipSiteOption = { rules: [{ required: true, message: '请选择配载站' }] }
+    if (entrunkSiteList && entrunkSiteList[0]) {
+      shipSiteOption.initialValue = entrunkSiteList[0].site_id
+    }
     return (
       <Form layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={12} sm={24}>
             <FormItem label="配载站">
-              {getFieldDecorator('shipsite_id', {
-                initialValue: entrunkSiteList[0].site_id,
-                rules: [{ required: true, message: '请选择配载站' }],
-              })(
+              {getFieldDecorator('shipsite_id', shipSiteOption)(
                 <Select placeholder="全部" style={{ width: '150px' }}>
                   {entrunkSiteList.map(ele => {
                     return (

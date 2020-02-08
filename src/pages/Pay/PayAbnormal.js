@@ -109,6 +109,7 @@ class DownAccountForm extends PureComponent {
                   <Option value="4">4‰</Option>
                   <Option value="5">5‰</Option>
                 </Select>
+                =
                 {accountData.totalActualGoodsFund -
                   Math.ceil((accountData.totalShouldGoodsFund * agencyFee) / 1000)}
               </FormItem>

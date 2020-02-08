@@ -291,8 +291,6 @@ class TableList extends PureComponent {
         });
       }
 
-      fieldsValue.company_id = currentCompany.company_id || CacheCompany.company_id;
-
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'transfer/getTransferAction',
@@ -707,7 +705,10 @@ class TableList extends PureComponent {
     } = this.props;
     // 上站需要对下站打款确认
     const companyList = CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany];
-    const companyOption = { initialValue: CacheCompany.company_type == 1 ? '' : CacheCompany.company_id };
+    const companyOption = {}
+    if (CacheCompany.company_type != 1) {
+      companyOption.initialValue = CacheCompany.company_id
+    }
 
     return (
       <Form onSubmit={this.handleSearch} layout="inline">

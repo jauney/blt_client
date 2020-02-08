@@ -470,14 +470,14 @@ class OrderEditForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="实收货款">
               {form.getFieldDecorator('order_real', { initialValue: record.order_real })(
-                <Input placeholder="请输入" readOnly={CacheCompany.company_type == 1 ? false : true} />
+                <Input placeholder="请输入" readOnly={CacheCompany.company_type == 1 ? true : false} />
               )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="实收运费">
               {form.getFieldDecorator('trans_discount', { initialValue: record.trans_discount })(
-                <Input placeholder="请输入" readOnly={CacheCompany.company_type == 1 ? true : false} />
+                <Input placeholder="请输入" readOnly={CacheCompany.company_type == 1 ? false : true} />
               )}
             </FormItem>
           </Col>

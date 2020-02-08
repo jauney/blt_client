@@ -715,7 +715,7 @@ class TableList extends PureComponent {
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
-            {selectedRows.length > 0 && (
+            {selectedRows.length > 0 && CacheRole.role_value != 'site_admin' && (
               <span>
                 <Button onClick={this.onCancelPay}>取消下账</Button>
                 <Button onClick={this.onDownload}>下 载</Button>

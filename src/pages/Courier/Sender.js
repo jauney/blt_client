@@ -681,14 +681,14 @@ class TableList extends PureComponent {
       orderIds.push(item.order_id);
       customerIds.push(item.getcustomer_id);
 
-      let startDate = moment(Number(item.settle_date));
+      let startDate = moment(Number(item.pay_date));
       let diffHours = endDate.diff(startDate, 'hours');
       if (diffHours >= 48) {
         cannotEditFlag = true
       }
     });
     if (cannotEditFlag) {
-      message.error('结账超过48小时记录不可编辑');
+      message.error('下账超过48小时记录不可编辑');
       return;
     }
 

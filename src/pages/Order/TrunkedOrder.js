@@ -1147,6 +1147,7 @@ class TableList extends PureComponent {
     if (CacheSite.site_type == 1 || CacheCompany.company_type == 2) {
       allowClearSite = false
       siteSelectList = [CacheSite]
+      siteOption.initialValue = CacheSite.site_id
     }
 
     return (
