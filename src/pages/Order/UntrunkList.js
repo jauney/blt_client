@@ -271,7 +271,7 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
+      fieldsValue.order_status = [0, 1]
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'order/getOrderListAction',
@@ -300,14 +300,15 @@ class TableList extends PureComponent {
     } = this.props;
     const { dispatch } = this.props;
     // 获取收货人信息
-    const getCustomer = await dispatch({
+    const { getCustomer = {}, sendCustomer = {} } = await dispatch({
       type: 'customer/queryCustomerAction',
       payload: {
-        type: 0, getcustomer_id: data.getcustomer_id
+        getcustomer_id: data.getcustomer_id,
+        sendcustomer_id: data.sendcustomer_id
       },
     });
 
-    printOrder({ getCustomer, data, branchCompanyList, siteList })
+    printOrder({ getCustomer, sendCustomer, data, branchCompanyList, siteList })
 
     for (let i = 0; i < data.order_num; i++) {
       const printLableWebview = document.querySelector('#printLabelWebview')
@@ -374,8 +375,22 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       site: { siteList },
     } = this.props;
-    const companyOption = {};
-
+    let companyOption = {};
+    let companyOptions = branchCompanyList;
+    let allowClearCompany = true;
+    let allowClear = false
+    let siteOption = { initialValue: CacheSite.site_id }
+    let selectSites = [CacheSite]
+    if (CacheSite.site_type == 3 || CacheSite.site_type == 2) {
+      selectSites = siteList
+      allowClear = true
+      siteOption = {}
+    }
+    if (CacheCompany.company_type == 2) {
+      companyOption = { initialValue: CacheCompany.company_id }
+      companyOptions = [CacheCompany]
+      allowClearCompany = false
+    }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
@@ -383,10 +398,10 @@ class TableList extends PureComponent {
             <Select
               placeholder="全部"
               onSelect={this.onCompanySelect}
-              allowClear={CacheCompany.company_type == 1 ? true : false}
+              allowClear={allowClearCompany}
               style={{ width: '100px' }}
             >
-              {branchCompanyList.map(ele => {
+              {companyOptions.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
                     {ele.company_name}
@@ -398,9 +413,9 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="站点">
-          {getFieldDecorator('site_id', {})(
-            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
-              {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(item => {
+          {getFieldDecorator('site_id', siteOption)(
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear={allowClear}>
+              {selectSites.map(item => {
                 return <Option value={item.site_id}>{item.site_name}</Option>;
               })}
             </Select>

@@ -291,6 +291,11 @@ class TableList extends PureComponent {
     }
   };
 
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
+
   /**
    * 获取订单信息
    */
@@ -318,6 +323,8 @@ class TableList extends PureComponent {
         type: 'transfer/getTransferStatisticAction',
         payload: { ...searchParams },
       });
+
+      this.standardTable.cleanSelectedKeys()
     });
   };
 
@@ -758,6 +765,7 @@ class TableList extends PureComponent {
               {selectedRows.length > 0 && showAddOperateButton && <Button onClick={this.onDelTransfer}>删除打款</Button>}
             </div>
             <StandardTable
+              onRef={this.onRefTable}
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}

@@ -371,7 +371,10 @@ class TableList extends PureComponent {
 
     this.getOrderList();
   };
-
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
   /**
    * 获取订单信息
    */
@@ -394,6 +397,7 @@ class TableList extends PureComponent {
         type: 'pay/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+      this.standardTable.cleanSelectedKeys()
     });
   };
 
@@ -447,7 +451,7 @@ class TableList extends PureComponent {
       message.success('下账成功！');
 
       this.onDownCancel();
-      this.handleSearch();
+      setTimeout(() => { this.handleSearch(); }, 1000)
     } else {
       message.error(result.msg);
     }
@@ -839,6 +843,7 @@ class TableList extends PureComponent {
               )}
             </div>
             <StandardTable
+              onRef={this.onRefTable}
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}

@@ -358,7 +358,10 @@ class TableList extends PureComponent {
 
     this.getOrderList();
   };
-
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
   /**
    * 获取订单信息
    */
@@ -398,6 +401,7 @@ class TableList extends PureComponent {
         type: 'orderlist/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+      this.standardTable.cleanSelectedKeys()
     });
     this.getLastCarInfo();
   };
@@ -457,13 +461,13 @@ class TableList extends PureComponent {
     companyOption.initialValue =
       CacheCompany.company_type == 1 ? '' : CacheCompany.company_id;
 
-    let allowClearSite = true
-    let siteSelectList = siteList
-    let siteOption = {}
-    if (CacheCompany.company_type == 2) {
-      siteOption.initialValue = CacheSite.site_id;
-      allowClearSite = false
-      siteSelectList = [CacheSite]
+    let allowClearSite = false
+    let siteOption = { initialValue: CacheSite.site_id }
+    let siteSelectList = [CacheSite]
+    if (CacheSite.site_type == 3 || CacheSite.site_type == 2) {
+      siteSelectList = siteList
+      allowClearSite = true
+      siteOption = {}
     }
 
     return (
@@ -566,6 +570,7 @@ class TableList extends PureComponent {
               )}
             </div>
             <StandardTable
+              onRef={this.onRefTable}
               className={styles.dataTable}
               selectedRows={selectedRows}
               loading={loading}

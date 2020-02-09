@@ -58,7 +58,9 @@ export default {
     },
     *getOrderListAction({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
-      payload.filter.order_status = 0;
+      if (!payload.filter.order_status) {
+        payload.filter.order_status = 0;
+      }
       const response = yield call(getOrderList, payload);
       yield put({
         type: 'getOrderListReducer',

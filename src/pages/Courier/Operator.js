@@ -376,6 +376,11 @@ class TableList extends PureComponent {
     this.getOrderList();
   };
 
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
+
   /**
    * 获取订单信息
    */
@@ -403,6 +408,8 @@ class TableList extends PureComponent {
         type: 'courier/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+
+      this.standardTable.cleanSelectedKeys()
     });
   };
 
@@ -790,6 +797,7 @@ class TableList extends PureComponent {
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator} />
             <StandardTable
+              onRef={this.onRefTable}
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
@@ -828,7 +836,7 @@ class TableList extends PureComponent {
           record={record}
           onCancelModal={this.onUpdateOrderModalCancel}
           handleSearch={this.handleSearch}
-          isEdit={1}
+          isEdit={0}
           dispatch={dispatch}
         />
         <AddFormDialog

@@ -279,7 +279,10 @@ class TableList extends PureComponent {
 
     this.getOrderList();
   };
-
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
   /**
    * 获取订单信息
    */
@@ -309,6 +312,8 @@ class TableList extends PureComponent {
         type: 'transconfirm/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+
+      this.standardTable.cleanSelectedKeys()
     });
   };
 
@@ -344,6 +349,14 @@ class TableList extends PureComponent {
   };
 
   onConfirmTransModal = () => {
+    const { selectedRows } = this.state;
+    const orderIds = selectedRows.map(item => {
+      return item.order_id;
+    });
+    if (orderIds.length <= 0) {
+      message.error('请选择需要取消确认运费的记录')
+      return
+    }
     Modal.confirm({
       title: '确认',
       content: '确定取消所选订单的运费吗？',
@@ -372,7 +385,9 @@ class TableList extends PureComponent {
     });
     if (result.code == 0) {
       message.success('取消成功！');
-      this.handleSearch();
+      setTimeout(() => {
+        this.handleSearch();
+      }, 1000)
     } else {
       message.error(result.msg);
     }
@@ -546,6 +561,7 @@ class TableList extends PureComponent {
               )}
             </div>
             <StandardTable
+              onRef={this.onRefTable}
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}

@@ -83,6 +83,7 @@ class StandardTable extends PureComponent {
       rowClassNameHandler,
       onClickHander,
       onDoubleClickHander,
+      onSelectRow,
       ...rest
     } = this.props;
     const { list = [], pagination } = data;
@@ -96,9 +97,6 @@ class StandardTable extends PureComponent {
     const rowSelection = {
       selectedRowKeys,
       onChange: this.handleRowSelectChange,
-      // getCheckboxProps: record => ({
-      //   disabled: record.disabled,
-      // }),
     };
 
     const tableHeight = window.innerHeight - 360

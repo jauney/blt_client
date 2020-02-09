@@ -52,7 +52,7 @@ class AddFormDialog extends PureComponent {
     };
   }
 
-  onAbnormalSelect = (value, option) => {};
+  onAbnormalSelect = (value, option) => { };
 
   onAddHandler = () => {
     const { addFormDataHandle, form, record = {} } = this.props;
@@ -167,7 +167,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {}
+  async componentDidMount() { }
 
   handleSelectRows = rows => {
     this.setState({
@@ -239,6 +239,11 @@ class TableList extends PureComponent {
     this.getOrderList();
   };
 
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
+
   /**
    * 获取订单信息
    */
@@ -258,6 +263,8 @@ class TableList extends PureComponent {
           filter: { company_id: CacheCompany.company_id },
         },
       });
+
+      this.standardTable.cleanSelectedKeys()
     });
   };
 
@@ -366,7 +373,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => {};
+  onRowClick = (record, index, event) => { };
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
@@ -420,6 +427,7 @@ class TableList extends PureComponent {
               </Form>
             </div>
             <StandardTable
+              onRef={this.onRefTable}
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
@@ -430,8 +438,8 @@ class TableList extends PureComponent {
                   total: senderTotal,
                   pageSize,
                   current,
-                  onShowSizeChange: (currentPage, pageSize)=>{
-                    this.setState({pageSize})
+                  onShowSizeChange: (currentPage, pageSize) => {
+                    this.setState({ pageSize })
                   }
                 },
               }}
@@ -440,7 +448,7 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              footer={() => {}}
+              footer={() => { }}
             />
           </div>
         </Card>

@@ -484,6 +484,11 @@ class TableList extends PureComponent {
     this.getOrderList();
   };
 
+  // 调用table子组件
+  onRefTable = (ref) => {
+    this.standardTable = ref
+  }
+
   /**
    * 获取订单信息
    */
@@ -513,6 +518,8 @@ class TableList extends PureComponent {
         type: 'courier/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+
+      this.standardTable.cleanSelectedKeys()
     });
   };
 
@@ -582,14 +589,15 @@ class TableList extends PureComponent {
     for (var i = 0; i < selectedRows.length; i++) {
       const data = selectedRows[i]
       // 获取收货人信息
-      const getCustomer = await dispatch({
+      const { getCustomer = {}, sendCustomer = {} } = await dispatch({
         type: 'customer/queryCustomerAction',
         payload: {
-          type: 0, getcustomer_id: data.getcustomer_id
+          getcustomer_id: data.getcustomer_id,
+          sendcustomer_id: data.sendcustomer_id
         },
       });
 
-      printOrder({ getCustomer, data, branchCompanyList, siteList, footer: true })
+      printOrder({ getCustomer, sendCustomer, data, branchCompanyList, siteList, footer: true })
     }
   }
 
@@ -970,6 +978,7 @@ class TableList extends PureComponent {
               )}
             </div>
             <StandardTable
+              onRef={this.onRefTable}
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}

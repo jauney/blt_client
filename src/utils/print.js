@@ -77,11 +77,11 @@ export function print({ selectedRows = [], type = '', lastCar = {} }) {
  * 打印托运单
  * @param {footer} 是否打印回执单
  */
-export function printOrder({ getCustomer = {}, data = {}, branchCompanyList = [], siteList = [], footer = false }) {
+export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, branchCompanyList = [], siteList = [], footer = false }) {
   let getCustomerType = ''
-  if (data.getcustomer_type == 1) { getCustomerType = 'V' } else if (data.getcustomer_type == 9) { getCustomerType = 'H' }
+  if (getCustomer.getcustomer_type == 1) { getCustomerType = 'V' } else if (getCustomer.getcustomer_type == 9) { getCustomerType = 'H' }
   let sendCustomerType = ''
-  if (data.sendcustomer_type == 1) { sendCustomerType = 'V' } else if (data.sendcustomer_type == 9) { sendCustomerType = 'H' }
+  if (sendCustomer.sendcustomer_type == 1) { sendCustomerType = 'V' } else if (sendCustomer.sendcustomer_type == 9) { sendCustomerType = 'H' }
   let transType = '提付'
   if (data.trans_type == 1) { transType = '现付' } else if (data.trans_type == 2) { transType = '回付' }
   let transferType = ''
@@ -234,7 +234,7 @@ export function printOrder({ getCustomer = {}, data = {}, branchCompanyList = []
     </div>
     `
 
-  const footerHtml = `<div class="header">陕西远诚宝路通物流(回执单)</div>
+  const footerHtml = `<div class="header" style="margin-top: 20px;">陕西远诚宝路通物流(回执单)</div>
   <table>
       <tr>
         <td class="col3 txt-bold">到货站:${data.company_name || ''}</td>
