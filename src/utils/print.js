@@ -50,16 +50,16 @@ export function print({ selectedRows = [], type = '', lastCar = {} }) {
     <table>
       <tr>
         <th style="width:50px;">货单号</th>
-        <th style="width:50px;">发货客户</th>
-        <th style="width:50px;">收货客户</th>
+        <th style="width:40px;">发货客户</th>
+        <th style="width:40px;">收货客户</th>
         <th style="width:50px;">实收货款</th>
-        <th style="width:50px;">折后运费</th>
-        <th style="width:50px;">运费方式</th>
-        <th style="width:50px;">垫付</th>
-        <th style="width:50px;">保价费</th>
-        <th style="width:120px;">货物名称</th>
+        <th style="width:40px;">折后运费</th>
+        <th style="width:40px;">运费方式</th>
+        <th style="width:30px;">垫付</th>
+        <th style="width:40px;">保价费</th>
+        <th style="width:150px;">货物名称</th>
         <th style="width:50px;">站点</th>
-        <th style="width:50px;">备注</th>
+        <th style="width:100px;">备注</th>
       </tr>
       ${bodyHTML}
       <tr><td colspan="10">合计运费</td><td>${totalTransFund}</td></tr>
