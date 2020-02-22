@@ -238,6 +238,15 @@ class TableList extends PureComponent {
       width: '80px',
     },
     {
+      title: '内扣费',
+      dataIndex: 'trans_amount',
+      sorter: true,
+      width: '80px',
+      render: (text, record, index) => (
+        <span>{Number(record.trans_amount || 0) + Number(record.insurance_amount)}</span>
+      ),
+    },
+    {
       title: '银行账号',
       dataIndex: 'bank_account',
       width: '80px',
@@ -551,13 +560,14 @@ class TableList extends PureComponent {
     let orderIds = [];
     let totalAmount = 0;
     selectedRows.forEach(item => {
-      let curDate = moment(new Date().getTime());
-      let diffHours = curDate.subtract(moment(Number(item.pay_date) || 0)).hours();
-      if (diffHours >= 24) {
+      let payDate = moment(moment(Number(item.pay_date) || 0))
+      let curDate = moment(new Date().getTime())
+      let subDays = curDate.diff(payDate, 'hours')
+      if (subDays >= 24) {
         canCancelFlag = false;
       }
-      orderIds.push(item.pay_id);
-      totalAmount += Number(item.pay_amount || item.order_amount || 0);
+      orderIds.push(item.order_id);
+      totalAmount += Number(item.order_real || item.order_amount || 0);
     });
 
     if (!canCancelFlag) {
@@ -603,6 +613,7 @@ class TableList extends PureComponent {
         <span>货款总额：{todayPayStatistic.totalOrderAmount || '0'}</span>
         <span className={styles.footerSplit}>付款总额：{todayPayStatistic.totalPayAmount || '0'}</span>
         <span className={styles.footerSplit}>代办费总额：{todayPayStatistic.totalAgencyFee || '0'}</span>
+        <span className={styles.footerSplit}>内扣总额：{todayPayStatistic.totalTransAmount || '0'}</span>
         <span className={styles.footerSplit}>票数：{todayPayTotal || '0'}</span>
       </div>
     );
@@ -722,12 +733,14 @@ class TableList extends PureComponent {
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
-            {selectedRows.length > 0 && CacheRole.role_value != 'site_admin' && (
-              <span>
-                <Button onClick={this.onCancelPay}>取消下账</Button>
-                <Button onClick={this.onDownload}>下 载</Button>
-              </span>
-            )}
+            <div className={styles.tableListOperator}>
+              {selectedRows.length > 0 && CacheRole.role_value != 'site_admin' && (
+                <span>
+                  <Button onClick={this.onCancelPay}>取消下账</Button>
+                  <Button onClick={this.onDownload}>下 载</Button>
+                </span>
+              )}
+            </div>
             <StandardTable
               onRef={this.onRefTable}
               selectedRows={selectedRows}

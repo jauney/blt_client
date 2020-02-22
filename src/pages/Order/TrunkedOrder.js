@@ -31,7 +31,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { async } from 'q';
-import { print } from '@/utils/print'
+import { printDownLoad } from '@/utils/print'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 
 const FormItem = Form.Item;
@@ -376,8 +376,9 @@ class CreateEntrunkForm extends PureComponent {
       form: { getFieldDecorator },
       currentCompany,
       lastCar,
+      carFeeModalEditable,
     } = this.props;
-
+    let isDisabled = currentCompany.company_type == 2 || !carFeeModalEditable ? true : false
     return (
       <Form layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
@@ -406,7 +407,7 @@ class CreateEntrunkForm extends PureComponent {
               {getFieldDecorator('car_fee', {
                 rules: [{ required: true, message: '请填写货车费用' }],
                 initialValue: lastCar.car_fee,
-              })(<Input placeholder="请输入" />)}
+              })(<Input placeholder="请输入" disabled={isDisabled} />)}
             </FormItem>
           </Col>
         </Row>
@@ -436,7 +437,19 @@ class CreateEntrunkForm extends PureComponent {
   };
 
   render() {
-    const { modalVisible, onEntrunkModalCancel } = this.props;
+    const { modalVisible, onEntrunkModalCancel, carFeeModalEditable } = this.props;
+    const buttons = [
+      <Button key="btn-cancel" onClick={onEntrunkModalCancel}>
+        取 消
+      </Button>,
+    ];
+    if (carFeeModalEditable) {
+      buttons.push(
+        <Button key="btn-save" type="primary" onClick={this.onOkHandler}>
+          保 存
+        </Button>
+      );
+    }
     return (
       <Modal
         title="货物装车"
@@ -446,8 +459,7 @@ class CreateEntrunkForm extends PureComponent {
         width={700}
         destroyOnClose
         visible={modalVisible}
-        onOk={this.onOkHandler}
-        onCancel={onEntrunkModalCancel}
+        footer={buttons}
       >
         {this.getModalContent()}
       </Modal>
@@ -476,6 +488,7 @@ class TableList extends PureComponent {
     current: 1,
     pageSize: 20,
     entrunkModalVisible: false,
+    carFeeModalEditable: true,
     departModalVisible: false,
     cancelDepartModalVisible: false,
     arriveModalVisible: false,
@@ -1046,8 +1059,16 @@ class TableList extends PureComponent {
   onCarFeeModalShow = () => {
     this.setState({
       entrunkModalVisible: true,
+      carFeeModalEditable: true
     });
   };
+
+  onCarFeeOnlyShow = () => {
+    this.setState({
+      entrunkModalVisible: true,
+      carFeeModalEditable: false
+    });
+  }
 
   /**
    * 取消运费结算
@@ -1087,7 +1108,7 @@ class TableList extends PureComponent {
       car: { lastCar },
     } = this.props;
     const { selectedRows } = this.state
-    print({ selectedRows, lastCar })
+    printDownLoad({ selectedRows, lastCar })
   }
 
   // 下载货物清单
@@ -1096,7 +1117,7 @@ class TableList extends PureComponent {
       car: { lastCar },
     } = this.props;
     const { selectedRows } = this.state
-    print({ selectedRows, type: 'pdf', lastCar })
+    printDownLoad({ selectedRows, type: 'pdf', lastCar })
   }
 
   onEntrunkModalCancel = () => {
@@ -1242,6 +1263,7 @@ class TableList extends PureComponent {
       arriveModalVisible,
       cancelArriveModalVisible,
       cancelEntrunkModalVisible,
+      carFeeModalEditable
     } = this.state;
     let showOperateButton = true
     let showPrintButton = true
@@ -1265,15 +1287,12 @@ class TableList extends PureComponent {
               {showOperateButton && (
                 <span>
                   {lastCar.confirm == 0 && CacheCompany.company_type == 2 && (
-                    <Button type="primary" onClick={this.onCarFeeModalShow}>
-                      货车运费结算
-                </Button>
+                    <Button type="primary" onClick={this.onCarFeeModalShow}>货车运费结算</Button>
                   )}
                   {lastCar.confirm == 1 && CacheCompany.company_type == 2 && (
-                    <Button type="primary" onClick={this.onCancelCarFeeConfirmModalShow}>
-                      取消货车运费结算
-                </Button>
+                    <Button type="primary" onClick={this.onCancelCarFeeConfirmModalShow}>取消货车运费结算</Button>
                   )}
+                  <Button onClick={this.onCarFeeOnlyShow}>查看货车信息</Button>
                   {lastCar.car_status < 3 && CacheCompany.company_type == 1 && (
                     <Button onClick={this.onDepark}>发车</Button>
                   )}
@@ -1332,6 +1351,7 @@ class TableList extends PureComponent {
         </Card>
         <CreateEntrunkForm
           modalVisible={entrunkModalVisible}
+          carFeeModalEditable={carFeeModalEditable}
           selectedRows={selectedRows}
           branchCompanyList={branchCompanyList}
           currentCompany={currentCompany}

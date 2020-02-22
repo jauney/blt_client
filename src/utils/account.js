@@ -1,3 +1,5 @@
+
+import moment from 'moment';
 /**
  * 获取当前列表中勾选的信息 包含记录总数，货款、运费总额等
  * type:cancelsettle 获取取消结算的统计数据
@@ -24,7 +26,7 @@ export function getSelectedAccount(sltDatas, type) {
 
   for (var i = 0; i < sltDatas.length; i++) {
     var order = sltDatas[i];
-    var realOrderAmount = order.order_real ? order.order_real : order.order_amount;
+    var realOrderAmount = order.order_real || order.order_amount;
 
     totalActualGoodsFunds += Number(realOrderAmount);
     // trans_discount即为实付运费，去掉trans_real字段
@@ -71,6 +73,7 @@ export function getSelectedDownAccount(sltDatas = []) {
   let totalActualGoodsFunds = 0;
   let totalTransFunds = 0;
   let totalPayTransFunds = 0;
+  let totalPayInsurance = 0;
   let sendCustomerId = '';
   let bankAccount = ''
   let isSameSendCustomer = true;
@@ -92,9 +95,14 @@ export function getSelectedDownAccount(sltDatas = []) {
       break;
     }
 
-    //是否“回付”运费
+    //是否“回付|现付”运费
     if (order.trans_type == 1 || order.trans_type == 2) {
       totalTransFunds += Number(order.trans_discount || order.trans_amount);
+    }
+    // 下账时只减去回付运费、回付保费
+    if (order.trans_type == 2) {
+      totalPayTransFunds += Number(order.trans_discount || order.trans_amount);
+      totalPayInsurance += Number(order.insurance_fee || 0);
     }
 
     if (order.order_status == 6) {
@@ -113,6 +121,7 @@ export function getSelectedDownAccount(sltDatas = []) {
   accountData.totalShouldGoodsFund = totalShouldGoodsFunds
   accountData.totalActualGoodsFund = totalActualGoodsFunds;
   accountData.totalPayTransFunds = totalPayTransFunds;
+  accountData.totalPayInsurance = totalPayInsurance;
   accountData.totalTransFunds = totalTransFunds;
   accountData.isSameSendCustomer = isSameSendCustomer;
   accountData.isSameBankAccount = isSameBankAccount;
@@ -126,22 +135,25 @@ export function getSelectedDownAccount(sltDatas = []) {
  * @param {*} item
  * @param {*} company
  */
-export function calLateFee(item = {}, company = {}) {
+export function calLateFee(items = [], company = {}) {
   let lateFee = 0
-  let orderAmount = Number(item.order_amount)
-  // 计算滞纳金
-  if (
-    Number(item.order_status) < 6 &&
-    Number(item.order_status) >= 3 &&
-    orderAmount > 0
-  ) {
-    let departDate = moment(item.depart_date)
-    let curDate = moment(new Date())
-    let subDays = curDate.diff(departDate, 'days') // 1
-    let lateFee = company.late_fee_beginamount || 10
+  for (let i = 0; i < items.length; i++) {
+    let item = items[i]
+    let orderAmount = Number(item.order_amount)
+    // 计算滞纳金
+    if (
+      Number(item.order_status) < 6 &&
+      Number(item.order_status) >= 3 &&
+      orderAmount > 0
+    ) {
+      let departDate = moment(Number(item.depart_date))
+      let curDate = moment(new Date().getTime())
+      let subDays = curDate.diff(departDate, 'days') // 1
+      lateFee = company.late_fee_beginamount || 10
 
-    if (subDays >= company.late_fee_days) {
-      lateFee += Number((orderAmount * company.late_fee_rate || 0) / 1000)
+      if (subDays >= company.late_fee_days) {
+        lateFee = 10 + subDays * Number((orderAmount * (company.late_fee_rate || 0)) / 1000)
+      }
     }
   }
   return lateFee
@@ -152,31 +164,35 @@ export function calLateFee(item = {}, company = {}) {
  * @param {*} item
  * @param {*} company
  */
-export function calBonusFee(item = {}, company = {}) {
+export function calBonusFee(items = [], company = {}) {
   let rewardFee = 0
-  let orderAmount = Number(item.order_amount)
-  // 计算奖励金
-  if (
-    Number(item.order_status) >= 6 &&
-    orderAmount > 0 &&
-    item.depart_date &&
-    item.settle_date
-  ) {
-    let departDate = moment(item.depart_date)
-    let settleDate = moment(item.settle_date)
-    let subHours = settleDate.diff(departDate, 'hours')
 
-    if (subHours <= 24) {
-      rewardFee += Number((orderAmount * company.rewards_24h || 1) / 1000)
+  for (let i = 0; i < items.length; i++) {
+    let item = items[i]
+    let orderAmount = Number(item.order_real || item.order_amount)
+    // 计算奖励金
+    if (
+      Number(item.order_status) >= 6 &&
+      orderAmount > 0 &&
+      item.depart_date &&
+      item.settle_date
+    ) {
+      let departDate = moment(Number(item.depart_date))
+      let settleDate = moment(Number(item.settle_date))
+      let subHours = settleDate.diff(departDate, 'hours')
 
-    } else if (subHours <= 48) {
-      rewardFee += Number(
-        (orderAmount * company.rewards_48h || 0.04) / 1000
-      )
-    } else if (subHours <= 72) {
-      rewardFee += Number(
-        (orderAmount * company.rewards_72h || 0.01) / 1000
-      )
+      if (subHours <= 24) {
+        rewardFee += Number((orderAmount * company.rewards_24h || 1) / 1000)
+
+      } else if (subHours <= 48) {
+        rewardFee += Number(
+          (orderAmount * company.rewards_48h || 0.04) / 1000
+        )
+      } else if (subHours <= 72) {
+        rewardFee += Number(
+          (orderAmount * company.rewards_72h || 0.01) / 1000
+        )
+      }
     }
   }
   return rewardFee

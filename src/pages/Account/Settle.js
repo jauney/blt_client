@@ -273,11 +273,13 @@ class TableList extends PureComponent {
       title: '送货费',
       dataIndex: 'deliver_amount',
       width: '80px',
+      sorter: true,
     },
     {
       title: '保价费',
       dataIndex: 'insurance_fee',
       width: '80px',
+      sorter: true,
     },
     {
       title: '货物名称',
@@ -815,11 +817,7 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="运单号">
-          {getFieldDecorator('order_code', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
-          )}
-        </FormItem>
+
         <FormItem label="货车编号">
           {getFieldDecorator('shipsite_id', {})(
             <Select
@@ -894,9 +892,14 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="收货人电话">
+        <FormItem label="发货人电话">
           {getFieldDecorator('sendcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '130px' }} />
+          )}
+        </FormItem>
+        <FormItem label="运单号">
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '220px' }} />
           )}
         </FormItem>
         <FormItem>

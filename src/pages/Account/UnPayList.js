@@ -987,11 +987,7 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="运单号">
-          {getFieldDecorator('order_code', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
-          )}
-        </FormItem>
+
         <FormItem label="货车编号">
           {getFieldDecorator('car_code', {})(
             <Input placeholder="请输入" style={{ width: '150px' }} />
@@ -1050,9 +1046,14 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="收货人电话">
+        <FormItem label="发货人电话">
           {getFieldDecorator('sendcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem label="运单号">
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '220px' }} />
           )}
         </FormItem>
         <Form.Item>

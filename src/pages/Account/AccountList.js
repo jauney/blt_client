@@ -91,6 +91,7 @@ class TableList extends PureComponent {
     {
       title: '应收货款',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_amount',
     },
     {
@@ -125,16 +126,19 @@ class TableList extends PureComponent {
     {
       title: '垫付',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_advancepay_amount',
     },
     {
       title: '送货费',
       width: '80px',
+      sorter: true,
       dataIndex: 'deliver_amount',
     },
     {
       title: '保价费',
       width: '80px',
+      sorter: true,
       dataIndex: 'insurance_fee',
     },
     {
@@ -684,11 +688,7 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="运单号" {...formItemLayout}>
-          {getFieldDecorator('order_code', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
-          )}
-        </FormItem>
+
         <FormItem label="有无货款" {...formItemLayout}>
           {getFieldDecorator('order_amount', { initialValue: -1 })(
             <Select placeholder="全部" style={{ width: '100px' }} allowClear>
@@ -765,6 +765,11 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="日期" {...formItemLayout}>
           {getFieldDecorator('settle_date', { initialValue: moment() })(<DatePicker format={'YYYY-MM-DD'} />)}
+        </FormItem>
+        <FormItem label="运单号" {...formItemLayout}>
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '220px' }} />
+          )}
         </FormItem>
         <Form.Item {...formItemLayout} className={styles.tableListOperator}>
           <Button type="primary" htmlType="submit">

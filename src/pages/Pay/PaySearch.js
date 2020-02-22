@@ -680,9 +680,10 @@ class TableList extends PureComponent {
     let orderIds = [];
     let totalAmount = 0;
     selectedRows.forEach(item => {
-      let curDate = moment(new Date().getTime());
-      let diffHours = curDate.subtract(moment(Number(item.pay_date) || 0)).hours();
-      if (diffHours >= 24) {
+      let payDate = moment(moment(Number(item.pay_date) || 0))
+      let curDate = moment(new Date().getTime())
+      let subDays = curDate.diff(payDate, 'hours')
+      if (subDays >= 24) {
         canCancelFlag = false;
       }
       orderIds.push(item.order_id);

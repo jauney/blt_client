@@ -1,5 +1,5 @@
 // 引入electron并创建一个Browserwindow
-const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
+const { app, BrowserWindow, Menu, globalShortcut, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
 
@@ -52,6 +52,14 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  //在主线程下，通过ipcMain对象监听渲染线程传过来的getPrinterList事件
+  ipcMain.on('getPrinterList', (event) => {
+    //在主线程中获取打印机列表
+    const list = mainWindow.webContents.getPrinters();
+    //通过webContents发送事件到渲染线程，同时将打印机列表也传过去
+    mainWindow.webContents.send('getPrinterList', list);
+  })
 }
 
 // 当 Electron 完成初始化并准备创建浏览器窗口时调用此方法

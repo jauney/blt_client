@@ -540,6 +540,22 @@ class TableList extends PureComponent {
 
   // 更改接货人
   onUpdateReceiverModal = () => {
+    // 48小时后不可以更改
+    const { selectedRows = [] } = this.state;
+    let canEdit = true
+    selectedRows.forEach(item => {
+      let departDate = moment(Number(item.depart_date))
+      let curDate = moment(new Date().getTime())
+      let subDays = curDate.diff(departDate, 'days') // 1
+      if (subDays > 2) {
+        canEdit = false
+      }
+    })
+    if (!canEdit) {
+      message.info('订单录入48小时后，不可以更改接货人')
+      return
+    }
+
     this.setState({
       addFormModalVisible: true,
     });
@@ -673,7 +689,7 @@ class TableList extends PureComponent {
         <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
         <span className={styles.footerSplit}>提付运费：{totalTifuTransAmount || '0'}</span>
         <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
-        <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付货款：{totalAdvancepayAmount || '0'}</span>
         <span className={styles.footerSplit}>送货费：{totalDeliverAmount || '0'}</span>
         <span className={styles.footerSplit}>西安保费：{totalXianInsurence || '0'}</span>
         <span className={styles.footerSplit}>提付保费：{totalTifuInsurance || '0'}</span>

@@ -1195,6 +1195,7 @@ export async function getTodayPayList(params) {
               order_amount
               trans_amount
               order_code
+              insurance_amount
             }
           }
         }

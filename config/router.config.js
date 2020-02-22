@@ -35,12 +35,6 @@ export default [
             authority: ['site_orderuser', 'site_admin', 'site_searchuser'],
           },
           {
-            path: '/order/untrunkorder',
-            name: 'untrunkorder',
-            component: './Order/UntrunkOrder',
-            authority: ['site_orderuser', 'site_admin', 'site_searchuser', 'company_account', 'company_admin'],
-          },
-          {
             path: '/order/trunkedorder',
             name: 'trunkedorder',
             component: './Order/TrunkedOrder',

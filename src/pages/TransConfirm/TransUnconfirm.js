@@ -312,6 +312,8 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+
+      // TODO:回付运费有货款的订单不在这里确认运费，而是在下账的时候减去运费
       fieldsValue.trans_status = 0;
       if (!fieldsValue.trans_type) {
         fieldsValue.trans_type = 9;
@@ -515,7 +517,7 @@ class TableList extends PureComponent {
         <span>实收货款：{totalRealOrderAmount || '0'}</span>
         <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
         <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
-        <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付货款：{totalAdvancepayAmount || '0'}</span>
         <span className={styles.footerSplit}>西安保费：{totalXianInsurence || '0'}</span>
         <span className={styles.footerSplit}>票数：{total || '0'}</span>
       </div>

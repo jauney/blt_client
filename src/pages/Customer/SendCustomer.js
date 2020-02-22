@@ -291,11 +291,13 @@ class TableList extends PureComponent {
     },
     {
       title: '姓名',
+      sorter: true,
       dataIndex: 'customer_name',
       width: '80px',
     },
     {
       title: '电话',
+      sorter: true,
       dataIndex: 'customer_mobile',
       width: '120px',
     },

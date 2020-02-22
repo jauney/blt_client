@@ -24,21 +24,25 @@
       const fs = window.require('fs');
       const { remote } = window.require("electron");
       const printOrderWebview = document.querySelector('#printOrderWebview')
-      printOrderWebview.addEventListener('ipc-message', () => {
+      printOrderWebview.addEventListener('ipc-message', (event) => {
         if (event.channel === 'webview-print-do') {
           printOrderWebview.print({ silent: true, printBackground: true })
         }
       })
 
       const printLabelWebview = document.querySelector('#printLabelWebview')
-      printLabelWebview.addEventListener('ipc-message', () => {
+      printLabelWebview.addEventListener('ipc-message', (event) => {
+        let deviceName = event.args[0]
         if (event.channel === 'webview-print-do') {
-          printLabelWebview.print({ silent: false, printBackground: true, deviceName: 'TSC TTP-244CE' })
+          console.log(deviceName,9999999)
+
+          // printLabelWebview.print({ silent: false, printBackground: true })
+          printLabelWebview.print({ silent: true, printBackground: true, deviceName: 'TSC_TTP_244CE' })
         }
       })
 
       const printWebview = document.querySelector('#printWebview')
-      printWebview.addEventListener('ipc-message', () => {
+      printWebview.addEventListener('ipc-message', (event) => {
         if (event.channel === 'webview-print-do') {
           printWebview.print({ silent: false, printBackground: true })
         }

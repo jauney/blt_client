@@ -30,7 +30,7 @@ import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { async } from 'q';
-import { printOrder } from '@/utils/print'
+import { printOrder, printPayOrder, printDownLoad } from '@/utils/print'
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -62,44 +62,51 @@ class TableList extends PureComponent {
       title: '分公司',
       width: '60px',
       dataIndex: 'company_name',
+      sorter: true,
     },
     {
       title: '录票时间',
       width: '170px',
       dataIndex: 'create_date',
+      sorter: true,
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '货单号',
       width: '70px',
       dataIndex: 'order_code',
-
+      sorter: true,
       align: 'right',
       render: val => `${val}`,
       // mark to display a total number
       needTotal: true,
     },
     {
+      sorter: true,
       title: '发货客户',
       width: '80px',
       dataIndex: 'sendcustomer_name',
     },
     {
+      sorter: true,
       title: '收获客户',
       width: '80px',
       dataIndex: 'getcustomer_name',
     },
     {
+      sorter: true,
       title: '应收货款',
       width: '80px',
       dataIndex: 'order_amount',
     },
     {
+      sorter: true,
       title: '运费',
       width: '80px',
       dataIndex: 'trans_amount',
     },
     {
+      sorter: true,
       title: '折后运费',
       width: '80px',
       dataIndex: 'trans_discount',
@@ -108,7 +115,7 @@ class TableList extends PureComponent {
       title: '运费方式',
       width: '60px',
       dataIndex: 'trans_type',
-
+      sorter: true,
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -122,16 +129,19 @@ class TableList extends PureComponent {
       },
     },
     {
+      sorter: true,
       title: '垫付',
       width: '80px',
       dataIndex: 'order_advancepay_amount',
     },
     {
+      sorter: true,
       title: '送货费',
       width: '80px',
       dataIndex: 'deliver_amount',
     },
     {
+      sorter: true,
       title: '保价费',
       width: '80px',
       dataIndex: 'insurance_fee',
@@ -147,6 +157,7 @@ class TableList extends PureComponent {
       dataIndex: 'operator_name',
     },
     {
+      sorter: true,
       title: '站点',
       width: '80px',
       dataIndex: 'site_name',
@@ -292,40 +303,16 @@ class TableList extends PureComponent {
     });
   };
 
-  // 打印订单
-  printOrder = async (data) => {
-    const {
-      company: { branchCompanyList },
-      site: { siteList },
-    } = this.props;
-    const { dispatch } = this.props;
-    // 获取收货人信息
-    const { getCustomer = {}, sendCustomer = {} } = await dispatch({
-      type: 'customer/queryCustomerAction',
-      payload: {
-        getcustomer_id: data.getcustomer_id,
-        sendcustomer_id: data.sendcustomer_id
-      },
-    });
+  // 打印货物清单
+  onPrintOrder = () => {
+    const { selectedRows } = this.state
+    printDownLoad({ selectedRows })
+  }
 
-    printOrder({ getCustomer, sendCustomer, data, branchCompanyList, siteList })
-
-    for (let i = 0; i < data.order_num; i++) {
-      const printLableWebview = document.querySelector('#printLabelWebview')
-      let labelHtml = `
-      <div class="header">远诚宝路通物流</div>
-      <div class="label">${moment(new Date).format('YYYY-MM-DD HH:mm:ss')}</div>
-      <div class="label">
-      <span class="label-left">${data.site_name}</span> &rarr; <span class="label-right">${data.company_name}</span>
-      </div>
-      <div class="label label-name">
-      <span>${data.getcustomer_name}</span> <span class="">${data.order_code} - ${i + 1}</span>
-      </div>
-      <div class="label">货物名称：${data.order_name}</div>
-      <div class="footer">http://www.bltwlgs.com</div>
-      `
-      printLableWebview.send('webview-print-render', labelHtml)
-    }
+  // 下载货物清单
+  onDownloadOrder = () => {
+    const { selectedRows } = this.state
+    printDownLoad({ selectedRows, type: 'pdf' })
   }
 
   tableFooter = () => {
@@ -356,7 +343,7 @@ class TableList extends PureComponent {
         <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
         <span className={styles.footerSplit}>提付运费：{totalTifuTransAmount || '0'}</span>
         <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
-        <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付货款：{totalAdvancepayAmount || '0'}</span>
         <span className={styles.footerSplit}>送货费：{totalDeliverAmount || '0'}</span>
         <span className={styles.footerSplit}>西安保费：{totalXianInsurence || '0'}</span>
         <span className={styles.footerSplit}>提付保费：{totalTifuInsurance || '0'}</span>
@@ -375,6 +362,8 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       site: { siteList },
     } = this.props;
+    const { selectedRows } = this.state
+
     let companyOption = {};
     let companyOptions = branchCompanyList;
     let allowClearCompany = true;
@@ -411,7 +400,6 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-
         <FormItem label="站点">
           {getFieldDecorator('site_id', siteOption)(
             <Select placeholder="全部" style={{ width: '100px' }} allowClear={allowClear}>
@@ -421,12 +409,31 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
+        <FormItem label="运费类别">
+          {getFieldDecorator('trans_type', {})(
+            <Select placeholder="全部" style={{ width: '150px' }} allowClear>
+              <Option value={0}>提付</Option>
+              <Option value={1}>现付</Option>
+              <Option value={2}>回付</Option>
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="录入日期">
+          {getFieldDecorator('create_date', { initialValue: moment() })(<DatePicker format={'YYYY-MM-DD'} allowClear={false} />)}
+        </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">
             查询
           </Button>
+          &nbsp;
+          {selectedRows.length > 0 && <span>
+            <Button onClick={this.onPrintOrder}>打印清单</Button>
+            &nbsp;
+            <Button onClick={this.onDownloadOrder}>下载清单</Button>
+          </span>}
+
         </FormItem>
-      </Form>
+      </Form >
     );
   }
 
@@ -467,9 +474,7 @@ class TableList extends PureComponent {
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
-            <div className={styles.tableListOperator}>
 
-            </div>
             <StandardTable
               selectedRows={selectedRows}
               className={styles.dataTable}

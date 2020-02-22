@@ -73,7 +73,6 @@ export default {
       return yield call(deleteOrder, payload); // post
     },
     *getOrderStatisticAction({ payload }, { call, put }) {
-      console.log(payload, '#####');
       payload.order_status = 0;
       const response = yield call(getOrderStatistic, payload);
       yield put({

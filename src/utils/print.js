@@ -1,7 +1,12 @@
 
 import moment from 'moment';
-
-export function print({ selectedRows = [], type = '', lastCar = {} }) {
+import { getSelectedAccount } from '@/utils/account';
+/**
+ *
+ * @param { type } type:'pdf' 下载
+ */
+export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
+  console.log('d***********', type)
   let bodyHTML = ''
   let totalTransFund = 0
   selectedRows.forEach(item => {
@@ -15,15 +20,14 @@ export function print({ selectedRows = [], type = '', lastCar = {} }) {
     totalTransFund += Number(item.trans_discount || 0)
     bodyHTML += `<tr>
         <td>${item.order_code || ''}</td>
-        <td>${item.sendcustomer_name || ''}</td>
         <td>${item.getcustomer_name || ''}</td>
-        <td>${item.order_real || ''}</td>
+        <td>${item.getcustomer_mobile || ''}</td>
+        <td>${item.order_real || order.order_amount || ''}</td>
         <td>${item.trans_discount || ''}</td>
         <td>${transType || ''}</td>
         <td>${item.order_advancepay_amount || ''}</td>
         <td>${item.insurance_fee || ''}</td>
         <td>${item.order_name || ''}</td>
-        <td>${item.site_name || ''}</td>
         <td>${item.remark || ''}</td>
         </tr>`
   })
@@ -35,30 +39,33 @@ export function print({ selectedRows = [], type = '', lastCar = {} }) {
     table th, table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
     .carinfo th {border: 0;}
     </style>`
+  let carHtml = ``
+  if (lastCar.car_code) {
+    carHtml = `<table class="carinfo">
+    <tr>
+    <th style="width:50px;">车牌号：${lastCar.driver_plate}</th>
+    <th style="width:50px;">电话：${lastCar.driver_mobile}</th>
+    <th style="width:50px;">姓名：${lastCar.driver_name}</th>
+    <th style="width:50px;">货车运费：${lastCar.car_fee}</th>
+    <th style="width:50px;">货车编号：${lastCar.car_code}</th>
+    </tr>
+  </table>`
+  }
   let html = `
     <div class="header">陕西远诚宝路通物流</div>
     <div class="content">
-    <table class="carinfo">
-      <tr>
-      <th style="width:50px;">车牌号：${lastCar.driver_plate}</th>
-      <th style="width:50px;">电话：${lastCar.driver_mobile}</th>
-      <th style="width:50px;">姓名：${lastCar.driver_name}</th>
-      <th style="width:50px;">货车运费：${lastCar.car_fee}</th>
-      <th style="width:50px;">货车编号：${lastCar.car_code}</th>
-      </tr>
-    </table>
+    ${carHtml}
     <table>
       <tr>
         <th style="width:50px;">货单号</th>
-        <th style="width:40px;">发货客户</th>
         <th style="width:40px;">收货客户</th>
+        <th style="width:40px;">收货电话</th>
         <th style="width:50px;">实收货款</th>
         <th style="width:40px;">折后运费</th>
         <th style="width:40px;">运费方式</th>
         <th style="width:30px;">垫付</th>
         <th style="width:40px;">保价费</th>
         <th style="width:150px;">货物名称</th>
-        <th style="width:50px;">站点</th>
         <th style="width:100px;">备注</th>
       </tr>
       ${bodyHTML}
@@ -69,6 +76,7 @@ export function print({ selectedRows = [], type = '', lastCar = {} }) {
     `
   //告诉渲染进程，开始渲染打印内容
   const printOrderWebview = document.querySelector('#printWebview')
+  console.log('type: ', type)
   printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type })
 }
 
@@ -98,6 +106,7 @@ export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, bra
       printSite = item
     }
   })
+  let accountStatistic = getSelectedAccount([data]);
   let styles = `
     <style>
     .content, .header {text-align: center;}
@@ -149,14 +158,14 @@ export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, bra
       </tr>
       <tr>
         <td class="col4">保额:${data.insurance_amount || ''}</td>
-        <td class="col4">保费:${data.insurance_fee || ''}</td>
+        <td class="col4">保费[${transType}]:${data.insurance_fee || ''}</td>
         <td class="col4">垫付:${data.order_advancepay_amount || ''}</td>
         <td class="col4">送货费:${data.deliver_amount || ''}</td>
       </tr>
     </table>
     <table>
       <tr>
-        <td class="col2-1">合计:</td>
+        <td class="col2-1">合计:${accountStatistic.totalAccount}</td>
         <td class="col2-2">账号:${data.bank_account || ''}</td>
       </tr>
     </table>
@@ -268,14 +277,14 @@ export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, bra
       </tr>
       <tr>
         <td class="col4">保额:${data.insurance_amount || ''}</td>
-        <td class="col4">保费:${data.insurance_fee || ''}</td>
+        <td class="col4">保费[${transType}]:${data.insurance_fee || ''}</td>
         <td class="col4">垫付:${data.order_advancepay_amount || ''}</td>
         <td class="col4">送货费:${data.deliver_amount || ''}</td>
       </tr>
     </table>
     <table>
       <tr>
-        <td class="col2-1">合计:</td>
+        <td class="col2-1">合计:${accountStatistic.totalAccount}</td>
         <td class="col2-2">账号:${data.bank_account || ''}</td>
       </tr>
     </table>

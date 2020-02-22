@@ -494,7 +494,7 @@ class TableList extends PureComponent {
     })
     if (confirmedRecords.length > 0) {
       Modal.info({
-        content: '已经确认的打款不能删除！',
+        content: '已经确认的打款不能删除！'
       });
       return
     }

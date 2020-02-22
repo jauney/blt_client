@@ -70,22 +70,26 @@ class TableList extends PureComponent {
       title: '收支',
       dataIndex: 'account_type',
       width: '80px',
+      sorter: true,
       render: val => {
         return val == 0 ? '支出' : '收入';
       },
     },
     {
       title: '类型项目',
+      sorter: true,
       dataIndex: 'account_name',
       width: '150px',
     },
     {
       title: '原因',
+      sorter: true,
       dataIndex: 'account_reason',
       width: '100px',
     },
     {
       title: '金额',
+      sorter: true,
       dataIndex: 'account_amount',
       width: '80px',
     },

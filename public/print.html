@@ -29,11 +29,13 @@
 </body>
 <script>
   const { ipcRenderer } = window.require('electron')
-  ipcRenderer.on('webview-print-render', (event, options = {}) => {
+  ipcRenderer.once('webview-print-render', (event, options = {}) => {
+    console.log('options', options)
     const {printHtml = '', deviceName = '', type = ''} = options
     document.getElementById('bd').innerHTML = printHtml;
 
-    if(type=='pdf'){
+    if(type == 'pdf'){
+      console.log('pdf printing...')
       ipcRenderer.sendToHost('webview-print-pdf')
     }
     else {

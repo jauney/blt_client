@@ -125,16 +125,19 @@ class TableList extends PureComponent {
     {
       title: '垫付',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_advancepay_amount',
     },
     {
       title: '送货费',
       width: '80px',
+      sorter: true,
       dataIndex: 'deliver_amount',
     },
     {
       title: '保价费',
       width: '80px',
+      sorter: true,
       dataIndex: 'insurance_fee',
     },
     {
@@ -153,6 +156,7 @@ class TableList extends PureComponent {
     {
       title: '滞纳金',
       width: '80px',
+      sorter: true,
       dataIndex: 'late_fee',
     },
     {
@@ -649,11 +653,7 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="运单号" {...formItemLayout}>
-          {getFieldDecorator('order_code', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
-          )}
-        </FormItem>
+
         <FormItem label="货车编号" {...formItemLayout}>
           {getFieldDecorator('shipsite_id', {})(
             <Select
@@ -728,9 +728,14 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="收货人电话" {...formItemLayout}>
+        <FormItem label="发货人电话" {...formItemLayout}>
           {getFieldDecorator('sendcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '130px' }} />
+          )}
+        </FormItem>
+        <FormItem label="运单号" {...formItemLayout}>
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '220px' }} />
           )}
         </FormItem>
         <Form.Item {...formItemLayout} className={styles.tableListOperator}>

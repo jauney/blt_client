@@ -353,6 +353,19 @@ class TableList extends PureComponent {
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
+    let canEdit = true
+    selectedRows.forEach(item => {
+      let departDate = moment(Number(item.trans_confirmdate))
+      let curDate = moment(new Date().getTime())
+      let subDays = curDate.diff(departDate, 'days') // 1
+      if (subDays > 1) {
+        canEdit = false
+      }
+    })
+    if (!canEdit) {
+      message.info('运费确认24小时后，不可以取消运费确认')
+      return
+    }
     if (orderIds.length <= 0) {
       message.error('请选择需要取消确认运费的记录')
       return

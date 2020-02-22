@@ -95,7 +95,7 @@ class DownAccountForm extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem labelCol={{ span: 3, offset: 2 }} label="下账总金额">
-                {accountData.totalActualGoodsFund || '0'} - 代办费 *
+                {accountData.totalActualGoodsFund || '0'} - 代办费 * &nbsp;
                 <Select
                   placeholder="全部"
                   defaultValue="4"
@@ -109,9 +109,11 @@ class DownAccountForm extends PureComponent {
                   <Option value="4">4‰</Option>
                   <Option value="5">5‰</Option>
                 </Select>
-                =
+                &nbsp;-&nbsp;回付运费 {accountData.totalPayTransFunds}
+                &nbsp;-&nbsp;回付保费 {accountData.totalPayInsurance}
+                &nbsp;=&nbsp;
                 {accountData.totalActualGoodsFund -
-                  Math.ceil((accountData.totalShouldGoodsFund * agencyFee) / 1000)}
+                  Math.ceil((accountData.totalShouldGoodsFund * agencyFee) / 1000) - accountData.totalPayTransFunds - accountData.totalPayInsurance}
               </FormItem>
             </Col>
           </Row>
@@ -142,6 +144,8 @@ class DownAccountForm extends PureComponent {
                       <th>运单号</th>
                       <th>实收货款</th>
                       <th>应收货款</th>
+                      <th>运费</th>
+                      <th>保价费</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -151,6 +155,8 @@ class DownAccountForm extends PureComponent {
                           <td>{item.order_code}</td>
                           <td>{item.order_real}</td>
                           <td>{item.order_amount}</td>
+                          <td>{item.trans_discount || item.trans_amount}</td>
+                          <td>{item.insurance_fee}</td>
                         </tr>
                       );
                     })}

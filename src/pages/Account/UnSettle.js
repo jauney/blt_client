@@ -25,7 +25,7 @@ import {
   Tag,
   Spin
 } from 'antd';
-import { getSelectedAccount } from '@/utils/account';
+import { getSelectedAccount, calLateFee, calBonusFee } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Account.less';
@@ -127,16 +127,19 @@ class TableList extends PureComponent {
     {
       title: '垫付',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_advancepay_amount',
     },
     {
       title: '送货费',
       width: '80px',
+      sorter: true,
       dataIndex: 'deliver_amount',
     },
     {
       title: '保价费',
       width: '80px',
+      sorter: true,
       dataIndex: 'insurance_fee',
     },
     {
@@ -155,6 +158,7 @@ class TableList extends PureComponent {
     {
       title: '滞纳金',
       width: '80px',
+      sorter: true,
       dataIndex: 'late_fee',
     },
     {
@@ -667,11 +671,6 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="运单号" {...formItemLayout}>
-          {getFieldDecorator('order_code', {})(
-            <Input placeholder="请输入" style={{ width: '150px' }} />
-          )}
-        </FormItem>
         <FormItem label="货车编号" {...formItemLayout}>
           {getFieldDecorator('shipsite_id', {})(
             <Select
@@ -746,9 +745,14 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="收货人电话" {...formItemLayout}>
+        <FormItem label="发货人电话" {...formItemLayout}>
           {getFieldDecorator('sendcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '130px' }} />
+          )}
+        </FormItem>
+        <FormItem label="运单号" {...formItemLayout}>
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '220px' }} />
           )}
         </FormItem>
         <Form.Item {...formItemLayout}>
@@ -844,7 +848,7 @@ class TableList extends PureComponent {
           record={record}
           onCancelModal={this.onUpdateOrderModalCancel}
           handleSearch={this.handleSearch}
-          isEdit={['site_admin', 'site_pay', 'site_receipt', 'company_admin', 'company_account'].indexOf(CacheRole.role_value) >= 0 ? 1 : 0}
+          isEdit={['site_admin', 'site_pay', 'site_receipt', 'company_account'].indexOf(CacheRole.role_value) >= 0 ? 1 : 0}
           dispatch={dispatch}
           currentCompany={currentCompany}
           currentGetCustomer={currentGetCustomer}
@@ -860,6 +864,7 @@ class TableList extends PureComponent {
             onCancel={this.onSettleCancel}
           >
             <p>{`结算货款条数${selectedRows.length}，结算总额 ${accountStatistic.totalAccount} `}</p>
+            <p>{`奖金${calBonusFee(selectedRows, currentCompany)}，滞纳金 ${calLateFee(selectedRows, currentCompany)} `}</p>
             <p>您确认结账么？</p>
           </Modal>
         </Spin>
