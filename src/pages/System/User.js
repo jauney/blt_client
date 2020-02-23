@@ -158,6 +158,24 @@ class AddFormDialog extends PureComponent {
               </FormItem>
             </Col>
           </Row>
+          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+            <Col>
+              <FormItem {...this.formItemLayout} label="电脑锁定">
+                {form.getFieldDecorator('lock_pc', {
+                  initialValue: record.lock_pc,
+                  rules: [{ required: true, message: '' }],
+                })(<Select placeholder="" style={{ width: '80px' }}>
+                  {[0, 1].map(ele => {
+                    return (
+                      <Option key={ele} value={ele}>
+                        {ele == 0 ? '否' : '是'}
+                      </Option>
+                    );
+                  })}
+                </Select>)}
+              </FormItem>
+            </Col>
+          </Row>
         </Form>
       </Modal>
     );

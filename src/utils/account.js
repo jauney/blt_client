@@ -149,9 +149,9 @@ export function calLateFee(items = [], company = {}) {
       let departDate = moment(Number(item.depart_date))
       let curDate = moment(new Date().getTime())
       let subDays = curDate.diff(departDate, 'days') // 1
-      lateFee = company.late_fee_beginamount || 10
 
       if (subDays >= company.late_fee_days) {
+        lateFee = company.late_fee_beginamount || 10
         lateFee = 10 + subDays * Number((orderAmount * (company.late_fee_rate || 0)) / 1000)
       }
     }
@@ -172,15 +172,13 @@ export function calBonusFee(items = [], company = {}) {
     let orderAmount = Number(item.order_real || item.order_amount)
     // 计算奖励金
     if (
-      Number(item.order_status) >= 6 &&
+      Number(item.order_status) >= 4 &&
       orderAmount > 0 &&
-      item.depart_date &&
-      item.settle_date
+      item.depart_date
     ) {
       let departDate = moment(Number(item.depart_date))
-      let settleDate = moment(Number(item.settle_date))
+      let settleDate = moment(Number(item.settle_date || (new Date()).getTime()))
       let subHours = settleDate.diff(departDate, 'hours')
-
       if (subHours <= 24) {
         rewardFee += Number((orderAmount * company.rewards_24h || 1) / 1000)
 

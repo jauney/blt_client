@@ -1151,7 +1151,11 @@ class CreateEntrunkForm extends PureComponent {
       if (err) return;
 
       const formValues = fieldsValue;
+      let shipSiteId = 0;
+      let shipSiteName = ''
       const orderIds = selectedRows.map(item => {
+        shipSiteId = item.shipsite_id
+        shipSiteName = item.shipsite_name
         return item.order_id;
       });
       if (formValues.car_date && formValues.car_date.valueOf) {
@@ -1172,8 +1176,8 @@ class CreateEntrunkForm extends PureComponent {
       }
 
       formValues.car_fee = Number(formValues.car_fee || 0);
-      formValues.shipsite_id = currentShipSite.site_id;
-      formValues.shipsite_name = currentShipSite.site_name;
+      formValues.shipsite_id = shipSiteId;
+      formValues.shipsite_name = shipSiteName;
       formValues.car_code = formValues.car_code + '';
       formValues.company_id = currentCompany.company_id;
 
@@ -2145,7 +2149,9 @@ class TableList extends PureComponent {
     const { currentShipSite = {}, currentCompany = {}, selectedRows } = this.state;
     const orderIds = [];
     let orderCompanyId = ''
+    let shipSiteId = ''
     let isSameComapny = true
+    let isSameShipSite = true
 
     selectedRows.forEach(item => {
       if (item.order_status == 1) {
@@ -2154,8 +2160,14 @@ class TableList extends PureComponent {
       if (!orderCompanyId) {
         orderCompanyId = item.company_id
       }
+      if (!shipSiteId) {
+        shipSiteId = item.shipsite_id
+      }
       if (orderCompanyId && orderCompanyId != item.company_id) {
         isSameComapny = false
+      }
+      if (shipSiteId && shipSiteId != item.shipsite_id) {
+        isSameShipSite = false
       }
     });
     if (orderIds.length < selectedRows.length) {
@@ -2178,6 +2190,10 @@ class TableList extends PureComponent {
         }
       })
       return;
+    }
+    if (!isSameShipSite) {
+      message.error('请选择相同配载站的订单进行装车');
+      return
     }
     // if (!currentShipSite.site_id) {
     //   message.error('请先选择配载站');
