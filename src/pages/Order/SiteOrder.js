@@ -1865,7 +1865,7 @@ class TableList extends PureComponent {
       <div class="label">货物名称：${data.order_name}</div>
       <div class="footer">http://www.bltwlgs.com</div>
       `
-      printLableWebview.send('webview-print-render', { html: labelHtml, deviceName: 'TSC_TTP_244CE' })
+      printLableWebview.send('webview-print-render', { html: labelHtml, deviceName: 'TSC TTP-244CE' })
     }
   }
 
