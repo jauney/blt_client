@@ -557,7 +557,7 @@ class TableList extends PureComponent {
     const { selectedRows } = this.state;
     let self = this;
     let canCancelFlag = true;
-    let orderIds = [];
+    let payIds = [];
     let totalAmount = 0;
     selectedRows.forEach(item => {
       let payDate = moment(moment(Number(item.pay_date) || 0))
@@ -566,7 +566,7 @@ class TableList extends PureComponent {
       if (subDays >= 24) {
         canCancelFlag = false;
       }
-      orderIds.push(item.order_id);
+      payIds.push(item.pay_id);
       totalAmount += Number(item.order_real || item.order_amount || 0);
     });
 
@@ -584,7 +584,7 @@ class TableList extends PureComponent {
         let result = await dispatch({
           type: 'pay/cancelTodayDownAccountOrderAction',
           payload: {
-            pay_id: orderIds,
+            pay_id: payIds,
           },
         });
         if (result && result.code == 0) {

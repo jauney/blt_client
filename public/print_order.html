@@ -16,7 +16,6 @@
     @page {
       margin: 0px;
       padding: 0px;
-      width: 450px;
     }
   </style>
 </head>
@@ -25,9 +24,9 @@
 </body>
 <script>
   const { ipcRenderer } = window.require('electron')
-  ipcRenderer.on('webview-print-render', (event, printHtml, deviceName) => {
-    document.getElementById('bd').innerHTML = printHtml;
-    ipcRenderer.sendToHost('webview-print-do')
+  ipcRenderer.on('webview-print-render', (event, options) => {
+    document.body.innerHTML = options.html;
+    ipcRenderer.sendToHost('webview-print-do', options.deviceName)
   })
 </script>
 

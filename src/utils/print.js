@@ -308,7 +308,7 @@ export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, bra
   }
   //告诉渲染进程，开始渲染打印内容
   const printOrderWebview = document.querySelector('#printOrderWebview')
-  printOrderWebview.send('webview-print-render', `${styles}${printHtml}`)
+  printOrderWebview.send('webview-print-render', { html: `${styles}${printHtml}` })
 }
 
 
@@ -362,5 +362,39 @@ export function printPayOrder({ selectedRows = [] }) {
   //告诉渲染进程，开始渲染打印内容
   const printOrderWebview = document.querySelector('#printWebview')
   printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type: 'pdf' })
+}
+
+/**
+ * 打印标签
+ * @param {*} data
+ */
+export function printLabel(data, indexNo) {
+  let styles = `
+    <style>
+    .content, .header {text-align: center;}
+    .label {padding: 0 8px;}
+    .header, .footer {text-align: center;}
+    .header {font-size: 18px; font-weight: 700;}
+    .label-right {font-size: 30px; font-weight: 700;}
+    .label-name {font-size: 22px; font-weight: 700;}
+    </style>`
+  let printHtml = `
+      <div class="header">远诚宝路通物流</div>
+      <div class="label">${moment(new Date).format('YYYY-MM-DD HH:mm:ss')}</div>
+      <div class="label">
+      <span class="label-left">${data.site_name}</span> &rarr; <span class="label-right">${data.company_name}</span>
+      </div>
+      <div class="label label-name">
+      <span>${data.getcustomer_name}</span> <span class="">${data.order_code} - ${indexNo + 1}</span>
+      </div>
+      <div class="label">货物名称：${data.order_name}</div>
+      <div class="footer">http://www.bltwlgs.com</div>
+      `
+
+  //告诉渲染进程，开始渲染打印内容
+  const printLableWebview = document.querySelector('#printLabelWebview')
+  const printOrderWebview = document.querySelector('#printOrderWebview')
+  //printOrderWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName: 'TSC TTP-244CE' })
+  printLableWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName: 'TSC TTP-244CE' })
 }
 

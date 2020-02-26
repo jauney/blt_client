@@ -26,7 +26,13 @@
       const printOrderWebview = document.querySelector('#printOrderWebview')
       printOrderWebview.addEventListener('ipc-message', (event) => {
         if (event.channel === 'webview-print-do') {
-          printOrderWebview.print({ silent: true, printBackground: true })
+          let deviceName = event.args[0]
+          if(deviceName){
+            printLabelWebview.print({ silent: true, printBackground: true, deviceName: deviceName })
+          }
+          else {
+            printOrderWebview.print({ silent: true, printBackground: true })
+          }
         }
       })
 
@@ -34,8 +40,6 @@
       printLabelWebview.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
         if (event.channel === 'webview-print-do') {
-          console.log(deviceName,9999999)
-
           // printLabelWebview.print({ silent: false, printBackground: true })
           printLabelWebview.print({ silent: true, printBackground: true, deviceName: 'TSC TTP-244CE' })
         }

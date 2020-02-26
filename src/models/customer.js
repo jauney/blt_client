@@ -117,29 +117,33 @@ export default {
      * @param {*} action
      */
     queryCustomerReducer(state, action) {
-      const customerList = action.payload.type == 1 ? state.sendCustomerList : state.getCustomerList
-      const customer = action.payload.type == 1 ? action.payload.sendCustomer : action.payload.getCustomer
-      let customerFlag = false
-      for (let i = 0; i < customerList.length; i++) {
-        let item = customerList[i]
-        if (customer && customer.customer_id == item.customer_id) {
-          customerFlag = true
+      const sendCustomerList = state.sendCustomerList
+      const getCustomerList = state.getCustomerList
+      let getCustomer = action.payload.getCustomer
+      let sendCustomer = action.payload.sendCustomer
+      let getCustomerFlag = false
+      for (let i = 0; i < getCustomerList.length; i++) {
+        let item = getCustomerList[i]
+        if (getCustomer && getCustomer.customer_id == item.customer_id) {
+          getCustomerFlag = true
           break
         }
       };
+      if (!getCustomerFlag && getCustomer && getCustomer.customer_id) { getCustomerList.push(getCustomer) }
 
-      if (!customerFlag && customer && customer.customer_id) { customerList.push(customer) }
-      if (action.payload.type == 1) {
-        return {
-          ...state,
-          sendCustomerList: customerList
+      let sendCustomerFlag = false
+      for (let i = 0; i < sendCustomerList.length; i++) {
+        let item = sendCustomerList[i]
+        if (sendCustomer && sendCustomer.customer_id == item.customer_id) {
+          sendCustomerFlag = true
+          break
         }
-      }
-      else {
-        return {
-          ...state,
-          getCustomerList: customerList
-        }
+      };
+      if (!sendCustomerFlag && sendCustomer && sendCustomer.customer_id) { sendCustomerList.push(sendCustomer) }
+      return {
+        ...state,
+        sendCustomerList,
+        getCustomerList
       }
     },
     queryGetCustomerTypesReducer(state, action) {

@@ -30,7 +30,7 @@ import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { async } from 'q';
-import { printOrder, printPayOrder, printDownLoad } from '@/utils/print'
+import { printOrder, printPayOrder, printDownLoad, printLabel } from '@/utils/print'
 const { ipcRenderer } = window.require('electron')
 
 const FormItem = Form.Item;
@@ -115,10 +115,22 @@ class CreateForm extends PureComponent {
   /**
    * 编辑的时候初始化赋值表单
    */
-  componentDidMount() {
-    const { form, selectedOrder = {} } = this.props;
+  async componentDidMount() {
+    const { form, selectedOrder = {}, dispatch, currentCompany } = this.props;
     const formFileds = form.getFieldsValue();
     const formKeys = Object.keys(formFileds);
+    // 列表页传过来的当前公司，用于获取地狱系数
+    this.setState({
+      currentCompany
+    })
+    if (selectedOrder && selectedOrder.getcustomer_id) {
+      await dispatch({
+        type: 'customer/queryCustomerAction',
+        payload: {
+          sendcustomer_id: selectedOrder.sendcustomer_id, getcustomer_id: selectedOrder.getcustomer_id
+        }
+      });
+    }
     if (formKeys.length > 0) {
       Object.keys(formFileds).forEach(item => {
         if (selectedOrder[item]) {
@@ -479,7 +491,7 @@ class CreateForm extends PureComponent {
     let sendCustomerTransVipRatio = currentSendCustomer.trans_vip_ratio || 1;
     let transRegionalRatio = currentCompany.trans_regional_ratio || 1;
     let transDiscount = transAmount;
-    console.log(getCustomerTransVipRatio)
+    console.log(getCustomerTransVipRatio, currentCompany)
     let transVipRatio;
     if (transType == 0) {
       transVipRatio = getCustomerTransVipRatio;
@@ -627,6 +639,24 @@ class CreateForm extends PureComponent {
     const transTypeMap = {
       0: '提', 1: '现', 2: '回'
     }
+    let footer = [
+      <Button key="btn-cancel" onClick={() => handleModalVisible()} tabIndex={-1}>
+        取 消
+      </Button>,
+      <Button key="btn-print" onClick={this.onOrderPrint}>
+        打 印
+      </Button>,
+      <Button key="btn-save" type="primary" onClick={this.okHandle} tabIndex={-1}>
+        保 存
+      </Button>,
+    ]
+    if (CacheCompany.company_type == 2) {
+      footer = [
+        <Button key="btn-cancel" onClick={() => handleModalVisible()} tabIndex={-1}>
+          取 消
+        </Button>
+      ]
+    }
     return (
       <Modal
         destroyOnClose
@@ -636,17 +666,7 @@ class CreateForm extends PureComponent {
         visible={modalVisible}
         className={styles.modalForm}
         onCancel={() => handleModalVisible()}
-        footer={[
-          <Button key="btn-cancel" onClick={() => handleModalVisible()} tabIndex={-1}>
-            取 消
-          </Button>,
-          <Button key="btn-print" onClick={this.onOrderPrint}>
-            打 印
-          </Button>,
-          <Button key="btn-save" type="primary" onClick={this.okHandle} tabIndex={-1}>
-            保 存
-          </Button>,
-        ]}
+        footer={footer}
         width={800}
       >
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
@@ -685,13 +705,6 @@ class CreateForm extends PureComponent {
               )}
             </FormItem>
           </Col>
-          {/* <Col {...this.colLayout}>
-          <FormItem {...this.formItemLayout} label="运单号">
-            {getFieldDecorator('orderCode', { initialValue: orderCode.order_code })(
-              <Input placeholder="" />
-            )}
-          </FormItem>
-        </Col> */}
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
@@ -1852,20 +1865,7 @@ class TableList extends PureComponent {
     printOrder({ getCustomer, sendCustomer, data, branchCompanyList, siteList })
 
     for (let i = 0; i < data.order_num; i++) {
-      const printLableWebview = document.querySelector('#printLabelWebview')
-      let labelHtml = `
-      <div class="header">远诚宝路通物流</div>
-      <div class="label">${moment(new Date).format('YYYY-MM-DD HH:mm:ss')}</div>
-      <div class="label">
-      <span class="label-left">${data.site_name}</span> &rarr; <span class="label-right">${data.company_name}</span>
-      </div>
-      <div class="label label-name">
-      <span>${data.getcustomer_name}</span> <span class="">${data.order_code} - ${i + 1}</span>
-      </div>
-      <div class="label">货物名称：${data.order_name}</div>
-      <div class="footer">http://www.bltwlgs.com</div>
-      `
-      printLableWebview.send('webview-print-render', { html: labelHtml, deviceName: 'TSC TTP-244CE' })
+      printLabel(data, i)
     }
   }
 
@@ -2264,7 +2264,7 @@ class TableList extends PureComponent {
     let allowClear = false
     let siteOption = { initialValue: CacheSite.site_id }
     let selectSites = [CacheSite]
-    if (CacheSite.site_type == 3 || CacheSite.site_type == 2) {
+    if (CacheSite.site_type == 3 || CacheSite.site_type == 2 || CacheCompany.company_type == 2) {
       selectSites = siteList
       allowClear = true
       siteOption = {}
@@ -2279,7 +2279,7 @@ class TableList extends PureComponent {
               allowClear={CacheCompany.company_type == 1 ? true : false}
               style={{ width: '100px' }}
             >
-              {branchCompanyList.map(ele => {
+              {(CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany]).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
                     {ele.company_name}
@@ -2389,15 +2389,18 @@ class TableList extends PureComponent {
     // 是否显示操作按钮
     let showOperateButton = true
     let showPrintButton = true
+    let showCreateOrderButton = true
     if (CacheCompany.company_type != 1) {
       showOperateButton = false
       showPrintButton = false
+      showCreateOrderButton = false
     }
     if (['site_searchuser', 'site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
       showOperateButton = false
     }
     if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
       showPrintButton = false
+      showCreateOrderButton = false
     }
 
     // 是否都勾选了装回配载部的订单
@@ -2416,7 +2419,7 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {showOperateButton && <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
+              {showCreateOrderButton && <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
                 录入托运单
               </Button>}
 
