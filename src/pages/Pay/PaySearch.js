@@ -747,7 +747,7 @@ class TableList extends PureComponent {
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
-      site: { entrunkSiteList = [], normalSiteList = [] },
+      site: { entrunkSiteList = [], siteList = [] },
       customer: { getCustomerList, sendCustomerList },
       company: { branchCompanyList },
     } = this.props;
@@ -776,10 +776,19 @@ class TableList extends PureComponent {
             <Input placeholder="请输入" style={{ width: '150px' }} />
           )}
         </FormItem>
+        <FormItem label="运费类型">
+          {getFieldDecorator('trans_type', {})(
+            <Select placeholder="全部" style={{ width: '80px' }} allowClear>
+              <Option key={2} value={2}>
+                回付
+              </Option>
+            </Select>
+          )}
+        </FormItem>
         <FormItem label="站点">
           {getFieldDecorator('site_id', {})(
             <Select placeholder="全部" style={{ width: '80px' }} allowClear>
-              {normalSiteList.map(ele => {
+              {siteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}

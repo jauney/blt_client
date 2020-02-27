@@ -282,8 +282,12 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      fieldsValue.order_status = [0, 1]
+      fieldsValue.order_status = [0, 2]
+      if (fieldsValue.create_date) {
+        fieldsValue.create_date = [`${fieldsValue.create_date.valueOf()}`];
+      }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
+
       dispatch({
         type: 'order/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
@@ -370,7 +374,7 @@ class TableList extends PureComponent {
     let allowClear = false
     let siteOption = { initialValue: CacheSite.site_id }
     let selectSites = [CacheSite]
-    if (CacheSite.site_type == 3 || CacheSite.site_type == 2) {
+    if (CacheSite.site_type == 3 || CacheSite.site_type == 2 || CacheCompany.company_type == 2) {
       selectSites = siteList
       allowClear = true
       siteOption = {}

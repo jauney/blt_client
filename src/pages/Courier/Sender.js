@@ -695,10 +695,10 @@ class TableList extends PureComponent {
         cannotEditFlag = true
       }
     });
-    if (cannotEditFlag) {
-      message.error('下账超过48小时记录不可编辑');
-      return;
-    }
+    // if (cannotEditFlag) {
+    //   message.error('下账超过48小时记录不可编辑');
+    //   return;
+    // }
 
     const result = await dispatch({
       type: 'courier/updateCustomerCourierAction',

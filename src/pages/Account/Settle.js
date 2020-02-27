@@ -631,7 +631,9 @@ class TableList extends PureComponent {
       message.success('取消结算成功！');
 
       this.onSettleCancel();
-      this.handleSearch();
+      setTimeout(() => {
+        this.handleSearch();
+      }, 300)
     } else {
       message.error(result.msg);
     }

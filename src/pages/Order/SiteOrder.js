@@ -677,7 +677,6 @@ class CreateForm extends PureComponent {
                   placeholder="全部"
                   onSelect={this.onCompanySelect}
                   style={{ width: '100%' }}
-                  disabled
                 >
                   {branchCompanyList.map(ele => {
                     return (
@@ -1790,11 +1789,11 @@ class TableList extends PureComponent {
 
   handleModalVisible = flag => {
     const { currentCompany, currentSite } = this.state
-    // 选择公司、站点
-    if (!currentCompany || !currentCompany.company_id) {
-      message.info('请选择分公司')
-      return
-    }
+    // // 选择公司、站点
+    // if (!currentCompany || !currentCompany.company_id) {
+    //   message.info('请选择分公司')
+    //   return
+    // }
 
     this.setState({
       selectedOrder: {},
@@ -2066,6 +2065,7 @@ class TableList extends PureComponent {
 
     this.fetchGetCustomerList()
     this.getLastCarInfo();
+    this.getOrderList();
   };
 
   getLastCarInfo = async (option) => {
@@ -2121,6 +2121,7 @@ class TableList extends PureComponent {
       currentShipSite: site,
     });
     this.getLastCarInfo();
+    this.getOrderList();
   };
 
   onSiteSelect = async value => {
@@ -2139,6 +2140,7 @@ class TableList extends PureComponent {
     this.setState({
       currentSite: site,
     });
+    this.getOrderList();
   }
 
   /**

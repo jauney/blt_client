@@ -92,6 +92,14 @@ class TableList extends PureComponent {
       sorter: true,
       dataIndex: 'account_amount',
       width: '80px',
+      render: (val, record) => {
+        if (record.account_type == 0) {
+          return <span><span className={styles.minusType}>&mdash;</span> {record.account_amount}</span>
+        }
+        else {
+          return <span><span className={styles.minusType}></span> {record.account_amount}</span>
+        }
+      },
     },
     {
       title: '用户名',

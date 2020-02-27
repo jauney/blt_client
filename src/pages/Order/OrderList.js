@@ -130,16 +130,19 @@ class TableList extends PureComponent {
     {
       title: '垫付',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_advancepay_amount',
     },
     {
       title: '送货费',
       width: '80px',
+      sorter: true,
       dataIndex: 'deliver_amount',
     },
     {
       title: '保价费',
       width: '80px',
+      sorter: true,
       dataIndex: 'insurance_fee',
     },
     {
@@ -150,12 +153,14 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       width: '170px',
+      sorter: true,
       dataIndex: 'create_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD HH:mm:ss') : ''}</span>,
     },
     {
       title: '站点',
       width: '80px',
+      sorter: true,
       dataIndex: 'site_name',
     },
     {
@@ -166,23 +171,27 @@ class TableList extends PureComponent {
     {
       title: '结算日期',
       width: '100px',
+      sorter: true,
       dataIndex: 'settle_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD') : ''}</span>,
     },
     {
       title: '付款日期',
       width: '100px',
+      sorter: true,
       dataIndex: 'pay_date',
       render: val => <span>{val ? moment(Number(val)).format('YYYY-MM-DD') : ''}</span>,
     },
     {
       title: '滞纳金',
       width: '80px',
+      sorter: true,
       dataIndex: 'late_fee',
     },
     {
       title: '奖励金',
       width: '80px',
+      sorter: true,
       dataIndex: 'bonus_amount',
     },
     {
@@ -464,7 +473,7 @@ class TableList extends PureComponent {
     let allowClearSite = false
     let siteOption = { initialValue: CacheSite.site_id }
     let siteSelectList = [CacheSite]
-    if (CacheSite.site_type == 3 || CacheSite.site_type == 2) {
+    if (CacheSite.site_type == 3 || CacheSite.site_type == 2 || CacheCompany.company_type == 2) {
       siteSelectList = siteList
       allowClearSite = true
       siteOption = {}
@@ -490,21 +499,19 @@ class TableList extends PureComponent {
             </Select>
           )}
         </FormItem>
-        {CacheCompany.company_type == 1 && (
-          <FormItem label="站点">
-            {getFieldDecorator('site_id', siteOption)(
-              <Select placeholder="全部" style={{ width: '100px' }} allowClear={allowClearSite}>
-                {siteSelectList.map(ele => {
-                  return (
-                    <Option key={ele.site_id} value={ele.site_id}>
-                      {ele.site_name}
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
-          </FormItem>
-        )}
+        <FormItem label="站点">
+          {getFieldDecorator('site_id', siteOption)(
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear={allowClearSite}>
+              {siteSelectList.map(ele => {
+                return (
+                  <Option key={ele.site_id} value={ele.site_id}>
+                    {ele.site_name}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </FormItem>
         <FormItem label="配载部">
           {getFieldDecorator('shipsite_id', {})(
             <Select
