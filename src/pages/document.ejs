@@ -17,18 +17,23 @@
   <div id="root"></div>
   <div class="print-view">
     <webview id="printOrderWebview" src="/print_order.html" nodeintegration style="visibility: hidden;"></webview>
-    <webview id="printLabelWebview" src="/print_label.html" nodeintegration style="visibility: hidden;"></webview>
     <webview id="printWebview" src="/print.html" nodeintegration style="visibility: hidden;"></webview>
+    <webview id="printLabelWebview1" src="/print_label1.html" nodeintegration style="visibility: hidden;"></webview>
+    <webview id="printLabelWebview2" src="/print_label2.html" nodeintegration style="visibility: hidden;"></webview>
+    <webview id="printLabelWebview3" src="/print_label3.html" nodeintegration style="visibility: hidden;"></webview>
+    <webview id="printLabelWebview4" src="/print_label4.html" nodeintegration style="visibility: hidden;"></webview>
+    <webview id="printLabelWebview5" src="/print_label5.html" nodeintegration style="visibility: hidden;"></webview>
   </div>
   <script>
       const fs = window.require('fs');
       const { remote } = window.require("electron");
+
       const printOrderWebview = document.querySelector('#printOrderWebview')
       printOrderWebview.addEventListener('ipc-message', (event) => {
         if (event.channel === 'webview-print-do') {
           let deviceName = event.args[0]
           if(deviceName){
-            printLabelWebview.print({ silent: true, printBackground: true, deviceName: deviceName })
+            printOrderWebview.print({ silent: true, printBackground: true, deviceName: deviceName })
           }
           else {
             printOrderWebview.print({ silent: true, printBackground: true })
@@ -36,12 +41,68 @@
         }
       })
 
-      const printLabelWebview = document.querySelector('#printLabelWebview')
-      printLabelWebview.addEventListener('ipc-message', (event) => {
+      const printLabelWebview1 = document.querySelector('#printLabelWebview1')
+      printLabelWebview1.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
         if (event.channel === 'webview-print-do') {
-          // printLabelWebview.print({ silent: false, printBackground: true })
-          printLabelWebview.print({ silent: true, printBackground: true, deviceName: 'TSC TTP-244CE' })
+          return
+          printLabelWebview1.print({
+            silent: true,
+            printBackground: true,
+            deviceName: 'TSC TTP-244CE'
+          })
+        }
+      })
+
+      const printLabelWebview2 = document.querySelector('#printLabelWebview1')
+      printLabelWebview2.addEventListener('ipc-message', (event) => {
+        let deviceName = event.args[0]
+        if (event.channel === 'webview-print-do') {
+          return
+          printLabelWebview2.print({
+            silent: true,
+            printBackground: true,
+            deviceName: 'TSC TTP-244CE'
+          })
+        }
+      })
+
+      const printLabelWebview3 = document.querySelector('#printLabelWebview1')
+      printLabelWebview3.addEventListener('ipc-message', (event) => {
+        let deviceName = event.args[0]
+        if (event.channel === 'webview-print-do') {
+          return
+          printLabelWebview3.print({
+            silent: true,
+            printBackground: true,
+            deviceName: 'TSC TTP-244CE'
+          })
+        }
+      })
+
+      const printLabelWebview4 = document.querySelector('#printLabelWebview1')
+      printLabelWebview4.addEventListener('ipc-message', (event) => {
+        let deviceName = event.args[0]
+        if (event.channel === 'webview-print-do') {
+          return
+          printLabelWebview4.print({
+            silent: true,
+            printBackground: true,
+            deviceName: 'TSC TTP-244CE'
+          })
+        }
+      })
+
+      const printLabelWebview5 = document.querySelector('#printLabelWebview1')
+      printLabelWebview5.addEventListener('ipc-message', (event) => {
+        let deviceName = event.args[0]
+        if (event.channel === 'webview-print-do') {
+          return
+          printLabelWebview5.print({
+            silent: true,
+            printBackground: true,
+            deviceName: 'TSC TTP-244CE'
+          })
         }
       })
 

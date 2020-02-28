@@ -87,9 +87,9 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
  */
 export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, branchCompanyList = [], siteList = [], footer = false }) {
   let getCustomerType = ''
-  if (getCustomer.getcustomer_type == 1) { getCustomerType = 'V' } else if (getCustomer.getcustomer_type == 9) { getCustomerType = 'H' }
+  if (getCustomer.customer_type == 1) { getCustomerType = 'V' } else if (getCustomer.customer_type == 9) { getCustomerType = 'H' }
   let sendCustomerType = ''
-  if (sendCustomer.sendcustomer_type == 1) { sendCustomerType = 'V' } else if (sendCustomer.sendcustomer_type == 9) { sendCustomerType = 'H' }
+  if (sendCustomer.customer_type == 1) { sendCustomerType = 'V' } else if (sendCustomer.customer_type == 9) { sendCustomerType = 'H' }
   let transType = '提付'
   if (data.trans_type == 1) { transType = '现付' } else if (data.trans_type == 2) { transType = '回付' }
   let transferType = ''
@@ -182,7 +182,7 @@ export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, bra
     </table>
     <table>
       <tr>
-        <td>收货地址:${data.getcustomer_address || getCustomer.getcustomer_address || ''}</td>
+        <td>收货地址:${data.getcustomer_address || getCustomer.customer_address || ''}</td>
       </tr>
       <tr>
         <td>备注:${data.remark || ''}</td>
@@ -367,30 +367,35 @@ export function printPayOrder({ selectedRows = [] }) {
 export function printLabel(data, indexNo) {
   let styles = `
     <style>
-    .content, .header {text-align: center;}
-    .label {padding: 0 8px;}
+    .content {width: 100%; padding-left: 50px;}
+    .content, .header {text-align: center; font-size: 14px}
+    .label {padding: 0 8px; text-align: left;  font-size: 16px }
     .header, .footer {text-align: center;}
     .header {font-size: 18px; font-weight: 700;}
-    .label-right {font-size: 30px; font-weight: 700;}
-    .label-name {font-size: 22px; font-weight: 700;}
+    .label-left {font-size: 20px; font-weight: 700;}
+    .label-right {font-size: 34px; font-weight: 700;}
+    .label-name {font-size: 24px; font-weight: 700;}
+    .label-goods {height: 40px;}
     </style>`
   let printHtml = `
       <div class="header">远诚宝路通物流</div>
+      <div class="content">
       <div class="label">${moment(new Date).format('YYYY-MM-DD HH:mm:ss')}</div>
       <div class="label">
-      <span class="label-left">${data.site_name}</span> &rarr; <span class="label-right">${data.company_name}</span>
+      <span class="label-left">${data.site_name}</span> ——> <span class="label-right">${data.company_name}</span>
       </div>
       <div class="label label-name">
-      <span>${data.getcustomer_name}</span> <span class="">${data.order_code} - ${indexNo + 1}</span>
+      <span class="username">${data.getcustomer_name}</span> <span class="">${data.order_code} - ${indexNo + 1}</span>
       </div>
-      <div class="label">货物名称：${data.order_name}</div>
+      <div class="label label-goods">货物名称：${data.order_name}</div>
+      </div>
       <div class="footer">http://www.bltwlgs.com</div>
       `
 
   //告诉渲染进程，开始渲染打印内容
-  const printLableWebview = document.querySelector('#printLabelWebview')
-  const printOrderWebview = document.querySelector('#printOrderWebview')
-  //printOrderWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName: 'TSC TTP-244CE' })
+  let printerIndex = indexNo % 5
+  const printLableWebview = document.querySelector(`#printLabelWebview${printerIndex + 1}`)
+  console.log(printerIndex, printHtml)
   printLableWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName: 'TSC TTP-244CE' })
 }
 

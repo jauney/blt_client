@@ -116,12 +116,16 @@ class CreateForm extends PureComponent {
    * 编辑的时候初始化赋值表单
    */
   async componentDidMount() {
-    const { form, selectedOrder = {}, dispatch, currentCompany } = this.props;
+    const { form, selectedOrder = {}, dispatch, currentCompany = {}, branchCompanyList } = this.props;
     const formFileds = form.getFieldsValue();
     const formKeys = Object.keys(formFileds);
     // 列表页传过来的当前公司，用于获取地狱系数
+    let curCompany = currentCompany
+    if (!currentCompany.company_id) {
+      curCompany = branchCompanyList[0]
+    }
     this.setState({
-      currentCompany
+      currentCompany: curCompany
     })
     if (selectedOrder && selectedOrder.getcustomer_id) {
       await dispatch({
@@ -612,7 +616,6 @@ class CreateForm extends PureComponent {
       sendCustomerList,
       siteList,
       selectedOrder,
-      currentCompany,
       currentSite,
     } = this.props;
     const {
@@ -620,21 +623,14 @@ class CreateForm extends PureComponent {
       selectedSendCustomerMobile,
       currentGetCustomer,
       currentSendCustomer,
+      currentCompany
     } = this.state;
 
     const companyOption = {
       rules: [{ required: true, message: '请选择分公司' }],
     };
     // 默认勾选第一个公司
-    if (currentCompany && currentCompany.company_id) {
-      companyOption.initialValue = currentCompany.company_id || '';
-    } else if (branchCompanyList.length > 0) {
-      this.setState({
-        currentCompany: branchCompanyList[0],
-      });
-
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
-    }
+    companyOption.initialValue = currentCompany.company_id || '';
 
     const transTypeMap = {
       0: '提', 1: '现', 2: '回'
@@ -1864,7 +1860,9 @@ class TableList extends PureComponent {
     printOrder({ getCustomer, sendCustomer, data, branchCompanyList, siteList })
 
     for (let i = 0; i < data.order_num; i++) {
-      printLabel(data, i)
+      (function (j) {
+        setTimeout(() => { printLabel(data, j) }, j % 5 == 0 && j > 0 ? 1000 : 0)
+      })(i)
     }
   }
 
