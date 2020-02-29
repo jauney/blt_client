@@ -323,7 +323,7 @@ class TableList extends PureComponent {
     },
     {
       title: '票数',
-      dataIndex: 'order_num',
+      dataIndex: 'total_order',
       width: '80px',
       sorter: true,
     },

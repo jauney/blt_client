@@ -2182,6 +2182,10 @@ class TableList extends PureComponent {
       message.error('请先选择公司');
       return;
     }
+    if (!currentShipSite.site_id) {
+      message.error('请先选择配载站');
+      return;
+    }
     if (currentCompany.company_id != orderCompanyId) {
       Modal.info({
         content: '选择的订单所属分公司和当前选择的分公司不一致，请重新勾选订单进行装车',
@@ -2390,17 +2394,25 @@ class TableList extends PureComponent {
     let showOperateButton = true
     let showPrintButton = true
     let showCreateOrderButton = true
+    let showShipButon = true
     if (CacheCompany.company_type != 1) {
       showOperateButton = false
       showPrintButton = false
       showCreateOrderButton = false
+      showShipButon = false
     }
     if (['site_searchuser', 'site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
       showOperateButton = false
+      showShipButon = false
     }
     if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
       showPrintButton = false
       showCreateOrderButton = false
+      showShipButon = false
+    }
+
+    if (['site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
+      showShipButon = true
     }
 
     // 是否都勾选了装回配载部的订单
@@ -2430,9 +2442,20 @@ class TableList extends PureComponent {
                 </span>
               )}
 
-              {selectedRows.length > 0 && showOperateButton && shipedOrderIds.length == selectedRows.length && (
+              {selectedRows.length > 0 && showShipButon && unShipOrderIds.length == selectedRows.length && (
+                <span>
+                  <Button onClick={this.onShipModalShow}>装回配载站</Button>
+                </span>
+              )}
+
+              {selectedRows.length > 0 && showShipButon && shipedOrderIds.length == selectedRows.length && (
                 <span>
                   <Button onClick={this.onCancelShip}>取消装回配载站</Button>
+                </span>
+              )}
+
+              {selectedRows.length > 0 && showOperateButton && shipedOrderIds.length == selectedRows.length && (
+                <span>
                   <Button onClick={this.onReceiverModalShow}>更改接货人</Button>
                   <Button onClick={this.onEntrunkModalShow}>装车</Button>
                 </span>

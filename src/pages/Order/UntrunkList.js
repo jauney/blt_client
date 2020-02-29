@@ -282,7 +282,7 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      fieldsValue.order_status = [0, 2]
+      fieldsValue.order_status = [0, 8]
       if (fieldsValue.create_date) {
         fieldsValue.create_date = [`${fieldsValue.create_date.valueOf()}`];
       }

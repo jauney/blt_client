@@ -22,7 +22,7 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
         <td>${item.order_code || ''}</td>
         <td>${item.getcustomer_name || ''}</td>
         <td>${item.getcustomer_mobile || ''}</td>
-        <td>${item.order_real || order.order_amount || ''}</td>
+        <td>${item.order_real || ''}</td>
         <td>${item.trans_discount || ''}</td>
         <td>${transType || ''}</td>
         <td>${item.order_advancepay_amount || ''}</td>

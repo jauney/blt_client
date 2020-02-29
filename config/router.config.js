@@ -116,7 +116,7 @@ export default [
         path: '/pay',
         icon: '付',
         name: 'pay',
-        authority: ['site_pay', 'site_admin', 'site_searchuser', 'site_receipt'],
+        authority: ['site_pay', 'site_searchuser', 'site_receipt'],
         routes: [
           {
             path: '/pay/pay',
@@ -200,7 +200,7 @@ export default [
         path: '/finance',
         icon: '财',
         name: 'finance',
-        authority: ['site_admin', 'site_searchuser', 'company_admin', 'site_pay'],
+        authority: ['site_searchuser', 'company_admin', 'site_pay'],
         routes: [
           {
             path: '/finance/income',
@@ -308,7 +308,7 @@ export default [
         path: '/search',
         name: 'search',
         icon: '查',
-        authority: ['company_admin', 'site_admin', 'site_pay', 'site_receipt'],
+        authority: ['company_admin', 'site_pay', 'site_receipt'],
         routes: [
           // transfer
           {

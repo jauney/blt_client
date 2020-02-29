@@ -453,13 +453,12 @@ class CreateEntrunkForm extends PureComponent {
     return (
       <Modal
         title="货物装车"
-        okText="确认"
-        cancelText="取消"
         className={styles.standardListForm}
         width={700}
         destroyOnClose
         visible={modalVisible}
         footer={buttons}
+        onCancel={onEntrunkModalCancel}
       >
         {this.getModalContent()}
       </Modal>
@@ -1121,7 +1120,6 @@ class TableList extends PureComponent {
   }
 
   onEntrunkModalCancel = () => {
-    // setTimeout(() => this.addBtn.blur(), 0);
     this.setState({
       entrunkModalVisible: false,
     });

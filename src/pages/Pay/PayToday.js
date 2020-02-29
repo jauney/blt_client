@@ -567,7 +567,7 @@ class TableList extends PureComponent {
         canCancelFlag = false;
       }
       payIds.push(item.pay_id);
-      totalAmount += Number(item.order_real || item.order_amount || 0);
+      totalAmount += Number(item.order_real || 0);
     });
 
     if (!canCancelFlag) {

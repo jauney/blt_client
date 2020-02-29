@@ -73,7 +73,7 @@ class AddFormDialog extends PureComponent {
 
       addFormDataHandle({
         transfer_money: fieldsValue.transfer_money,
-        transfer_type: 0,
+        transfer_status: 0,
         transfer_user: fieldsValue.transfer_user,
         remark: fieldsValue.remark,
       });
@@ -212,13 +212,8 @@ class TableList extends PureComponent {
       width: '170px',
     },
     {
-      title: '站点',
-      dataIndex: 'site_name',
-      width: '80px',
-    },
-    {
       title: '打款公司',
-      dataIndex: 'company_name',
+      dataIndex: 'site_name',
       width: '80px',
     },
     {
@@ -312,6 +307,7 @@ class TableList extends PureComponent {
         });
       }
       fieldsValue.company_id = CacheCompany.company_id;
+      fieldsValue.transfer_type = 1
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -368,6 +364,7 @@ class TableList extends PureComponent {
         ...data,
         company_id: CacheCompany.company_id,
         company_name: CacheCompany.company_name,
+        transfer_type: 1,
         site_id: currentSite.site_id,
         site_name: currentSite.site_name,
       },
@@ -405,7 +402,7 @@ class TableList extends PureComponent {
   onConfirmTransfer = async () => {
     const { selectedRows } = this.state;
     const confirmedRecords = selectedRows.filter(item => {
-      return item.transfer_type == 1
+      return item.transfer_status == 1
     })
     if (confirmedRecords.length > 0) {
       Modal.info({
@@ -448,7 +445,7 @@ class TableList extends PureComponent {
   onCancelConfirmTransfer = async () => {
     const { selectedRows } = this.state;
     const confirmedRecords = selectedRows.filter(item => {
-      return item.transfer_type == 0
+      return item.transfer_status == 0
     })
     if (confirmedRecords.length > 0) {
       Modal.info({
@@ -490,7 +487,7 @@ class TableList extends PureComponent {
   onDelTransfer = async () => {
     const { selectedRows } = this.state;
     const confirmedRecords = selectedRows.filter(item => {
-      return item.transfer_type == 1
+      return item.transfer_status == 1
     })
     if (confirmedRecords.length > 0) {
       Modal.info({
@@ -692,7 +689,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="确认打款">
-          {getFieldDecorator('transfer_type', { initialValue: '0' })(
+          {getFieldDecorator('transfer_status', { initialValue: '0' })(
             <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               <Option value="1">已确认打款</Option>
               <Option value="0">未确认打款</Option>
@@ -787,7 +784,7 @@ class TableList extends PureComponent {
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
               rowClassNameHandler={(record, index) => {
-                if (record.transfer_type === 1) {
+                if (record.transfer_status === 1) {
                   return styles.payColor;
                 }
               }}

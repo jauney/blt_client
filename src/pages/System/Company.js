@@ -81,6 +81,7 @@ class AddFormDialog extends PureComponent {
       fieldsValue.alarm_days = Number(fieldsValue.alarm_days);
       fieldsValue.agency_fee = Number(fieldsValue.agency_fee);
       fieldsValue.bonus_type = Number(fieldsValue.bonus_type);
+      fieldsValue.insurance_ratio = Number(fieldsValue.insurance_ratio)
       if (fieldsValue.bonus_type == 3) {
         fieldsValue.transfee_ratio = Number(fieldsValue.transfee_ratio)
       }
@@ -317,7 +318,7 @@ class AddFormDialog extends PureComponent {
                 })(<Input placeholder="请输入" style={{ width: '280px' }} />)}
                 <strong className="inner-form-label">&nbsp;送货人是否记忆：</strong>
                 {form.getFieldDecorator('remember_sender', {
-                  initialValue: record.remember_sender || 1,
+                  initialValue: record.remember_sender,
                   rules: [{ required: true, message: '' }],
                 })(
                   <Select placeholder="全部" style={{ width: '100px' }}>

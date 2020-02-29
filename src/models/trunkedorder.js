@@ -34,6 +34,7 @@ export default {
       });
     },
     *getOrderStatisticAction({ payload }, { call, put }) {
+      payload.filter.order_status = [1, 8];
       const response = yield call(getOrderStatistic, payload);
       yield put({
         type: 'getOrderStatisticReducer',

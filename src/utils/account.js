@@ -26,7 +26,7 @@ export function getSelectedAccount(sltDatas, type) {
 
   for (var i = 0; i < sltDatas.length; i++) {
     var order = sltDatas[i];
-    var realOrderAmount = order.order_real || order.order_amount;
+    var realOrderAmount = order.order_real || 0;
 
     totalActualGoodsFunds += Number(realOrderAmount);
     // trans_discount即为实付运费，去掉trans_real字段
@@ -169,7 +169,7 @@ export function calBonusFee(items = [], company = {}) {
 
   for (let i = 0; i < items.length; i++) {
     let item = items[i]
-    let orderAmount = Number(item.order_real || item.order_amount)
+    let orderAmount = Number(item.order_real)
     // 计算奖励金
     if (
       Number(item.order_status) >= 4 &&
