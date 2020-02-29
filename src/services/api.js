@@ -11,7 +11,7 @@ import { async } from 'q';
 
 const httpLink = new HttpLink({ uri: 'http://47.105.84.59:3008/graphql' });
 
-// const httpLink = new HttpLink({ uri: 'http://192.168.0.103:3008/graphql' });
+//const httpLink = new HttpLink({ uri: 'http://192.168.0.103:3008/graphql' });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
   // add the authorization to the headers
@@ -918,7 +918,7 @@ export async function getCustomerList(params) {
               site_ids
               site_names
               total_trans
-              order_num
+              total_order
               customerMobiles {
                 mobile_id
                 mobile
@@ -2213,8 +2213,8 @@ export async function addDebt(params) {
 
 // getTransfers
 export async function getTransfers(params) {
-  if (params.filter && params.filter.transfer_type) {
-    params.filter.transfer_type = Number(params.filter.transfer_type);
+  if (params.filter && params.filter.transfer_status) {
+    params.filter.transfer_status = Number(params.filter.transfer_status);
   }
   return client
     .query({
@@ -2228,10 +2228,13 @@ export async function getTransfers(params) {
               company_name
               transfer_money
               transfer_date
+              transfer_status
               transfer_type
               transfer_user
               confirm_operator_name
               confirm_date
+              site_id
+              site_name
               remark
             }
           }
@@ -2250,8 +2253,8 @@ export async function getTransfers(params) {
 
 // getTransferStatistic
 export async function getTransferStatistic(params) {
-  if (params.filter && params.filter.transfer_type) {
-    delete params.filter.transfer_type
+  if (params.filter && params.filter.transfer_status) {
+    delete params.filter.transfer_status
   }
   return client
     .query({
