@@ -28,6 +28,7 @@ import { getSelectedAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Account.less';
+import { printOrder, printPayOrder, printDownLoad, printLabel } from '@/utils/print'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
 const FormItem = Form.Item;
@@ -536,9 +537,12 @@ class TableList extends PureComponent {
 
   // 下载
   onDownload = async () => {
-    this.setState({
-      downloadModalVisible: true,
-    });
+    const { selectedRows } = this.state
+    if (selectedRows.length <= 0) {
+      message.info('请选择需要下载的订单信息')
+      return
+    }
+    printDownLoad({ selectedRows, type: 'pdf' })
   };
 
   onDownloadCancel = async () => {
