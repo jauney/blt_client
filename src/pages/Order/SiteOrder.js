@@ -2031,7 +2031,7 @@ class TableList extends PureComponent {
   // 下载货物清单
   onDownloadOrder = () => {
     const { selectedRows } = this.state
-    printPayOrder({ selectedRows })
+    printDownLoad({ selectedRows, type: 'pdf' })
   }
 
   resetCustomerPage = async (type = 'Get') => {

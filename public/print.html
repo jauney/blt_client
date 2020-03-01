@@ -35,7 +35,6 @@
     document.getElementById('bd').innerHTML = printHtml;
 
     if(type == 'pdf'){
-      console.log('pdf printing...')
       ipcRenderer.sendToHost('webview-print-pdf')
     }
     else {

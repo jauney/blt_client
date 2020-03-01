@@ -15,7 +15,9 @@
 <body>
   <noscript>Sorry, we need js to run correctly!</noscript>
   <div id="root"></div>
+
   <div class="print-view">
+    <div id="pdf-print"></div>
     <webview id="printOrderWebview" src="/print_order.html" nodeintegration style="visibility: hidden;"></webview>
     <webview id="printWebview" src="/print.html" nodeintegration style="visibility: hidden;"></webview>
     <webview id="printLabelWebview1" src="/print_label1.html" nodeintegration style="visibility: hidden;"></webview>
@@ -112,8 +114,8 @@
           printWebview.print({ silent: false, printBackground: true })
         }
         else if (event.channel === 'webview-print-pdf') {
-          const pdfData = printWebview.printToPDF({ printBackground: true, pageSize: 'A4'}, function(error, data) {
-            if (error) throw error;
+          console.log('print pdf....')
+          const pdfData = printWebview.printToPDF({ printBackground: true, pageSize: 'A4'}).then(function(data) {
             let curDate = new Date()
             let defaultFileName = `${curDate.getFullYear()}${curDate.getMonth()+1}${curDate.getDate()}${curDate.getTime()}.pdf`
             const fileName = remote.dialog.showSaveDialogSync(remote.getCurrentWindow(), {defaultPath: defaultFileName});
@@ -122,7 +124,6 @@
                   throw error;
                 console.log('success')
               })
-
           })
         }
       })

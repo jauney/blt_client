@@ -69,8 +69,8 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
         <th style="width:100px;">备注</th>
       </tr>
       ${bodyHTML}
-      <tr><td colspan="10">合计运费</td><td>${totalTransFund}</td></tr>
-      <tr><td colspan="10">日期</td><td>${new Date().toLocaleDateString()}</td></tr>
+      <tr><td colspan="9">合计运费</td><td>${totalTransFund}</td></tr>
+      <tr><td colspan="9">日期</td><td>${new Date().toLocaleDateString()}</td></tr>
     </table>
     </div>
     `
