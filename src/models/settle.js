@@ -17,6 +17,9 @@ export default {
     totalInsurancefee: 0,
     totalAdvancepayAmount: 0,
     totalDeliverAmount: 0,
+    totalRealOrderAmount: 0,
+    totalLatefee: 0,
+    totalBonusfee: 0,
   },
 
   effects: {

@@ -622,24 +622,29 @@ class TableList extends PureComponent {
       unsettle: {
         total,
         totalOrderAmount,
+        totalRealOrderAmount,
         totalTransAmount,
         totalInsurancefee,
         totalAdvancepayAmount,
         totalDeliverAmount,
+        totalLatefee,
+        totalBonusfee,
       },
     } = this.props;
     return (
       <div className={styles.tableFooter}>
         <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>实收货款：{totalRealOrderAmount || '0'}</span>
         <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
         <span className={styles.footerSplit}>垫付总额：{totalAdvancepayAmount || '0'}</span>
         <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
         <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
         <span className={styles.footerSplit}>票数：{total || '0'}</span>
+        <span className={styles.footerSplit}>滞纳金：{totalLatefee || '0'}</span>
+        <span className={styles.footerSplit}>奖金：{totalBonusfee || '0'}</span>
       </div>
     );
   };
-
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },

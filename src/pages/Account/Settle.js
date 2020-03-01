@@ -596,13 +596,21 @@ class TableList extends PureComponent {
   onSettle = async () => {
     const { selectedRows } = this.state;
     let canCancelSettle = true;
+    let isTransConfirmed = false;
     selectedRows.forEach(item => {
       if (item.order_status >= 7) {
         canCancelSettle = false;
       }
+      if (item.trans_status == 1) {
+        isTransConfirmed = true
+      }
     });
     if (!canCancelSettle) {
       message.error('已下账订单不能取消结算');
+      return;
+    }
+    if (isTransConfirmed) {
+      message.error('已确认运费不能取消结算');
       return;
     }
     let accountStatistic = getSelectedAccount(selectedRows);
@@ -771,20 +779,26 @@ class TableList extends PureComponent {
       settle: {
         total,
         totalOrderAmount,
+        totalRealOrderAmount,
         totalTransAmount,
         totalInsurancefee,
         totalAdvancepayAmount,
         totalDeliverAmount,
+        totalLatefee,
+        totalBonusfee,
       },
     } = this.props;
     return (
       <div className={styles.tableFooter}>
         <span>货款总额：{totalOrderAmount || '0'}</span>
+        <span className={styles.footerSplit}>实收货款：{totalRealOrderAmount || '0'}</span>
         <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
         <span className={styles.footerSplit}>垫付总额：{totalAdvancepayAmount || '0'}</span>
         <span className={styles.footerSplit}>送货费总额：{totalDeliverAmount || '0'}</span>
         <span className={styles.footerSplit}>保价费总额：{totalInsurancefee || '0'}</span>
         <span className={styles.footerSplit}>票数：{total || '0'}</span>
+        <span className={styles.footerSplit}>滞纳金：{totalLatefee || '0'}</span>
+        <span className={styles.footerSplit}>奖金：{totalBonusfee || '0'}</span>
       </div>
     );
   };
