@@ -1,18 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <meta charset="utf-8" />
+  <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover'>
   <style>
-    body,
-    html {
-      padding: 0px;
-      margin: 0px;
-    }
-
     @page {
       margin: 0px;
       padding: 0px;
@@ -21,11 +12,13 @@
 </head>
 
 <body id='bd'>
+
 </body>
 <script>
   const { ipcRenderer } = window.require('electron')
+
   ipcRenderer.on('webview-print-render', (event, options) => {
-    document.body.innerHTML = options.html;
+    document.getElementById('bd').innerHTML = options.html;
     ipcRenderer.sendToHost('webview-print-do', options.deviceName)
   })
 </script>
