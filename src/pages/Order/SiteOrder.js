@@ -483,7 +483,8 @@ class CreateForm extends PureComponent {
   /**
    * 计算运费折扣
    */
-  computeTransDiscount = changeType => {
+  computeTransDiscount = (options = {}) => {
+    const { changeType = '' } = options
     const { branchCompanyList } = this.props;
     let { currentCompany, currentGetCustomer, currentSendCustomer } = this.state;
     const { form } = this.props;
@@ -494,62 +495,43 @@ class CreateForm extends PureComponent {
     let getCustomerTransVipRatio = currentGetCustomer.trans_vip_ratio || 1;
     let sendCustomerTransVipRatio = currentSendCustomer.trans_vip_ratio || 1;
     let transRegionalRatio = currentCompany.trans_regional_ratio || 1;
+    if (changeType != 'transAmount') {
+      transAmount = Math.ceil(
+        Number(originalTransAmount) *
+        Number(transRegionalRatio)
+      );
+    }
+
     let transDiscount = transAmount;
-    console.log(getCustomerTransVipRatio, currentCompany)
-    let transVipRatio;
+    console.log(getCustomerTransVipRatio, currentCompany, changeType)
+    let transVipRatio = 1
     if (transType == 0) {
       transVipRatio = getCustomerTransVipRatio;
     } else {
       transVipRatio = sendCustomerTransVipRatio;
     }
-
-    if (changeType == 'type') {
-      // 折后运费=地域系数*客户VIP*小票费
-      transDiscount = Math.ceil(
-        Number(originalTransAmount) *
-        Number(transVipRatio) *
-        Number(transRegionalRatio)
-      );
-      form.setFieldsValue({
-        trans_discount: transDiscount || '',
-      });
-    } else if (changeType == 'original') {
-      if (originalTransAmount && transRegionalRatio) {
-        transAmount = Math.ceil(Number(originalTransAmount) * Number(transRegionalRatio));
-      }
-      if (transVipRatio && transRegionalRatio) {
-        // 折后运费=地域系数*客户VIP*小票费
-        transDiscount = Math.ceil(
-          Number(originalTransAmount) *
-          Number(transVipRatio) *
-          Number(transRegionalRatio)
-        );
-        form.setFieldsValue({
-          trans_discount: transDiscount || '',
-          trans_amount: transAmount || '',
-        });
-      }
-    } else if (transVipRatio && transRegionalRatio) {
-      // 折后运费=地域系数*客户VIP*小票费
-      transDiscount = Math.ceil(Number(transAmount) * Number(transVipRatio));
-      form.setFieldsValue({
-        trans_discount: transDiscount || '',
-      });
-    }
+    transDiscount = Math.ceil(
+      Number(transAmount) *
+      Number(transVipRatio)
+    );
+    form.setFieldsValue({
+      trans_discount: transDiscount || '',
+      trans_amount: transAmount || '',
+    });
   };
 
   onTransTypeSelect = () => {
-    this.computeTransDiscount('type');
+    this.computeTransDiscount();
   };
 
   // 小票运费变更，自动计算折后运费
   onTransOriginalBlur = event => {
-    this.computeTransDiscount('original');
+    this.computeTransDiscount();
   };
 
-  // 运费变更，自动计算折后运费
+  // 运费变更，自动计算折后运费，但是不改变小票运费
   onTransBlur = event => {
-    this.computeTransDiscount();
+    this.computeTransDiscount({ changeType: 'transAmount' });
   };
 
   // 有货款时自动补齐银行账号

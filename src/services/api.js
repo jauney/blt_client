@@ -9,9 +9,9 @@ import gql from 'graphql-tag';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { async } from 'q';
 
-const httpLink = new HttpLink({ uri: 'http://47.105.84.59:3008/graphql' });
+const httpLink = new HttpLink({ uri: 'http://118.190.100.113:8002/graphql' });
 
-//const httpLink = new HttpLink({ uri: 'http://192.168.0.103:3008/graphql' });
+// const httpLink = new HttpLink({ uri: 'http://192.168.0.103:8002/graphql' });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
   // add the authorization to the headers
@@ -974,7 +974,7 @@ export async function getCustomer(params) {
               site_ids
               site_names
               total_trans
-              order_num
+              total_order
               trans_vip_ratio
               customertype_name
               customerMobiles {
@@ -1000,7 +1000,7 @@ export async function getCustomer(params) {
               site_ids
               site_names
               total_trans
-              order_num
+              total_order
               trans_vip_ratio
               customertype_name
               customerMobiles {

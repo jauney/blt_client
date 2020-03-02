@@ -436,6 +436,7 @@ class TableList extends PureComponent {
       message.success('确认打款成功！');
 
       this.onSettleCancel();
+      this.handleSearch()
     } else {
       message.error(result.msg);
     }
@@ -478,6 +479,7 @@ class TableList extends PureComponent {
     if (result.code == 0) {
       message.success('取消确认打款成功！');
 
+      this.handleSearch()
       this.onCancelConfirmTransferCancel();
     } else {
       message.error(result.msg);

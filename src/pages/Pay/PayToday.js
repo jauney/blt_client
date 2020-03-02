@@ -567,7 +567,7 @@ class TableList extends PureComponent {
         canCancelFlag = false;
       }
       payIds.push(item.pay_id);
-      totalAmount += Number(item.order_real || 0);
+      totalAmount += Number(item.pay_amount || 0);
     });
 
     if (!canCancelFlag) {
@@ -746,7 +746,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               className={styles.dataTable}
-              rowKey="order_id"
+              rowKey="pay_id"
               data={{
                 list: todayPayList,
                 pagination: {

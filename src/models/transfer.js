@@ -35,10 +35,10 @@ export default {
       });
     },
     *confirmTransferAction({ payload }, { call, put }) {
-      return yield call(updateTransferType, Object.assign(payload, { transfer: { transfer_type: 1 } })); // post
+      return yield call(updateTransferType, Object.assign(payload, { transfer: { transfer_status: 1 } })); // post
     },
     *cancelConfirmTransferAction({ payload }, { call, put }) {
-      return yield call(updateTransferType, Object.assign(payload, { transfer: { transfer_type: 0 } })); // post
+      return yield call(updateTransferType, Object.assign(payload, { transfer: { transfer_status: 0 } })); // post
     },
     *delTransferAction({ payload }, { call, put }) {
       return yield call(delTransfer, payload); // post
