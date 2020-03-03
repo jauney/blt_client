@@ -1993,7 +1993,7 @@ class TableList extends PureComponent {
     ipcRenderer.send('getPrinterList')
     ipcRenderer.once('getPrinterList', (event, data) => {
       // 过滤可用打印机
-      console.log(data)
+      console.log('print list...', data)
       let printList = data.filter(element => element.status === 0)
       console.log(printList)
       // 1.判断是否有打印服务
