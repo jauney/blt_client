@@ -1846,7 +1846,7 @@ class TableList extends PureComponent {
     for (let i = 0; i < Number(data.order_num || 1); i++) {
       (function (j) {
         console.log('print ordernum:', data.order_num, j)
-        setTimeout(() => { printLabel(data, j, labelPrinterName) }, j % 5 == 0 && j > 0 ? 1000 : 0)
+        printLabel(data, data.order_num, labelPrinterName)
       })(i)
     }
   }

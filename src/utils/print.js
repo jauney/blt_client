@@ -385,7 +385,7 @@ export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
       <span class="label-left">${data.site_name}</span> ——> <span class="label-right">${data.company_name}</span>
       </div>
       <div class="label label-name">
-      <span class="username">${data.getcustomer_name}</span> <span class="">${data.order_code} - ${indexNo + 1}</span>
+      <span class="username">${data.getcustomer_name}</span> <span class="">${data.order_code} - ${indexNo}</span>
       </div>
       <div class="label label-goods">货物名称：${data.order_name}</div>
       </div>
@@ -395,7 +395,7 @@ export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
   //告诉渲染进程，开始渲染打印内容
   let printerIndex = indexNo % 5
   const printLableWebview = document.querySelector(`#printLabelWebview${printerIndex + 1}`)
-  console.log(printerIndex, printHtml)
+  console.log(printerIndex, printHtml, printLableWebview)
   printLableWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName })
 }
 
