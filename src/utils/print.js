@@ -394,7 +394,7 @@ export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
 
   //告诉渲染进程，开始渲染打印内容
   let printerIndex = indexNo % 5
-  const printLableWebview = document.querySelector(`#printLabelWebview${printerIndex + 1}`)
+  const printLableWebview = document.querySelector(`#printLabelWebview`)
   console.log(printerIndex, printHtml, printLableWebview)
   printLableWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName })
 }
