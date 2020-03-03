@@ -68,7 +68,7 @@
         }
       })
 
-      const printLabelWebview3 = document.querySelector('#printLabelWebvie3')
+      const printLabelWebview3 = document.querySelector('#printLabelWebview3')
       printLabelWebview3.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
         if (event.channel === 'webview-print-do') {
