@@ -47,8 +47,7 @@
       printLabelWebview1.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
         console.log('label print deviceName:', deviceName)
-        if (event.channel === 'webview-print-do') {
-          return
+        if (event.channel === 'webview-print-do')
           printLabelWebview1.print({
             silent: true,
             printBackground: true,
@@ -61,7 +60,6 @@
       printLabelWebview2.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
         if (event.channel === 'webview-print-do') {
-          return
           printLabelWebview2.print({
             silent: true,
             printBackground: true,
@@ -74,7 +72,6 @@
       printLabelWebview3.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
         if (event.channel === 'webview-print-do') {
-          return
           printLabelWebview3.print({
             silent: true,
             printBackground: true,
@@ -87,7 +84,6 @@
       printLabelWebview4.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
         if (event.channel === 'webview-print-do') {
-          return
           printLabelWebview4.print({
             silent: true,
             printBackground: true,
@@ -100,7 +96,6 @@
       printLabelWebview5.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
         if (event.channel === 'webview-print-do') {
-          return
           printLabelWebview5.print({
             silent: true,
             printBackground: true,
