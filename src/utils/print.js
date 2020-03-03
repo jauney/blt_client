@@ -364,7 +364,7 @@ export function printPayOrder({ selectedRows = [] }) {
  * 打印标签
  * @param {*} data
  */
-export function printLabel(data, indexNo) {
+export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
   let styles = `
     <style>
     .content {width: 100%; padding-left: 50px;}
@@ -396,6 +396,6 @@ export function printLabel(data, indexNo) {
   let printerIndex = indexNo % 5
   const printLableWebview = document.querySelector(`#printLabelWebview${printerIndex + 1}`)
   console.log(printerIndex, printHtml)
-  printLableWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName: 'TSC TTP-244CE' })
+  printLableWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName })
 }
 

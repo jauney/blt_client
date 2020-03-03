@@ -46,12 +46,13 @@
       const printLabelWebview1 = document.querySelector('#printLabelWebview1')
       printLabelWebview1.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
+        console.log('label print deviceName:', deviceName)
         if (event.channel === 'webview-print-do') {
           return
           printLabelWebview1.print({
             silent: true,
             printBackground: true,
-            deviceName: 'TSC_TTP_244CE'
+            deviceName: deviceName || 'TSC_TTP_244CE'
           })
         }
       })
@@ -64,7 +65,7 @@
           printLabelWebview2.print({
             silent: true,
             printBackground: true,
-            deviceName: 'TSC_TTP_244CE'
+            deviceName: deviceName || 'TSC_TTP_244CE'
           })
         }
       })
@@ -77,7 +78,7 @@
           printLabelWebview3.print({
             silent: true,
             printBackground: true,
-            deviceName: 'TSC_TTP_244CE'
+            deviceName: deviceName || 'TSC_TTP_244CE'
           })
         }
       })
@@ -90,7 +91,7 @@
           printLabelWebview4.print({
             silent: true,
             printBackground: true,
-            deviceName: 'TSC_TTP_244CE'
+            deviceName: deviceName || 'TSC_TTP_244CE'
           })
         }
       })
@@ -103,7 +104,7 @@
           printLabelWebview5.print({
             silent: true,
             printBackground: true,
-            deviceName: 'TSC_TTP_244CE'
+            deviceName: deviceName || 'TSC_TTP_244CE'
           })
         }
       })

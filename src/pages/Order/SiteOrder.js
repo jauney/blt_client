@@ -1468,7 +1468,8 @@ class TableList extends PureComponent {
     cancelShipModalVisible: false,
     currentSite: {},
     currentCompany: {},
-    currentShipSite: {}
+    currentShipSite: {},
+    labelPrinterName: 'TSC_TTP_244CE'
   };
 
   columns = [
@@ -1830,6 +1831,7 @@ class TableList extends PureComponent {
       site: { siteList },
     } = this.props;
     const { dispatch } = this.props;
+    const { labelPrinterName } = this.state;
     // 获取收货人信息
     const { getCustomer = {}, sendCustomer = {} } = await dispatch({
       type: 'customer/queryCustomerAction',
@@ -1843,7 +1845,7 @@ class TableList extends PureComponent {
 
     for (let i = 0; i < data.order_num; i++) {
       (function (j) {
-        setTimeout(() => { printLabel(data, j) }, j % 5 == 0 && j > 0 ? 1000 : 0)
+        setTimeout(() => { printLabel(data, j, labelPrinterName) }, j % 5 == 0 && j > 0 ? 1000 : 0)
       })(i)
     }
   }
@@ -1994,13 +1996,16 @@ class TableList extends PureComponent {
     ipcRenderer.once('getPrinterList', (event, data) => {
       // 过滤可用打印机
       console.log('print list...', data)
-      let printList = data.filter(element => element.status === 0)
+      let printList = data.filter(element => element.name.includes('244CE'))
       console.log(printList)
+
       // 1.判断是否有打印服务
       if (printList.length <= 0) {
-        console.log('打印服务异常,请尝试重启电脑')
+        console.log('标签打印服务异常,请尝试重启电脑')
       } else {
-        console.log(printList)
+        this.setState({
+          labelPrinterName: printList[0].name
+        })
       }
     })
   }
