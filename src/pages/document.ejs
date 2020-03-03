@@ -47,7 +47,7 @@
       printLabelWebview1.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
         console.log('label print deviceName:', deviceName)
-        if (event.channel === 'webview-print-do')
+        if (event.channel === 'webview-print-do') {
           printLabelWebview1.print({
             silent: true,
             printBackground: true,
