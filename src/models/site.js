@@ -16,6 +16,8 @@ export default {
 
   effects: {
     *getSiteListAction({ payload }, { call, put }) {
+      if (!payload.pageNo) { payload.pageNo = 1 }
+      if (!payload.pageSize) { payload.pageSize = 100 }
       const response = yield call(querySiteList, payload);
       const list = response.sites;
       yield put({

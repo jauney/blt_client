@@ -123,6 +123,7 @@ class CreateForm extends PureComponent {
     let curCompany = currentCompany
     if (!currentCompany.company_id) {
       curCompany = branchCompanyList[0]
+      this.fetchGetCustomerList()
     }
     this.setState({
       currentCompany: curCompany
@@ -1599,7 +1600,7 @@ class TableList extends PureComponent {
     let currentCompany = await this.setCurrentCompany(branchCompanyList)
     const siteList = await dispatch({
       type: 'site/getSiteListAction',
-      payload: {},
+      payload: { pageNo: 1, pageSize: 100 },
     });
 
     this.getReceiverList()
@@ -1844,10 +1845,7 @@ class TableList extends PureComponent {
     printOrder({ getCustomer, sendCustomer, data, branchCompanyList, siteList })
 
     for (let i = 0; i < Number(data.order_num || 1); i++) {
-      (function (j) {
-        console.log('print ordernum:', data.order_num, j)
-        printLabel(data, data.order_num, labelPrinterName)
-      })(i)
+      printLabel(data, data.order_num, labelPrinterName)
     }
   }
 
@@ -1959,10 +1957,10 @@ class TableList extends PureComponent {
       message.info('当前选择的部分订单已经装回配载站，请重新选择')
       return false
     }
-    if (!currentCompany.company_id || !form.getFieldValue('company_id')) {
-      message.error('请先选择公司');
-      return;
-    }
+    // if (!currentCompany.company_id || !form.getFieldValue('company_id')) {
+    //   message.error('请先选择公司');
+    //   return;
+    // }
 
     this.setState({
       shipModalVisible: true,
@@ -2079,6 +2077,9 @@ class TableList extends PureComponent {
   getDriverList = () => {
     const { dispatch, form } = this.props;
     const { currentCompany } = this.state
+    if (!currentCompany || !currentCompany.company_id) {
+      return
+    }
     dispatch({
       type: 'driver/getDriverListAction',
       payload: {
@@ -2383,20 +2384,24 @@ class TableList extends PureComponent {
     let showPrintButton = true
     let showCreateOrderButton = true
     let showShipButon = true
+    let showDelButton = true
     if (CacheCompany.company_type != 1) {
       showOperateButton = false
       showPrintButton = false
       showCreateOrderButton = false
       showShipButon = false
+      showDelButton = false
     }
     if (['site_searchuser', 'site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
       showOperateButton = false
       showShipButon = false
     }
+
     if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
       showPrintButton = false
       showCreateOrderButton = false
       showShipButon = false
+      showDelButton = false
     }
 
     if (['site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
@@ -2423,10 +2428,9 @@ class TableList extends PureComponent {
                 录入托运单
               </Button>}
 
-              {selectedRows.length > 0 && showOperateButton && unShipOrderIds.length == selectedRows.length && (
+              {selectedRows.length > 0 && showDelButton && unShipOrderIds.length == selectedRows.length && (
                 <span>
                   <Button onClick={this.onDelete}>删除托运单</Button>
-                  <Button onClick={this.onShipModalShow}>装回配载站</Button>
                 </span>
               )}
 

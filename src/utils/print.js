@@ -106,7 +106,8 @@ export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, bra
       printSite = item
     }
   })
-  let accountStatistic = getSelectedAccount([data]);
+  let accountStatistic = getSelectedAccount([data], 'init');
+  console.log('total account:', accountStatistic)
   let styles = `
     <style>
     .content, .header {text-align: center;}

@@ -593,7 +593,7 @@ class TableList extends PureComponent {
 
     dispatch({
       type: 'site/getSiteListAction',
-      payload: {},
+      payload: { pageNo: 1, pageSize: 100 },
     });
 
     dispatch({

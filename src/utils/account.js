@@ -4,7 +4,7 @@ import moment from 'moment';
  * 获取当前列表中勾选的信息 包含记录总数，货款、运费总额等
  * type:cancelsettle 获取取消结算的统计数据
  * @param {*} sltDatas
- * @param {*} type
+ * @param {*} type  'init': 初始录入订单，没有实付金额，所以使用order_amount当做order_real
  */
 export function getSelectedAccount(sltDatas, type) {
   let accountData = {};
@@ -27,6 +27,9 @@ export function getSelectedAccount(sltDatas, type) {
   for (var i = 0; i < sltDatas.length; i++) {
     var order = sltDatas[i];
     var realOrderAmount = order.order_real || 0;
+    if (type == 'init') {
+      realOrderAmount = order.order_amount || 0
+    }
 
     totalActualGoodsFunds += Number(realOrderAmount);
     // trans_discount即为实付运费，去掉trans_real字段

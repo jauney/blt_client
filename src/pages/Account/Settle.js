@@ -346,7 +346,7 @@ class TableList extends PureComponent {
 
     const siteList = await dispatch({
       type: 'site/getSiteListAction',
-      payload: {},
+      payload: { pageNo: 1, pageSize: 100 },
     });
 
     dispatch({

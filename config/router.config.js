@@ -32,7 +32,7 @@ export default [
             path: '/order/siteorder',
             name: 'siteorder',
             component: './Order/SiteOrder',
-            authority: ['site_orderuser', 'site_admin', 'site_searchuser', 'company_account'],
+            authority: ['site_orderuser', 'site_admin', 'site_searchuser', 'company_admin', 'company_account'],
           },
           {
             path: '/order/trunkedorder',
