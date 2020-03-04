@@ -30,8 +30,8 @@ function createWindow() {
   // mainWindow.loadURL(startUrl);
 
   // dev 加载应用----适用于 react 项目
-  mainWindow.loadURL('http://118.190.100.113:8001');
-  //mainWindow.loadURL('http://127.0.0.1:8000');
+  // mainWindow.loadURL('http://118.190.100.113:8001');
+  mainWindow.loadURL('http://127.0.0.1:8000');
 
   // 打开开发者工具，默认不打开
   // mainWindow.webContents.openDevTools();
