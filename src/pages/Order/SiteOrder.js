@@ -2301,7 +2301,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="配载站">
-          {getFieldDecorator('shipsite_id', { initialValue: currentShipSite.site_id })(
+          {getFieldDecorator('shipsite_id', {})(
             <Select
               placeholder="全部"
               style={{ width: '100px' }}
