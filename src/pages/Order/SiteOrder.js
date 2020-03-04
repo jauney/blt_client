@@ -2186,10 +2186,7 @@ class TableList extends PureComponent {
       message.error('请选择相同配载站的订单进行装车');
       return
     }
-    // if (!currentShipSite.site_id) {
-    //   message.error('请先选择配载站');
-    //   return;
-    // }
+
     this.setState({
       entrunkModalVisible: true,
     });
