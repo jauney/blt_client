@@ -299,7 +299,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
 export function printOrder(printHtml = '') {
   let styles = `
   <style>
-  .order-box{}
+  .order-box{height: 297mm;}
   .content, .header {text-align: center;}
   table {width: 100%; border-collapse: collapse; border-spacing: 0;}
   table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
@@ -313,6 +313,7 @@ export function printOrder(printHtml = '') {
   .col2-2 {width: 65%;}
   .desc {font-size: 8px;}
   </style>`
+  printHtml = `<div class="order-box">${printHtml}</div>`
   //告诉渲染进程，开始渲染打印内容
   const printOrderWebview = document.querySelector('#printOrderWebview')
   printOrderWebview.send('webview-print-render', { html: `${styles}${printHtml}` })
