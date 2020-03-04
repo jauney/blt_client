@@ -847,7 +847,10 @@ class TableList extends PureComponent {
     const companyOption = {};
     // 默认勾选第一个公司
     companyOption.initialValue = currentCompany.company_id || '';
-
+    // 默认勾选第一个公司
+    if (CacheCompany.company_type != 1) {
+      companyOption.initialValue = CacheCompany.company_id || '';
+    }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司" {...formItemLayout}>

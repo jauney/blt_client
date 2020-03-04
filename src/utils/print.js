@@ -299,6 +299,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
 export function printOrder(printHtml = '') {
   let styles = `
   <style>
+  .order-box{}
   .content, .header {text-align: center;}
   table {width: 100%; border-collapse: collapse; border-spacing: 0;}
   table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
@@ -377,16 +378,16 @@ export function printPayOrder({ selectedRows = [] }) {
 export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
   let styles = `
     <style>
-    .label-box { height: 50.8mm }
+    .label-box { height: 50mm }
     .content {width: 100%; padding-left: 0px;}
     .content, .header {text-align: center; font-size: 14px}
     .label {padding: 0 8px; text-align: left;  font-size: 16px }
     .header, .footer {text-align: center;}
-    .header {font-size: 18px; font-weight: 700;}
+    .header {font-size: 16px; font-weight: 700;}
     .label-left {font-size: 20px; font-weight: 700;}
     .label-right {font-size: 34px; font-weight: 700;}
     .label-name {font-size: 24px; font-weight: 700;}
-    .label-goods {height: 36px;}
+    .label-goods {height: 36px; font-size: 12px}
     </style>`
   let printHtml = ''
   let labelHtml = `
