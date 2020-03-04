@@ -226,7 +226,7 @@ class CreateDepartForm extends PureComponent {
 
 
     return (
-      <Form layout="inline" className={styles.modalForm}>
+      <Form layout="inline" className={styles.entrunkForm}>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={12} sm={24}>
             <FormItem label="车牌号">
