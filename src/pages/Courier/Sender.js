@@ -28,7 +28,7 @@ import { getSelectedAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Courier.less';
-import { printOrder } from '@/utils/print'
+import { printOrder, getPrintOrderConent } from '@/utils/print'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
 const FormItem = Form.Item;
@@ -586,6 +586,7 @@ class TableList extends PureComponent {
       message.info('请选择需要打印的记录')
       return
     }
+    let printHtml = ''
     for (var i = 0; i < selectedRows.length; i++) {
       const data = selectedRows[i]
       // 获取收货人信息
@@ -597,8 +598,10 @@ class TableList extends PureComponent {
         },
       });
 
-      printOrder({ getCustomer, sendCustomer, data, branchCompanyList, siteList, footer: true })
+      printHtml += getPrintOrderConent({ getCustomer, sendCustomer, data, branchCompanyList, siteList, footer: true })
     }
+
+    printOrder(printHtml)
   }
 
   // 到货通知

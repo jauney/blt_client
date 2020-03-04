@@ -671,8 +671,8 @@ class TableList extends PureComponent {
     const companyOption = {};
     const allowClearFlag = CacheCompany.company_type == 1 ? true : false;
     // 默认勾选第一个公司
-    if (branchCompanyList.length > 0 && CacheCompany.company_type != 1) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
+    if (CacheCompany.company_type != 1) {
+      companyOption.initialValue = CacheCompany.company_id || '';
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">

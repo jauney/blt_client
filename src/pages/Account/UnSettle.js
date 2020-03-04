@@ -658,7 +658,7 @@ class TableList extends PureComponent {
     const companyOption = {};
     // 默认勾选第一个公司
     if (CacheCompany.company_type != 1) {
-      companyOption.initialValue = currentCompany.company_id || '';
+      companyOption.initialValue = CacheCompany.company_id || '';
     }
     const allowClearFlag = CacheCompany.company_type == 1 ? true : false;
     return (
@@ -666,7 +666,7 @@ class TableList extends PureComponent {
         <FormItem label="分公司" {...formItemLayout}>
           {getFieldDecorator('company_id', companyOption)(
             <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={allowClearFlag}>
-              {branchCompanyList.map(ele => {
+              {(CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany]).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
                     {ele.company_name}

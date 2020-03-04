@@ -81,11 +81,10 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
 }
 
 /**
- *
- * 打印托运单
- * @param {footer} 是否打印回执单
+ * 获取打印托运单HTML
+ * @param {*} param0
  */
-export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, branchCompanyList = [], siteList = [], footer = false }) {
+export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data = {}, branchCompanyList = [], siteList = [], footer = false }) {
   let getCustomerType = ''
   if (getCustomer.customer_type == 1) { getCustomerType = 'V' } else if (getCustomer.customer_type == 9) { getCustomerType = 'H' }
   let sendCustomerType = ''
@@ -108,21 +107,7 @@ export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, bra
   })
   let accountStatistic = getSelectedAccount([data], 'init');
   console.log('total account:', accountStatistic)
-  let styles = `
-    <style>
-    .content, .header {text-align: center;}
-    table {width: 100%; border-collapse: collapse; border-spacing: 0;}
-    table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
-    .col3 {width: 33%;}
-    .col3-1 {width: 10%;}
-    .col3-2 {width: 45%;}
-    .txt-bold {font-weight: bold; font-size: 12px;}
-    .split {width: 100%; height: 5px;}
-    .col4 {width: 25%;}
-    .col2-1 {width: 35%;}
-    .col2-2 {width: 65%;}
-    .desc {font-size: 8px;}
-    </style>`
+
   let html = `
     <div class="header">陕西远诚宝路通物流</div>
     <div class="content">
@@ -303,6 +288,30 @@ export function printOrder({ getCustomer = {}, sendCustomer = {}, data = {}, bra
   if (footer) {
     printHtml = `${html}${footerHtml}`
   }
+
+  return printHtml
+}
+/**
+ *
+ * 打印托运单
+ * @param {footer} 是否打印回执单
+ */
+export function printOrder(printHtml = '') {
+  let styles = `
+  <style>
+  .content, .header {text-align: center;}
+  table {width: 100%; border-collapse: collapse; border-spacing: 0;}
+  table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
+  .col3 {width: 33%;}
+  .col3-1 {width: 10%;}
+  .col3-2 {width: 45%;}
+  .txt-bold {font-weight: bold; font-size: 12px;}
+  .split {width: 100%; height: 5px;}
+  .col4 {width: 25%;}
+  .col2-1 {width: 35%;}
+  .col2-2 {width: 65%;}
+  .desc {font-size: 8px;}
+  </style>`
   //告诉渲染进程，开始渲染打印内容
   const printOrderWebview = document.querySelector('#printOrderWebview')
   printOrderWebview.send('webview-print-render', { html: `${styles}${printHtml}` })
@@ -368,7 +377,8 @@ export function printPayOrder({ selectedRows = [] }) {
 export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
   let styles = `
     <style>
-    .content {width: 100%; padding-left: 50px;}
+    .label-box { height: 50.8mm }
+    .content {width: 100%; padding-left: 0px;}
     .content, .header {text-align: center; font-size: 14px}
     .label {padding: 0 8px; text-align: left;  font-size: 16px }
     .header, .footer {text-align: center;}
@@ -376,9 +386,11 @@ export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
     .label-left {font-size: 20px; font-weight: 700;}
     .label-right {font-size: 34px; font-weight: 700;}
     .label-name {font-size: 24px; font-weight: 700;}
-    .label-goods {height: 40px;}
+    .label-goods {height: 36px;}
     </style>`
-  let printHtml = `
+  let printHtml = ''
+  let labelHtml = `
+      <div class="label-box">
       <div class="header">远诚宝路通物流</div>
       <div class="content">
       <div class="label">${moment(new Date).format('YYYY-MM-DD HH:mm:ss')}</div>
@@ -391,12 +403,14 @@ export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
       <div class="label label-goods">货物名称：${data.order_name}</div>
       </div>
       <div class="footer">http://www.bltwlgs.com</div>
+      </div>
       `
+  for (var i = 0; i < Number(indexNo || 1); i++) {
+    printHtml += labelHtml
+  }
 
   //告诉渲染进程，开始渲染打印内容
-  let printerIndex = indexNo % 5
   const printLableWebview = document.querySelector(`#printLabelWebview1`)
-  console.log(printerIndex, printHtml, printLableWebview)
   printLableWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName })
 }
 

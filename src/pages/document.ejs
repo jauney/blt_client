@@ -21,10 +21,6 @@
     <webview id="printOrderWebview" src="/print_order.html" nodeintegration style="visibility: hidden;"></webview>
     <webview id="printWebview" src="/print.html" nodeintegration style="visibility: hidden;"></webview>
     <webview id="printLabelWebview1" src="/print_label1.html" nodeintegration style="visibility: hidden;"></webview>
-    <webview id="printLabelWebview2" src="/print_label2.html" nodeintegration style="visibility: hidden;"></webview>
-    <webview id="printLabelWebview3" src="/print_label3.html" nodeintegration style="visibility: hidden;"></webview>
-    <webview id="printLabelWebview4" src="/print_label4.html" nodeintegration style="visibility: hidden;"></webview>
-    <webview id="printLabelWebview5" src="/print_label5.html" nodeintegration style="visibility: hidden;"></webview>
   </div>
   <script>
       const fs = window.require('fs');
@@ -49,54 +45,6 @@
         console.log('label print deviceName:', deviceName)
         if (event.channel === 'webview-print-do') {
           printLabelWebview1.print({
-            silent: true,
-            printBackground: true,
-            deviceName: deviceName || 'TSC_TTP_244CE'
-          })
-        }
-      })
-
-      const printLabelWebview2 = document.querySelector('#printLabelWebview2')
-      printLabelWebview2.addEventListener('ipc-message', (event) => {
-        let deviceName = event.args[0]
-        if (event.channel === 'webview-print-do') {
-          printLabelWebview2.print({
-            silent: true,
-            printBackground: true,
-            deviceName: deviceName || 'TSC_TTP_244CE'
-          })
-        }
-      })
-
-      const printLabelWebview3 = document.querySelector('#printLabelWebview3')
-      printLabelWebview3.addEventListener('ipc-message', (event) => {
-        let deviceName = event.args[0]
-        if (event.channel === 'webview-print-do') {
-          printLabelWebview3.print({
-            silent: true,
-            printBackground: true,
-            deviceName: deviceName || 'TSC_TTP_244CE'
-          })
-        }
-      })
-
-      const printLabelWebview4 = document.querySelector('#printLabelWebview4')
-      printLabelWebview4.addEventListener('ipc-message', (event) => {
-        let deviceName = event.args[0]
-        if (event.channel === 'webview-print-do') {
-          printLabelWebview4.print({
-            silent: true,
-            printBackground: true,
-            deviceName: deviceName || 'TSC_TTP_244CE'
-          })
-        }
-      })
-
-      const printLabelWebview5 = document.querySelector('#printLabelWebview5')
-      printLabelWebview5.addEventListener('ipc-message', (event) => {
-        let deviceName = event.args[0]
-        if (event.channel === 'webview-print-do') {
-          printLabelWebview5.print({
             silent: true,
             printBackground: true,
             deviceName: deviceName || 'TSC_TTP_244CE'

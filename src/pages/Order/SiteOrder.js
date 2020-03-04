@@ -30,7 +30,7 @@ import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { async } from 'q';
-import { printOrder, printPayOrder, printDownLoad, printLabel } from '@/utils/print'
+import { printOrder, printPayOrder, printDownLoad, printLabel, getPrintOrderConent } from '@/utils/print'
 const { ipcRenderer } = window.require('electron')
 
 const FormItem = Form.Item;
@@ -1841,12 +1841,9 @@ class TableList extends PureComponent {
         sendcustomer_id: data.sendcustomer_id
       },
     });
-
-    printOrder({ getCustomer, sendCustomer, data, branchCompanyList, siteList })
-
-    for (let i = 0; i < Number(data.order_num || 1); i++) {
-      printLabel(data, data.order_num, labelPrinterName)
-    }
+    let printHtml = getPrintOrderConent({ getCustomer, sendCustomer, data, branchCompanyList, siteList })
+    printOrder(printHtml)
+    printLabel(data, data.order_num, labelPrinterName)
   }
 
   onDelete = async () => {
