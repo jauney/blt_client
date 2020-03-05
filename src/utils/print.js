@@ -386,32 +386,31 @@ export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
   // 打印机纸张80mm*50mm，但高度不能设置为50mm，否则会多打一个白页
   let styles = `
     <style>
-    .label-box { height: 48mm; padding: 0px; margin: 0px; }
+    .label-box { height: 47mm; padding: 0px; margin: 0px; }
     .content {width: 100%; padding-left: 0px;}
     .content, .header {text-align: center; font-size: 14px}
     .label {padding: 0 8px; text-align: left;  font-size: 16px }
     .header, .footer {text-align: center;}
     .header {font-size: 16px; font-weight: 700;}
+    .label-time {font-size: 14px;}
     .label-left {font-size: 20px; font-weight: 700;}
-    .label-right {font-size: 34px; font-weight: 700;}
+    .label-right {font-size: 38px; font-weight: 700;}
     .label-name {font-size: 24px; font-weight: 700;}
-    .label-goods {height: 36px; font-size: 12px}
+    .label-goods {font-size: 14px}
     </style>`
   let printHtml = ''
   let labelHtml = `
       <div class="label-box">
-      <div class="header">远诚宝路通物流</div>
+      <div class="header">远诚宝路通物流  <span class="label-time">${moment(new Date).format('YYYY-MM-DD')}</span></div>
       <div class="content">
-      <div class="label">${moment(new Date).format('YYYY-MM-DD HH:mm:ss')}</div>
       <div class="label">
       <span class="label-left">${data.site_name}</span> ——> <span class="label-right">${data.company_name}</span>
       </div>
       <div class="label label-name">
-      <span class="username">${data.getcustomer_name}</span> <span class="">${data.order_code} - ${indexNo}</span>
+      <span class="username">${data.getcustomer_name}</span> <span class="">${data.order_code} - ${data.order_num}</span>
       </div>
       <div class="label label-goods">货物名称：${data.order_name}</div>
       </div>
-      <div class="footer">http://www.bltwlgs.com</div>
       </div>
       `
   for (var i = 0; i < Number(indexNo || 1); i++) {
