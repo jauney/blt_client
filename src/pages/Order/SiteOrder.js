@@ -185,6 +185,13 @@ class CreateForm extends PureComponent {
         }
       });
 
+      if (!fieldsValue.order_num) {
+        fieldsValue.order_num = 0
+      }
+      if (!fieldsValue.order_label_num) {
+        fieldsValue.order_label_num = 0
+      }
+
       if (getCustomer) {
         fieldsValue.getcustomer_name = getCustomer.customer_name;
         fieldsValue.getcustomer_address = getCustomer.customer_address
@@ -552,6 +559,14 @@ class CreateForm extends PureComponent {
     }
   };
 
+  onOrderNumBlur = event => {
+    const { form } = this.props;
+    const orderNum = event.target.value;
+    form.setFieldsValue({
+      order_label_num: orderNum,
+    });
+  }
+
   // 打印订单
   onOrderPrint = () => {
     this.okHandle({ type: 'print' });
@@ -870,7 +885,7 @@ class CreateForm extends PureComponent {
           <Col span="4">
             <FormItem labelCol={{ span: 12 }} wrapperCol={{ span: 12 }} label="件数">
               {form.getFieldDecorator('order_num', { initialValue: 1 })(
-                <InputNumber placeholder="件数" style={{ width: '60px' }} />
+                <InputNumber placeholder="件数" onBlur={this.onOrderNumBlur} style={{ width: '60px' }} />
               )}
             </FormItem>
           </Col>
