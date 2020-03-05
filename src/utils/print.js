@@ -394,9 +394,9 @@ export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
     .header {font-size: 16px; font-weight: 700;}
     .label-time {font-size: 14px;}
     .label-left {font-size: 20px; font-weight: 700;}
-    .label-right {font-size: 38px; font-weight: 700;}
+    .label-right {font-size: 40px; font-weight: 700;}
     .label-name {font-size: 24px; font-weight: 700;}
-    .label-goods {font-size: 14px}
+    .label-goods {font-size: 16px}
     </style>`
   let printHtml = ''
   let labelHtml = `
