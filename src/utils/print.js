@@ -306,7 +306,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
 export function printOrder(printHtml = '') {
   let styles = `
   <style>
-  .order-box{height: 280mm;}
+  .order-box{height: 287mm;}
   .content, .header {text-align: center;}
   table {width: 100%; border-collapse: collapse; border-spacing: 0;}
   table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
