@@ -117,6 +117,9 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
         <td class="col3 txt-bold">发货站:${data.site_name || ''}</td>
         <td class="col3 txt-bold">单号:${data.order_code || ''}</td>
       </tr>
+      <tr>
+        <td class="txt-bold" colspan="3">日期:${new Date().toLocaleDateString()}</td>
+      </tr>
     </table>
     <table>
       <tr>
@@ -151,7 +154,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
     </table>
     <table>
       <tr>
-        <td class="col2-1">提付合计:${accountStatistic.totalAccount}</td>
+        <td class="col2-1 txt-bold">提付合计:${accountStatistic.totalAccount}</td>
         <td class="col2-2">账号:${data.bank_account || ''}</td>
       </tr>
     </table>
@@ -232,6 +235,9 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
         <td class="col3 txt-bold">发货站:${data.site_name || ''}</td>
         <td class="col3 txt-bold">单号:${data.order_code || ''}</td>
       </tr>
+      <tr>
+        <td class="txt-bold" colspan="3">日期:${new Date().toLocaleDateString()}</td>
+      </tr>
     </table>
     <table>
       <tr>
@@ -266,7 +272,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
     </table>
     <table>
       <tr>
-        <td class="col2-1">提付合计:${accountStatistic.totalAccount}</td>
+        <td class="col2-1 txt-bold">提付合计:${accountStatistic.totalAccount}</td>
         <td class="col2-2">账号:${data.bank_account || ''}</td>
       </tr>
     </table>
