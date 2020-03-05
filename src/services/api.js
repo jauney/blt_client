@@ -1494,12 +1494,14 @@ export async function updateCarStatus(params) {
           $car_status: Int
           $car_code: String
           $company_id: Int
+          $shipsite_id: Int
         ) {
           updateCarStatus(
             car_id: $car_id
             car_status: $car_status
             car_code: $car_code
             company_id: $company_id
+            shipsite_id: $shipsite_id
           ) {
             code
             msg
