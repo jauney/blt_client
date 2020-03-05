@@ -185,12 +185,8 @@ class CreateForm extends PureComponent {
         }
       });
 
-      if (!fieldsValue.order_num) {
-        fieldsValue.order_num = 0
-      }
-      if (!fieldsValue.order_label_num) {
-        fieldsValue.order_label_num = 0
-      }
+      fieldsValue.order_num = Number(fieldsValue.order_num || 0)
+      fieldsValue.order_label_num = Number(fieldsValue.order_label_num || 0)
 
       if (getCustomer) {
         fieldsValue.getcustomer_name = getCustomer.customer_name;
