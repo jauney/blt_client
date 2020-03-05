@@ -385,7 +385,7 @@ export function printPayOrder({ selectedRows = [] }) {
 export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
   let styles = `
     <style>
-    .label-box { height: 50mm }
+    .label-box { height: 50mm; padding: 0px; margin: 0px; }
     .content {width: 100%; padding-left: 0px;}
     .content, .header {text-align: center; font-size: 14px}
     .label {padding: 0 8px; text-align: left;  font-size: 16px }

@@ -860,17 +860,24 @@ class CreateForm extends PureComponent {
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col {...this.colLargeLayout}>
-            <FormItem {...this.formItemMiniLayout} label="货物名称">
+          <Col span="13">
+            <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 12 }} label="货物名称">
               {form.getFieldDecorator('order_name', {})(
-                <Input placeholder="请输入" style={{ width: '400' }} />
+                <Input placeholder="请输入" style={{ width: '340px' }} />
               )}
             </FormItem>
           </Col>
-          <Col {...this.colSmallLayout}>
-            <FormItem {...this.formItemLayout} label="">
-              {form.getFieldDecorator('order_num')(
-                <InputNumber placeholder="件数" style={{ width: '200' }} />
+          <Col span="4">
+            <FormItem labelCol={{ span: 12 }} wrapperCol={{ span: 12 }} label="件数">
+              {form.getFieldDecorator('order_num', { initialValue: 1 })(
+                <InputNumber placeholder="件数" style={{ width: '60px' }} />
+              )}
+            </FormItem>
+          </Col>
+          <Col span="4">
+            <FormItem labelCol={{ span: 12 }} wrapperCol={{ span: 12 }} label="标签数">
+              {form.getFieldDecorator('order_label_num', { initialValue: 1 })(
+                <InputNumber placeholder="" style={{ width: '60px' }} />
               )}
             </FormItem>
           </Col>
@@ -1844,7 +1851,7 @@ class TableList extends PureComponent {
     });
     let printHtml = getPrintOrderConent({ getCustomer, sendCustomer, data, branchCompanyList, siteList })
     printOrder(printHtml)
-    printLabel(data, data.order_num, labelPrinterName)
+    printLabel(data, data.order_label_num, labelPrinterName)
   }
 
   onDelete = async () => {
