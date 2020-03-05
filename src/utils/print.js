@@ -124,8 +124,8 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
     <table>
       <tr>
         <td class="col3-1">${getCustomerType}</td>
-        <td class="col3-2">收货人:${data.getcustomer_name || ''}</td>
-        <td class="col3-2">电话:${data.getcustomer_mobile || ''}</td>
+        <td class="col3-2 txt-bold">收货人:${data.getcustomer_name || ''}</td>
+        <td class="col3-2 txt-bold">电话:${data.getcustomer_mobile || ''}</td>
       </tr>
       <tr>
         <td class="col3-1">${sendCustomerType}</td>
@@ -242,8 +242,8 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
     <table>
       <tr>
         <td class="col3-1">${getCustomerType}</td>
-        <td class="col3-2">收货人:${data.getcustomer_name || ''}</td>
-        <td class="col3-2">电话:${data.getcustomer_mobile || ''}</td>
+        <td class="col3-2 txt-bold">收货人:${data.getcustomer_name || ''}</td>
+        <td class="col3-2 txt-bold">电话:${data.getcustomer_mobile || ''}</td>
       </tr>
       <tr>
         <td class="col3-1">${sendCustomerType}</td>

@@ -1849,7 +1849,7 @@ class TableList extends PureComponent {
         sendcustomer_id: data.sendcustomer_id
       },
     });
-    let printHtml = getPrintOrderConent({ getCustomer, sendCustomer, data, branchCompanyList, siteList })
+    let printHtml = getPrintOrderConent({ getCustomer, sendCustomer, data, branchCompanyList, siteList, footer: true })
     printOrder(printHtml)
     printLabel(data, data.order_label_num, labelPrinterName)
   }
