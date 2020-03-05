@@ -459,6 +459,7 @@ class TableList extends PureComponent {
       message.success(expense.expense_id ? '编辑成功！' : '添加成功！');
       expense.expense_id && this.onCancelExpenseClick();
       this.handleSearch()
+      this.fetchExpenseTypeList()
     } else {
       message.error((result && result.msg) || '添加失败');
     }

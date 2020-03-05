@@ -428,6 +428,7 @@ class TableList extends PureComponent {
       message.success(income.income_id ? '编辑成功' : '添加成功！');
       income.income_id && this.onIncomeModalCancel()
       this.handleSearch()
+      this.fetchIncomeTypeList()
     } else {
       message.error((result && result.msg) || '添加失败');
     }
