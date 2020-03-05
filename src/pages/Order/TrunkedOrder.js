@@ -946,6 +946,7 @@ class TableList extends PureComponent {
         car_status: 2,
         car_code: lastCar.car_code,
         company_id: currentCompany.company_id,
+        shipsite_id: lastCar.shipsite_id
       },
     });
     this.setState({ loading: false })
