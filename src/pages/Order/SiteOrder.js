@@ -1881,7 +1881,7 @@ class TableList extends PureComponent {
       onOk: async () => {
         const result = await dispatch({
           type: 'order/deleteOrderAction',
-          payload: { orderId: orderIds, isDelete: 1 },
+          payload: { order_id: orderIds, is_delete: 1 },
         });
 
         if (result && result.code == 0) {

@@ -849,6 +849,7 @@ class TableList extends PureComponent {
     if (result.code == 0) {
       message.success('取消装车成功！');
       this.onCancelEntrunkCancel();
+      this.handleSearch()
     } else {
       message.error(result.msg);
     }
