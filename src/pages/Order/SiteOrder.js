@@ -1811,7 +1811,7 @@ class TableList extends PureComponent {
         type: 'order/updateOrderAction',
         payload: {
           order: Object.assign(fields, { order_id: selectedOrder.order_id }),
-          orderIds: [selectedOrder.order_id],
+          order_id: selectedOrder.order_id,
         },
       });
 

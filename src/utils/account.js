@@ -159,7 +159,7 @@ export function calLateFee(items = [], company = {}) {
       }
     }
   }
-  return lateFee
+  return Math.ceil(lateFee)
 }
 
 /**
@@ -196,5 +196,5 @@ export function calBonusFee(items = [], company = {}) {
       }
     }
   }
-  return rewardFee
+  return Math.ceil(rewardFee)
 }

@@ -26,7 +26,7 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
         <td>${item.order_code || ''}</td>
         <td>${item.getcustomer_name || ''}</td>
         <td>${item.getcustomer_mobile || ''}</td>
-        <td>${item.order_real || ''}</td>
+        <td>${item.order_amount || ''}</td>
         <td>${item.trans_discount || ''}</td>
         <td>${transType || ''}</td>
         <td>${item.order_advancepay_amount || ''}</td>
@@ -63,11 +63,11 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
     ${carHtml}
     <table>
       <tr>
-        <th style="width:30px;">序号号</th>
+        <th style="width:30px;">序号</th>
         <th style="width:50px;">货单号</th>
         <th style="width:40px;">收货客户</th>
         <th style="width:40px;">收货电话</th>
-        <th style="width:50px;">实收货款</th>
+        <th style="width:50px;">应收货款</th>
         <th style="width:40px;">折后运费</th>
         <th style="width:40px;">运费方式</th>
         <th style="width:30px;">垫付</th>
