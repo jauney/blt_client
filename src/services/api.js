@@ -688,7 +688,7 @@ export async function createOrder(params) {
     });
 }
 
-export async function updateOrder({ order, orderIds }) {
+export async function updateOrder({ order, order_id }) {
   if (order.trans_real) {
     order.trans_real = Number(order.trans_real || 0);
   }
@@ -699,20 +699,17 @@ export async function updateOrder({ order, orderIds }) {
     order.trans_discount = Number(order.trans_discount || 0);
   }
 
-  if (!orderIds) {
-    orderIds = [order.order_id];
-  }
   return client
     .mutate({
       mutation: gql`
-        mutation updateOrder($order_id: [Int], $order: OrderInput) {
+        mutation updateOrder($order_id: Int, $order: OrderInput) {
           updateOrder(order_id: $order_id, order: $order) {
             code
             msg
           }
         }
       `,
-      variables: { order_id: orderIds, order },
+      variables: { order_id, order },
     })
     .then(data => {
       console.log(data);
