@@ -243,7 +243,7 @@ class TableList extends PureComponent {
       width: '80px',
     },
     {
-      title: '收获客户',
+      title: '收货客户',
       dataIndex: 'getcustomer_name',
       width: '80px',
     },

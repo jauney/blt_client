@@ -458,7 +458,7 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       car: { lastCar },
     } = this.props;
-    // 清空原公司收获客户
+    // 清空原公司收货客户
     dispatch({
       type: 'customer/resetCustomerPageNo',
       payload: { type: 'Get' },

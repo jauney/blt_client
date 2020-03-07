@@ -1064,6 +1064,12 @@ export async function getOrderList(params) {
     params.filter.abnormal_status = Number(params.filter.abnormal_status);
   }
 
+  if (!params.filter.getcustomer_id) {
+    delete params.filter.getcustomer_id;
+  }
+  if (!params.filter.sendcustomer_id) {
+    delete params.filter.sendcustomer_id;
+  }
   if (!params.filter.getcustomer_mobile) {
     delete params.filter.getcustomer_mobile;
   }
@@ -1216,8 +1222,8 @@ export async function deleteOrder(params) {
   return client
     .mutate({
       mutation: gql`
-        mutation deleteOrder($orderId: [Int], $isDelete: Int) {
-          deleteOrder(order_id: $orderId, is_delete: $isDelete) {
+        mutation deleteOrder($order_id: [Int], $is_delete: Int) {
+          deleteOrder(order_id: $order_id, is_delete: $is_delete) {
             code
             msg
           }
@@ -1236,6 +1242,19 @@ export async function deleteOrder(params) {
 }
 
 export async function getOrderStatistic(params) {
+  if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
+    params.filter.order_status = [params.filter.order_status];
+  }
+  if (params.filter && params.filter.abnormal_status) {
+    params.filter.abnormal_status = Number(params.filter.abnormal_status);
+  }
+
+  if (!params.filter.getcustomer_id) {
+    delete params.filter.getcustomer_id;
+  }
+  if (!params.filter.sendcustomer_id) {
+    delete params.filter.sendcustomer_id;
+  }
   if (!params.filter.getcustomer_mobile) {
     delete params.filter.getcustomer_mobile;
   }
@@ -1245,6 +1264,7 @@ export async function getOrderStatistic(params) {
   if (!params.filter.settle_date) {
     delete params.filter.settle_date
   }
+
   return client
     .query({
       query: gql`

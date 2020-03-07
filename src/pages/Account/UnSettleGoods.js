@@ -64,6 +64,9 @@ class TableList extends PureComponent {
     printModalVisible: false,
     currentCompany: {},
     currentShipSite: {},
+    // 缓存输入框中手动输入的收货人姓名
+    getCustomerSearch: '',
+    sendCustomerSearch: '',
   };
 
   columns = [
@@ -287,6 +290,111 @@ class TableList extends PureComponent {
     }
   };
 
+
+  onSendCustomerSelect = (value, option) => {
+    if (value) {
+      // 如果勾选了姓名，则将sendCustomerSearchByName置为false，否则勾选完一个选项后，在输入框无法输入
+      this.setState({
+        sendCustomerSearch: ''
+      });
+    }
+  }
+
+  // 先把搜索框填的数据缓存下来，要不然blur的时候会自动清空
+  onSendCustomerSearch = (value) => {
+    // 必须先判断value是否为空再缓存，否则最后一次触发该事件时的value为空
+    console.log('search:', value)
+    if (value) {
+      this.setState({
+        sendCustomerSearch: value
+      })
+    }
+  }
+
+  onSendCustomerBlur = async (value) => {
+    const { sendCustomerSearch } = this.state
+    const { form, customer: { getCustomerList, sendCustomerList } } = this.props;
+    let customers = sendCustomerList.filter(item => {
+      if (!sendCustomerSearch) {
+        return item.customer_name == value ||
+          item.customer_id == value
+      }
+
+      return item.customer_name == sendCustomerSearch
+    })
+    console.log('blur', value, sendCustomerSearch)
+    if (customers.length <= 0) {
+      form.setFieldsValue({
+        sendcustomer_id: sendCustomerSearch
+      });
+    }
+    else {
+      this.setState({
+        sendCustomerSearch: ''
+      });
+    }
+  }
+
+  onSendCustomerChange = (value) => {
+    if (!value) {
+      this.setState({
+        sendCustomerSearch: ''
+      })
+    }
+  }
+
+  onGetCustomerSelect = (value, option) => {
+    if (value) {
+      // 如果勾选了姓名，则将sendCustomerSearchByName置为false，否则勾选完一个选项后，在输入框无法输入
+      this.setState({
+        getCustomerSearch: ''
+      });
+    }
+  }
+
+  // 先把搜索框填的数据缓存下来，要不然blur的时候会自动清空
+  onGetCustomerSearch = (value) => {
+    // 必须先判断value是否为空再缓存，否则最后一次触发该事件时的value为空
+    console.log('search:', value)
+    if (value) {
+      this.setState({
+        getCustomerSearch: value
+      })
+    }
+  }
+
+  onGetCustomerBlur = async (value) => {
+    const { getCustomerSearch } = this.state
+    const { form, customer: { getCustomerList, sendCustomerList } } = this.props;
+    let customers = getCustomerList.filter(item => {
+      if (!getCustomerSearch) {
+        return item.customer_name == value ||
+          item.customer_id == value
+      }
+
+      return item.customer_name == getCustomerSearch
+    })
+    console.log('blur', value, getCustomerSearch)
+    if (customers.length <= 0) {
+      form.setFieldsValue({
+        getcustomer_id: getCustomerSearch
+      });
+    }
+    else {
+      this.setState({
+        getCustomerSearch: ''
+      });
+    }
+  }
+
+  onGetCustomerChange = (value) => {
+    if (!value) {
+      this.setState({
+        getCustomerSearch: ''
+      })
+    }
+  }
+
   fetchGetCustomerList = async companyId => {
     const { dispatch, branchCompanyList } = this.props;
     let { currentCompany } = this.state;
@@ -349,10 +457,20 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, sendCustomerSearch, getCustomerSearch } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+
+      if (sendCustomerSearch) {
+        fieldsValue.sendcustomer_name = sendCustomerSearch
+        delete fieldsValue.sendcustomer_id
+      }
+      if (getCustomerSearch) {
+        fieldsValue.getcustomer_name = getCustomerSearch
+        delete fieldsValue.getcustomer_id
+      }
+
       fieldsValue.order_amount = -1;
       fieldsValue.order_amount = -1;
       const searchParams = Object.assign({ filter: fieldsValue }, data);
@@ -690,6 +808,9 @@ class TableList extends PureComponent {
             <Select
               placeholder="全部"
               onSelect={this.onGetCustomerSelect}
+              onSearch={this.onGetCustomerSearch}
+              onBlur={this.onGetCustomerBlur}
+              onChange={this.onGetCustomerChange}
               style={{ width: '100px' }}
               allowClear
               showSearch
@@ -719,6 +840,9 @@ class TableList extends PureComponent {
             <Select
               placeholder="全部"
               onSelect={this.onSendCustomerSelect}
+              onSearch={this.onSendCustomerSearch}
+              onBlur={this.onSendCustomerBlur}
+              onChange={this.onSendCustomerChange}
               style={{ width: '100px' }}
               allowClear
               showSearch
