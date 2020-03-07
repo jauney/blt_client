@@ -30,6 +30,7 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
         <td>${item.trans_discount || ''}</td>
         <td>${transType || ''}</td>
         <td>${item.order_advancepay_amount || ''}</td>
+        <td>${item.deliver_amount || ''}</td>
         <td>${item.insurance_fee || ''}</td>
         <td>${item.order_name || ''}</td>
         <td>${item.remark || ''}</td>
@@ -69,16 +70,17 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
         <th style="width:40px;">收货电话</th>
         <th style="width:50px;">应收货款</th>
         <th style="width:40px;">折后运费</th>
-        <th style="width:40px;">运费方式</th>
+        <th style="width:30px;">运费方式</th>
         <th style="width:30px;">垫付</th>
-        <th style="width:40px;">保价费</th>
+        <th style="width:30px;">送货费</th>
+        <th style="width:30px;">保价费</th>
         <th style="width:150px;">货物名称</th>
-        <th style="width:100px;">备注</th>
+        <th style="width:90px;">备注</th>
       </tr>
       ${bodyHTML}
-      <tr><td colspan="10">合计运费</td><td>${totalTransFund}</td></tr>
-      <tr><td colspan="10">合计货款</td><td>${totalGoodsFund}</td></tr>
-      <tr><td colspan="10">日期</td><td>${new Date().toLocaleDateString()}</td></tr>
+      <tr><td colspan="11">合计运费</td><td>${totalTransFund}</td></tr>
+      <tr><td colspan="11">合计货款</td><td>${totalGoodsFund}</td></tr>
+      <tr><td colspan="11">日期</td><td>${new Date().toLocaleDateString()}</td></tr>
     </table>
     </div></div>
     `
