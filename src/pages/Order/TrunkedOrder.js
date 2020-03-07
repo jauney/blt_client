@@ -1107,18 +1107,63 @@ class TableList extends PureComponent {
   onPrintOrder = () => {
     const {
       car: { lastCar },
+      company: { branchCompanyList },
     } = this.props;
     const { selectedRows } = this.state
-    printDownLoad({ selectedRows, lastCar })
+    let company = CacheCompany
+    branchCompanyList.forEach(item => {
+      if (item.company_id == lastCar.company_id) {
+        company = item
+      }
+    })
+    Modal.confirm({
+      title: '确认',
+      content: `确定打印${company.company_name}第${lastCar.car_code}车的所有货物清单么？`,
+      okText: '确认',
+      cancelText: '取消',
+      onOk: () => { this.onPrintOrderConfirm() },
+    });
+  }
+  onPrintOrderConfirm = async (type = '') => {
+    const {
+      car: { lastCar },
+      company: { branchCompanyList },
+      dispatch
+    } = this.props;
+    let company = CacheCompany
+    branchCompanyList.forEach(item => {
+      if (item.company_id == lastCar.company_id) {
+        company = item
+      }
+    })
+    let orderList = await dispatch({
+      type: 'trunkedorder/queryOrderListAction',
+      payload: { pageNo: 0, pageSize: 1000, sorter: 'getcustomer_name|ascend', filter: { company_id: company.company_id, car_code: lastCar.car_code, shipsite_id: lastCar.shipsite_id } },
+    });
+    console.log(orderList)
+    printDownLoad({ selectedRows: orderList.orders, lastCar, type })
   }
 
   // 下载货物清单
   onDownloadOrder = () => {
     const {
       car: { lastCar },
+      company: { branchCompanyList },
     } = this.props;
     const { selectedRows } = this.state
-    printDownLoad({ selectedRows, type: 'pdf', lastCar })
+    let company = CacheCompany
+    branchCompanyList.forEach(item => {
+      if (item.company_id == lastCar.company_id) {
+        company = item
+      }
+    })
+    Modal.confirm({
+      title: '确认',
+      content: `确定下载${company.company_name}第${lastCar.car_code}车的所有货物清单么？`,
+      okText: '确认',
+      cancelText: '取消',
+      onOk: () => { this.onPrintOrderConfirm('pdf') },
+    });
   }
 
   onEntrunkModalCancel = () => {

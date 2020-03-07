@@ -9,16 +9,20 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
   console.log('d***********', type)
   let bodyHTML = ''
   let totalTransFund = 0
+  let totalGoodsFund = 0
+  let orderIndex = 1
   selectedRows.forEach(item => {
     let transType = '提付'
     if (item.trans_type == 1) {
-      transType = '回付'
-    }
-    else if (item.trans_type == 2) {
       transType = '现付'
     }
+    else if (item.trans_type == 2) {
+      transType = '回付'
+    }
     totalTransFund += Number(item.trans_discount || 0)
+    totalGoodsFund += Number(item.order_amount || 0)
     bodyHTML += `<tr>
+        <td>${orderIndex}</td>
         <td>${item.order_code || ''}</td>
         <td>${item.getcustomer_name || ''}</td>
         <td>${item.getcustomer_mobile || ''}</td>
@@ -30,13 +34,15 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
         <td>${item.order_name || ''}</td>
         <td>${item.remark || ''}</td>
         </tr>`
+    orderIndex++
   })
   let styles = `
     <style>
-    .content, .header {text-align: center; padding: 10px 0 20px;}
+    .order-box {text-align: center;}
+    .content .header {text-align: center; width: 100%;}
     table {width: 100%; border-collapse: collapse; border-spacing: 0;}
     table th { font-weight: bold; }
-    table th, table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
+    table th, table td {border: 1px solid #ccc; font-size: 12px; padding: 4px; text-align: left; line-height: 150%;}
     .carinfo th {border: 0;}
     </style>`
   let carHtml = ``
@@ -51,12 +57,13 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
     </tr>
   </table>`
   }
-  let html = `
+  let html = `<div class="order-box">
     <div class="header">陕西远诚宝路通物流</div>
     <div class="content">
     ${carHtml}
     <table>
       <tr>
+        <th style="width:30px;">序号号</th>
         <th style="width:50px;">货单号</th>
         <th style="width:40px;">收货客户</th>
         <th style="width:40px;">收货电话</th>
@@ -69,10 +76,11 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
         <th style="width:100px;">备注</th>
       </tr>
       ${bodyHTML}
-      <tr><td colspan="9">合计运费</td><td>${totalTransFund}</td></tr>
-      <tr><td colspan="9">日期</td><td>${new Date().toLocaleDateString()}</td></tr>
+      <tr><td colspan="10">合计运费</td><td>${totalTransFund}</td></tr>
+      <tr><td colspan="10">合计货款</td><td>${totalGoodsFund}</td></tr>
+      <tr><td colspan="10">日期</td><td>${new Date().toLocaleDateString()}</td></tr>
     </table>
-    </div>
+    </div></div>
     `
   //告诉渲染进程，开始渲染打印内容
   const printOrderWebview = document.querySelector('#printWebview')

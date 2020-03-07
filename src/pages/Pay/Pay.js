@@ -394,6 +394,9 @@ class TableList extends PureComponent {
       fieldsValue.pay_status = 0;
       fieldsValue.order_amount = -1;
       const searchParams = Object.assign({ filter: fieldsValue }, data);
+      if (!searchParams.sorter) {
+        searchParams.sorter = 'settle_date|ascend'
+      }
       dispatch({
         type: 'pay/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },

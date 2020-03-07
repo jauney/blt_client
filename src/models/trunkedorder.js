@@ -41,6 +41,12 @@ export default {
         payload: response,
       });
     },
+    *queryOrderListAction({ payload }, { call, put }) {
+      payload.filter = payload.filter || {};
+
+      const response = yield call(getOrderList, payload);
+      return response
+    },
     *updateCarFeeAction({ payload }, { call, put }) {
       console.log(payload);
       return yield call(updateCarFee, payload); // post
