@@ -119,7 +119,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
   })
   let accountStatistic = getSelectedAccount([data], 'init');
   console.log('total account:', accountStatistic)
-
+  let orderDate = moment(Number(data.create_date || 0)).format('YYYY-MM-DD')
   let html = `
     <div class="header">陕西远诚宝路通物流</div>
     <div class="content">
@@ -130,7 +130,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
         <td class="col3 txt-bold">单号:${data.order_code || ''}</td>
       </tr>
       <tr>
-        <td class="txt-bold" colspan="3">日期:${new Date().toLocaleDateString()}</td>
+        <td class="txt-bold" colspan="3">日期:${orderDate}</td>
       </tr>
     </table>
     <table>
@@ -232,7 +232,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
           <div>公司网址：www.bltwlgs.com</div>
           <div>业务电话：02986253988，13309221294</div>
           <div>财务电话：02986237928</div>
-          <div>客服电话：13324583349</div>
+          <div>客服电话：02986457606</div>
           <div>投诉电话：15389278107</div>
         </td>
       </tr>
@@ -248,7 +248,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
         <td class="col3 txt-bold">单号:${data.order_code || ''}</td>
       </tr>
       <tr>
-        <td class="txt-bold" colspan="3">日期:${new Date().toLocaleDateString()}</td>
+        <td class="txt-bold" colspan="3">日期:${orderDate}</td>
       </tr>
     </table>
     <table>

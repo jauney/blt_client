@@ -249,7 +249,7 @@ class TableList extends PureComponent {
     {
       title: '银行账号',
       dataIndex: 'bank_account',
-      width: '80px',
+      width: '200px',
     },
     {
       title: '付款时间',
@@ -261,7 +261,7 @@ class TableList extends PureComponent {
     }, {
       title: '票号',
       dataIndex: 'order_code',
-      width: '150px',
+      width: '250px',
     }
   ];
 

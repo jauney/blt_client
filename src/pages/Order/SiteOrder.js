@@ -1495,19 +1495,21 @@ class TableList extends PureComponent {
     {
       title: '分公司',
       width: '60px',
+      sorter: true,
       dataIndex: 'company_name',
     },
     {
       title: '录票时间',
       width: '170px',
+      sorter: true,
       dataIndex: 'create_date',
       render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '货单号',
       width: '70px',
+      sorter: true,
       dataIndex: 'order_code',
-
       align: 'right',
       render: val => `${val}`,
       // mark to display a total number
@@ -1516,33 +1518,38 @@ class TableList extends PureComponent {
     {
       title: '发货客户',
       width: '80px',
+      sorter: true,
       dataIndex: 'sendcustomer_name',
     },
     {
       title: '收获客户',
       width: '80px',
+      sorter: true,
       dataIndex: 'getcustomer_name',
     },
     {
       title: '应收货款',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_amount',
     },
     {
       title: '运费',
       width: '80px',
+      sorter: true,
       dataIndex: 'trans_amount',
     },
     {
       title: '折后运费',
       width: '80px',
+      sorter: true,
       dataIndex: 'trans_discount',
     },
     {
       title: '运费方式',
       width: '60px',
       dataIndex: 'trans_type',
-
+      sorter: true,
       render: val => {
         let transType = '';
         if (val === 1) {
@@ -1558,16 +1565,19 @@ class TableList extends PureComponent {
     {
       title: '垫付',
       width: '80px',
+      sorter: true,
       dataIndex: 'order_advancepay_amount',
     },
     {
       title: '送货费',
       width: '80px',
+      sorter: true,
       dataIndex: 'deliver_amount',
     },
     {
       title: '保价费',
       width: '80px',
+      sorter: true,
       dataIndex: 'insurance_fee',
     },
     {
@@ -1578,11 +1588,13 @@ class TableList extends PureComponent {
     {
       title: '经办人',
       width: '80px',
+      sorter: true,
       dataIndex: 'operator_name',
     },
     {
       title: '站点',
       width: '80px',
+      sorter: true,
       dataIndex: 'site_name',
     },
     {
@@ -1627,11 +1639,6 @@ class TableList extends PureComponent {
       payload: {},
     });
 
-    this.fetchGetCustomerList()
-    this.fetchSendCustomerList()
-
-    this.getDriverList()
-
     if (siteList && siteList.length > 0) {
       const shipSiteList = siteList.filter(item => {
         return item.site_type == 3 || item.site_type == 2;
@@ -1646,8 +1653,9 @@ class TableList extends PureComponent {
 
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.getOrderList();
-    // 获取打印机列表
-    this.getPrinterList()
+    this.getDriverList()
+    this.fetchGetCustomerList()
+    this.fetchSendCustomerList()
   }
 
   getReceiverList = async () => {
@@ -1798,6 +1806,9 @@ class TableList extends PureComponent {
       selectedOrder: {},
       modalVisible: !!flag,
     });
+    if (!flag) {
+      this.handleSearch()
+    }
   };
 
   // 添加托运单
@@ -1851,7 +1862,6 @@ class TableList extends PureComponent {
       site: { siteList },
     } = this.props;
     const { dispatch } = this.props;
-    const { labelPrinterName } = this.state;
     // 获取收货人信息
     const { getCustomer = {}, sendCustomer = {} } = await dispatch({
       type: 'customer/queryCustomerAction',
@@ -1862,7 +1872,7 @@ class TableList extends PureComponent {
     });
     let printHtml = getPrintOrderConent({ getCustomer, sendCustomer, data, branchCompanyList, siteList, footer: true })
     printOrder(printHtml)
-    printLabel(data, data.order_label_num, labelPrinterName)
+    printLabel(data, data.order_label_num, localStorage.getItem('LabelPrinterName'))
   }
 
   onDelete = async () => {
@@ -2005,25 +2015,6 @@ class TableList extends PureComponent {
     });
   };
 
-  getPrinterList = () => {
-    // 改用ipc异步方式获取列表，解决打印列数量多的时候导致卡死的问题
-    ipcRenderer.send('getPrinterList')
-    ipcRenderer.once('getPrinterList', (event, data) => {
-      // 过滤可用打印机
-      console.log('print list...', data)
-      let printList = data.filter(element => element.name.includes('244'))
-      console.log(printList)
-
-      // 1.判断是否有打印服务
-      if (printList.length <= 0) {
-        console.log('标签打印服务异常,请尝试重启电脑')
-      } else {
-        this.setState({
-          labelPrinterName: printList[0].name
-        })
-      }
-    })
-  }
   // 打印货物清单
   onPrintOrder = () => {
     const { selectedRows } = this.state
