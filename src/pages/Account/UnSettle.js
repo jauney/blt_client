@@ -153,6 +153,7 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       width: '170px',
+      sorter: true,
       dataIndex: 'create_date',
       render: val => (
         <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
