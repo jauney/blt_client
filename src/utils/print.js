@@ -405,7 +405,7 @@ export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
   // 打印机纸张80mm*50mm，但高度不能设置为50mm，否则会多打一个白页
   let styles = `
     <style>
-    .label-box { height: 47mm; padding: 0px; margin: 0px; }
+    .label-box { height: 46mm; padding: 0px; margin: 0px; }
     .content {width: 100%; padding-left: 0px;}
     .content, .header {text-align: center; font-size: 14px}
     .label {padding: 0 8px; text-align: left;  font-size: 16px }
