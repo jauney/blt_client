@@ -414,6 +414,7 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+
       const searchParams = Object.assign({ filter: fieldsValue, type: 1 }, data);
       dispatch({
         type: 'customer/queryCustomerListAction',

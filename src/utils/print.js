@@ -1,5 +1,7 @@
 
 import moment from 'moment';
+import XLSX from 'xlsx';
+const electron = window.require('electron').remote;
 import { getSelectedAccount } from '@/utils/account';
 /**
  *
@@ -339,6 +341,10 @@ export function printOrder(printHtml = '') {
 export function printPayOrder({ selectedRows = [] }) {
   let bodyHTML = ''
   let totalTransFund = 0
+  let orderIndex = 1
+  selectedRows = selectedRows.sort(function compareFunction(item1, item2) {
+    return item1.sendcustomer_name.localeCompare(item2.sendcustomer_name);
+  });
   selectedRows.forEach(item => {
     let orderNum = ''
     if (item.order_code) {
@@ -347,45 +353,48 @@ export function printPayOrder({ selectedRows = [] }) {
 
     totalTransFund += Number(item.trans_discount || 0)
     bodyHTML += `<tr>
-        <td>${item.sendcustomer_name || ''}</td>
-        <td>${orderNum || ''}</td>
-        <td>${item.order_amount || ''}</td>
-        <td>${item.pay_amount || ''}</td>
-        <td>${item.agency_fee || ''}</td>
+        <td>${orderIndex}</td>
         <td>${item.bank_account || ''}</td>
-        <td>${item.pay_date && moment(Number(item.pay_date || 0)).format('YYYY-MM-DD HH:mm:ss') || ''}</td>
+        <td>${item.sendcustomer_name || ''}</td>
+        <td>${item.pay_amount || ''}</td>
         <td>${item.order_code || ''}</td>
         </tr>`
+    orderIndex++
   })
   let styles = `
     <style>
-    .content, .header {text-align: center; padding: 10px 0 20px;}
     table {width: 100%; border-collapse: collapse; border-spacing: 0;}
     table th { font-weight: bold; }
     table th, table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
-    .carinfo th {border: 0;}
     </style>`
   let html = `
-    <div class="header">陕西远诚宝路通物流</div>
-    <div class="content">
     <table>
-      <tr>
-        <th style="width:50px;">发货客户</th>
-        <th style="width:50px;">合计票数</th>
-        <th style="width:50px;">合计货款</th>
-        <th style="width:50px;">合计付款</th>
-        <th style="width:50px;">代办费</th>
-        <th style="width:50px;">银行账号</th>
-        <th style="width:50px;">付款时间</th>
-        <th style="width:50px;">票号</th>
-      </tr>
+      <thead>
+        <tr>
+          <td colspan="5">陕西远诚宝路通物流</td>
+        </tr>
+        <tr>
+          <th style="width:50px;">序号</th>
+          <th style="width:100px;">账号</th>
+          <th style="width:80px;">发货客户</th>
+          <th style="width:80px;">付款金额</th>
+          <th style="width:200px;">票号</th>
+        </tr>
+      </thead>
+      <tbody>
       ${bodyHTML}
+      </tbody>
     </table>
-    </div>
     `
-  //告诉渲染进程，开始渲染打印内容
-  const printOrderWebview = document.querySelector('#printWebview')
-  printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type: 'pdf' })
+  var iframeDocument = document.getElementById('printExcelFrame').contentWindow.document;
+  var printDOM = iframeDocument.getElementById("bd");
+  printDOM.innerHTML = `${styles}${html}`
+  let curDate = new Date()
+  let defaultFileName = `${curDate.getFullYear()}${curDate.getMonth() + 1}${curDate.getDate()}${curDate.getTime()}.xlsx`
+  // const fileNameDialog = electron.dialog.showSaveDialogSync(electron.getCurrentWindow(), { defaultPath: defaultFileName });
+  const fileNameDialog = electron.dialog.showSaveDialogSync({ defaultPath: defaultFileName });
+  var wb = XLSX.utils.table_to_book(printDOM, { raw: true });
+  XLSX.writeFile(wb, fileNameDialog);
 }
 
 /**

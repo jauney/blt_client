@@ -10,6 +10,8 @@
   .print-view {
     height: 0px;
   }
+
+
   </style>
 </head>
 <body>
@@ -17,10 +19,10 @@
   <div id="root"></div>
 
   <div class="print-view">
-    <div id="pdf-print"></div>
     <webview id="printOrderWebview" src="/print_order.html" nodeintegration style="visibility: hidden;"></webview>
     <webview id="printWebview" src="/print.html" nodeintegration style="visibility: hidden;"></webview>
     <webview id="printLabelWebview1" src="/print_label1.html" nodeintegration style="visibility: hidden;"></webview>
+    <iframe id="printExcelFrame" src="/print_label2.html"></iframe>
   </div>
   <script>
       const fs = window.require('fs');

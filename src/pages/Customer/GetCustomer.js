@@ -420,6 +420,7 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      fieldsValue.company_id = CacheCompany.company_id
       const searchParams = Object.assign({ filter: fieldsValue, type: 2 }, data);
       dispatch({
         type: 'customer/queryCustomerListAction',
