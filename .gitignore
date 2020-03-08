@@ -37,3 +37,5 @@ functions/mock
 # screenshot
 screenshot
 .firebase
+
+dist
