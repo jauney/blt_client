@@ -118,7 +118,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
     }
   })
   let accountStatistic = getSelectedAccount([data], 'init');
-  console.log('total account:', accountStatistic)
+  console.log('total account:', data)
   let orderDate = moment(Number(data.create_date || 0)).format('YYYY-MM-DD')
   let html = `
     <div class="header">陕西远诚宝路通物流</div>

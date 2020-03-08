@@ -1817,6 +1817,8 @@ class TableList extends PureComponent {
 
     // 更新订单号
     let orderCode = selectedOrder.order_code
+    // 打印是增加时间
+    let createDate = new Date().getTime()
     if (selectedOrder.order_id) {
       const result = await dispatch({
         type: 'order/updateOrderAction',
@@ -1831,6 +1833,7 @@ class TableList extends PureComponent {
       } else {
         message.error('编辑失败');
       }
+      createDate = selectedOrder.create_date
       this.handleModalVisible(false);
     } else {
       const result = await dispatch({
@@ -1848,7 +1851,7 @@ class TableList extends PureComponent {
     }
 
     if (option.type == 'print') {
-      this.printOrder(Object.assign({ order_code: orderCode }, fields, option))
+      this.printOrder(Object.assign({ order_code: orderCode }, Object.assign(fields, { create_date: createDate }), option))
     }
     setTimeout(() => {
       this.handleSearch();
