@@ -2152,6 +2152,8 @@ class TableList extends PureComponent {
     let isSameComapny = true
     let isSameShipSite = true
 
+    // 重新获取一次最新货车信息
+
     selectedRows.forEach(item => {
       if (item.order_status == 1) {
         orderIds.push(item.order_id);
@@ -2181,7 +2183,7 @@ class TableList extends PureComponent {
       message.error('请先选择公司');
       return;
     }
-    if (!currentShipSite.site_id) {
+    if (!currentShipSite.site_id || !form.getFieldValue('shipsite_id')) {
       message.error('请先选择配载站');
       return;
     }
