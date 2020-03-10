@@ -155,7 +155,7 @@ class AddFormDialog extends PureComponent {
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem {...this.formItemLayout} className={styles.formItemNoBreak} label="应打款">
-                西安收运费 + 送货费 - 垫付 - 总运费*
+                西安收运费 + 西安保费 + 送货费 - 垫付 - 总运费*
                 {form.getFieldDecorator('trans_ratio', {
                   initialValue: record.trans_ratio,
                   rules: [{ required: true, message: '请填写总运费系数' }],

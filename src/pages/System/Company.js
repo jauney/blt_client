@@ -162,7 +162,7 @@ class AddFormDialog extends PureComponent {
                 })(
                   <Radio.Group>
                     <Radio value={1}>
-                      <strong>平分法：</strong> (运费总额-大车运费)/2 + 送货运费 ✕
+                      <strong>平分法：</strong> (运费总额-大车运费+保费总额)/2 + 送货运费 ✕
                       {form.getFieldDecorator('sendfee_ratio_1', {
                         initialValue: record.bonus_type == 1 ? record.sendfee_ratio || 0.06 : 0.06,
                         rules: [
@@ -179,7 +179,7 @@ class AddFormDialog extends PureComponent {
                           { pattern: /^\d+(\.\d+)?$/, message: '不送货运费率格式错误' },
                         ],
                       })(<Input placeholder="" style={{ width: '60px' }} />)}
-                      - 西安收运费 + 垫付 +  实收货款 - 打款总额
+                      - 西安收运费 - 西安收保价费 + 垫付 +  实收货款 - 打款总额
                     </Radio>
                     <Radio value={2}>
                       <strong>多劳多得：</strong> 运费总额 - 送货运费 ✕
@@ -199,7 +199,7 @@ class AddFormDialog extends PureComponent {
                           { pattern: /^\d+(\.\d+)?$/, message: '不送货运费率格式错误' },
                         ],
                       })(<Input placeholder="" style={{ width: '60px' }} />)}
-                      - 大车运费 - 西安收运费 + 垫付 + 实收货款 - 打款总额
+                      - 大车运费 - 西安收运费 - 西安收保价费 + 总保价费/2 + 垫付 + 实收货款 - 打款总额
                     </Radio>
                     <Radio value={3}>
                       <strong>优惠法：</strong> 运费总额 ✕
@@ -210,7 +210,7 @@ class AddFormDialog extends PureComponent {
                           { pattern: /^\d+(\.\d+)?$/, message: '费率格式错误' },
                         ],
                       })(<Input placeholder="" style={{ width: '60px' }} />)}
-                      - 上站运费 + 垫付 + 实收货款 - 打款总额
+                      - 西安运费 - 西安保价费 + 总保价费/2 + 垫付 + 实收货款 - 打款总额
                     </Radio>
                   </Radio.Group>
                 )}
