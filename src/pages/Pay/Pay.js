@@ -201,6 +201,7 @@ class TableList extends PureComponent {
     downloadModalVisible: false,
     printModalVisible: false,
     currentCompany: {},
+    sorter: 'settle_date|ascend'
   };
 
   columns = [
@@ -223,7 +224,7 @@ class TableList extends PureComponent {
     {
       title: '银行账号',
       dataIndex: 'bank_account',
-      width: '150px',
+      width: '200px',
       sorter: true,
     },
     {
@@ -386,7 +387,7 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, sorter } = this.state;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
@@ -394,9 +395,12 @@ class TableList extends PureComponent {
       fieldsValue.pay_status = 0;
       fieldsValue.order_amount = -1;
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      if (!searchParams.sorter) {
-        searchParams.sorter = 'settle_date|ascend'
-      }
+
+      searchParams.sorter = searchParams.sorter || sorter || 'settle_date|ascend'
+      this.setState({
+        sorter: searchParams.sorter
+      })
+
       dispatch({
         type: 'pay/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
