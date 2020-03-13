@@ -523,7 +523,7 @@ class TableList extends PureComponent {
   // 打印
   onPrint = async () => {
     const { selectedRows } = this.state
-    printPayOrder({ selectedRows, type: 'pdf' })
+    printPayOrder({ selectedRows, type: 'print' })
   }
 
   /**

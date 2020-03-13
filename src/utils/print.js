@@ -392,7 +392,7 @@ export function printPayOrder({ selectedRows = [], type = '' }) {
       </tbody>
     </table>
     `
-  if (type != 'type') {
+  if (type != 'print') {
     var iframeDocument = document.getElementById('printExcelFrame').contentWindow.document;
     var printDOM = iframeDocument.getElementById("bd");
     printDOM.innerHTML = `${styles}${html}`
@@ -406,7 +406,7 @@ export function printPayOrder({ selectedRows = [], type = '' }) {
   else {
     const printOrderWebview = document.querySelector('#printWebview')
     console.log('type: ', type)
-    printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type })
+    printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}` })
   }
 }
 
