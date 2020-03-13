@@ -338,13 +338,14 @@ export function printOrder(printHtml = '') {
 }
 
 
-export function printPayOrder({ selectedRows = [] }) {
+export function printPayOrder({ selectedRows = [], type = '' }) {
   let bodyHTML = ''
   let totalTransFund = 0
   let orderIndex = 1
   selectedRows = selectedRows.sort(function compareFunction(item1, item2) {
     return item1.sendcustomer_name.localeCompare(item2.sendcustomer_name);
   });
+  let totalPay = 0
   selectedRows.forEach(item => {
     let orderNum = ''
     if (item.order_code) {
@@ -352,6 +353,7 @@ export function printPayOrder({ selectedRows = [] }) {
     }
 
     totalTransFund += Number(item.trans_discount || 0)
+    totalPay += Number(item.pay_amount || 0)
     bodyHTML += `<tr>
         <td>${orderIndex}</td>
         <td>${item.bank_account || ''}</td>
@@ -383,18 +385,29 @@ export function printPayOrder({ selectedRows = [] }) {
       </thead>
       <tbody>
       ${bodyHTML}
+        <tr>
+          <td>总计</td>
+          <td colspan="4">${totalPay}</td>
+        </tr>
       </tbody>
     </table>
     `
-  var iframeDocument = document.getElementById('printExcelFrame').contentWindow.document;
-  var printDOM = iframeDocument.getElementById("bd");
-  printDOM.innerHTML = `${styles}${html}`
-  let curDate = new Date()
-  let defaultFileName = `${curDate.getFullYear()}${curDate.getMonth() + 1}${curDate.getDate()}${curDate.getTime()}.xlsx`
-  // const fileNameDialog = electron.dialog.showSaveDialogSync(electron.getCurrentWindow(), { defaultPath: defaultFileName });
-  const fileNameDialog = electron.dialog.showSaveDialogSync({ defaultPath: defaultFileName });
-  var wb = XLSX.utils.table_to_book(printDOM, { raw: true });
-  XLSX.writeFile(wb, fileNameDialog);
+  if (type != 'type') {
+    var iframeDocument = document.getElementById('printExcelFrame').contentWindow.document;
+    var printDOM = iframeDocument.getElementById("bd");
+    printDOM.innerHTML = `${styles}${html}`
+    let curDate = new Date()
+    let defaultFileName = `${curDate.getFullYear()}${curDate.getMonth() + 1}${curDate.getDate()}${curDate.getTime()}.xlsx`
+    // const fileNameDialog = electron.dialog.showSaveDialogSync(electron.getCurrentWindow(), { defaultPath: defaultFileName });
+    const fileNameDialog = electron.dialog.showSaveDialogSync({ defaultPath: defaultFileName });
+    var wb = XLSX.utils.table_to_book(printDOM, { raw: true });
+    XLSX.writeFile(wb, fileNameDialog);
+  }
+  else {
+    const printOrderWebview = document.querySelector('#printWebview')
+    console.log('type: ', type)
+    printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type })
+  }
 }
 
 /**

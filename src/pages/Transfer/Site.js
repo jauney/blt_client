@@ -633,6 +633,9 @@ class TableList extends PureComponent {
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
+    if (record.site_id != CacheSite.site_id) {
+      return
+    }
     this.setState({
       record,
     });

@@ -672,7 +672,7 @@ class TableList extends PureComponent {
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
     // 确认打款不可编辑
-    if (record.transfer_status == 1) {
+    if (record.transfer_status == 1 || record.company_id != CacheCompany.company_id) {
       return
     }
     this.setState({

@@ -208,12 +208,10 @@ class TableList extends PureComponent {
       title: '发货客户',
       dataIndex: 'sendcustomer_name',
       width: '80px',
-      sorter: true,
     },
     {
       title: '合计票数',
       dataIndex: 'order_code',
-      sorter: true,
       width: '80px',
       render: val => (
         <span>{(val && val.split(',').length) || ''}</span>
@@ -222,25 +220,21 @@ class TableList extends PureComponent {
     {
       title: '合计货款',
       dataIndex: 'order_amount',
-      sorter: true,
       width: '80px',
     },
     {
       title: '合计付款',
       dataIndex: 'pay_amount',
-      sorter: true,
       width: '80px',
     },
     {
       title: '代办费',
       dataIndex: 'agency_fee',
-      sorter: true,
       width: '80px',
     },
     {
       title: '内扣费',
       dataIndex: 'trans_amount',
-      sorter: true,
       width: '80px',
       render: (text, record, index) => (
         <span>{Number(record.trans_amount || 0) + Number(record.insurance_amount)}</span>
@@ -523,8 +517,14 @@ class TableList extends PureComponent {
   // 下载
   onDownload = async () => {
     const { selectedRows } = this.state
-    printPayOrder({ selectedRows, type: 'pdf' })
+    printPayOrder({ selectedRows })
   };
+
+  // 打印
+  onPrint = async () => {
+    const { selectedRows } = this.state
+    printPayOrder({ selectedRows, type: 'pdf' })
+  }
 
   /**
    * 修改订单信息弹窗
@@ -738,6 +738,7 @@ class TableList extends PureComponent {
                 <span>
                   <Button onClick={this.onCancelPay}>取消下账</Button>
                   <Button onClick={this.onDownload}>下 载</Button>
+                  <Button onClick={this.onPrint}>打 印</Button>
                 </span>
               )}
             </div>
