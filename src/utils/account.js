@@ -152,10 +152,11 @@ export function calLateFee(items = [], company = {}) {
       let departDate = moment(Number(item.depart_date))
       let curDate = moment(new Date().getTime())
       let subDays = curDate.diff(departDate, 'days') // 1
-
+      // 如设置的滞纳金从第10天开始收，今天是第11天，则滞纳金收11-10=1天
       if (subDays >= company.late_fee_days) {
+        let lateFeeDays = subDays - company.late_fee_days
         lateFee = company.late_fee_beginamount || 10
-        lateFee = 10 + subDays * Number((orderAmount * (company.late_fee_rate || 0)) / 1000)
+        lateFee = 10 + lateFeeDays * Number((orderAmount * (company.late_fee_rate || 0)) / 1000)
       }
     }
   }
