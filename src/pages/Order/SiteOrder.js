@@ -29,6 +29,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
+import { setCustomerFieldValue } from '@/utils/customer'
 import { async } from 'q';
 import { printOrder, printPayOrder, printDownLoad, printLabel, getPrintOrderConent } from '@/utils/print'
 const { ipcRenderer } = window.require('electron')
@@ -173,7 +174,7 @@ class CreateForm extends PureComponent {
       customer: { getCustomerList, sendCustomerList },
     } = this.props;
     const { currentSendCustomer, currentGetCustomer } = this.state
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields(async (err, fieldsValue) => {
       if (err) return;
 
       // 有货款必须有银行账号
@@ -196,48 +197,11 @@ class CreateForm extends PureComponent {
 
       fieldsValue.order_num = Number(fieldsValue.order_num || 0)
       fieldsValue.order_label_num = Number(fieldsValue.order_label_num || 0)
-
-      // 1.从下拉列表选择的客户使用currentSendCustomer，currentGetCustomer
-      // 2.输入电话带出来的客户使用currentSendCustomer，currentGetCustomer
-      let sendCustomer = currentSendCustomer
-      let getCustomer = currentGetCustomer
-      // 编辑时的客户，使用list中的数据，因为没有currentSendCustomer，currentGetCustomer
-      sendCustomerList.forEach(item => {
-        if (item.customer_id == fieldsValue.sendcustomer_name || item.customer_id == fieldsValue.sendcustomer_id) {
-          sendCustomer = item
-        }
-      })
-      getCustomerList.forEach(item => {
-        if (item.customer_id == fieldsValue.getcustomer_name || item.customer_id == fieldsValue.getcustomer_id) {
-          getCustomer = item
-        }
-      })
-      console.log(fieldsValue)
-      if (getCustomer && getCustomer.customer_id) {
-        fieldsValue.getcustomer_id = getCustomer.customer_id;
-        fieldsValue.getcustomer_name = getCustomer.customer_name;
-        fieldsValue.getcustomer_address = getCustomer.customer_address
-      }
-      else {
-        // 非选择，而是手工输入的姓名
-        fieldsValue.getcustomer_name = fieldsValue.getcustomer_id;
-        fieldsValue.getcustomer_id = 0;
-      }
-
-      if (sendCustomer && sendCustomer.customer_id) {
-        fieldsValue.sendcustomer_id = sendCustomer.customer_id;
-        fieldsValue.sendcustomer_name = sendCustomer.customer_name;
-        fieldsValue.sendcustomer_address = sendCustomer.customer_address
-      }
-      else {
-        // 非选择，而是手工输入的姓名
-        fieldsValue.sendcustomer_name = fieldsValue.sendcustomer_id;
-        fieldsValue.sendcustomer_id = 0;
-      }
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue, 'edit')
 
       fieldsValue.site_name = CacheSite.site_name;
 
-      handleAdd(fieldsValue, selectedOrder, Object.assign({}, options, { getcustomer_type: getCustomer && getCustomer.customer_type || '', sendcustomer_type: sendCustomer && sendCustomer.customer_type || '' }));
+      handleAdd(fieldsValue, selectedOrder, Object.assign({}, options));
 
       form.resetFields();
       this.setState({

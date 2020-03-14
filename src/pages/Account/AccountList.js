@@ -29,6 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Account.less';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
+import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -63,9 +64,7 @@ class TableList extends PureComponent {
     printModalVisible: false,
     currentCompany: {},
     currentShipSite: {},
-    // 缓存输入框中手动输入的收货人姓名
-    getCustomerSearch: '',
-    sendCustomerSearch: '',
+    ...customerAutoCompleteState
   };
 
   columns = [
@@ -217,22 +216,7 @@ class TableList extends PureComponent {
       payload: { pageNo: 1, pageSize: 100 },
     });
 
-    dispatch({
-      type: 'customer/sendCustomerListAction',
-      payload: { pageNo: 1, pageSize: 100 },
-    });
-
-    let currentCompany = this.setCurrentCompany(branchCompanyList)
-
-    dispatch({
-      type: 'customer/getCustomerListAction',
-      payload: {
-        pageNo: 1,
-        pageSize: 100,
-        filter: { company_id: currentCompany.company_id },
-      },
-    });
-
+    fetchSendCustomerList(this, {})
 
     if (siteList && siteList.length > 0) {
       const shipSiteList = siteList.filter(item => {
@@ -249,28 +233,6 @@ class TableList extends PureComponent {
       type: 'common/initOrderListAction',
     });
   }
-
-  // 设置当前公司
-  setCurrentCompany = (branchCompanyList = []) => {
-    // 初始渲染的是否，先加载第一个分公司的收货人信息
-    if (CacheCompany.company_type == 2) {
-      this.setState({
-        currentCompany: CacheCompany
-      });
-
-      return CacheCompany
-    }
-    else if (branchCompanyList && branchCompanyList.length > 0) {
-      this.setState({
-        currentCompany: branchCompanyList[0]
-      });
-
-      return branchCompanyList[0]
-    }
-
-    return {}
-  }
-
 
   handleFormReset = () => {
     const { form, dispatch } = this.props;
@@ -290,161 +252,12 @@ class TableList extends PureComponent {
     });
   };
 
-  onGetCustomerScroll = e => {
-    if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
-      this.fetchGetCustomerList();
-    }
-  };
-
-  onSendCustomerScroll = e => {
-    if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
-      this.fetchSendCustomerList();
-    }
-  };
-
-  onSendCustomerSelect = (value, option) => {
-    if (value) {
-      // 如果勾选了姓名，则将sendCustomerSearchByName置为false，否则勾选完一个选项后，在输入框无法输入
-      this.setState({
-        sendCustomerSearch: ''
-      });
-    }
-  }
-
-  // 先把搜索框填的数据缓存下来，要不然blur的时候会自动清空
-  onSendCustomerSearch = (value) => {
-    // 必须先判断value是否为空再缓存，否则最后一次触发该事件时的value为空
-    console.log('search:', value)
-    if (value) {
-      this.setState({
-        sendCustomerSearch: value
-      })
-    }
-  }
-
-  onSendCustomerBlur = async (value) => {
-    const { sendCustomerSearch } = this.state
-    const { form, customer: { getCustomerList, sendCustomerList } } = this.props;
-    let customers = sendCustomerList.filter(item => {
-      if (!sendCustomerSearch) {
-        return item.customer_name == value ||
-          item.customer_id == value
-      }
-
-      return item.customer_name == sendCustomerSearch
-    })
-    console.log('blur', value, sendCustomerSearch)
-    if (customers.length <= 0) {
-      form.setFieldsValue({
-        sendcustomer_id: sendCustomerSearch
-      });
-    }
-    else {
-      this.setState({
-        sendCustomerSearch: ''
-      });
-    }
-  }
-
-  onSendCustomerChange = (value) => {
-    if (!value) {
-      this.setState({
-        sendCustomerSearch: ''
-      })
-    }
-  }
-
-  onGetCustomerSelect = (value, option) => {
-    if (value) {
-      // 如果勾选了姓名，则将sendCustomerSearchByName置为false，否则勾选完一个选项后，在输入框无法输入
-      this.setState({
-        getCustomerSearch: ''
-      });
-    }
-  }
-
-  // 先把搜索框填的数据缓存下来，要不然blur的时候会自动清空
-  onGetCustomerSearch = (value) => {
-    // 必须先判断value是否为空再缓存，否则最后一次触发该事件时的value为空
-    console.log('search:', value)
-    if (value) {
-      this.setState({
-        getCustomerSearch: value
-      })
-    }
-  }
-
-  onGetCustomerBlur = async (value) => {
-    const { getCustomerSearch } = this.state
-    const { form, customer: { getCustomerList, sendCustomerList } } = this.props;
-    let customers = getCustomerList.filter(item => {
-      if (!getCustomerSearch) {
-        return item.customer_name == value ||
-          item.customer_id == value
-      }
-
-      return item.customer_name == getCustomerSearch
-    })
-    console.log('blur', value, getCustomerSearch)
-    if (customers.length <= 0) {
-      form.setFieldsValue({
-        getcustomer_id: getCustomerSearch
-      });
-    }
-    else {
-      this.setState({
-        getCustomerSearch: ''
-      });
-    }
-  }
-
-  onGetCustomerChange = (value) => {
-    if (!value) {
-      this.setState({
-        getCustomerSearch: ''
-      })
-    }
-  }
-
-  fetchGetCustomerList = async companyId => {
-    const { dispatch, branchCompanyList } = this.props;
-    let { currentCompany } = this.state;
-    if (!currentCompany || !currentCompany.company_id) {
-      currentCompany = branchCompanyList && branchCompanyList[0];
-    }
-
-    dispatch({
-      type: 'customer/getCustomerListAction',
-      payload: {
-        filter: { company_id: companyId || (currentCompany && currentCompany.company_id) || 0 },
-      },
-    });
-  };
-
-  fetchSendCustomerList = async companyId => {
-    const { dispatch } = this.props;
-
-    dispatch({
-      type: 'customer/sendCustomerListAction',
-      payload: {
-        filter: {},
-      },
-    });
-  };
-
   onCompanySelect = async (value, option) => {
     const {
       dispatch,
       company: { branchCompanyList },
       car: { lastCar },
     } = this.props;
-    // 清空原公司收获客户
-    dispatch({
-      type: 'customer/resetCustomerPageNo',
-      payload: { type: 'Get' },
-    });
-    // 获取当前公司的客户列表
-    this.fetchGetCustomerList(value);
 
     const currentCompany = branchCompanyList.filter(item => {
       if (item.company_id == value) {
@@ -456,6 +269,8 @@ class TableList extends PureComponent {
         currentCompany: currentCompany[0],
       });
     }
+    // 获取当前公司的客户列表
+    fetchGetCustomerList(this, { company_id: value })
   };
 
   handleSearch = e => {
@@ -475,17 +290,11 @@ class TableList extends PureComponent {
     const { dispatch, form } = this.props;
     const { current, pageSize, sendCustomerSearch, getCustomerSearch } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields(async (err, fieldsValue) => {
       if (err) return;
 
-      if (sendCustomerSearch) {
-        fieldsValue.sendcustomer_name = sendCustomerSearch
-        delete fieldsValue.sendcustomer_id
-      }
-      if (getCustomerSearch) {
-        fieldsValue.getcustomer_name = getCustomerSearch
-        delete fieldsValue.getcustomer_id
-      }
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
+
       // 未结算
       if (fieldsValue.order_status == 5) {
         fieldsValue.order_status = [3, 5];
@@ -788,7 +597,11 @@ class TableList extends PureComponent {
     const allowClearFlag = CacheCompany.company_type == 1 ? true : false;
     // 默认勾选第一个公司
     if (CacheCompany.company_type != 1) {
-      companyOption.initialValue = CacheCompany.company_id || '';
+      companyOption.initialValue = CacheCompany.company_id || '';// 分公司进来先初始化收货人列表
+      fetchGetCustomerList(this, { company_id: CacheCompany.company_id })
+      this.setState({
+        currentCompany: CacheCompany
+      })
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
@@ -821,29 +634,28 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="收货人姓名" {...formItemLayout}>
           {getFieldDecorator('getcustomer_id')(
-            <Select
-              placeholder="全部"
-              onSelect={this.onGetCustomerSelect}
-              onSearch={this.onGetCustomerSearch}
-              onBlur={this.onGetCustomerBlur}
-              onChange={this.onGetCustomerChange}
-              style={{ width: '100px' }}
-              allowClear
-              showSearch
-              optionLabelProp="children"
-              onPopupScroll={this.onGetCustomerScroll}
-              filterOption={(input, option) =>
-                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-            >
-              {getCustomerList.map(ele => {
+            <AutoComplete
+              size="large"
+              style={{ width: '100%' }}
+              dataSource={getCustomerList.map(item => {
+                const AutoOption = AutoComplete.Option;
                 return (
-                  <Option key={ele.customer_id} value={ele.customer_id}>
-                    {ele.customer_name}
-                  </Option>
+                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                    {item.customer_name}
+                  </AutoOption>
                 );
               })}
-            </Select>
+              onSelect={(value) => { onGetCustomerSelect(this, value) }}
+              onChange={(value) => { onGetCustomerChange(this, value) }}
+              allowClear
+              optionLabelProp="label"
+              placeholder="请输入"
+              filterOption={(inputValue, option) =>
+                option.props.children.indexOf(inputValue) !== -1
+              }
+            >
+              {' '}
+            </AutoComplete>
           )}
         </FormItem>
         <FormItem label="收货人电话" {...formItemLayout}>
@@ -853,29 +665,27 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="发货人姓名" {...formItemLayout}>
           {getFieldDecorator('sendcustomer_id')(
-            <Select
-              placeholder="全部"
-              onSelect={this.onSendCustomerSelect}
-              onSearch={this.onSendCustomerSearch}
-              onBlur={this.onSendCustomerBlur}
-              onChange={this.onSendCustomerChange}
-              style={{ width: '100px' }}
-              allowClear
-              showSearch
-              optionLabelProp="children"
-              onPopupScroll={this.onSendCustomerScroll}
-              filterOption={(input, option) =>
-                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-            >
-              {sendCustomerList.map(ele => {
+            <AutoComplete
+              size="large"
+              style={{ width: '100%' }}
+              dataSource={sendCustomerList.map(item => {
+                const AutoOption = AutoComplete.Option;
                 return (
-                  <Option key={ele.get} value={ele.customer_id}>
-                    {ele.customer_name}
-                  </Option>
+                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                    {item.customer_name}
+                  </AutoOption>
                 );
               })}
-            </Select>
+              onSelect={(value) => { onSendCustomerSelect(this, value) }}
+              onChange={(value) => { onSendCustomerChange(this, value) }}
+              allowClear
+              placeholder="请输入"
+              filterOption={(inputValue, option) =>
+                option.props.children.indexOf(inputValue) !== -1
+              }
+            >
+              {' '}
+            </AutoComplete>
           )}
         </FormItem>
         <FormItem label="发货人电话" {...formItemLayout}>

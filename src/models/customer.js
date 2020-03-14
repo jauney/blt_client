@@ -63,7 +63,7 @@ export default {
       const customerState = yield select(state => state.customer);
       payload.type = 2;
       payload.pageNo = customerState.getCustomerPageNo;
-      payload.pageSize = 20;
+      payload.pageSize = 100;
       payload.filter.customerMobiles = [];
 
       const response = yield call(queryCustomerList, payload);
@@ -78,7 +78,7 @@ export default {
       const customerState = yield select(state => state.customer);
       payload.type = 1;
       payload.pageNo = customerState.sendCustomerPageNo;
-      payload.pageSize = 20;
+      payload.pageSize = 100;
 
       const response = yield call(queryCustomerList, payload);
       const list = response.customers;

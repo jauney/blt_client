@@ -28,6 +28,7 @@ import { getSelectedAccount, getSelectedDownAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import styles from './Account.less';
 import { async } from 'q';
+import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
 
 const FormItem = Form.Item;
 const { Option } = Select;
