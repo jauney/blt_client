@@ -55,7 +55,9 @@ class CreateForm extends PureComponent {
       currentGetCustomer: {},
       currentCompany: {},
       getCustomerNameChangeTimer: 0,
-      sendCustomerNameChangeTimer: 0
+      sendCustomerNameChangeTimer: 0,
+      initSendCustomerValue: '',
+      initGetCustomerValue: ''
     };
     this.formItemLayout = {
       labelCol: {
@@ -148,6 +150,16 @@ class CreateForm extends PureComponent {
           fieldValue[item] = selectedOrder[item];
           form.setFieldsValue(fieldValue);
         }
+        if (item == 'getcustomer_id') {
+          this.setState({
+            initGetCustomerValue: selectedOrder[item]
+          })
+        }
+        if (item == 'sendcustomer_id') {
+          this.setState({
+            initSendCustomerValue: selectedOrder[item]
+          })
+        }
       });
     }
   }
@@ -218,7 +230,9 @@ class CreateForm extends PureComponent {
       form.resetFields();
       this.setState({
         currentSendCustomer: {},
-        currentGetCustomer: {}
+        currentGetCustomer: {},
+        initGetCustomerValue: '',
+        initSendCustomerValue: ''
       })
     });
   };
@@ -280,8 +294,6 @@ class CreateForm extends PureComponent {
     const { form } = this.props;
     const fieldObject = {};
     const orderAmount = form.getFieldValue('order_amount');
-    fieldObject[fieldName] = customer.customer_id || ''; // customer.customer_id;
-    form.setFieldsValue(fieldObject);
 
     // setFieldsValue不会触发select的onSelect事件，因此需要手动再触发一次计算：
     // 1）是否VIP 2）计算折后运费 3）发货人银行账号
@@ -293,9 +305,13 @@ class CreateForm extends PureComponent {
           bank_account: customer.bank_account || '',
         });
       }
+      this.setState({
+        initSendCustomerValue: customer.customer_id
+      })
     } else {
       await this.setState({
         currentGetCustomer: customer,
+        initGetCustomerValue: customer.customer_id
       });
       this.computeTransDiscount();
     }
@@ -313,11 +329,12 @@ class CreateForm extends PureComponent {
         type: 1, customer_mobile: mobile, company_id: currentCompany.company_id
       },
     });
-
-    this.setSelectedCustomer('sendcustomer_id', sendCustomer.sendCustomer || {});
-    this.setState({
-      currentSendCustomer: sendCustomer.sendCustomer || {},
-    });
+    if (sendCustomer.sendCustomer && sendCustomer.sendCustomer.customer_id) {
+      this.setSelectedCustomer('sendcustomer_id', sendCustomer.sendCustomer || {});
+      this.setState({
+        currentSendCustomer: sendCustomer.sendCustomer || {},
+      });
+    }
   };
 
   onGetCustomerMobileBlur = async event => {
@@ -333,11 +350,12 @@ class CreateForm extends PureComponent {
         type: 0, customer_mobile: mobile, company_id: currentCompany.company_id
       },
     });
-    this.setSelectedCustomer('getcustomer_id', customer.getCustomer || {});
-    this.setState({
-      currentGetCustomer: customer.getCustomer || {},
-    });
-
+    if (customer.getCustomer && customer.getCustomer.customer_id) {
+      this.setSelectedCustomer('getcustomer_id', customer.getCustomer || {});
+      this.setState({
+        currentGetCustomer: customer.getCustomer || {},
+      });
+    }
   };
 
   onSendCustomerSelect = async (value, option) => {
@@ -561,7 +579,9 @@ class CreateForm extends PureComponent {
       selectedSendCustomerMobile,
       currentGetCustomer,
       currentSendCustomer,
-      currentCompany
+      currentCompany,
+      initSendCustomerValue = '',
+      initGetCustomerValue = ''
     } = this.state;
 
     const companyOption = {
@@ -652,7 +672,7 @@ class CreateForm extends PureComponent {
             <FormItem {...this.formItemLayout} label="收货人姓名">
               {form.getFieldDecorator('getcustomer_id', {
                 rules: [{ required: true, message: '请填写收货人姓名' }],
-                initialValue: `${selectedOrder.getcustomer_id ? selectedOrder.getcustomer_id : ''}`
+                initialValue: `${initGetCustomerValue}`
               })(
                 <AutoComplete
                   size="large"
@@ -686,7 +706,7 @@ class CreateForm extends PureComponent {
             <FormItem {...this.formItemLayout} label="发货人姓名">
               {form.getFieldDecorator('sendcustomer_id', {
                 rules: [{ required: true, message: '请填写发货人姓名' }],
-                initialValue: `${selectedOrder.sendcustomer_id ? selectedOrder.sendcustomer_id : ''}`
+                initialValue: `${initSendCustomerValue}`
               })(
                 <AutoComplete
                   size="large"
