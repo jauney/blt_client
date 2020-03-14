@@ -54,6 +54,8 @@ class CreateForm extends PureComponent {
       currentGetCustomerName: '',
       currentGetCustomer: {},
       currentCompany: {},
+      getCustomerNameChangeTimer: 0,
+      sendCustomerNameChangeTimer: 0
     };
     this.formItemLayout = {
       labelCol: {
@@ -123,7 +125,7 @@ class CreateForm extends PureComponent {
     let curCompany = currentCompany
     if (!currentCompany.company_id) {
       curCompany = branchCompanyList[0]
-      this.fetchGetCustomerList()
+      this.fetchGetCustomerList({ company_id: curCompany.company_id })
     }
     this.setState({
       currentCompany: curCompany
@@ -220,28 +222,24 @@ class CreateForm extends PureComponent {
     });
   };
 
-  fetchGetCustomerList = async companyId => {
-    const { dispatch, branchCompanyList } = this.props;
-    let { currentCompany } = this.state;
-    if (!currentCompany || !currentCompany.company_id) {
-      currentCompany = branchCompanyList && branchCompanyList[0];
-    }
+  fetchGetCustomerList = async (filter = {}) => {
+    const { dispatch } = this.props;
 
     dispatch({
       type: 'customer/getCustomerListAction',
       payload: {
-        filter: { company_id: companyId || (currentCompany && currentCompany.company_id) || 0 },
+        filter,
       },
     });
   };
 
-  fetchSendCustomerList = async companyId => {
+  fetchSendCustomerList = async (filter = {}) => {
     const { dispatch } = this.props;
 
     dispatch({
       type: 'customer/sendCustomerListAction',
       payload: {
-        filter: {},
+        filter,
       },
     });
   };
@@ -270,67 +268,9 @@ class CreateForm extends PureComponent {
       });
 
       // 获取当前公司的客户列表
-      this.fetchGetCustomerList();
+      this.fetchGetCustomerList({ company_id: company.company_id });
       this.computeInsuranceFee();
       this.computeTransDiscount();
-    }
-  };
-
-  onSendCustomerBlur = value => {
-    const { form, sendCustomerList } = this.props;
-    const { currentSendCustomerName } = this.state;
-
-    let curCustomer;
-    for (let i = 0; i < sendCustomerList.length; i++) {
-      const customer = sendCustomerList[i];
-      if (
-        customer.customer_name == currentSendCustomerName ||
-        customer.customer_name == value ||
-        customer.customer_id == value
-      ) {
-        curCustomer = customer;
-        break;
-      }
-    }
-    if (!curCustomer) {
-      form.setFieldsValue({
-        sendcustomer_id: currentSendCustomerName,
-      });
-    }
-  };
-
-  onGetCustomerBlur = value => {
-    const { form, getCustomerList } = this.props;
-    const { currentGetCustomerName } = this.state;
-
-    let curCustomer;
-    for (let i = 0; i < getCustomerList.length; i++) {
-      const customer = getCustomerList[i];
-      if (
-        customer.customer_name == currentGetCustomerName ||
-        customer.customer_name == value ||
-        customer.customer_id == value
-      ) {
-        curCustomer = customer;
-        break;
-      }
-    }
-    if (!curCustomer) {
-      form.setFieldsValue({
-        getcustomer_id: currentGetCustomerName,
-      });
-    }
-  };
-
-  onGetCustomerScroll = e => {
-    if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
-      this.fetchGetCustomerList();
-    }
-  };
-
-  onSendCustomerScroll = e => {
-    if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
-      this.fetchSendCustomerList();
     }
   };
 
@@ -400,13 +340,12 @@ class CreateForm extends PureComponent {
   };
 
   onSendCustomerSelect = async (value, option) => {
-    const { props } = option;
     const { sendCustomerList, form } = this.props;
     const orderAmount = form.getFieldValue('order_amount');
     let currentCustomer;
     for (let i = 0; i < sendCustomerList.length; i++) {
       const customer = sendCustomerList[i];
-      if (customer.customer_id == props.value) {
+      if (customer.customer_id == value) {
         currentCustomer = customer;
         form.setFieldsValue({
           sendcustomer_mobile: customer.customer_mobile,
@@ -415,6 +354,7 @@ class CreateForm extends PureComponent {
         break;
       }
     }
+
     if (currentCustomer) {
       // 设置发货人账号
       if (+orderAmount > 0) {
@@ -429,12 +369,11 @@ class CreateForm extends PureComponent {
   };
 
   onGetCustomerSelect = async (value, option) => {
-    const { props } = option;
     const { getCustomerList, form } = this.props;
     let currentCustomer;
     for (let i = 0; i < getCustomerList.length; i++) {
       const customer = getCustomerList[i];
-      if (customer.customer_id == props.value) {
+      if (customer.customer_id == value) {
         currentCustomer = customer;
         form.setFieldsValue({
           getcustomer_mobile: customer.customer_mobile,
@@ -443,6 +382,7 @@ class CreateForm extends PureComponent {
         break;
       }
     }
+
     if (currentCustomer) {
       await this.setState({
         currentGetCustomer: currentCustomer,
@@ -453,23 +393,28 @@ class CreateForm extends PureComponent {
     }
   };
 
-  /**
-   * TODO: 逻辑太复杂，暂时先不处理
-   */
-  onGetCustomerSearch = async value => {
-    if (value) {
-      this.setState({
-        currentGetCustomerName: value,
-      });
-    }
+  onSendCustomerChange = async value => {
+    this.setState({
+      sendCustomerNameChangeTimer: (new Date()).getTime()
+    })
+    setTimeout(() => {
+      const { sendCustomerNameChangeTimer } = this.state
+      if (new Date().getTime() - sendCustomerNameChangeTimer > 300) {
+        this.fetchSendCustomerList({ customer_name: value })
+      }
+    }, 350)
   };
 
-  onSendCustomerSearch = async value => {
-    if (value) {
-      this.setState({
-        currentSendCustomerName: value,
-      });
-    }
+  onGetCustomerChange = async value => {
+    this.setState({
+      getCustomerNameChangeTimer: (new Date()).getTime()
+    })
+    setTimeout(() => {
+      const { getCustomerNameChangeTimer, currentCompany } = this.state
+      if (new Date().getTime() - getCustomerNameChangeTimer > 300) {
+        this.fetchGetCustomerList({ customer_name: value, company_id: currentCompany.company_id })
+      }
+    }, 350)
   };
 
   /**
@@ -708,29 +653,22 @@ class CreateForm extends PureComponent {
             <FormItem {...this.formItemLayout} label="收货人姓名">
               {form.getFieldDecorator('getcustomer_id', {
                 rules: [{ required: true, message: '请填写收货人姓名' }],
+                initialValue: selectedOrder.getcustomer_id
               })(
-                <Select
-                  placeholder="全部"
-                  onSelect={this.onGetCustomerSelect}
+                <AutoComplete
+                  size="large"
                   style={{ width: '100%' }}
-                  allowClear
-                  showSearch
-                  optionLabelProp="children"
-                  onSearch={this.onGetCustomerSearch}
-                  onBlur={this.onGetCustomerBlur}
-                  onPopupScroll={this.onGetCustomerScroll}
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  dataSource={getCustomerList.map(this.renderCustomerOption)}
+                  onSelect={this.onGetCustomerSelect}
+                  onChange={this.onGetCustomerChange}
+                  placeholder="请输入"
+                  defaultActiveFirstOption={true}
+                  filterOption={(inputValue, option) =>
+                    option.props.children.indexOf(inputValue) !== -1
                   }
                 >
-                  {getCustomerList.map(ele => {
-                    return (
-                      <Option key={ele.customer_id} value={ele.customer_id}>
-                        {ele.customer_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
+                  {' '}
+                </AutoComplete>
               )}
             </FormItem>
           </Col>
@@ -750,28 +688,20 @@ class CreateForm extends PureComponent {
               {form.getFieldDecorator('sendcustomer_id', {
                 rules: [{ required: true, message: '请填写发货人姓名' }],
               })(
-                <Select
-                  placeholder="全部"
-                  onSelect={this.onSendCustomerSelect}
+                <AutoComplete
+                  size="large"
                   style={{ width: '100%' }}
-                  allowClear
-                  showSearch
-                  optionLabelProp="children"
-                  onSearch={this.onSendCustomerSearch}
-                  onBlur={this.onSendCustomerBlur}
-                  onPopupScroll={this.onSendCustomerScroll}
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  dataSource={sendCustomerList.map(this.renderCustomerOption)}
+                  onSelect={this.onSendCustomerSelect}
+                  onChange={this.onSendCustomerChange}
+                  placeholder="请输入"
+                  optionLabelProp="text"
+                  filterOption={(inputValue, option) =>
+                    option.props.children.indexOf(inputValue) !== -1
                   }
                 >
-                  {sendCustomerList.map(ele => {
-                    return (
-                      <Option key={ele.customer_id} value={ele.customer_id}>
-                        {ele.customer_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
+                  {' '}
+                </AutoComplete>
               )}
             </FormItem>
           </Col>

@@ -63,7 +63,7 @@ export default {
       const customerState = yield select(state => state.customer);
       payload.type = 2;
       payload.pageNo = customerState.getCustomerPageNo;
-      payload.pageSize = 20;
+      payload.pageSize = 100;
       payload.filter.customerMobiles = [];
 
       const response = yield call(queryCustomerList, payload);
@@ -78,7 +78,7 @@ export default {
       const customerState = yield select(state => state.customer);
       payload.type = 1;
       payload.pageNo = customerState.sendCustomerPageNo;
-      payload.pageSize = 20;
+      payload.pageSize = 100;
 
       const response = yield call(queryCustomerList, payload);
       const list = response.customers;
@@ -154,28 +154,15 @@ export default {
     },
     queryGetCustomerList(state, action) {
       const customers = action.payload;
-      const customerMap = state.getCustomerMap;
-      const customerList = state.getCustomerList;
-      customers.forEach(item => {
-        if (!customerMap[item.customer_id]) {
-          customerMap[item.customer_id] = item;
-          customerList.push(item);
-        }
-      });
       return {
         ...state,
-        getCustomerPageNo:
-          action.payload.length > 0 ? state.getCustomerPageNo + 1 : state.getCustomerPageNo,
-        getCustomerMap: customerMap,
-        getCustomerList: customerList,
+        getCustomerList: action.payload,
       };
     },
     querySendCustomerList(state, action) {
       return {
         ...state,
-        sendCustomerPageNo:
-          action.payload.length > 0 ? state.sendCustomerPageNo + 1 : state.sendCustomerPageNo,
-        sendCustomerList: state.sendCustomerList.concat(action.payload),
+        sendCustomerList: action.payload,
       };
     },
     appendGetCustomer(state, action) {

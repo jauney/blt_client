@@ -9,12 +9,14 @@ import gql from 'graphql-tag';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { async } from 'q';
 
+const APIURL = `http://${location.hostname}:8002/graphql`
+console.log(APIURL)
 // 线上
-const httpLink = new HttpLink({ uri: 'http://118.190.100.113:8002/graphql' });
+// const httpLink = new HttpLink({ uri: 'http://118.190.100.113:8002/graphql' });
 // 测试
 // const httpLink = new HttpLink({ uri: 'http://47.105.84.59:8002/graphql' });
 // 本地调试
-// const httpLink = new HttpLink({ uri: 'http://192.168.0.103:8002/graphql' });
+const httpLink = new HttpLink({ uri: APIURL });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
   // add the authorization to the headers
