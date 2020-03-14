@@ -226,7 +226,7 @@ export async function updateCourier({ courier, ids, type }) {
       variables: { ids, courier, type },
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.updateCourier;
     })
@@ -259,7 +259,7 @@ export async function updateCustomerCourier({ courier, order_id, customer_id, ty
       variables: { courier, order_id, customer_id, type },
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.updateCustomerCourier;
     })
@@ -454,7 +454,7 @@ export async function updateCustomer({ customer, customer_id, type }) {
       variables: { customer_id, customer, type },
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.updateCustomer;
     })
@@ -684,7 +684,6 @@ export async function createOrder(params) {
       variables: { order: params },
     })
     .then(data => {
-      console.log(data);
       gotoLogin(data);
       return data.data.createOrder;
     })
@@ -717,7 +716,6 @@ export async function updateOrder({ order, order_id }) {
       variables: { order_id, order },
     })
     .then(data => {
-      console.log(data);
       gotoLogin(data);
       return data.data.updateOrder;
     })
@@ -740,7 +738,6 @@ export async function settleOrder(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
       gotoLogin(data);
       return data.data.settleOrder;
     })
@@ -772,7 +769,6 @@ export async function cancelSettleOrder(params) {
 }
 
 export async function downAccount(params) {
-  console.log('api.... ', params);
   return client
     .mutate({
       mutation: gql`
@@ -876,7 +872,7 @@ export async function updateOrderSign(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.updateOrderSign;
     })
@@ -1234,7 +1230,7 @@ export async function deleteOrder(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.deleteOrder;
     })
@@ -1294,7 +1290,7 @@ export async function getOrderStatistic(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getOrderStatistic;
     })
@@ -1320,7 +1316,7 @@ export async function getTodayPayStatistic(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getTodayPayStatistic;
     })
@@ -1355,7 +1351,7 @@ export async function shipOrder(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.shipOrder;
     })
@@ -1378,7 +1374,7 @@ export async function cancelShipOrder(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.cancelShipOrder;
     })
@@ -1401,7 +1397,7 @@ export async function entrunkOrder(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.entrunkOrder;
     })
@@ -1449,7 +1445,7 @@ export async function cancelEntrunk(params = {}) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.cancelEntrunk;
     })
@@ -1558,7 +1554,7 @@ export async function queryReceiverList(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getCourierList;
     })
@@ -1594,7 +1590,7 @@ export async function queryCarList(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getCars;
     })
@@ -1709,7 +1705,7 @@ export async function queryDriverList(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getDrivers;
     })
@@ -1847,7 +1843,7 @@ export async function getAbnormalTypes(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getAbnormalTypes;
     })
@@ -1887,7 +1883,7 @@ export async function getIncomes(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getIncomes;
     })
@@ -1922,7 +1918,7 @@ export async function getIncomeTypes(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getIncomeTypes;
     })
@@ -1957,7 +1953,7 @@ export async function getDebtTypes(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getDebtTypes;
     })
@@ -2023,7 +2019,7 @@ export async function getExpenses(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getExpenses;
     })
@@ -2058,7 +2054,7 @@ export async function getExpenseTypes(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getExpenseTypes;
     })
@@ -2068,7 +2064,6 @@ export async function getExpenseTypes(params) {
 }
 
 export async function addExpense(params) {
-  console.log('api.... ', params);
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.expensetype_id = isNaN(Number(params.expensetype_id)) ? 0 : Number(params.expensetype_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
@@ -2153,7 +2148,7 @@ export async function getDebts(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.getDebts;
     })
@@ -2199,7 +2194,7 @@ export async function settleDebt(params) {
       variables: params,
     })
     .then(data => {
-      console.log(data);
+
       gotoLogin(data);
       return data.data.settleDebt;
     })
@@ -2209,7 +2204,6 @@ export async function settleDebt(params) {
 }
 
 export async function addDebt(params) {
-  console.log('api.... ', params);
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
   params.debt_money = isNaN(Number(params.debt_money)) ? 0 : Number(params.debt_money);
@@ -2304,7 +2298,6 @@ export async function getTransferStatistic(params) {
 }
 
 export async function addTransfer(params) {
-  console.log('api.... ', params);
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
   params.transfer_money = isNaN(Number(params.transfer_money)) ? 0 : Number(params.transfer_money);

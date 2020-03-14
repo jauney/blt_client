@@ -197,30 +197,42 @@ class CreateForm extends PureComponent {
       fieldsValue.order_num = Number(fieldsValue.order_num || 0)
       fieldsValue.order_label_num = Number(fieldsValue.order_label_num || 0)
 
-      let sendCustomer, getCustomer
-      // 编辑的时候getcustomer_id, sendcustomer_id是string,需要转换为int
-      fieldsValue.sendcustomer_id = Number(fieldsValue.sendcustomer_id)
-      fieldsValue.getcustomer_id = Number(fieldsValue.getcustomer_id)
-
-      if (currentSendCustomer.customer_id == fieldsValue.sendcustomer_name || currentSendCustomer.customer_id == fieldsValue.sendcustomer_id) {
-        sendCustomer = currentSendCustomer
-      }
-      if (currentGetCustomer.customer_id == fieldsValue.getcustomer_name || currentGetCustomer.customer_id == fieldsValue.getcustomer_id) {
-        getCustomer = currentGetCustomer
-      }
-
-      if (getCustomer) {
+      // 1.从下拉列表选择的客户使用currentSendCustomer，currentGetCustomer
+      // 2.输入电话带出来的客户使用currentSendCustomer，currentGetCustomer
+      let sendCustomer = currentSendCustomer
+      let getCustomer = currentGetCustomer
+      // 编辑时的客户，使用list中的数据，因为没有currentSendCustomer，currentGetCustomer
+      sendCustomerList.forEach(item => {
+        if (item.customer_id == fieldsValue.sendcustomer_name || item.customer_id == fieldsValue.sendcustomer_id) {
+          sendCustomer = item
+        }
+      })
+      getCustomerList.forEach(item => {
+        if (item.customer_id == fieldsValue.getcustomer_name || item.customer_id == fieldsValue.getcustomer_id) {
+          getCustomer = item
+        }
+      })
+      console.log(fieldsValue)
+      if (getCustomer && getCustomer.customer_id) {
+        fieldsValue.getcustomer_id = getCustomer.customer_id;
         fieldsValue.getcustomer_name = getCustomer.customer_name;
         fieldsValue.getcustomer_address = getCustomer.customer_address
-        fieldsValue.sender_id = getCustomer.sender_id;
-        fieldsValue.sender_name = getCustomer.sender_name;
+      }
+      else {
+        // 非选择，而是手工输入的姓名
+        fieldsValue.getcustomer_name = fieldsValue.getcustomer_id;
+        fieldsValue.getcustomer_id = 0;
       }
 
-      if (sendCustomer) {
+      if (sendCustomer && sendCustomer.customer_id) {
+        fieldsValue.sendcustomer_id = sendCustomer.customer_id;
         fieldsValue.sendcustomer_name = sendCustomer.customer_name;
         fieldsValue.sendcustomer_address = sendCustomer.customer_address
-        fieldsValue.receiver_id = sendCustomer.receiver_id;
-        fieldsValue.receiver_name = sendCustomer.receiver_name;
+      }
+      else {
+        // 非选择，而是手工输入的姓名
+        fieldsValue.sendcustomer_name = fieldsValue.sendcustomer_id;
+        fieldsValue.sendcustomer_id = 0;
       }
 
       fieldsValue.site_name = CacheSite.site_name;
