@@ -176,6 +176,47 @@ export async function setCustomerFieldValue(context, fieldsValue = {}, type = 's
   return fieldsValue
 }
 
+
+/**
+ * 客户管理，将已经选择的客户信息转化为正确格式
+ */
+export async function setCustomerFieldValue2Mng(context, fieldsValue = {}, type = 'search') {
+  const { currentGetCustomer, currentSendCustomer } = context.state
+  const { customer: { sendCustomerList, getCustomerList } } = context.props
+  // 1.从下拉列表选择的客户使用currentSendCustomer，currentGetCustomer
+  // 2.输入电话带出来的客户使用currentSendCustomer，currentGetCustomer
+  let sendCustomer = currentSendCustomer
+  let getCustomer = currentGetCustomer
+  // 编辑时的客户，使用list中的数据，因为没有currentSendCustomer，currentGetCustomer
+  sendCustomerList.forEach(item => {
+    if (item.customer_id == fieldsValue.customer_name || item.customer_id == fieldsValue.customer_id) {
+      sendCustomer = item
+    }
+  })
+  getCustomerList.forEach(item => {
+    if (item.customer_id == fieldsValue.customer_name || item.customer_id == fieldsValue.customer_id) {
+      getCustomer = item
+    }
+  })
+
+  if (getCustomer && getCustomer.customer_id) {
+    fieldsValue.customer_id = getCustomer.customer_id;
+    delete fieldsValue.customer_name
+  }
+  else if (!fieldsValue.customer_name) {
+    delete fieldsValue.customer_name
+  }
+
+  if (sendCustomer && sendCustomer.customer_id) {
+    fieldsValue.customer_id = sendCustomer.customer_id;
+    delete fieldsValue.customer_name
+  } else if (!fieldsValue.customer_name) {
+    delete fieldsValue.customer_name
+  }
+
+  return fieldsValue
+}
+
 // 渲染autocomplete的option
 // 废弃，页面通过import引用该函数使用会报错，所以逻辑写死在页面
 export async function renderCustomerOption(item) {

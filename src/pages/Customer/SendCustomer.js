@@ -30,6 +30,7 @@ import EditableTable from '@/components/EditableTable';
 import styles from './Customer.less';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
+import { setCustomerFieldValue2Mng, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
 
 const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
@@ -279,6 +280,7 @@ class TableList extends PureComponent {
     addModalVisible: false,
     currentCompany: {},
     currentSite: {},
+    ...customerAutoCompleteState
   };
 
   columns = [
@@ -412,9 +414,12 @@ class TableList extends PureComponent {
     const { dispatch, form } = this.props;
     const { current, pageSize } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields(async (err, fieldsValue) => {
       if (err) return;
-
+      if (!fieldsValue.customer_mobile) {
+        delete fieldsValue.customer_mobile
+      }
+      fieldsValue = await setCustomerFieldValue2Mng(this, fieldsValue)
       const searchParams = Object.assign({ filter: fieldsValue, type: 1 }, data);
       dispatch({
         type: 'customer/queryCustomerListAction',
@@ -573,12 +578,32 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="姓名">
           {getFieldDecorator('customer_name', {})(
-            <Input placeholder="请输入" style={{ width: '100px' }} />
+            <AutoComplete
+              size="large"
+              style={{ width: '100%' }}
+              dataSource={sendCustomerList.map(item => {
+                const AutoOption = AutoComplete.Option;
+                return (
+                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                    {item.customer_name}
+                  </AutoOption>
+                );
+              })}
+              onSelect={(value) => { onSendCustomerSelect(this, value) }}
+              onChange={(value) => { onSendCustomerChange(this, value) }}
+              allowClear
+              placeholder="请输入"
+              filterOption={(inputValue, option) =>
+                option.props.children.indexOf(inputValue) !== -1
+              }
+            >
+              {' '}
+            </AutoComplete>
           )}
         </FormItem>
         <FormItem label="电话">
           {getFieldDecorator('customer_mobile', {})(
-            <Input placeholder="请输入" style={{ width: '130px' }} />
+            <Input placeholder="请输入" style={{ width: '130px' }} allowClear />
           )}
         </FormItem>
         <FormItem>
