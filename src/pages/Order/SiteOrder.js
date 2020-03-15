@@ -1578,7 +1578,7 @@ class TableList extends PureComponent {
     await this.getLastCarInfo();
 
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
-    this.getOrderList();
+    this.handleSearch();
     this.getDriverList()
   }
 
@@ -1653,13 +1653,14 @@ class TableList extends PureComponent {
     if (e) {
       e.preventDefault();
     }
+    this.setState({ current: 1 })
     this.getOrderList();
   };
 
   /**
    * 获取订单信息
    */
-  getOrderList = (data = {}, pageNo = 1) => {
+  getOrderList = (data = {}, pageNo) => {
     const { dispatch } = this.props;
     const { current, pageSize } = this.state;
 
@@ -1704,7 +1705,7 @@ class TableList extends PureComponent {
       modalVisible: !!flag,
     });
     if (!flag) {
-      this.handleSearch()
+      this.getOrderList()
     }
   };
 
@@ -1751,7 +1752,7 @@ class TableList extends PureComponent {
       this.printOrder(Object.assign({ order_code: orderCode }, Object.assign(fields, { create_date: createDate }), option))
     }
     setTimeout(() => {
-      this.handleSearch();
+      this.getOrderList();
     }, 1000);
   };
 
@@ -1801,7 +1802,7 @@ class TableList extends PureComponent {
         }
 
         setTimeout(() => {
-          self.handleSearch();
+          self.getOrderList();
         }, 1000);
       },
     });
@@ -1838,7 +1839,8 @@ class TableList extends PureComponent {
     });
 
     if (result.code == 0) {
-      this.handleSearch();
+      setTimeout(() => { this.getOrderList(); }, 500)
+
       message.success('取消装回成功');
       this.onCancelShipCancel();
     }
@@ -2087,7 +2089,7 @@ class TableList extends PureComponent {
       Modal.info({
         content: '选择的订单所属分公司和当前选择的分公司不一致，请重新勾选订单进行装车',
         onOk: () => {
-          this.handleSearch();
+          this.getOrderList();
         }
       })
       return;

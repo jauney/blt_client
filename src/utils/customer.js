@@ -147,7 +147,7 @@ export async function setCustomerFieldValue(context, fieldsValue = {}, type = 's
       fieldsValue.getcustomer_type = getCustomer.customer_type || 0
     }
   }
-  else {
+  else if (fieldsValue.getcustomer_id) {
     // 非选择，而是手工输入的姓名
     fieldsValue.getcustomer_name = fieldsValue.getcustomer_id;
     delete fieldsValue.getcustomer_id
@@ -164,7 +164,7 @@ export async function setCustomerFieldValue(context, fieldsValue = {}, type = 's
       fieldsValue.sendcustomer_type = getCustomer.customer_type || 0
     }
   }
-  else {
+  else if (fieldsValue.sendcustomer_id) {
     // 非选择，而是手工输入的姓名
     fieldsValue.sendcustomer_name = fieldsValue.sendcustomer_id;
     delete fieldsValue.sendcustomer_id

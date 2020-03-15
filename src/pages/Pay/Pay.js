@@ -29,7 +29,8 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Pay.less';
 import { async } from 'q';
-import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
+import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
+import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -201,7 +202,8 @@ class TableList extends PureComponent {
     downloadModalVisible: false,
     printModalVisible: false,
     currentCompany: {},
-    sorter: 'settle_date|ascend'
+    sorter: 'settle_date|ascend',
+    ...customerAutoCompleteState
   };
 
   columns = [
@@ -342,10 +344,10 @@ class TableList extends PureComponent {
       payload: { pageNo: 1, pageSize: 100 },
     });
 
-    this.fetchSendCustomerList();
+    fetchSendCustomerList(this, {})
 
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
-    this.getOrderList();
+    this.handleSearch();
   }
 
   handleSelectRows = rows => {
@@ -354,29 +356,14 @@ class TableList extends PureComponent {
     });
   };
 
-  onSendCustomerScroll = e => {
-    if (e.target.scrollHeight <= e.target.scrollTop + e.currentTarget.scrollHeight) {
-      this.fetchSendCustomerList();
-    }
-  };
-
-  fetchSendCustomerList = async companyId => {
-    const { dispatch } = this.props;
-
-    dispatch({
-      type: 'customer/sendCustomerListAction',
-      payload: {
-        filter: {},
-      },
-    });
-  };
-
   onCompanySelect = async (value, option) => { };
 
   handleSearch = e => {
     e && e.preventDefault();
-
-    this.getOrderList();
+    this.setState({
+      current: 1
+    })
+    this.getOrderList({}, 1);
   };
   // 调用table子组件
   onRefTable = (ref) => {
@@ -384,16 +371,22 @@ class TableList extends PureComponent {
   }
   /**
    * 获取订单信息
+   * @param data {sorter: 'settle_date|ascend'}
    */
-  getOrderList = (data = {}, pageNo = 1) => {
+  getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
     const { current, pageSize, sorter } = this.state;
+    // 使用缓存的pageNo
+    pageNo = pageNo || current
 
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields(async (err, fieldsValue) => {
       if (err) return;
 
       fieldsValue.pay_status = 0;
       fieldsValue.order_amount = -1;
+
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
+
       const searchParams = Object.assign({ filter: fieldsValue }, data);
 
       searchParams.sorter = searchParams.sorter || sorter || 'settle_date|ascend'
@@ -464,7 +457,7 @@ class TableList extends PureComponent {
       message.success('下账成功！');
 
       this.onDownCancel();
-      setTimeout(() => { this.handleSearch(); }, 1000)
+      setTimeout(() => { this.getOrderList(); }, 1000)
     } else {
       message.error(result.msg);
     }
@@ -522,7 +515,9 @@ class TableList extends PureComponent {
       message.success('取消结算成功！');
 
       this.onSettleCancel();
-      this.handleSearch();
+      setTimeout(() => {
+        this.getOrderList();
+      }, 500)
     } else {
       message.error(result.msg);
     }
@@ -544,7 +539,9 @@ class TableList extends PureComponent {
     });
     if (result.code == 0) {
       message.success('添加异常成功！');
-      this.handleSearch();
+      setTimeout(() => {
+        this.getOrderList()
+      }, 500)
     } else {
       message.error(result.msg);
     }
@@ -602,7 +599,9 @@ class TableList extends PureComponent {
     });
     if (result && result.code == 0) {
       message.success('取消下账成功！');
-      this.handleSearch();
+      setTimeout(() => {
+        this.getOrderList()
+      }, 500)
       this.onCancelDownAccountCancel();
     } else {
       message.error(result.msg);
@@ -776,26 +775,27 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="发货人姓名">
           {getFieldDecorator('sendcustomer_id')(
-            <Select
-              placeholder="全部"
-              onSelect={this.onSendCustomerSelect}
-              style={{ width: '80px' }}
-              allowClear
-              showSearch
-              optionLabelProp="children"
-              onPopupScroll={this.onSendCustomerScroll}
-              filterOption={(input, option) =>
-                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-            >
-              {sendCustomerList.map(ele => {
+            <AutoComplete
+              size="large"
+              style={{ width: '100%' }}
+              dataSource={sendCustomerList.map(item => {
+                const AutoOption = AutoComplete.Option;
                 return (
-                  <Option key={ele.get} value={ele.customer_id}>
-                    {ele.customer_name}
-                  </Option>
+                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                    {item.customer_name}
+                  </AutoOption>
                 );
               })}
-            </Select>
+              onSelect={(value) => { onSendCustomerSelect(this, value) }}
+              onChange={(value) => { onSendCustomerChange(this, value) }}
+              allowClear
+              placeholder="请输入"
+              filterOption={(inputValue, option) =>
+                option.props.children.indexOf(inputValue) !== -1
+              }
+            >
+              {' '}
+            </AutoComplete>
           )}
         </FormItem>
         <FormItem label="发货人电话">
