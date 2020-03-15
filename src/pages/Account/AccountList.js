@@ -216,6 +216,13 @@ class TableList extends PureComponent {
       payload: { pageNo: 1, pageSize: 100 },
     });
 
+    if (CacheCompany.company_type == 2) {
+      // 分公司进来先初始化收货人列表
+      fetchGetCustomerList(this, { company_id: CacheCompany.company_id })
+      this.setState({
+        currentCompany: CacheCompany
+      })
+    }
     fetchSendCustomerList(this, {})
 
     if (siteList && siteList.length > 0) {
@@ -275,7 +282,8 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
-    this.getOrderList();
+    this.setState({ current: 1 })
+    this.getOrderList({ sorter: "create_date|desc" }, 1);
   };
 
   // 调用table子组件
@@ -286,7 +294,7 @@ class TableList extends PureComponent {
   /**
    * 获取订单信息
    */
-  getOrderList = (data = {}, pageNo = 1) => {
+  getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
     const { current, pageSize, sendCustomerSearch, getCustomerSearch } = this.state;
 
@@ -598,10 +606,6 @@ class TableList extends PureComponent {
     // 默认勾选第一个公司
     if (CacheCompany.company_type != 1) {
       companyOption.initialValue = CacheCompany.company_id || '';// 分公司进来先初始化收货人列表
-      fetchGetCustomerList(this, { company_id: CacheCompany.company_id })
-      this.setState({
-        currentCompany: CacheCompany
-      })
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">

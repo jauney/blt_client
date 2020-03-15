@@ -204,6 +204,14 @@ class TableList extends PureComponent {
       payload: { ...CacheCompany },
     });
 
+    if (CacheCompany.company_type == 2) {
+      // 分公司进来先初始化收货人列表
+      fetchGetCustomerList(this, { company_id: CacheCompany.company_id })
+      this.setState({
+        currentCompany: CacheCompany
+      })
+    }
+
     const siteList = await dispatch({
       type: 'site/getSiteListAction',
       payload: { pageNo: 1, pageSize: 100 },
@@ -268,13 +276,14 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
-    this.getOrderList();
+    this.setState({ current: 1 })
+    this.getOrderList({ sorter: "create_date|desc" }, 1);
   };
 
   /**
    * 获取订单信息
    */
-  getOrderList = (data = {}, pageNo = 1) => {
+  getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
     const { current, pageSize, sendCustomerSearch, getCustomerSearch } = this.state;
 
@@ -343,7 +352,7 @@ class TableList extends PureComponent {
     });
     if (result.code == 0) {
       message.success('签字成功！');
-      this.handleSearch();
+      this.getOrderList();
       this.onSignCancel();
     } else {
       message.error(result.msg);
@@ -394,7 +403,9 @@ class TableList extends PureComponent {
       message.success('核对成功！');
 
       this.onSettleCancel();
-      this.handleSearch();
+      setTimeout(() => {
+        this.getOrderList();
+      }, 800)
     } else {
       message.error(result.msg);
     }
@@ -427,7 +438,9 @@ class TableList extends PureComponent {
     });
     if (result.code == 0) {
       message.success('取消签字成功！');
-      this.handleSearch();
+      setTimeout(() => {
+        this.getOrderList();
+      }, 800)
       this.onCancelSignCancel();
     } else {
       message.error(result.msg);
@@ -598,11 +611,6 @@ class TableList extends PureComponent {
     // 默认勾选第一个公司
     if (CacheCompany.company_type != 1) {
       companyOption.initialValue = CacheCompany.company_id || '';
-      // 分公司进来先初始化收货人列表
-      fetchGetCustomerList(this, { company_id: CacheCompany.company_id })
-      this.setState({
-        currentCompany: CacheCompany
-      })
     }
     const allowClearFlag = CacheCompany.company_type == 1 ? true : false;
     return (
@@ -795,7 +803,7 @@ class TableList extends PureComponent {
           modalVisible={updateOrderModalVisible}
           record={record}
           onCancelModal={this.onUpdateOrderModalCancel}
-          handleSearch={this.handleSearch}
+          handleSearch={this.getOrderList}
           isEdit={['site_pay', 'site_receipt', 'company_account', 'company_admin'].indexOf(CacheRole.role_value) >= 0 ? 1 : 0}
           dispatch={dispatch}
           currentCompany={currentCompany}
