@@ -136,7 +136,7 @@ class CreateForm extends PureComponent {
     this.fetchGetCustomerList({ company_id: curCompany.company_id })
     this.fetchSendCustomerList()
     if (selectedOrder && selectedOrder.getcustomer_id) {
-      dispatch({
+      await dispatch({
         type: 'customer/queryCustomerAction',
         payload: {
           sendcustomer_id: selectedOrder.sendcustomer_id, getcustomer_id: selectedOrder.getcustomer_id
@@ -198,7 +198,11 @@ class CreateForm extends PureComponent {
       fieldsValue.order_num = Number(fieldsValue.order_num || 0)
       fieldsValue.order_label_num = Number(fieldsValue.order_label_num || 0)
       fieldsValue = await setCustomerFieldValue(this, fieldsValue, 'edit')
-
+      // 编辑的时候防止客户姓名变为数字customer_id
+      if (Number(fieldsValue.getcustomer_name) >= 0 || Number(fieldsValue.sendcustomer_name)) {
+        message.error('客户姓名不能为数字，请重新选择/输入')
+        return
+      }
       fieldsValue.site_name = CacheSite.site_name;
 
       handleAdd(fieldsValue, selectedOrder, Object.assign({}, options));
@@ -565,6 +569,10 @@ class CreateForm extends PureComponent {
     };
     // 默认勾选第一个公司
     companyOption.initialValue = currentCompany.company_id || '';
+    let siteOptionList = [CacheSite]
+    if (CacheSite.site_type == 3 || (selectedOrder && selectedOrder.getcustomer_id)) {
+      siteOptionList = siteList
+    }
 
     const transTypeMap = {
       0: '提', 1: '现', 2: '回'
@@ -623,7 +631,7 @@ class CreateForm extends PureComponent {
             <FormItem {...this.formItemLayout} label="站点">
               {form.getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
                 <Select placeholder="全部" style={{ width: '100%' }} tabIndex={-1} >
-                  {(CacheSite.site_type == 3 ? siteList : [CacheSite]).map(ele => {
+                  {siteOptionList.map(ele => {
                     return (
                       <Option key={ele.site_id} value={ele.site_id}>
                         {ele.site_name}
