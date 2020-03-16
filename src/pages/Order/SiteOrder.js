@@ -663,7 +663,7 @@ class CreateForm extends PureComponent {
               {form.getFieldDecorator('getcustomer_mobile', {
                 initialValue: selectedGetCustomerMobile,
                 rules: [{ required: true, message: '请填写收货人电话' }],
-              })(<Input onBlur={this.onGetCustomerMobileBlur} placeholder="请输入" />)}
+              })(<Input onBlur={this.onGetCustomerMobileBlur} placeholder="请输入" maxLength={15} />)}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
@@ -697,7 +697,7 @@ class CreateForm extends PureComponent {
               {form.getFieldDecorator('sendcustomer_mobile', {
                 initialValue: selectedSendCustomerMobile,
                 rules: [{ required: true, message: '请填写发货人电话' }],
-              })(<Input onBlur={this.onSendCustomerMobileBlur} placeholder="请输入" />)}
+              })(<Input onBlur={this.onSendCustomerMobileBlur} placeholder="请输入" maxLength={15} />)}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
@@ -733,6 +733,7 @@ class CreateForm extends PureComponent {
                   placeholder="请输入小票运费"
                   onBlur={this.onTransOriginalBlur}
                   style={{ width: '100px' }}
+                  maxLength={10}
                 />
               )}
             </FormItem>
@@ -748,6 +749,7 @@ class CreateForm extends PureComponent {
                   onBlur={this.onTransBlur}
                   style={{ width: '100px' }}
                   tabIndex={-1}
+                  maxLength={10}
                 />
               )}
             </FormItem>
@@ -778,14 +780,14 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="货款">
               {form.getFieldDecorator('order_amount', {})(
-                <Input placeholder="请输入货款" onBlur={this.onOrderAmountBlur} tabIndex={-1} />
+                <Input placeholder="请输入货款" onBlur={this.onOrderAmountBlur} tabIndex={-1} maxLength={10} />
               )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="银行账号">
               {form.getFieldDecorator('bank_account')(
-                <Input placeholder="请输入银行账号" tabIndex={-1} />
+                <Input placeholder="请输入银行账号" tabIndex={-1} maxLength={25} />
               )}
             </FormItem>
           </Col>
@@ -794,26 +796,26 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="保价金额">
               {form.getFieldDecorator('insurance_amount', {})(
-                <Input placeholder="" tabIndex={-1} onBlur={this.computeInsuranceFee} />
+                <Input placeholder="" tabIndex={-1} onBlur={this.computeInsuranceFee} maxLength={10} />
               )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label={`保价费[${transTypeMap[form.getFieldValue('trans_type')]}]`}>
-              {form.getFieldDecorator('insurance_fee', {})(<Input placeholder="" tabIndex={-1} />)}
+              {form.getFieldDecorator('insurance_fee', {})(<Input placeholder="" tabIndex={-1} maxLength={10} />)}
             </FormItem>
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="送货费">
-              {form.getFieldDecorator('deliver_amount', {})(<Input placeholder="" tabIndex={-1} />)}
+              {form.getFieldDecorator('deliver_amount', {})(<Input placeholder="" tabIndex={-1} maxLength={10} />)}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="垫付金额">
               {form.getFieldDecorator('order_advancepay_amount', {})(
-                <Input placeholder="" tabIndex={-1} />
+                <Input placeholder="" tabIndex={-1} maxLength={10} />
               )}
             </FormItem>
           </Col>
@@ -822,7 +824,7 @@ class CreateForm extends PureComponent {
           <Col span="13">
             <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 12 }} label="货物名称">
               {form.getFieldDecorator('order_name', {})(
-                <Input placeholder="请输入" style={{ width: '340px' }} />
+                <Input placeholder="请输入" style={{ width: '340px' }} maxLength={100} />
               )}
             </FormItem>
           </Col>
@@ -859,7 +861,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="中转费">
               {form.getFieldDecorator('transfer_amount', {})(
-                <Input placeholder="请输入" tabIndex={-1} />
+                <Input placeholder="请输入" tabIndex={-1} maxLength={10} />
               )}
             </FormItem>
           </Col>
@@ -868,7 +870,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="中转地址">
               {form.getFieldDecorator('transfer_address', {})(
-                <Input placeholder="请输入" tabIndex={-1} />
+                <Input placeholder="请输入" tabIndex={-1} maxLength={100} />
               )}
             </FormItem>
           </Col>
@@ -876,7 +878,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="中转物流">
               {form.getFieldDecorator('transfer_company_name')(
-                <Input placeholder="请输入" tabIndex={-1} />
+                <Input placeholder="请输入" tabIndex={-1} maxLength={100} />
               )}
             </FormItem>
           </Col>
@@ -885,14 +887,14 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="中转单号">
               {form.getFieldDecorator('transfer_order_code', {})(
-                <Input placeholder="请输入" tabIndex={-1} />
+                <Input placeholder="请输入" tabIndex={-1} maxLength={20} />
               )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="中转电话">
               {form.getFieldDecorator('transfer_company_mobile', {})(
-                <Input placeholder="请输入" tabIndex={-1} />
+                <Input placeholder="请输入" tabIndex={-1} maxLength={15} />
               )}
             </FormItem>
           </Col>
@@ -914,7 +916,7 @@ class CreateForm extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.colLargeLayout}>
             <FormItem {...this.formItemMiniLayout} label="备注">
-              {form.getFieldDecorator('remark', {})(<Input placeholder="请输入" tabIndex={-1} />)}
+              {form.getFieldDecorator('remark', {})(<Input placeholder="请输入" tabIndex={-1} maxLength={100} />)}
             </FormItem>
           </Col>
         </Row>
