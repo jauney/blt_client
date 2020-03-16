@@ -197,7 +197,7 @@ class CreateForm extends PureComponent {
       }
       fieldsValue.site_name = CacheSite.site_name;
 
-      handleAdd(fieldsValue, selectedOrder, Object.assign({}, options));
+      handleAdd(fieldsValue, selectedOrder, options);
 
       form.resetFields();
       this.setState({
@@ -598,7 +598,7 @@ class CreateForm extends PureComponent {
       <Button key="btn-print" onClick={this.onOrderPrint}>
         打 印
       </Button>,
-      <Button key="btn-save" type="primary" onClick={this.okHandle} tabIndex={-1}>
+      <Button key="btn-save" type="primary" onClick={() => { this.okHandle() }} tabIndex={-1}>
         保 存
       </Button>,
     ]
