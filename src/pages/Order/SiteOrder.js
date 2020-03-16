@@ -135,14 +135,6 @@ class CreateForm extends PureComponent {
 
     this.fetchGetCustomerList({ company_id: curCompany.company_id })
     this.fetchSendCustomerList()
-    if (selectedOrder && selectedOrder.getcustomer_id) {
-      await dispatch({
-        type: 'customer/queryCustomerAction',
-        payload: {
-          sendcustomer_id: selectedOrder.sendcustomer_id, getcustomer_id: selectedOrder.getcustomer_id
-        }
-      });
-    }
 
     if (formKeys.length > 0) {
       Object.keys(formFileds).forEach(item => {
@@ -552,6 +544,8 @@ class CreateForm extends PureComponent {
       customer: { getCustomerList, sendCustomerList },
       siteList,
       selectedOrder,
+      selectedGetCustomer,
+      selectedSendCustomer,
       currentSite,
     } = this.props;
     const {
@@ -572,6 +566,26 @@ class CreateForm extends PureComponent {
     let siteOptionList = [CacheSite]
     if (CacheSite.site_type == 3 || (selectedOrder && selectedOrder.getcustomer_id)) {
       siteOptionList = siteList
+    }
+    if (selectedOrder && selectedOrder.getcustomer_id) {
+      let isFetchGetCustomer = false
+      getCustomerList.forEach(item => {
+        if (item.customer_id == selectedGetCustomer.customer_id) {
+          isFetchGetCustomer = true
+        }
+      })
+      if (!isFetchGetCustomer) {
+        getCustomerList.unshift(selectedGetCustomer)
+      }
+      let isFetchSendCustomer = false
+      sendCustomerList.forEach(item => {
+        if (item.customer_id == selectedSendCustomer.customer_id) {
+          isFetchSendCustomer = true
+        }
+      })
+      if (!isFetchSendCustomer) {
+        sendCustomerList.unshift(selectedSendCustomer)
+      }
     }
 
     const transTypeMap = {
@@ -1422,7 +1436,9 @@ class TableList extends PureComponent {
     currentSite: {},
     currentCompany: {},
     currentShipSite: {},
-    labelPrinterName: 'TSC_TTP_244CE'
+    labelPrinterName: 'TSC_TTP_244CE',
+    selectedGetCustomer: {},
+    selectedSendCustomer: {}
   };
 
   columns = [
@@ -1820,9 +1836,27 @@ class TableList extends PureComponent {
    * 双击修改
    */
   onRowDoubleClick = async (record, rowIndex, event) => {
+    const { dispatch } = this.props
+    // 先查询客户信息
+    let customers = await dispatch({
+      type: 'customer/queryCustomerAction',
+      payload: {
+        sendcustomer_id: record.sendcustomer_id, getcustomer_id: record.getcustomer_id
+      }
+    });
+    let getCustomer = customers.getCustomer
+    let sendCustomer = customers.sendCustomer
+    if (!getCustomer || !getCustomer.customer_id) {
+      getCustomer = { customer_id: record.getcustomerid, customer_name: record.getcustomer_name, customer_mobile: record.getcustomer_mobile }
+    }
+    if (!sendCustomer || !sendCustomer.customer_id) {
+      sendCustomer = { customer_id: record.sendcustomerid, customer_name: record.sendcustomer_name, customer_mobile: record.sendcustomer_mobile }
+    }
     this.setState({
       selectedOrder: record,
       modalVisible: true,
+      selectedGetCustomer: getCustomer,
+      selectedSendCustomer: sendCustomer
     });
   };
 
@@ -2277,6 +2311,8 @@ class TableList extends PureComponent {
     const {
       selectedRows,
       selectedOrder,
+      selectedGetCustomer,
+      selectedSendCustomer,
       modalVisible,
       current = 1,
       pageSize = 2,
@@ -2414,6 +2450,8 @@ class TableList extends PureComponent {
             branchCompanyList={branchCompanyList}
             modalVisible={modalVisible}
             selectedOrder={selectedOrder}
+            selectedGetCustomer={selectedGetCustomer}
+            selectedSendCustomer={selectedSendCustomer}
             siteList={siteList}
             currentSite={currentSite}
             currentCompany={currentCompany}
