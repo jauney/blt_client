@@ -1200,15 +1200,26 @@ class CreateReceiverForm extends PureComponent {
           <Col md={12} sm={24}>
             <FormItem label="接货人">
               {getFieldDecorator('receiver_id', {})(
-                <Select placeholder="全部" style={{ width: '150px' }}>
-                  {receiverList.map(ele => {
+                <AutoComplete
+                  size="large"
+                  style={{ width: '100%' }}
+                  dataSource={receiverList.map(item => {
+                    const AutoOption = AutoComplete.Option;
                     return (
-                      <Option key={ele.courier_id} value={ele.courier_id}>
-                        {ele.courier_name}
-                      </Option>
+                      <AutoOption key={`${item.courier_id}`} value={`${item.courier_id}`} customerid={`${item.courier_id}`} label={item.courier_name}>
+                        {item.courier_name}
+                      </AutoOption>
                     );
                   })}
-                </Select>
+                  allowClear
+                  optionLabelProp="label"
+                  placeholder="请输入"
+                  filterOption={(inputValue, option) =>
+                    option.props.children.indexOf(inputValue) !== -1
+                  }
+                >
+                  {' '}
+                </AutoComplete>
               )}
             </FormItem>
           </Col>
@@ -1230,10 +1241,14 @@ class CreateReceiverForm extends PureComponent {
           return item;
         }
       });
-
+      if (receivers.length <= 0) {
+        message.error('请选择正确的接货人')
+        return
+      }
       fieldsValue.order_id = orderIds;
       fieldsValue.receiver_name = receivers[0] && receivers[0].courier_name;
-      console.log(fieldsValue);
+      fieldsValue.receiver_id = receivers[0] && receivers[0].courier_id;
+
       const result = await dispatch({
         type: 'untrunkorder/changeOrderReceiverAction',
         payload: fieldsValue,
@@ -1323,15 +1338,26 @@ class CreateShipForm extends PureComponent {
               {getFieldDecorator('receiver_id', {
                 rules: [{ required: true, message: '请选择接货人' }],
               })(
-                <Select placeholder="全部" style={{ width: '150px' }}>
-                  {receiverList.map(ele => {
+                <AutoComplete
+                  size="large"
+                  style={{ width: '100%' }}
+                  dataSource={receiverList.map(item => {
+                    const AutoOption = AutoComplete.Option;
                     return (
-                      <Option key={ele.courier_id} value={ele.courier_id}>
-                        {ele.courier_name}
-                      </Option>
+                      <AutoOption key={`${item.courier_id}`} value={`${item.courier_id}`} customerid={`${item.courier_id}`} label={item.courier_name}>
+                        {item.courier_name}
+                      </AutoOption>
                     );
                   })}
-                </Select>
+                  allowClear
+                  optionLabelProp="label"
+                  placeholder="请输入"
+                  filterOption={(inputValue, option) =>
+                    option.props.children.indexOf(inputValue) !== -1
+                  }
+                >
+                  {' '}
+                </AutoComplete>
               )}
             </FormItem>
           </Col>
@@ -1374,8 +1400,12 @@ class CreateShipForm extends PureComponent {
 
       fieldsValue.order_id = orderIds;
       fieldsValue.shipsite_name = shipSites[0] && shipSites[0].site_name;
+      fieldsValue.receiver_id = receivers[0] && receivers[0].courier_id;
       fieldsValue.receiver_name = receivers[0] && receivers[0].courier_name;
-
+      if (receivers.length <= 0) {
+        message.error('请选择正确的接货人')
+        return
+      }
       const result = await dispatch({
         type: 'order/shipOrderAction',
         payload: fieldsValue,
@@ -1687,16 +1717,29 @@ class TableList extends PureComponent {
    * 获取订单信息
    */
   getOrderList = (data = {}, pageNo) => {
-    const { dispatch } = this.props;
+    const { dispatch, form, receiver: { receiverList } } = this.props;
     const { current, pageSize } = this.state;
-
-    const { form } = this.props;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
       fieldsValue.order_status = [0, 1]
 
+      if (fieldsValue.receiver_id) {
+        const receivers = receiverList.filter(item => {
+          if (item.courier_id == fieldsValue.receiver_id) {
+            return item;
+          }
+        });
+        if (receivers.length <= 0) {
+          message.error('请选择正确的接货人')
+          return
+        }
+        fieldsValue.receiver_id = receivers[0] && receivers[0].courier_id;
+      }
+      else {
+        delete fieldsValue.receiver_id
+      }
       const searchParams = Object.assign({ filter: fieldsValue, sorter: "order_status|ascend" }, data);
 
       dispatch({
@@ -2274,15 +2317,26 @@ class TableList extends PureComponent {
 
         <FormItem label="接货人">
           {getFieldDecorator('receiver_id', {})(
-            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
-              {receiverList.map(ele => {
+            <AutoComplete
+              size="large"
+              style={{ width: '100%' }}
+              dataSource={receiverList.map(item => {
+                const AutoOption = AutoComplete.Option;
                 return (
-                  <Option key={ele.courier_id} value={ele.courier_id}>
-                    {ele.courier_name}
-                  </Option>
+                  <AutoOption key={`${item.courier_id}`} value={`${item.courier_id}`} customerid={`${item.courier_id}`} label={item.courier_name}>
+                    {item.courier_name}
+                  </AutoOption>
                 );
               })}
-            </Select>
+              allowClear
+              optionLabelProp="label"
+              placeholder="请输入"
+              filterOption={(inputValue, option) =>
+                option.props.children.indexOf(inputValue) !== -1
+              }
+            >
+              {' '}
+            </AutoComplete>
           )}
         </FormItem>
         <FormItem>

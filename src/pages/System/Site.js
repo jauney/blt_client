@@ -137,6 +137,9 @@ class AddFormDialog extends PureComponent {
                     <Option key={2} value={2}>
                       配载站
                     </Option>
+                    <Option key={3} value={3}>
+                      总部
+                    </Option>
                   </Select>
                 )}
               </FormItem>
@@ -206,7 +209,8 @@ class TableList extends PureComponent {
       dataIndex: 'site_type',
       width: '80px',
       render: val => {
-        return val == 1 ? '普通站点' : '装配站';
+        if (val == 3) { return '总部' } else if (val == 2) { return '装配站' }
+        return '普通站点'
       },
     },
     {

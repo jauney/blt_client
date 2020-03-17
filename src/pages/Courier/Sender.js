@@ -481,6 +481,9 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
+    this.setState({
+      current: 1
+    })
     this.getOrderList();
   };
 
@@ -492,7 +495,7 @@ class TableList extends PureComponent {
   /**
    * 获取订单信息
    */
-  getOrderList = (data = {}, pageNo = 1) => {
+  getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
     const { current, pageSize } = this.state;
 
@@ -714,7 +717,9 @@ class TableList extends PureComponent {
     });
     if (result && result.code == 0) {
       message.success('更新成功！');
-      this.handleSearch();
+      setTimeout(() => {
+        this.getOrderList()
+      }, 800)
       this.onCancelAddFormClick();
     } else {
       message.error((result && result.msg) || '更新失败');
@@ -759,7 +764,9 @@ class TableList extends PureComponent {
     });
     if (result && result.code == 0) {
       message.success('取消成功！');
-      this.handleSearch();
+      setTimeout(() => {
+        this.getOrderList()
+      }, 800)
     } else {
       message.error((result && result.msg) || '取消失败');
     }
