@@ -1710,7 +1710,7 @@ class TableList extends PureComponent {
       e.preventDefault();
     }
     this.setState({ current: 1 })
-    this.getOrderList();
+    this.getOrderList({ sorter: "order_status|ascend,create_date|ascend" });
   };
 
   /**
@@ -1740,7 +1740,7 @@ class TableList extends PureComponent {
       else {
         delete fieldsValue.receiver_id
       }
-      const searchParams = Object.assign({ filter: fieldsValue, sorter: "order_status|ascend" }, data);
+      const searchParams = Object.assign({ filter: fieldsValue }, data);
 
       dispatch({
         type: 'order/getOrderListAction',

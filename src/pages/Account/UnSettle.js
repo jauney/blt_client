@@ -277,7 +277,7 @@ class TableList extends PureComponent {
   handleSearch = e => {
     e && e.preventDefault();
     this.setState({ current: 1 })
-    this.getOrderList({ sorter: "create_date|desc" }, 1);
+    this.getOrderList({ sorter: "create_date|ascend" }, 1);
   };
 
   /**
