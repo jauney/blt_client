@@ -449,15 +449,28 @@ class TableList extends PureComponent {
 
   // 打印货物清单
   onPrintOrder = () => {
-    const { selectedRows } = this.state
-    printSiteOrder({ selectedRows })
+    const { selectedRows } = this.state;
+    if (selectedRows.length <= 0) {
+      message.info('请选择需要打印的清单')
+      return
+    }
+    this.onPrintOrderConfirm()
+  }
+  onPrintOrderConfirm = async (type = '') => {
+    const { selectedRows } = this.state;
+    printDownLoad({ selectedRows, lastCar: {}, type })
   }
 
   // 下载货物清单
   onDownloadOrder = () => {
-    const { selectedRows } = this.state
-    printDownLoad({ selectedRows, type: 'pdf' })
+    const { selectedRows } = this.state;
+    if (selectedRows.length <= 0) {
+      message.info('请选择需要下载的清单')
+      return
+    }
+    this.onPrintOrderConfirm('pdf')
   }
+
 
   /**
    * 修改订单信息弹窗
@@ -715,8 +728,8 @@ class TableList extends PureComponent {
                   <Button onClick={this.onSettle}>账目核对</Button>
                   <Button onClick={this.onSign}>签字</Button>
                   <Button onClick={this.onCancelSign}>取消签字</Button>
-                  <Button onClick={this.onPrintOrder}>结账打印</Button>
-                  <Button onClick={this.onDownloadOrder}>下载</Button>
+                  <Button onClick={this.onPrintOrder}>货物清单打印</Button>
+                  <Button onClick={this.onDownloadOrder}>货物清单下载</Button>
                 </span>
               )}
             </div>

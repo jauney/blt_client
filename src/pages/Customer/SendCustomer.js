@@ -547,7 +547,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="客户分类">
           {getFieldDecorator('customer_type', {})(
-            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} >
               {customerTypes.map(ele => {
                 return (
                   <Option key={ele.customertype} value={ele.customertype}>

@@ -260,6 +260,10 @@ class EditableTable extends React.Component {
       onChange: this.onSelectedRowKeysChange,
       columnTitle: '默认',
     };
+
+    // 先设置state为当前客户的信息
+    // 防止编辑完一个用户后，再双击另外一个用户，然后保存（不修改任何东西），保存的电话为第一个客户的
+    this.notifyParantDataSource(dataSource);
     return (
       <div>
         <Table

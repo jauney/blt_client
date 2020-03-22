@@ -184,7 +184,7 @@ class AddFormDialog extends PureComponent {
             <Col {...this.col2Layout}>
               <FormItem {...this.formItemLayout} label="类型">
                 {form.getFieldDecorator('customer_type', { initialValue: record.customer_type })(
-                  <Select placeholder="全部" style={{ width: '150px' }} allowClear>
+                  <Select placeholder="全部" style={{ width: '150px' }} >
                     {customerTypes.map(ele => {
                       return (
                         <Option key={ele.customertype} value={ele.customertype}>

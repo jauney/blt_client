@@ -80,7 +80,7 @@ export function printSiteOrder({ selectedRows = [], type = '', lastCar = {} }) {
  *
  * @param { type } type:'pdf' 下载
  */
-export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
+export function printDownLoad({ selectedRows = [], type = '', lastCar = {}, silent = true }) {
   let bodyHTML = ''
   let totalTransFund = 0
   let totalGoodsFund = 0
@@ -161,7 +161,7 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
   //告诉渲染进程，开始渲染打印内容
   const printOrderWebview = document.querySelector('#printWebview')
   console.log('type: ', type)
-  printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type })
+  printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type, silent })
 }
 
 /**
