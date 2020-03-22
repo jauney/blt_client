@@ -30,6 +30,7 @@ import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Pay.less';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
+import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -200,6 +201,7 @@ class TableList extends PureComponent {
     downloadModalVisible: false,
     printModalVisible: false,
     currentCompany: {},
+    ...customerAutoCompleteState
   };
 
   columns = [
@@ -381,10 +383,13 @@ class TableList extends PureComponent {
     const { dispatch, form } = this.props;
     const { current, pageSize } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields(async (err, fieldsValue) => {
       if (err) return;
 
       fieldsValue.pay_status = 1;
+
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
+
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'pay/getOrderListAction',
@@ -746,26 +751,27 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="发货人姓名">
           {getFieldDecorator('sendcustomer_id')(
-            <Select
-              placeholder="全部"
-              onSelect={this.onSendCustomerSelect}
-              style={{ width: '80px' }}
-              allowClear
-              showSearch
-              optionLabelProp="children"
-              onPopupScroll={this.onSendCustomerScroll}
-              filterOption={(input, option) =>
-                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-            >
-              {sendCustomerList.map(ele => {
+            <AutoComplete
+              size="large"
+              style={{ width: '100%' }}
+              dataSource={sendCustomerList.map(item => {
+                const AutoOption = AutoComplete.Option;
                 return (
-                  <Option key={ele.get} value={ele.customer_id}>
-                    {ele.customer_name}
-                  </Option>
+                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                    {item.customer_name}
+                  </AutoOption>
                 );
               })}
-            </Select>
+              onSelect={(value) => { onSendCustomerSelect(this, value) }}
+              onChange={(value) => { onSendCustomerChange(this, value) }}
+              allowClear
+              placeholder="请输入"
+              filterOption={(inputValue, option) =>
+                option.props.children.indexOf(inputValue) !== -1
+              }
+            >
+              {' '}
+            </AutoComplete>
           )}
         </FormItem>
         <FormItem label="发货人电话">

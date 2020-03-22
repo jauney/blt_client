@@ -22,13 +22,11 @@ export function printSiteOrder({ selectedRows = [], type = '', lastCar = {} }) {
     totalGoodsFund += Number(item.order_amount || 0)
     totalOrderNum += Number(item.order_num || 0)
     bodyHTML += `<tr>
-        <td>${orderIndex}</td>
         <td>${item.company_name || ''}</td>
         <td>${item.order_code || ''}</td>
         <td>${item.getcustomer_name || ''}</td>
         <td>${item.trans_discount || ''}</td>
         <td>${item.order_name || ''}</td>
-        <td>${item.order_num || ''}</td>
         </tr>`
     orderIndex++
   })
@@ -59,19 +57,17 @@ export function printSiteOrder({ selectedRows = [], type = '', lastCar = {} }) {
     ${carHtml}
     <table>
       <tr>
-        <th style="width:30px;">序号</th>
         <th style="width:50px;">分公司</th>
         <th style="width:50px;">货单号</th>
         <th style="width:60px;">收货客户</th>
         <th style="width:50px;">运费</th>
-        <th style="width:200px;">货物名称</th>
-        <th style="width:40px;">件数</th>
+        <th style="width:400px;">货物名称</th>
       </tr>
       ${bodyHTML}
-      <tr><td>合计票数</td><td colspan="6">${orderIndex - 1}</td></tr>
-      <tr><td>合计件数</td><td colspan="6">${totalOrderNum}</td></tr>
-      <tr><td>合计运费</td><td colspan="6">${totalTransFund}</td></tr>
-      <tr><td>${new Date().toLocaleDateString()}</td><td colspan="6">接货人签字：</td></tr>
+      <tr><td>合计票数</td><td colspan="4">${orderIndex - 1}</td></tr>
+      <tr><td>合计件数</td><td colspan="4">${totalOrderNum}</td></tr>
+      <tr><td>合计运费</td><td colspan="4">${totalTransFund}</td></tr>
+      <tr><td>${new Date().toLocaleDateString()}</td><td colspan="4">接货人签字：</td></tr>
     </table>
     </div></div>
     `
