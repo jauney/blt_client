@@ -29,6 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Search.less';
 import { async } from 'q';
+import { locale } from '@/utils'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
 const FormItem = Form.Item;
@@ -273,7 +274,7 @@ class TableList extends PureComponent {
           {getFieldDecorator('account_date', {
             rules: [{ required: true, message: '请填写日期' }],
             initialValue: moment(new Date().getTime()),
-          })(<DatePicker placeholder="请填写日期" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
+          })(<DatePicker placeholder="请填写日期" locale={locale} format="YYYY-MM-DD" style={{ width: '100%' }} />)}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

@@ -29,6 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './TransConfirm.less';
 import { async } from 'q';
+import { locale } from '@/utils'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
 const FormItem = Form.Item;
@@ -533,7 +534,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="日期">
-          {getFieldDecorator('trans_confirmdate', { initialValue: moment() })(<DatePicker format={'YYYY-MM-DD'} allowClear />)}
+          {getFieldDecorator('trans_confirmdate', { initialValue: moment() })(<DatePicker locale={locale} format={'YYYY-MM-DD'} allowClear />)}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

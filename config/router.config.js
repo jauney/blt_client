@@ -21,7 +21,7 @@ export default [
         path: '/order',
         name: 'order',
         icon: '单',
-        authority: ['site_orderuser', 'site_admin', 'site_searchuser', 'company_account', 'company_admin'],
+        authority: ['site_orderuser', 'site_admin', 'site_searchuser', 'company_account', 'company_admin', 'site_pay', 'site_receipt'],
         routes: [
           {
             path: '/order/untrunklist',
@@ -32,7 +32,7 @@ export default [
             path: '/order/siteorder',
             name: 'siteorder',
             component: './Order/SiteOrder',
-            authority: ['site_orderuser', 'site_admin', 'site_searchuser', 'company_admin', 'company_account'],
+            authority: ['site_orderuser', 'site_admin', 'site_searchuser', 'company_admin', 'company_account', 'site_pay', 'site_receipt'],
           },
           {
             path: '/order/trunkedorder',

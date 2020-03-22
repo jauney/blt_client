@@ -26,7 +26,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-
+import { locale } from '@/utils'
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { async } from 'q';
@@ -538,11 +538,11 @@ class TableList extends PureComponent {
         <FormItem label="录入日期">
           {getFieldDecorator('create_date', {
             initialValue: moment(new Date().getTime()),
-          })(<DatePicker placeholder="全部" format="YYYY-MM-DD" style={{ width: '130px' }} />)}
+          })(<DatePicker placeholder="全部" locale={locale} format="YYYY-MM-DD" style={{ width: '130px' }} />)}
         </FormItem>
 
         <FormItem label="托运日期">
-          {getFieldDecorator('entrunk_date', {})(<RangePicker style={{ width: '250px' }} />)}
+          {getFieldDecorator('entrunk_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

@@ -30,6 +30,7 @@ import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { setCustomerFieldValue } from '@/utils/customer'
+import { locale } from '@/utils'
 import { async } from 'q';
 import { printOrder, printPayOrder, printDownLoad, printLabel, getPrintOrderConent } from '@/utils/print'
 const { ipcRenderer } = window.require('electron')
@@ -1078,7 +1079,7 @@ class CreateEntrunkForm extends PureComponent {
               {getFieldDecorator('car_date', {
                 rules: [{ required: true, message: '请填写拉货日期' }],
                 initialValue: moment(new Date().getTime()),
-              })(<DatePicker placeholder="全部" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
+              })(<DatePicker placeholder="全部" locale={locale} format="YYYY-MM-DD" style={{ width: '100%' }} />)}
             </FormItem>
           </Col>
           <Col md={12} sm={24}>
@@ -2399,12 +2400,12 @@ class TableList extends PureComponent {
       showShipButon = false
       showDelButton = false
     }
-    if (['site_searchuser', 'site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
+    if (['site_searchuser', 'site_orderuser', 'site_pay', 'site_receipt'].indexOf(CacheRole.role_value) >= 0) {
       showOperateButton = false
       showShipButon = false
     }
 
-    if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+    if (['site_searchuser', 'site_pay', 'site_receipt'].indexOf(CacheRole.role_value) >= 0) {
       showPrintButton = false
       showCreateOrderButton = false
       showShipButon = false
@@ -2413,6 +2414,10 @@ class TableList extends PureComponent {
 
     if (['site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
       showShipButon = true
+    }
+
+    if (['site_pay', 'site_receipt'].indexOf(CacheRole.role_value) >= 0) {
+      showPrintButton = true
     }
 
     // 是否都勾选了装回配载部的订单

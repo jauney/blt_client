@@ -26,7 +26,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-
+import { locale } from '@/utils'
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { async } from 'q';
@@ -283,7 +283,7 @@ class CreateEntrunkForm extends PureComponent {
               {getFieldDecorator('car_date', {
                 rules: [{ required: true, message: '请填写拉货日期' }],
                 initialValue: moment(new Date().getTime()),
-              })(<DatePicker placeholder="全部" format="YYYY-MM-DD" style={{ width: '100%' }} />)}
+              })(<DatePicker placeholder="全部" format="YYYY-MM-DD" locale={locale} style={{ width: '100%' }} />)}
             </FormItem>
           </Col>
           <Col md={12} sm={24}>

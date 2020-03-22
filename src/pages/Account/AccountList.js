@@ -28,6 +28,7 @@ import { getSelectedAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Account.less';
+import { locale } from '@/utils'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
 
@@ -706,7 +707,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="日期" {...formItemLayout}>
-          {getFieldDecorator('settle_date', { initialValue: moment() })(<DatePicker format={'YYYY-MM-DD'} />)}
+          {getFieldDecorator('settle_date', { initialValue: moment() })(<DatePicker locale={locale} format={'YYYY-MM-DD'} />)}
         </FormItem>
         <FormItem label="运单号" {...formItemLayout}>
           {getFieldDecorator('order_code', {})(

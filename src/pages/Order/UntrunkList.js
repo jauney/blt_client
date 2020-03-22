@@ -31,7 +31,7 @@ import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { async } from 'q';
 import { printOrder, printPayOrder, printDownLoad } from '@/utils/print'
-
+import { locale } from '@/utils'
 const FormItem = Form.Item;
 const { Option } = Select;
 
@@ -423,7 +423,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="录入日期">
-          {getFieldDecorator('create_date', { initialValue: moment() })(<DatePicker format={'YYYY-MM-DD'} allowClear={false} />)}
+          {getFieldDecorator('create_date', { initialValue: moment() })(<DatePicker locale={locale} format={'YYYY-MM-DD'} allowClear={false} />)}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

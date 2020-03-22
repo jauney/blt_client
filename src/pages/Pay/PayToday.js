@@ -29,6 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Pay.less';
 import { async } from 'q';
+import { locale } from '@/utils'
 import { printPayOrder, printDownLoad } from '@/utils/print'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
@@ -691,7 +692,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="付款日期">
           {getFieldDecorator('pay_date', { initialValue: moment(new Date().getTime()) })(
-            <DatePicker format={'YYYY-MM-DD'} />
+            <DatePicker locale={locale} format={'YYYY-MM-DD'} />
           )}
         </FormItem>
         <FormItem>
