@@ -2340,6 +2340,11 @@ class TableList extends PureComponent {
             </AutoComplete>
           )}
         </FormItem>
+        <FormItem label="运单号">
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '250px' }} allowClear />
+          )}
+        </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">
             查询
