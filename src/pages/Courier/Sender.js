@@ -28,6 +28,7 @@ import { getSelectedAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Courier.less';
+import { locale } from '@/utils'
 import { printOrder, getPrintOrderConent } from '@/utils/print'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
@@ -874,7 +875,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="运单日期">
-          {getFieldDecorator('create_date', {})(<RangePicker style={{ width: '250px' }} />)}
+          {getFieldDecorator('create_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
         </FormItem>
         <FormItem label="运单号" {...formItemLayout}>
           {getFieldDecorator('order_code', {})(

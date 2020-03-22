@@ -3,12 +3,88 @@ import moment from 'moment';
 import XLSX from 'xlsx';
 const electron = window.require('electron').remote;
 import { getSelectedAccount } from '@/utils/account';
+
+export function printSiteOrder({ selectedRows = [], type = '', lastCar = {} }) {
+  let bodyHTML = ''
+  let totalTransFund = 0
+  let totalOrderNum = 0
+  let totalGoodsFund = 0
+  let orderIndex = 1
+  selectedRows.forEach(item => {
+    let transType = '提付'
+    if (item.trans_type == 1) {
+      transType = '现付'
+    }
+    else if (item.trans_type == 2) {
+      transType = '回付'
+    }
+    totalTransFund += Number(item.trans_discount || 0)
+    totalGoodsFund += Number(item.order_amount || 0)
+    totalOrderNum += Number(item.order_num || 0)
+    bodyHTML += `<tr>
+        <td>${orderIndex}</td>
+        <td>${item.company_name || ''}</td>
+        <td>${item.order_code || ''}</td>
+        <td>${item.getcustomer_name || ''}</td>
+        <td>${item.trans_discount || ''}</td>
+        <td>${item.order_name || ''}</td>
+        <td>${item.order_num || ''}</td>
+        </tr>`
+    orderIndex++
+  })
+  let styles = `
+    <style>
+    .order-box {text-align: center;}
+    .content .header {text-align: center; width: 100%;}
+    table {width: 100%; border-collapse: collapse; border-spacing: 0;}
+    table th { font-weight: bold; }
+    table th, table td {border: 1px solid #ccc; font-size: 12px; padding: 4px; text-align: left; line-height: 150%;}
+    .carinfo th {border: 0;}
+    </style>`
+  let carHtml = ``
+  if (lastCar.car_code) {
+    carHtml = `<table class="carinfo">
+    <tr>
+    <th style="width:50px;">车牌号：${lastCar.driver_plate}</th>
+    <th style="width:50px;">电话：${lastCar.driver_mobile}</th>
+    <th style="width:50px;">姓名：${lastCar.driver_name}</th>
+    <th style="width:50px;">货车运费：${lastCar.car_fee}</th>
+    <th style="width:50px;">货车编号：${lastCar.car_code}</th>
+    </tr>
+  </table>`
+  }
+  let printHtml = `<div class="order-box">
+    <div class="header">陕西远诚宝路通物流</div>
+    <div class="content">
+    ${carHtml}
+    <table>
+      <tr>
+        <th style="width:30px;">序号</th>
+        <th style="width:50px;">分公司</th>
+        <th style="width:50px;">货单号</th>
+        <th style="width:60px;">收货客户</th>
+        <th style="width:50px;">运费</th>
+        <th style="width:200px;">货物名称</th>
+        <th style="width:40px;">件数</th>
+      </tr>
+      ${bodyHTML}
+      <tr><td>合计票数</td><td colspan="6">${orderIndex - 1}</td></tr>
+      <tr><td>合计件数</td><td colspan="6">${totalOrderNum}</td></tr>
+      <tr><td>合计运费</td><td colspan="6">${totalTransFund}</td></tr>
+      <tr><td>${new Date().toLocaleDateString()}</td><td colspan="6">接货人签字：</td></tr>
+    </table>
+    </div></div>
+    `
+  //告诉渲染进程，开始渲染打印内容
+  //告诉渲染进程，开始渲染打印内容
+  const printOrderWebview = document.querySelector('#printOrderWebview')
+  printOrderWebview.send('webview-print-render', { html: `${styles}${printHtml}` })
+}
 /**
  *
  * @param { type } type:'pdf' 下载
  */
 export function printDownLoad({ selectedRows = [], type = '', lastCar = {} }) {
-  console.log('d***********', type)
   let bodyHTML = ''
   let totalTransFund = 0
   let totalGoodsFund = 0

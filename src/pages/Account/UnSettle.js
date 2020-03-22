@@ -31,7 +31,7 @@ import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Account.less';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
-
+import { printOrder, printPayOrder, printDownLoad, printLabel, getPrintOrderConent, printSiteOrder } from '@/utils/print'
 const FormItem = Form.Item;
 const { Option } = Select;
 
@@ -447,71 +447,17 @@ class TableList extends PureComponent {
     }
   };
 
-  // 打印
-  onPrint = async () => {
-    this.setState({
-      printModalVisible: true,
-    });
-  };
+  // 打印货物清单
+  onPrintOrder = () => {
+    const { selectedRows } = this.state
+    printSiteOrder({ selectedRows })
+  }
 
-  onPrintCancel = async () => {
-    this.setState({
-      printModalVisible: false,
-    });
-  };
-
-  onPrintOk = async () => {
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'unsettle/printAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('打印成功！');
-
-      this.onPrintCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
-  // 下载
-  onDownload = async () => {
-    this.setState({
-      downloadModalVisible: true,
-    });
-  };
-
-  onDownloadCancel = async () => {
-    this.setState({
-      downloadModalVisible: false,
-    });
-  };
-
-  onDownloadOk = async () => {
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'unsettle/downloadAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result.code == 0) {
-      message.success('下载成功！');
-
-      this.onDownloadCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
+  // 下载货物清单
+  onDownloadOrder = () => {
+    const { selectedRows } = this.state
+    printDownLoad({ selectedRows, type: 'pdf' })
+  }
 
   /**
    * 修改订单信息弹窗
@@ -765,8 +711,8 @@ class TableList extends PureComponent {
                   <Button onClick={this.onSettle}>账目核对</Button>
                   <Button onClick={this.onSign}>签字</Button>
                   <Button onClick={this.onCancelSign}>取消签字</Button>
-                  <Button onClick={this.onPrint}>结账打印</Button>
-                  <Button onClick={this.onDownload}>下载</Button>
+                  <Button onClick={this.onPrintOrder}>结账打印</Button>
+                  <Button onClick={this.onDownloadOrder}>下载</Button>
                 </span>
               )}
             </div>

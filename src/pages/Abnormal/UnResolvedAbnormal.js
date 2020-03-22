@@ -29,6 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Abnormal.less';
 import { async } from 'q';
+import { locale } from '@/utils'
 import { fileToObject } from 'antd/lib/upload/utils';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 const { RangePicker } = DatePicker;
@@ -693,7 +694,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="托运日期">
-          {getFieldDecorator('entrunk_date', {})(<RangePicker style={{ width: '250px' }} />)}
+          {getFieldDecorator('entrunk_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

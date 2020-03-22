@@ -26,6 +26,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import styles from './Finance.less';
+import { locale } from '@/utils'
 const { RangePicker } = DatePicker;
 
 const FormItem = Form.Item;
@@ -479,7 +480,9 @@ class TableList extends PureComponent {
     let startDate = moment(Number(record.income_date));
     let endDate = moment(Number(new Date().getTime()));
     let diffHours = endDate.diff(startDate, 'hours');
-
+    if (!['site_pay', 'company_account'].includes(CacheRole.role_value)) {
+      return
+    }
     if (diffHours >= 24) {
       message.error('超过24小时记录不可编辑');
       return;
@@ -536,7 +539,7 @@ class TableList extends PureComponent {
         )}
 
         <FormItem label="收入日期">
-          {getFieldDecorator('income_date', { initialValue: [moment(new Date(), 'YYYY-MM-DD'), moment(new Date(), 'YYYY-MM-DD')] })(<RangePicker style={{ width: '250px' }} />)}
+          {getFieldDecorator('income_date', { initialValue: [moment(new Date(), 'YYYY-MM-DD'), moment(new Date(), 'YYYY-MM-DD')] })(<RangePicker locale={locale} style={{ width: '250px' }} />)}
         </FormItem>
 
         <FormItem label="收入分类">

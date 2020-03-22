@@ -27,6 +27,7 @@ import {
 import { getSelectedAccount, getSelectedDownAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import styles from './Transfer.less';
+import { locale } from '@/utils'
 import { fileToObject } from 'antd/lib/upload/utils';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
@@ -702,7 +703,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="打款日期">
-          {getFieldDecorator('transfer_date', {})(<RangePicker style={{ width: '250px' }} />)}
+          {getFieldDecorator('transfer_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

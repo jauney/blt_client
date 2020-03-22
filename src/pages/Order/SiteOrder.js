@@ -32,7 +32,7 @@ import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { setCustomerFieldValue } from '@/utils/customer'
 import { locale } from '@/utils'
 import { async } from 'q';
-import { printOrder, printPayOrder, printDownLoad, printLabel, getPrintOrderConent } from '@/utils/print'
+import { printOrder, printPayOrder, printDownLoad, printLabel, getPrintOrderConent, printSiteOrder } from '@/utils/print'
 const { ipcRenderer } = window.require('electron')
 
 const FormItem = Form.Item;
@@ -2008,7 +2008,7 @@ class TableList extends PureComponent {
   // 打印货物清单
   onPrintOrder = () => {
     const { selectedRows } = this.state
-    printDownLoad({ selectedRows })
+    printSiteOrder({ selectedRows })
   }
 
   // 下载货物清单

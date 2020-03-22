@@ -26,6 +26,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import styles from './Finance.less';
+import { locale } from '@/utils'
 const { RangePicker } = DatePicker;
 
 const FormItem = Form.Item;
@@ -597,7 +598,7 @@ class TableList extends PureComponent {
         )}
 
         <FormItem label="支出日期">
-          {getFieldDecorator('expense_date', { initialValue: [moment(new Date(), 'YYYY-MM-DD'), moment(new Date(), 'YYYY-MM-DD')] })(<RangePicker style={{ width: '250px' }} />)}
+          {getFieldDecorator('expense_date', { initialValue: [moment(new Date(), 'YYYY-MM-DD'), moment(new Date(), 'YYYY-MM-DD')] })(<RangePicker locale={locale} style={{ width: '250px' }} />)}
         </FormItem>
 
         <FormItem label="支出类型">

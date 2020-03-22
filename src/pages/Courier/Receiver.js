@@ -29,7 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Courier.less';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-
+import { locale } from '@/utils'
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -760,7 +760,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="运单日期">
-          {getFieldDecorator('create_date', {})(<RangePicker style={{ width: '150px' }} />)}
+          {getFieldDecorator('create_date', {})(<RangePicker locale={locale} style={{ width: '150px' }} />)}
         </FormItem>
         <FormItem label="运单号" {...formItemLayout}>
           {getFieldDecorator('order_code', {})(
