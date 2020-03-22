@@ -691,6 +691,10 @@ class TableList extends PureComponent {
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
+    // 回单用户不可以双击编辑
+    if (['site_receipt'].includes(CacheRole.role_value)) {
+      return
+    }
     this.setState({
       record,
     });

@@ -478,6 +478,10 @@ class TableList extends PureComponent {
   // 编辑订单信息
   onRowDoubleClick = async (record, index, event) => {
     const { dispatch } = this.props;
+    // 回单用户不可以双击编辑
+    if (['site_receipt'].includes(CacheRole.role_value)) {
+      return
+    }
     // 查询当前收货人、送货人
     const customer = await dispatch({
       type: 'customer/getCustomerAction',
