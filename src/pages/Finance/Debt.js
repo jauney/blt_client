@@ -144,7 +144,7 @@ class AddFormDialog extends PureComponent {
     }
   };
 
-  render() {
+  render () {
     const {
       modalVisible,
       onCancelHandler,
@@ -318,7 +318,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     await this.fetchCompanySiteList(CacheCompany.company_id);
     await this.fetchDebtUserList();
     await this.fetchDebtTypeList({});
@@ -618,19 +618,19 @@ class TableList extends PureComponent {
 
   tableFooter = () => {
     const {
-      debt: { total, totalDebtMoney = 0, totalIncome, totalExpense },
+      debt: { debtTotal, totalDebtMoney = 0, totalIncome, totalExpense },
     } = this.props;
     console.log(this.props.debt, totalExpense);
     return (
       <div className={styles.tableFooter}>
         <span>收入总额：{totalIncome || '0'}</span>
         <span className={styles.footerSplit}>支出总额：{totalExpense || '0'}</span>
-        <span className={styles.footerSplit}>票数：{total || '0'}</span>
+        <span className={styles.footerSplit}>票数：{debtTotal || '0'}</span>
       </div>
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], normalSiteList = [] },
@@ -725,11 +725,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       debt: { debtList, total, debtTypes, debtUserList },
       loading,

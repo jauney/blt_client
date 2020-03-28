@@ -25,17 +25,18 @@ export default {
   },
 
   effects: {
-    *getDebtsAction({ payload }, { call, put }) {
+    *getDebtsAction ({ payload }, { call, put }) {
       if (payload.filter.debtuser_id) {
         payload.filter.debtuser_id = Number(payload.filter.debtuser_id);
       }
       const response = yield call(getDebts, payload);
+
       yield put({
         type: 'getDebtsReducer',
         payload: response,
       });
     },
-    *getDebtUsersAction({ payload }, { call, put, select }) {
+    *getDebtUsersAction ({ payload }, { call, put, select }) {
       const customerState = yield select(state => state.debt);
       if (payload.filter.debtuser_id) {
         payload.filter.debtuser_id = Number(payload.filter.debtuser_id);
@@ -48,20 +49,20 @@ export default {
         payload: response,
       });
     },
-    *getDebtsStatisticAction({ payload }, { call, put }) {
+    *getDebtsStatisticAction ({ payload }, { call, put }) {
       const response = yield call(getDebtsStatistic, payload);
       yield put({
         type: 'getDebtsStatisticReducer',
         payload: response,
       });
     },
-    *addDebtAction({ payload }, { call, put }) {
+    *addDebtAction ({ payload }, { call, put }) {
       return yield call(addDebt, payload); // post
     },
-    *settleDebtAction({ payload }, { call, put }) {
+    *settleDebtAction ({ payload }, { call, put }) {
       return yield call(settleDebt, payload); // post
     },
-    *getDebtTypesAction({ payload }, { call, put }) {
+    *getDebtTypesAction ({ payload }, { call, put }) {
       const response = yield call(getDebtTypes, {
         pageNo: 1,
         pageSize: 100,
@@ -73,7 +74,7 @@ export default {
         payload: response,
       });
     },
-    *resetDebtUserPageNoAction({ payload }, { call, put }) {
+    *resetDebtUserPageNoAction ({ payload }, { call, put }) {
       yield put({
         type: 'resetDebtUserPageNo',
         payload,
@@ -82,14 +83,14 @@ export default {
   },
 
   reducers: {
-    getDebtsReducer(state, action) {
+    getDebtsReducer (state, action) {
       return {
         ...state,
         debtList: action.payload.debts,
         debtTotal: action.payload.total,
       };
     },
-    getDebtUsersReducer(state, action) {
+    getDebtUsersReducer (state, action) {
       const customers = action.payload.debtUsers;
       const customerMap = state.debtUserMap;
       const customerList = state.debtUserList;
@@ -106,20 +107,20 @@ export default {
         debtUserList: customerList,
       };
     },
-    getDebtTypesReducer(state, action) {
+    getDebtTypesReducer (state, action) {
       return {
         ...state,
         debtTypes: action.payload.debtTypes,
         debtTypesTotal: action.payload.total,
       };
     },
-    getDebtsStatisticReducer(state, action) {
+    getDebtsStatisticReducer (state, action) {
       return {
         ...state,
         ...action.payload,
       };
     },
-    resetDebtUserPageNo(state, action) {
+    resetDebtUserPageNo (state, action) {
       return {
         ...state,
         debtUserPageNo: 1,
