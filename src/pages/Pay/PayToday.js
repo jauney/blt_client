@@ -560,6 +560,7 @@ class TableList extends PureComponent {
   /**
    * 取消下账
    */
+  btnClicked = false
   onCancelPay = async () => {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
@@ -589,6 +590,12 @@ class TableList extends PureComponent {
         </div>
       ),
       onOk: async () => {
+        if (this.btnClicked) {
+          return
+        }
+        this.btnClicked = true
+        setTimeout(() => { this.btnClicked = false }, 2000)
+
         let result = await dispatch({
           type: 'pay/cancelTodayDownAccountOrderAction',
           payload: {

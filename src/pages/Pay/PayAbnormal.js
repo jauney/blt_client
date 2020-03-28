@@ -61,7 +61,7 @@ class DownAccountForm extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const { modalVisible, downCancel, selectedRows, form } = this.props;
     const accountData = getSelectedDownAccount(selectedRows);
     const record = selectedRows.length > 0 ? selectedRows[0] : {};
@@ -323,7 +323,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     await dispatch({
@@ -436,8 +436,14 @@ class TableList extends PureComponent {
   };
 
   // 下账
+  btnClicked = false
   downAccountHandle = async data => {
-    console.log(data);
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -704,7 +710,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], siteList = [] },
@@ -788,11 +794,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       pay: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,

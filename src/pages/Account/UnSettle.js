@@ -195,7 +195,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     // 下站只显示当前分公司
@@ -383,8 +383,15 @@ class TableList extends PureComponent {
       settleModalVisible: false,
     });
   };
-
+  // 防爆击
+  btnClicked = false
   onSettleOk = async () => {
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -560,7 +567,7 @@ class TableList extends PureComponent {
   };
 
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       customer: { getCustomerList = [], sendCustomerList = [] },
@@ -687,7 +694,7 @@ class TableList extends PureComponent {
     );
   }
 
-  render() {
+  render () {
     const {
       unsettle: { orderList, total },
       loading,

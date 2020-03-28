@@ -194,7 +194,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     const branchCompanyList = await dispatch({
@@ -381,8 +381,14 @@ class TableList extends PureComponent {
       settleModalVisible: false,
     });
   };
-
+  // 防爆击
+  btnClicked = false
   onSettleOk = async () => {
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -572,7 +578,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       customer: { getCustomerList, sendCustomerList },
@@ -701,11 +707,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       unsettlegoods: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },
