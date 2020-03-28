@@ -56,7 +56,7 @@ const client = new ApolloClient({
  * 登录校验跳转。后端接口没登录，则跳转到登录
  * @param {*} data
  */
-function gotoLogin(data) {
+function gotoLogin (data) {
   if (data.errors && data.errors.length > 0 && data.errors[0].message == 'login') {
     router.push('/User/Login');
     return false;
@@ -64,7 +64,7 @@ function gotoLogin(data) {
   return true;
 }
 
-export async function fakeAccountLogin(params) {
+export async function fakeAccountLogin (params) {
   return client
     .query({
       query: gql`
@@ -125,7 +125,7 @@ export async function fakeAccountLogin(params) {
 }
 
 // company
-export async function queryCompanyList(params) {
+export async function queryCompanyList (params) {
   return client
     .query({
       query: gql`
@@ -168,7 +168,7 @@ export async function queryCompanyList(params) {
     });
 }
 
-export async function addCompany(params) {
+export async function addCompany (params) {
   return client
     .mutate({
       mutation: gql`
@@ -190,7 +190,7 @@ export async function addCompany(params) {
     });
 }
 
-export async function createCourier({ courier, type }) {
+export async function createCourier ({ courier, type }) {
   return client
     .mutate({
       mutation: gql`
@@ -212,7 +212,7 @@ export async function createCourier({ courier, type }) {
     });
 }
 
-export async function updateCourier({ courier, ids, type }) {
+export async function updateCourier ({ courier, ids, type }) {
   return client
     .mutate({
       mutation: gql`
@@ -235,7 +235,7 @@ export async function updateCourier({ courier, ids, type }) {
     });
 }
 
-export async function updateCustomerCourier({ courier, order_id, customer_id, type }) {
+export async function updateCustomerCourier ({ courier, order_id, customer_id, type }) {
   return client
     .mutate({
       mutation: gql`
@@ -268,7 +268,7 @@ export async function updateCustomerCourier({ courier, order_id, customer_id, ty
     });
 }
 
-export async function getCourierList(params) {
+export async function getCourierList (params) {
   return client
     .query({
       query: gql`
@@ -298,7 +298,7 @@ export async function getCourierList(params) {
     });
 }
 
-export async function getOperatorList(params) {
+export async function getOperatorList (params) {
   return client
     .query({
       query: gql`
@@ -328,7 +328,7 @@ export async function getOperatorList(params) {
     });
 }
 
-export async function getRoleList(params) {
+export async function getRoleList (params) {
   return client
     .query({
       query: gql`
@@ -356,7 +356,7 @@ export async function getRoleList(params) {
     });
 }
 
-export async function getUserInfos(params) {
+export async function getUserInfos (params) {
   return client
     .query({
       query: gql`
@@ -393,7 +393,7 @@ export async function getUserInfos(params) {
     });
 }
 
-export async function addUser(params) {
+export async function addUser (params) {
   return client
     .mutate({
       mutation: gql`
@@ -415,7 +415,7 @@ export async function addUser(params) {
     });
 }
 
-export async function createCustomer({ customer, type }) {
+export async function createCustomer ({ customer, type }) {
   return client
     .mutate({
       mutation: gql`
@@ -437,7 +437,7 @@ export async function createCustomer({ customer, type }) {
     });
 }
 
-export async function updateCustomer({ customer, customer_id, type }) {
+export async function updateCustomer ({ customer, customer_id, type }) {
   if (!customer_id) {
     customer_id = [customer.customer_id];
   }
@@ -463,7 +463,7 @@ export async function updateCustomer({ customer, customer_id, type }) {
     });
 }
 
-export async function queryCustomerList(params) {
+export async function queryCustomerList (params) {
   return client
     .query({
       query: gql`
@@ -502,7 +502,7 @@ export async function queryCustomerList(params) {
 }
 
 // site
-export async function querySiteList(params) {
+export async function querySiteList (params) {
   return client
     .query({
       query: gql`
@@ -533,7 +533,7 @@ export async function querySiteList(params) {
 }
 
 // site
-export async function addSite(params) {
+export async function addSite (params) {
   return client
     .mutate({
       mutation: gql`
@@ -556,7 +556,7 @@ export async function addSite(params) {
 }
 
 // order
-export async function getOrderCode(params) {
+export async function getOrderCode (params) {
   return client
     .query({
       query: gql`
@@ -579,7 +579,7 @@ export async function getOrderCode(params) {
     });
 }
 
-export async function createOrder(params) {
+export async function createOrder (params) {
   params.getcustomer_id = Number(params.getcustomer_id);
   params.sendcustomer_id = Number(params.sendcustomer_id);
   params.trans_originalamount = Number(params.trans_originalamount || 0);
@@ -692,7 +692,7 @@ export async function createOrder(params) {
     });
 }
 
-export async function updateOrder({ order, order_id }) {
+export async function updateOrder ({ order, order_id }) {
   if (order.trans_real) {
     order.trans_real = Number(order.trans_real || 0);
   }
@@ -724,7 +724,7 @@ export async function updateOrder({ order, order_id }) {
     });
 }
 
-export async function settleOrder(params) {
+export async function settleOrder (params) {
   return client
     .mutate({
       mutation: gql`
@@ -746,7 +746,7 @@ export async function settleOrder(params) {
     });
 }
 
-export async function cancelSettleOrder(params) {
+export async function cancelSettleOrder (params) {
   return client
     .mutate({
       mutation: gql`
@@ -768,7 +768,7 @@ export async function cancelSettleOrder(params) {
     });
 }
 
-export async function downAccount(params) {
+export async function downAccount (params) {
   return client
     .mutate({
       mutation: gql`
@@ -790,7 +790,7 @@ export async function downAccount(params) {
     });
 }
 
-export async function cancelTodayDownAccountOrder(params) {
+export async function cancelTodayDownAccountOrder (params) {
   return client
     .mutate({
       mutation: gql`
@@ -812,7 +812,7 @@ export async function cancelTodayDownAccountOrder(params) {
     });
 }
 
-export async function cancelDownAccountOrder(params) {
+export async function cancelDownAccountOrder (params) {
   return client
     .mutate({
       mutation: gql`
@@ -835,7 +835,7 @@ export async function cancelDownAccountOrder(params) {
 }
 
 // 签字、取消签字
-export async function updateTransSign(params) {
+export async function updateTransSign (params) {
   return client
     .mutate({
       mutation: gql`
@@ -858,7 +858,7 @@ export async function updateTransSign(params) {
 }
 
 // 签字、取消签字
-export async function updateOrderSign(params) {
+export async function updateOrderSign (params) {
   return client
     .mutate({
       mutation: gql`
@@ -881,7 +881,7 @@ export async function updateOrderSign(params) {
     });
 }
 
-export async function getCustomerList(params) {
+export async function getCustomerList (params) {
   return client
     .query({
       query: gql`
@@ -938,7 +938,7 @@ export async function getCustomerList(params) {
     });
 }
 
-export async function getCustomer(params) {
+export async function getCustomer (params) {
   return client
     .query({
       query: gql`
@@ -1022,7 +1022,7 @@ export async function getCustomer(params) {
     });
 }
 
-export async function getCustomerTypes(params) {
+export async function getCustomerTypes (params) {
   return client
     .query({
       query: gql`
@@ -1054,7 +1054,7 @@ export async function getCustomerTypes(params) {
     });
 }
 
-export async function getOrderList(params) {
+export async function getOrderList (params) {
   if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
     params.filter.order_status = [params.filter.order_status];
   }
@@ -1172,7 +1172,7 @@ export async function getOrderList(params) {
     });
 }
 
-export async function getTodayPayList(params) {
+export async function getTodayPayList (params) {
   return client
     .query({
       query: gql`
@@ -1216,7 +1216,7 @@ export async function getTodayPayList(params) {
     });
 }
 
-export async function deleteOrder(params) {
+export async function deleteOrder (params) {
   return client
     .mutate({
       mutation: gql`
@@ -1239,7 +1239,7 @@ export async function deleteOrder(params) {
     });
 }
 
-export async function getOrderStatistic(params) {
+export async function getOrderStatistic (params) {
   if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
     params.filter.order_status = [params.filter.order_status];
   }
@@ -1299,7 +1299,7 @@ export async function getOrderStatistic(params) {
     });
 }
 
-export async function getTodayPayStatistic(params) {
+export async function getTodayPayStatistic (params) {
   return client
     .query({
       query: gql`
@@ -1325,7 +1325,7 @@ export async function getTodayPayStatistic(params) {
     });
 }
 
-export async function shipOrder(params) {
+export async function shipOrder (params) {
   return client
     .mutate({
       mutation: gql`
@@ -1360,7 +1360,7 @@ export async function shipOrder(params) {
     });
 }
 
-export async function cancelShipOrder(params) {
+export async function cancelShipOrder (params) {
   return client
     .mutate({
       mutation: gql`
@@ -1383,7 +1383,7 @@ export async function cancelShipOrder(params) {
     });
 }
 
-export async function entrunkOrder(params) {
+export async function entrunkOrder (params) {
   return client
     .mutate({
       mutation: gql`
@@ -1406,7 +1406,7 @@ export async function entrunkOrder(params) {
     });
 }
 
-export async function departOrder(params) {
+export async function departOrder (params) {
   return client
     .mutate({
       mutation: gql`
@@ -1428,7 +1428,7 @@ export async function departOrder(params) {
     });
 }
 
-export async function cancelEntrunk(params = {}) {
+export async function cancelEntrunk (params = {}) {
   if (params.car && params.car['__typename']) {
     delete params.car['__typename'];
   }
@@ -1454,7 +1454,7 @@ export async function cancelEntrunk(params = {}) {
     });
 }
 
-export async function changeOrderReceiver(params) {
+export async function changeOrderReceiver (params) {
   return client
     .mutate({
       mutation: gql`
@@ -1480,7 +1480,7 @@ export async function changeOrderReceiver(params) {
     });
 }
 
-export async function updateCarFee({ car = {} }) {
+export async function updateCarFee ({ car = {} }) {
   delete car['__typename'];
   return client
     .mutate({
@@ -1503,7 +1503,7 @@ export async function updateCarFee({ car = {} }) {
     });
 }
 
-export async function updateCarStatus(params) {
+export async function updateCarStatus (params) {
   return client
     .mutate({
       mutation: gql`
@@ -1537,7 +1537,7 @@ export async function updateCarStatus(params) {
     });
 }
 // 接货人
-export async function queryReceiverList(params) {
+export async function queryReceiverList (params) {
   return client
     .query({
       query: gql`
@@ -1564,7 +1564,7 @@ export async function queryReceiverList(params) {
 }
 
 // car
-export async function queryCarList(params) {
+export async function queryCarList (params) {
   return client
     .query({
       query: gql`
@@ -1599,7 +1599,7 @@ export async function queryCarList(params) {
     });
 }
 
-export async function getCarCode(params) {
+export async function getCarCode (params) {
   return client
     .query({
       query: gql`
@@ -1621,7 +1621,7 @@ export async function getCarCode(params) {
     });
 }
 
-export async function getLastCarCode(params) {
+export async function getLastCarCode (params) {
   return client
     .query({
       query: gql`
@@ -1654,7 +1654,7 @@ export async function getLastCarCode(params) {
     });
 }
 
-export async function getCarInfo(params) {
+export async function getCarInfo (params) {
   return client
     .query({
       query: gql`
@@ -1686,7 +1686,7 @@ export async function getCarInfo(params) {
 }
 
 // driver
-export async function queryDriverList(params) {
+export async function queryDriverList (params) {
   return client
     .query({
       query: gql`
@@ -1714,7 +1714,7 @@ export async function queryDriverList(params) {
     });
 }
 
-export async function updateAbnormal(params) {
+export async function updateAbnormal (params) {
   if (typeof params.abnormal_type_id == 'undefined') {
     params.abnormal_type_id = 0;
   }
@@ -1769,7 +1769,7 @@ export async function updateAbnormal(params) {
     });
 }
 
-export async function updatePayStatus(params) {
+export async function updatePayStatus (params) {
   return client
     .mutate({
       mutation: gql`
@@ -1797,7 +1797,7 @@ export async function updatePayStatus(params) {
     });
 }
 
-export async function cancelAbnormal(params) {
+export async function cancelAbnormal (params) {
   return client
     .mutate({
       mutation: gql`
@@ -1825,7 +1825,7 @@ export async function cancelAbnormal(params) {
     });
 }
 
-export async function getAbnormalTypes(params) {
+export async function getAbnormalTypes (params) {
   return client
     .query({
       query: gql`
@@ -1853,12 +1853,12 @@ export async function getAbnormalTypes(params) {
 }
 
 // incomes
-export async function getIncomes(params) {
+export async function getIncomes (params) {
   return client
     .query({
       query: gql`
-        query getIncomes($pageNo: Int, $pageSize: Int, $filter: IncomeInput) {
-          getIncomes(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+        query getIncomes($pageNo: Int, $pageSize: Int, $filter: IncomeInput, $sorter: String) {
+          getIncomes(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
             total
             incomes {
               income_id
@@ -1893,7 +1893,7 @@ export async function getIncomes(params) {
 }
 
 // income types
-export async function getIncomeTypes(params) {
+export async function getIncomeTypes (params) {
   return client
     .query({
       query: gql`
@@ -1927,7 +1927,7 @@ export async function getIncomeTypes(params) {
     });
 }
 
-export async function getDebtTypes(params) {
+export async function getDebtTypes (params) {
   return client
     .query({
       query: gql`
@@ -1962,7 +1962,7 @@ export async function getDebtTypes(params) {
     });
 }
 
-export async function addIncome(params) {
+export async function addIncome (params) {
   console.log('api.... ', params);
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.incometype_id = isNaN(Number(params.incometype_id)) ? 0 : Number(params.incometype_id);
@@ -1990,12 +1990,12 @@ export async function addIncome(params) {
 }
 
 // expenses
-export async function getExpenses(params) {
+export async function getExpenses (params) {
   return client
     .query({
       query: gql`
-        query getExpenses($pageNo: Int, $pageSize: Int, $filter: ExpenseInput) {
-          getExpenses(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+        query getExpenses($pageNo: Int, $pageSize: Int, $filter: ExpenseInput, $sorter: String) {
+          getExpenses(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
             total
             expenses {
               expense_id
@@ -2029,7 +2029,7 @@ export async function getExpenses(params) {
 }
 
 // expense types
-export async function getExpenseTypes(params) {
+export async function getExpenseTypes (params) {
   return client
     .query({
       query: gql`
@@ -2063,7 +2063,7 @@ export async function getExpenseTypes(params) {
     });
 }
 
-export async function addExpense(params) {
+export async function addExpense (params) {
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.expensetype_id = isNaN(Number(params.expensetype_id)) ? 0 : Number(params.expensetype_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
@@ -2090,7 +2090,7 @@ export async function addExpense(params) {
 }
 
 // debts
-export async function getDebtUsers(params) {
+export async function getDebtUsers (params) {
   return client
     .query({
       query: gql`
@@ -2120,12 +2120,12 @@ export async function getDebtUsers(params) {
 }
 
 // debts
-export async function getDebts(params) {
+export async function getDebts (params) {
   return client
     .query({
       query: gql`
-        query getDebts($pageNo: Int, $pageSize: Int, $filter: DebtInput) {
-          getDebts(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
+        query getDebts($pageNo: Int, $pageSize: Int, $filter: DebtInput, $sorter: String) {
+          getDebts(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
             total
             debts {
               debt_id
@@ -2157,7 +2157,7 @@ export async function getDebts(params) {
     });
 }
 
-export async function getDebtsStatistic(params) {
+export async function getDebtsStatistic (params) {
   return client
     .query({
       query: gql`
@@ -2180,7 +2180,7 @@ export async function getDebtsStatistic(params) {
     });
 }
 
-export async function settleDebt(params) {
+export async function settleDebt (params) {
   return client
     .mutate({
       mutation: gql`
@@ -2203,7 +2203,7 @@ export async function settleDebt(params) {
     });
 }
 
-export async function addDebt(params) {
+export async function addDebt (params) {
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
   params.debt_money = isNaN(Number(params.debt_money)) ? 0 : Number(params.debt_money);
@@ -2230,7 +2230,7 @@ export async function addDebt(params) {
 }
 
 // getTransfers
-export async function getTransfers(params) {
+export async function getTransfers (params) {
   if (params.filter && params.filter.transfer_status) {
     params.filter.transfer_status = Number(params.filter.transfer_status);
   }
@@ -2270,7 +2270,7 @@ export async function getTransfers(params) {
 }
 
 // getTransferStatistic
-export async function getTransferStatistic(params) {
+export async function getTransferStatistic (params) {
   if (params.filter && params.filter.transfer_status) {
     delete params.filter.transfer_status
   }
@@ -2297,7 +2297,7 @@ export async function getTransferStatistic(params) {
     });
 }
 
-export async function addTransfer(params) {
+export async function addTransfer (params) {
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
   params.transfer_money = isNaN(Number(params.transfer_money)) ? 0 : Number(params.transfer_money);
@@ -2323,7 +2323,7 @@ export async function addTransfer(params) {
     });
 }
 
-export async function updateTransfer(params) {
+export async function updateTransfer (params) {
   return client
     .mutate({
       mutation: gql`
@@ -2346,7 +2346,7 @@ export async function updateTransfer(params) {
 }
 
 
-export async function updateTransferType(params) {
+export async function updateTransferType (params) {
   return client
     .mutate({
       mutation: gql`
@@ -2368,7 +2368,7 @@ export async function updateTransferType(params) {
     });
 }
 
-export async function delTransfer(params) {
+export async function delTransfer (params) {
   return client
     .mutate({
       mutation: gql`
@@ -2391,7 +2391,7 @@ export async function delTransfer(params) {
 }
 
 // todayaccount
-export async function getTodayAccountList(params) {
+export async function getTodayAccountList (params) {
   return client
     .query({
       query: gql`
@@ -2431,7 +2431,7 @@ export async function getTodayAccountList(params) {
 }
 
 // todayaccount
-export async function getTodayAccountStatistic(params) {
+export async function getTodayAccountStatistic (params) {
   return client
     .query({
       query: gql`
@@ -2454,7 +2454,7 @@ export async function getTodayAccountStatistic(params) {
     });
 }
 
-export async function cancelConfirmTrans(params) {
+export async function cancelConfirmTrans (params) {
   return client
     .mutate({
       mutation: gql`
@@ -2476,7 +2476,7 @@ export async function cancelConfirmTrans(params) {
     });
 }
 
-export async function confirmTrans(params) {
+export async function confirmTrans (params) {
   return client
     .mutate({
       mutation: gql`

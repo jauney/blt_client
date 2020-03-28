@@ -142,7 +142,7 @@ class AddFormDialog extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const {
       modalVisible,
       onCancelModal,
@@ -325,7 +325,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     const branchCompanyList = await dispatch({
@@ -397,6 +397,13 @@ class TableList extends PureComponent {
         this.setState({ currentCompany: item });
       }
     });
+
+    if (!value) {
+      this.setState({ currentCompany: {} })
+    }
+    setTimeout(() => {
+      this.handleSearch()
+    }, 500)
   };
 
   handleSearch = e => {
@@ -417,11 +424,17 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, currentCompany = {} } = this.state;
 
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
-      fieldsValue.company_id = CacheCompany.company_id
+      if (CacheCompany.company_type == 2) {
+        fieldsValue.company_id = CacheCompany.company_id
+      }
+      else if (currentCompany.company_id) {
+        fieldsValue.company_id = currentCompany.company_id
+      }
+
       if (!fieldsValue.customer_mobile) {
         delete fieldsValue.customer_mobile
       }
@@ -535,7 +548,8 @@ class TableList extends PureComponent {
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => { };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
+    const { currentCompany = {} } = this.state
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], normalSiteList = [] },
@@ -543,19 +557,19 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
     } = this.props;
     const companyOption = {};
-    // 默认勾选第一个公司
-    if (branchCompanyList.length > 0) {
-      companyOption.initialValue = branchCompanyList[0].company_id || '';
-    }
-    // 默认勾选第一个公司
+    let companyAllowClear = false
     if (CacheCompany.company_type != 1) {
       companyOption.initialValue = CacheCompany.company_id || '';
+    }
+    else {
+      companyAllowClear = true
+      companyOption.initialValue = currentCompany.company_id || '';
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }}>
+            <Select placeholder="全部" onChange={this.onCompanySelect} style={{ width: '100px' }} allowClear={companyAllowClear}>
               {(CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany]).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -568,7 +582,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="客户分类">
           {getFieldDecorator('customer_type', {})(
-            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
+            <Select placeholder="全部" style={{ width: '100px' }} >
               {customerTypes.map(ele => {
                 return (
                   <Option key={ele.customertype} value={ele.customertype}>
@@ -631,11 +645,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       customer: { customers, total, customerTypes },
       loading,

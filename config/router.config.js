@@ -255,7 +255,7 @@ export default [
             path: '/customer/getcustomer',
             name: 'getcustomer',
             component: './Customer/GetCustomer',
-            authority: ['company_admin', 'company_account'],
+            // authority: ['company_admin', 'company_account'],
           },
           {
             path: '/customer/sendcustomer',

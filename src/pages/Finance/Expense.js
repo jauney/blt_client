@@ -106,7 +106,7 @@ class AddFormDialog extends PureComponent {
     );
   };
 
-  render() {
+  render () {
     const { modalVisible, onCancelHandler, record, form, expenseTypes = [] } = this.props;
     return (
       <Modal
@@ -263,7 +263,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
 
     await this.fetchCompanySiteList(CacheCompany.company_id);
@@ -374,7 +374,7 @@ class TableList extends PureComponent {
   handleSearch = e => {
     e && e.preventDefault();
 
-    this.getOrderList();
+    this.getOrderList({}, 1);
   };
 
   // 调用table子组件
@@ -385,7 +385,7 @@ class TableList extends PureComponent {
   /**
    * 获取订单信息
    */
-  getOrderList = (data = {}, pageNo = 1) => {
+  getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
     const { current, pageSize } = this.state;
 
@@ -399,7 +399,13 @@ class TableList extends PureComponent {
       }
       // 查询必须带上公司参数，否则查询出全部记录
       fieldsValue.company_id = CacheCompany.company_id;
+      if (!fieldsValue.expensetype_id) {
+        delete fieldsValue.expensetype_id
+      }
 
+      if (!data.sorter) {
+        data.sorter = 'expense_date|desc'
+      }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'expense/getExpensesAction',
@@ -562,7 +568,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], normalSiteList = [] },
@@ -623,11 +629,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       expense: { expenseList, total, expenseTypes, totalExpense },
       loading,
@@ -635,7 +641,7 @@ class TableList extends PureComponent {
 
     const {
       selectedRows,
-      current,
+      current = 1,
       pageSize,
       addExpenseModalVisible,
       downloadModalVisible,

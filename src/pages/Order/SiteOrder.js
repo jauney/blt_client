@@ -1482,6 +1482,12 @@ class TableList extends PureComponent {
       dataIndex: 'company_name',
     },
     {
+      title: '接货人',
+      width: '80px',
+      dataIndex: 'receiver_name',
+      sorter: true,
+    },
+    {
       title: '录票时间',
       width: '170px',
       sorter: true,
@@ -1711,7 +1717,7 @@ class TableList extends PureComponent {
       e.preventDefault();
     }
     this.setState({ current: 1 })
-    this.getOrderList({ sorter: "order_status|ascend,create_date|ascend" });
+    this.getOrderList({ sorter: "order_status|ascend,create_date|desc" });
   };
 
   /**

@@ -829,6 +829,9 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
+    this.setState({
+      current: 1,
+    });
     this.getOrderList({}, 1);
   };
 
