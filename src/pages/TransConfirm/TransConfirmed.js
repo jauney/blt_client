@@ -31,6 +31,7 @@ import styles from './TransConfirm.less';
 import { async } from 'q';
 import { locale } from '@/utils'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
+import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -56,6 +57,7 @@ class TableList extends PureComponent {
     pageSize: 20,
     record: {},
     updateOrderModalVisible: false,
+    ...customerAutoCompleteState
   };
 
   ButtonClicked = false
@@ -204,7 +206,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     const branchCompanyList = await dispatch({
@@ -217,10 +219,7 @@ class TableList extends PureComponent {
       payload: {},
     });
 
-    dispatch({
-      type: 'customer/sendCustomerListAction',
-      payload: { pageNo: 1, pageSize: 100 },
-    });
+    fetchSendCustomerList(this, {})
 
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (branchCompanyList && branchCompanyList.length > 0) {
@@ -291,7 +290,7 @@ class TableList extends PureComponent {
     const { dispatch, form } = this.props;
     const { current, pageSize } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields(async (err, fieldsValue) => {
       if (err) return;
       fieldsValue.trans_status = 1;
       if (!fieldsValue.trans_type) {
@@ -303,6 +302,9 @@ class TableList extends PureComponent {
       else {
         delete fieldsValue.trans_confirmdate
       }
+
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
+
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'transconfirm/getOrderListAction',
@@ -454,7 +456,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       customer: { getCustomerList, sendCustomerList },
@@ -545,11 +547,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       transconfirm: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,

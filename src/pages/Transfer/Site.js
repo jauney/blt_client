@@ -94,7 +94,7 @@ class AddFormDialog extends PureComponent {
     );
   };
 
-  render() {
+  render () {
     const { modalVisible, onCancelHandler, selectedRows, form, incomeTypes = [] } = this.props;
     return (
       <Modal
@@ -224,7 +224,9 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  btnClicked = false
+
+  async componentDidMount () {
     const { dispatch } = this.props;
     this.fetchCompanySiteList(CacheCompany.company_id);
     this.setState({ currentSite: CacheSite })
@@ -357,6 +359,12 @@ class TableList extends PureComponent {
 
   // 添加收入
   addFormDataHandle = async data => {
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const { dispatch } = this.props;
     const { currentSite = {} } = this.state;
     const result = await dispatch({
@@ -422,6 +430,12 @@ class TableList extends PureComponent {
   };
 
   onSettleOk = async () => {
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -466,6 +480,12 @@ class TableList extends PureComponent {
   };
 
   onCancelConfirmTransferOk = async () => {
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -663,7 +683,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       site: { siteList = [] },
@@ -714,11 +734,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       transfer: { transferList, total },
       loading,

@@ -90,7 +90,7 @@ class AddFormDialog extends PureComponent {
     );
   };
 
-  render() {
+  render () {
     const { modalVisible, onCancelHandler, selectedRows, form, incomeTypes = [], record = {} } = this.props;
     return (
       <Modal
@@ -178,6 +178,8 @@ class TableList extends PureComponent {
     currentCompany: {},
   };
 
+  btnClicked = false
+
   columns = [
     {
       title: '打款日期',
@@ -222,7 +224,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
     const branchCompanyList = await dispatch({
       type: 'company/getBranchCompanyList',
@@ -342,8 +344,15 @@ class TableList extends PureComponent {
     this.getOrderList(sort, current);
   };
 
+
   // 添加收入
   addFormDataHandle = async data => {
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const { dispatch } = this.props;
     const { record = {} } = this.state
 
@@ -425,6 +434,12 @@ class TableList extends PureComponent {
   };
 
   onSettleOk = async () => {
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -469,6 +484,12 @@ class TableList extends PureComponent {
   };
 
   onCancelConfirmTransferOk = async () => {
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -707,7 +728,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
@@ -755,11 +776,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       transfer: { transferList, total, totalOrderAmount, totalTransAmount },
       loading,

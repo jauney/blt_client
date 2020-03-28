@@ -115,7 +115,7 @@ class CreateReceiverForm extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const { modalVisible, onReceiverModalCancel } = this.props;
     return (
       <Modal
@@ -150,7 +150,7 @@ class CreateDepartForm extends PureComponent {
   /**
    * 编辑的时候初始化赋值表单
    */
-  componentDidMount() { }
+  componentDidMount () { }
 
   onCarChange = value => {
     const { driverList, form } = this.props;
@@ -338,7 +338,7 @@ class CreateDepartForm extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const { modalVisible, onCancel } = this.props;
     return (
       <Modal
@@ -437,7 +437,7 @@ class CreateEntrunkForm extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const { modalVisible, onEntrunkModalCancel, carFeeModalEditable } = this.props;
     const buttons = [
       <Button key="btn-cancel" onClick={onEntrunkModalCancel}>
@@ -615,7 +615,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
 
     const branchCompanyList = await dispatch({
@@ -643,7 +643,7 @@ class TableList extends PureComponent {
 
     await this.getLastCarInfo();
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
-    this.getOrderList();
+    this.handleSearch();
     this.getDriverList()
   }
 
@@ -684,7 +684,7 @@ class TableList extends PureComponent {
   /**
    * 获取订单信息
    */
-  getOrderList = (data = {}, pageNo = 1) => {
+  getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
     const { current, pageSize } = this.state;
 
@@ -829,7 +829,7 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
-    this.getOrderList();
+    this.getOrderList({}, 1);
   };
 
   // 取消装车
@@ -850,7 +850,9 @@ class TableList extends PureComponent {
     if (result.code == 0) {
       message.success('取消装车成功！');
       this.onCancelEntrunkCancel();
-      this.handleSearch()
+      setTimeout(() => {
+        this.handleSearch()
+      }, 1000)
     } else {
       message.error(result.msg);
     }
@@ -913,9 +915,11 @@ class TableList extends PureComponent {
     if (result.code == 0) {
       message.success('发车成功！');
 
-      this.getLastCarInfo();
       this.onDepartCancel();
-      this.handleSearch();
+      setTimeout(() => {
+        this.getLastCarInfo();
+        this.handleSearch();
+      }, 1000)
     } else {
       message.error(result.msg);
     }
@@ -955,9 +959,11 @@ class TableList extends PureComponent {
     if (result.code == 0) {
       message.success('取消发车成功！');
 
-      this.getLastCarInfo();
-      this.handleSearch()
       this.onCancelDepartCancel();
+      setTimeout(() => {
+        this.getLastCarInfo();
+        this.handleSearch()
+      }, 1000)
     } else {
       message.error(result.msg);
     }
@@ -1198,7 +1204,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
@@ -1285,11 +1291,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       trunkedorder: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },

@@ -121,7 +121,7 @@ class CreateForm extends PureComponent {
   /**
    * 编辑的时候初始化赋值表单
    */
-  async componentDidMount() {
+  async componentDidMount () {
     const { form, selectedOrder = {}, dispatch, currentCompany = {}, branchCompanyList, customer: { getCustomerList } } = this.props;
     const formFileds = form.getFieldsValue();
     const formKeys = Object.keys(formFileds);
@@ -536,7 +536,7 @@ class CreateForm extends PureComponent {
     );
   };
 
-  render() {
+  render () {
     const {
       form,
       modalVisible,
@@ -941,7 +941,7 @@ class CreateEntrunkForm extends PureComponent {
   /**
    * 编辑的时候初始化赋值表单
    */
-  componentDidMount() { }
+  componentDidMount () { }
 
   onCarChange = value => {
     const { driverList, form } = this.props;
@@ -1156,7 +1156,7 @@ class CreateEntrunkForm extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const { modalVisible, onEntrunkModalCancel } = this.props;
     return (
       <Modal
@@ -1261,7 +1261,7 @@ class CreateReceiverForm extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const { modalVisible, onReceiverModalCancel } = this.props;
     return (
       <Modal
@@ -1422,7 +1422,7 @@ class CreateShipForm extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const { modalVisible, onShipModalCancel } = this.props;
     return (
       <Modal
@@ -1602,7 +1602,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
 
     const branchCompanyList = await dispatch({
@@ -1752,6 +1752,8 @@ class TableList extends PureComponent {
         type: 'order/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+
+      this.getLastCarInfo()
 
       this.standardTable.cleanSelectedKeys()
     });
@@ -2045,7 +2047,7 @@ class TableList extends PureComponent {
     await this.resetCustomerPage()
 
     this.getLastCarInfo();
-    this.getOrderList();
+    this.handleSearch();
   };
 
   getLastCarInfo = async (option) => {
@@ -2104,7 +2106,7 @@ class TableList extends PureComponent {
       currentShipSite: site,
     });
     this.getLastCarInfo();
-    this.getOrderList();
+    this.handleSearch();
   };
 
   onSiteSelect = async value => {
@@ -2123,7 +2125,7 @@ class TableList extends PureComponent {
     this.setState({
       currentSite: site,
     });
-    this.getOrderList();
+    this.handleSearch();
   }
 
   /**
@@ -2240,7 +2242,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
@@ -2354,11 +2356,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       order: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },
