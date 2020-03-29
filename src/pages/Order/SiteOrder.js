@@ -575,7 +575,7 @@ class CreateForm extends PureComponent {
           isFetchGetCustomer = true
         }
       })
-      if (!isFetchGetCustomer) {
+      if (!isFetchGetCustomer && selectedGetCustomer.customer_id) {
         getCustomerList.unshift(selectedGetCustomer)
       }
       let isFetchSendCustomer = false
@@ -584,7 +584,8 @@ class CreateForm extends PureComponent {
           isFetchSendCustomer = true
         }
       })
-      if (!isFetchSendCustomer) {
+
+      if (!isFetchSendCustomer && selectedSendCustomer.customer_id) {
         sendCustomerList.unshift(selectedSendCustomer)
       }
     }
@@ -1901,16 +1902,16 @@ class TableList extends PureComponent {
     let getCustomer = customers.getCustomer
     let sendCustomer = customers.sendCustomer
     if (!getCustomer || !getCustomer.customer_id) {
-      getCustomer = { customer_id: record.getcustomerid, customer_name: record.getcustomer_name, customer_mobile: record.getcustomer_mobile }
+      getCustomer = { customer_id: record.getcustomer_id, customer_name: record.getcustomer_name, customer_mobile: record.getcustomer_mobile }
     }
     if (!sendCustomer || !sendCustomer.customer_id) {
-      sendCustomer = { customer_id: record.sendcustomerid, customer_name: record.sendcustomer_name, customer_mobile: record.sendcustomer_mobile }
+      sendCustomer = { customer_id: record.sendcustomer_id, customer_name: record.sendcustomer_name, customer_mobile: record.sendcustomer_mobile }
     }
-    this.setState({
-      selectedOrder: record,
-      modalVisible: true,
+    await this.setState({
       selectedGetCustomer: getCustomer,
-      selectedSendCustomer: sendCustomer
+      selectedSendCustomer: sendCustomer,
+      selectedOrder: record,
+      modalVisible: true
     });
   };
 
