@@ -142,6 +142,9 @@ class CreateForm extends PureComponent {
         if (selectedOrder[item] && !['getcustomer_id', 'sendcustomer_id'].includes(item)) {
           const fieldValue = {};
           fieldValue[item] = selectedOrder[item];
+          if (item == 'transfer_type') {
+            fieldValue[item] = `${fieldValue[item]}`
+          }
           form.setFieldsValue(fieldValue);
         }
         if (item == 'getcustomer_id') {
@@ -190,6 +193,9 @@ class CreateForm extends PureComponent {
 
       fieldsValue.order_num = Number(fieldsValue.order_num || 0)
       fieldsValue.order_label_num = Number(fieldsValue.order_label_num || 0)
+      if (fieldsValue.transfer_type) {
+        fieldsValue.transfer_type = Number(fieldsValue.transfer_type)
+      }
       fieldsValue = await setCustomerFieldValue(this, fieldsValue, 'edit')
       // 编辑的时候防止客户姓名变为数字customer_id
       if (Number(fieldsValue.getcustomer_name) >= 0 || Number(fieldsValue.sendcustomer_name)) {
@@ -850,10 +856,10 @@ class CreateForm extends PureComponent {
             <FormItem {...this.formItemLayout} label="转进/转出">
               {form.getFieldDecorator('transfer_type')(
                 <Select placeholder="全部" style={{ width: '100%' }} tabIndex={-1}>
-                  <Option value="1" sele>
+                  <Option value="1">
                     转出
                   </Option>
-                  <Option value="2" sele>
+                  <Option value="2">
                     转进
                   </Option>
                 </Select>

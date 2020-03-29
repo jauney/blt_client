@@ -60,7 +60,15 @@ class AddFormDialog extends PureComponent {
     };
   }
 
+  btnClicked = false
+
   onAddHandler = () => {
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const {
       handleSearch,
       form,
