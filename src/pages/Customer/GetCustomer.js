@@ -287,6 +287,22 @@ class TableList extends PureComponent {
 
   columns = [
     {
+      title: '分公司',
+      dataIndex: 'company_id',
+      sorter: true,
+      width: '80px',
+      render: val => {
+        const { company: { branchCompanyList } } = this.props;
+        let companyName = ''
+        branchCompanyList.forEach(item => {
+          if (item.company_id == val) {
+            companyName = item.company_name
+          }
+        })
+        return <span>{companyName}</span>
+      },
+    },
+    {
       title: '客户类型',
       dataIndex: 'customertype_name',
       sorter: true,
