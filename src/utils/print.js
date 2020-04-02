@@ -4,7 +4,7 @@ import XLSX from 'xlsx';
 const electron = window.require('electron').remote;
 import { getSelectedAccount } from '@/utils/account';
 
-export function printSiteOrder({ selectedRows = [], type = '', lastCar = {} }) {
+export function printSiteOrder ({ selectedRows = [], type = '', lastCar = {} }) {
   let bodyHTML = ''
   let totalTransFund = 0
   let totalOrderNum = 0
@@ -64,10 +64,10 @@ export function printSiteOrder({ selectedRows = [], type = '', lastCar = {} }) {
         <th style="width:400px;">货物名称</th>
       </tr>
       ${bodyHTML}
-      <tr><td>合计票数</td><td colspan="4">${orderIndex - 1}</td></tr>
-      <tr><td>合计件数</td><td colspan="4">${totalOrderNum}</td></tr>
-      <tr><td>合计运费</td><td colspan="4">${totalTransFund}</td></tr>
-      <tr><td>${new Date().toLocaleDateString()}</td><td colspan="4">接货人签字：</td></tr>
+      <tr><td colspan="2">合计票数</td><td colspan="2">${orderIndex - 1}</td></tr>
+      <tr><td colspan="2">合计件数</td><td colspan="2">${totalOrderNum}</td></tr>
+      <tr><td colspan="2">合计运费</td><td colspan="2">${totalTransFund}</td></tr>
+      <tr><td colspan="2">${new Date().toLocaleDateString()}</td><td colspan="2">接货人签字：</td></tr>
     </table>
     </div></div>
     `
@@ -80,7 +80,7 @@ export function printSiteOrder({ selectedRows = [], type = '', lastCar = {} }) {
  *
  * @param { type } type:'pdf' 下载
  */
-export function printDownLoad({ selectedRows = [], type = '', lastCar = {}, silent = true }) {
+export function printDownLoad ({ selectedRows = [], type = '', lastCar = {}, silent = true }) {
   let bodyHTML = ''
   let totalTransFund = 0
   let totalGoodsFund = 0
@@ -168,7 +168,7 @@ export function printDownLoad({ selectedRows = [], type = '', lastCar = {}, sile
  * 获取打印托运单HTML
  * @param {*} param0
  */
-export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data = {}, branchCompanyList = [], siteList = [], footer = false }) {
+export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data = {}, branchCompanyList = [], siteList = [], footer = false }) {
   let getCustomerType = ''
   if (getCustomer.customer_type == 1) { getCustomerType = 'V' } else if (getCustomer.customer_type == 9) { getCustomerType = 'H' }
   let sendCustomerType = ''
@@ -387,7 +387,7 @@ export function getPrintOrderConent({ getCustomer = {}, sendCustomer = {}, data 
  * 打印托运单
  * @param {footer} 是否打印回执单
  */
-export function printOrder(printHtml = '') {
+export function printOrder (printHtml = '') {
   let styles = `
   <style>
   .order-box{height: 292mm;}
@@ -410,11 +410,11 @@ export function printOrder(printHtml = '') {
 }
 
 
-export function printPayOrder({ selectedRows = [], type = '' }) {
+export function printPayOrder ({ selectedRows = [], type = '' }) {
   let bodyHTML = ''
   let totalTransFund = 0
   let orderIndex = 1
-  selectedRows = selectedRows.sort(function compareFunction(item1, item2) {
+  selectedRows = selectedRows.sort(function compareFunction (item1, item2) {
     return item1.sendcustomer_name.localeCompare(item2.sendcustomer_name);
   });
   let totalPay = 0
@@ -486,7 +486,7 @@ export function printPayOrder({ selectedRows = [], type = '' }) {
  * 打印标签
  * @param {*} data
  */
-export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE') {
+export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE') {
   // 打印机纸张80mm*50mm，但高度不能设置为50mm，否则会多打一个白页
   let styles = `
     <style>
