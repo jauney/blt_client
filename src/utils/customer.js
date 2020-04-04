@@ -8,12 +8,13 @@ const customerAutoCompleteState = {
   currentSendCustomer: {},
   getCustomerNameChangeTimer: 0,
   sendCustomerNameChangeTimer: 0,
-
+  currentSender: {},
+  currentReceiver: {}
 };
 
 export { customerAutoCompleteState }
 
-export async function fetchGetCustomerList(context, filter = {}) {
+export async function fetchGetCustomerList (context, filter = {}) {
   const { dispatch } = context.props;
   await dispatch({
     type: 'customer/getCustomerListAction',
@@ -23,7 +24,7 @@ export async function fetchGetCustomerList(context, filter = {}) {
   });
 };
 
-export async function fetchSendCustomerList(context, filter = {}) {
+export async function fetchSendCustomerList (context, filter = {}) {
   const { dispatch } = context.props;
   await dispatch({
     type: 'customer/sendCustomerListAction',
@@ -33,7 +34,7 @@ export async function fetchSendCustomerList(context, filter = {}) {
   });
 };
 
-export async function onSendCustomerChange(context, value) {
+export async function onSendCustomerChange (context, value) {
   context.setState({
     sendCustomerNameChangeTimer: (new Date()).getTime()
   })
@@ -51,7 +52,7 @@ export async function onSendCustomerChange(context, value) {
 };
 
 let emptyCompanyAlert = false
-export async function onGetCustomerChange(context, value) {
+export async function onGetCustomerChange (context, value) {
   context.setState({
     getCustomerNameChangeTimer: (new Date()).getTime()
   })
@@ -79,7 +80,7 @@ export async function onGetCustomerChange(context, value) {
 };
 
 
-export async function onGetCustomerSelect(context, value) {
+export async function onGetCustomerSelect (context, value) {
   const { customer: { getCustomerList, sendCustomerList }, form } = context.props;
   let currentCustomer;
   for (let i = 0; i < getCustomerList.length; i++) {
@@ -97,7 +98,7 @@ export async function onGetCustomerSelect(context, value) {
   }
 }
 
-export async function onSendCustomerSelect(context, value) {
+export async function onSendCustomerSelect (context, value) {
   const { customer: { getCustomerList, sendCustomerList }, form } = context.props;
   let currentCustomer;
   for (let i = 0; i < sendCustomerList.length; i++) {
@@ -115,10 +116,51 @@ export async function onSendCustomerSelect(context, value) {
   }
 }
 
+
+export async function onCourierChange (context, value, type) {
+  if (!value) {
+    if (type == 'receiver') {
+      context.setState({
+        currentReceiver: {}
+      })
+    }
+    else {
+      context.setState({
+        currentSender: {}
+      })
+    }
+  }
+};
+
+
+export async function onCourierSelect (context, value, type) {
+  const { courier: { receiverList = [], senderList = [] } } = context.props
+  let courier;
+  let courierList = type == 'receiver' ? receiverList : senderList
+  for (let i = 0; i < courierList.length; i++) {
+    const customer = courierList[i];
+    if (customer.courier_id == value) {
+      courier = customer;
+      break;
+    }
+  }
+
+  if (courier && type == 'receiver') {
+    await context.setState({
+      currentReceiver: courier,
+    });
+  }
+  else if (courier && type == 'sender') {
+    await context.setState({
+      currentSender: courier,
+    });
+  }
+}
+
 /**
  * 保存订单信息、查询订单列表时，将已经选择的客户信息转化为正确格式
  */
-export async function setCustomerFieldValue(context, fieldsValue = {}, type = 'search') {
+export async function setCustomerFieldValue (context, fieldsValue = {}, type = 'search') {
   const { currentGetCustomer, currentSendCustomer } = context.state
   const { customer: { sendCustomerList, getCustomerList } } = context.props
   // 1.从下拉列表选择的客户使用currentSendCustomer，currentGetCustomer
@@ -180,7 +222,7 @@ export async function setCustomerFieldValue(context, fieldsValue = {}, type = 's
 /**
  * 客户管理，将已经选择的客户信息转化为正确格式
  */
-export async function setCustomerFieldValue2Mng(context, fieldsValue = {}, type = 'search') {
+export async function setCustomerFieldValue2Mng (context, fieldsValue = {}, type = 'search') {
   const { currentGetCustomer, currentSendCustomer } = context.state
   const { customer: { sendCustomerList, getCustomerList } } = context.props
   // 1.从下拉列表选择的客户使用currentSendCustomer，currentGetCustomer
@@ -200,7 +242,7 @@ export async function setCustomerFieldValue2Mng(context, fieldsValue = {}, type 
   })
 
   if (getCustomer && getCustomer.customer_id) {
-    fieldsValue.customer_id = getCustomer.customer_id;
+    fieldsValue.customer_id = Number(getCustomer.customer_id);
     delete fieldsValue.customer_name
   }
   else if (!fieldsValue.customer_name) {
@@ -208,7 +250,7 @@ export async function setCustomerFieldValue2Mng(context, fieldsValue = {}, type 
   }
 
   if (sendCustomer && sendCustomer.customer_id) {
-    fieldsValue.customer_id = sendCustomer.customer_id;
+    fieldsValue.customer_id = Number(sendCustomer.customer_id);
     delete fieldsValue.customer_name
   } else if (!fieldsValue.customer_name) {
     delete fieldsValue.customer_name
@@ -217,9 +259,50 @@ export async function setCustomerFieldValue2Mng(context, fieldsValue = {}, type 
   return fieldsValue
 }
 
+
+
+/**
+ * 客户管理，将已经选择的客户信息转化为正确格式
+ */
+export async function setCourierFieldValue2Mng (context, fieldsValue = {}, type = 'search') {
+  const { currentReceiver, currentSender } = context.state
+  const { courier: { receiverList = [], senderList = [] } } = context.props
+  // 1.从下拉列表选择的客户使用currentSendCustomer，currentGetCustomer
+  // 2.输入电话带出来的客户使用currentSendCustomer，currentGetCustomer
+  let sendCustomer = currentSender
+  let receiveCustomer = currentReceiver
+  // 编辑时的客户，使用list中的数据，因为没有currentSendCustomer，currentGetCustomer
+  senderList.forEach(item => {
+    if (item.courier_id == fieldsValue.sender_id) {
+      sendCustomer = item
+    }
+  })
+  receiverList.forEach(item => {
+    if (item.courier_id == fieldsValue.receiver_id) {
+      receiveCustomer = item
+    }
+  })
+
+  if (sendCustomer && sendCustomer.courier_id) {
+    fieldsValue.sender_id = sendCustomer.courier_id;
+  }
+  else {
+    delete fieldsValue.sender_id
+  }
+
+  if (receiveCustomer && receiveCustomer.courier_id) {
+    fieldsValue.receiver_id = receiveCustomer.courier_id;
+  }
+  else {
+    delete fieldsValue.receiver_id
+  }
+
+  return fieldsValue
+}
+
 // 渲染autocomplete的option
 // 废弃，页面通过import引用该函数使用会报错，所以逻辑写死在页面
-export async function renderCustomerOption(item) {
+export async function renderCustomerOption (item) {
   const AutoOption = AutoComplete.Option;
   return (
     <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>

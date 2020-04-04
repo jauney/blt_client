@@ -30,9 +30,9 @@ export default {
   },
 
   effects: {
-    *getOrderListAction({ payload }, { call, put }) {
+    *getOrderListAction ({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
-      payload.filter.order_status = [6, 7];
+      payload.filter.order_status = [4, 7];
 
       const response = yield call(getOrderList, payload);
       yield put({
@@ -40,39 +40,39 @@ export default {
         payload: response,
       });
     },
-    *getOrderStatisticAction({ payload }, { call, put }) {
-      payload.order_status = [6, 7];
+    *getOrderStatisticAction ({ payload }, { call, put }) {
+      payload.order_status = [4, 7];
       const response = yield call(getOrderStatistic, payload);
       yield put({
         type: 'getOrderStatisticReducer',
         payload: response,
       });
     },
-    *cancelConfirmTransAction({ payload }, { call, put }) {
+    *cancelConfirmTransAction ({ payload }, { call, put }) {
       return yield call(cancelConfirmTrans, payload); // post
     },
-    *confirmTransAction({ payload }, { call, put }) {
+    *confirmTransAction ({ payload }, { call, put }) {
       return yield call(confirmTrans, payload); // post
     },
-    *signAction({ payload }, { call, put }) {
+    *signAction ({ payload }, { call, put }) {
       payload.trans_sign = 1;
       return yield call(updateTransSign, payload); // post
     },
-    *cancelSignAction({ payload }, { call, put }) {
+    *cancelSignAction ({ payload }, { call, put }) {
       payload.trans_sign = 0;
       return yield call(updateTransSign, payload); // post
     },
   },
 
   reducers: {
-    getOrderListReducer(state, action) {
+    getOrderListReducer (state, action) {
       return {
         ...state,
         orderList: action.payload.orders,
         total: action.payload.total,
       };
     },
-    getOrderStatisticReducer(state, action) {
+    getOrderStatisticReducer (state, action) {
       return {
         ...state,
         ...action.payload,

@@ -31,6 +31,7 @@ import styles from './Courier.less';
 import { locale } from '@/utils'
 import { printOrder, getPrintOrderConent } from '@/utils/print'
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
+import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState, setCourierFieldValue2Mng, onCourierChange, onCourierSelect } from '@/utils/customer'
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -83,7 +84,7 @@ class AddFormDialog extends PureComponent {
     );
   };
 
-  render() {
+  render () {
     const { modalVisible, onCancelHandler, senderList, form } = this.props;
     return (
       <Modal
@@ -157,6 +158,7 @@ class TableList extends PureComponent {
     addFormModalVisible: false,
     addCourierModalVisible: false,
     currentCompany: {},
+    ...customerAutoCompleteState
   };
 
   columns = [
@@ -304,7 +306,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
 
     dispatch({
@@ -502,7 +504,7 @@ class TableList extends PureComponent {
 
     this.getLastCarInfo({ isUseCarCode: true });
 
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields(async (err, fieldsValue) => {
       if (err) return;
       // create_date
       Object.keys(fieldsValue).forEach(key => {
@@ -511,7 +513,8 @@ class TableList extends PureComponent {
           delete fieldsValue[key];
         }
       });
-
+      fieldsValue = await setCourierFieldValue2Mng(this, fieldsValue)
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
         type: 'courier/getOrderListAction',
@@ -841,7 +844,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       customer: { getCustomerList, sendCustomerList },
@@ -905,42 +908,52 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="送货人" {...formItemLayout}>
           {getFieldDecorator('sender_id', {})(
-            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear>
-              <Option key={-1} value={-1}>
-                未送货
-              </Option>
-              {senderList.map(ele => {
+            <AutoComplete
+              size="large"
+              style={{ width: '100%' }}
+              dataSource={senderList.map(item => {
+                const AutoOption = AutoComplete.Option;
                 return (
-                  <Option key={ele.courier_id} value={ele.courier_id}>
-                    {ele.courier_name}
-                  </Option>
+                  <AutoOption key={`${item.courier_id}`} value={`${item.courier_id}`} courierid={`${item.courier_id}`} label={item.courier_name}>
+                    {item.courier_name}
+                  </AutoOption>
                 );
               })}
-            </Select>
+              onSelect={(value) => { onCourierSelect(this, value, 'sender') }}
+              onChange={(value) => { onCourierChange(this, value, 'sender') }}
+              allowClear
+              placeholder="请输入"
+              filterOption={(inputValue, option) =>
+                option.props.children.indexOf(inputValue) !== -1
+              }
+            >
+              {' '}
+            </AutoComplete>
           )}
         </FormItem>
         <FormItem label="收货人姓名" {...formItemLayout}>
           {getFieldDecorator('getcustomer_id')(
-            <Select
-              placeholder="全部"
-              onSelect={this.onGetCustomerSelect}
-              style={{ width: '100px' }}
-              allowClear
-              showSearch
-              optionLabelProp="children"
-              onPopupScroll={this.onGetCustomerScroll}
-              filterOption={(input, option) =>
-                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-            >
-              {getCustomerList.map(ele => {
+            <AutoComplete
+              size="large"
+              style={{ width: '100%' }}
+              dataSource={getCustomerList.map(item => {
+                const AutoOption = AutoComplete.Option;
                 return (
-                  <Option key={ele.customer_id} value={ele.customer_id}>
-                    {ele.customer_name}
-                  </Option>
+                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                    {item.customer_name}
+                  </AutoOption>
                 );
               })}
-            </Select>
+              onSelect={(value) => { onGetCustomerSelect(this, value) }}
+              onChange={(value) => { onGetCustomerChange(this, value) }}
+              allowClear
+              placeholder="请输入"
+              filterOption={(inputValue, option) =>
+                option.props.children.indexOf(inputValue) !== -1
+              }
+            >
+              {' '}
+            </AutoComplete>
           )}
         </FormItem>
         <Form.Item {...formItemLayout}>
@@ -952,11 +965,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       courier: { orderList, total, totalOrderAmount, totalTransAmount },
       courier: { senderList },

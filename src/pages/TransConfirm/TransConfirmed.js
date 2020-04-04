@@ -277,6 +277,7 @@ class TableList extends PureComponent {
   handleSearch = e => {
     e && e.preventDefault();
 
+    this.setState({ current: 1 })
     this.getOrderList();
   };
   // 调用table子组件
@@ -537,6 +538,19 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="日期">
           {getFieldDecorator('trans_confirmdate', { initialValue: moment() })(<DatePicker locale={locale} format={'YYYY-MM-DD'} allowClear />)}
+        </FormItem>
+        <FormItem label="运单号">
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '250px' }} allowClear />
+          )}
+        </FormItem>
+        <FormItem label="有无货款">
+          {getFieldDecorator('order_amount', { initialValue: -1 })(
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
+              <Option value={0}>无</Option>
+              <Option value={-1}>有</Option>
+            </Select>
+          )}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">

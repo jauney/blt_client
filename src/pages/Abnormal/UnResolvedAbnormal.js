@@ -103,7 +103,7 @@ class AbnormalForm extends PureComponent {
     );
   };
 
-  render() {
+  render () {
     const {
       modalVisible,
       onResolveAbnormalModalCancel,
@@ -329,7 +329,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
 
     await dispatch({
@@ -630,7 +630,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList, normalSiteList },
@@ -669,7 +669,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="站点">
           {getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-            <Select placeholder="全部" style={{ width: '100px' }}>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               {normalSiteList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
@@ -682,7 +682,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="异常类型">
           {getFieldDecorator('abnormal_type_id')(
-            <Select placeholder="全部" style={{ width: '100px' }}>
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
               {abnormalTypes.map(ele => {
                 return (
                   <Option key={ele.abnormal_type_id} value={ele.abnormal_type_id}>
@@ -705,11 +705,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       abnormal: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,

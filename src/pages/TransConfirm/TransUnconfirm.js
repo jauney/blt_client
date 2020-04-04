@@ -294,7 +294,7 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
-
+    this.setState({ current: 1 })
     this.getOrderList();
   };
 
@@ -305,7 +305,7 @@ class TableList extends PureComponent {
   /**
    * 获取订单信息
    */
-  getOrderList = (data = {}, pageNo = 1) => {
+  getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
     const { current, pageSize } = this.state;
 
@@ -610,6 +610,19 @@ class TableList extends PureComponent {
         <FormItem label="发货人电话">
           {getFieldDecorator('sendcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '150px' }} />
+          )}
+        </FormItem>
+        <FormItem label="运单号">
+          {getFieldDecorator('order_code', {})(
+            <Input placeholder="请输入" style={{ width: '250px' }} allowClear />
+          )}
+        </FormItem>
+        <FormItem label="有无货款">
+          {getFieldDecorator('order_amount', { initialValue: -1 })(
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
+              <Option value={0}>无</Option>
+              <Option value={-1}>有</Option>
+            </Select>
           )}
         </FormItem>
         <FormItem>
