@@ -574,7 +574,7 @@ class TableList extends PureComponent {
     const { selectedRows, current, pageSize, updateOrderModalVisible, record } = this.state;
     // 是否显示操作按钮
     let showOperateButton = true
-    if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
+    if (['site_searchuser', 'site_admin'].indexOf(CacheRole.role_value) >= 0) {
       showOperateButton = false
     }
     return (

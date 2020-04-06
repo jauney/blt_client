@@ -582,12 +582,19 @@ class TableList extends PureComponent {
     } = this.props;
     const companyOption = {};
     let companyAllowClear = false
+    let siteAllowClear = true
+    const siteOption = {}
     if (CacheCompany.company_type != 1) {
       companyOption.initialValue = CacheCompany.company_id || '';
     }
     else {
       companyAllowClear = true
       companyOption.initialValue = currentCompany.company_id || '';
+    }
+
+    if (CacheRole.role_value == 'site_orderuser') {
+      siteAllowClear = false
+      siteOption.initialValue = CacheSite.site_id
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
@@ -618,9 +625,9 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="站点">
-          {getFieldDecorator('site_id', {})(
-            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
-              {normalSiteList.map(ele => {
+          {getFieldDecorator('site_id', siteOption)(
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear={siteAllowClear}>
+              {(CacheRole.role_value == 'site_orderuser' ? [CacheSite] : normalSiteList).map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
                     {ele.site_name}

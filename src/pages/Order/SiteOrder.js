@@ -810,7 +810,7 @@ class CreateForm extends PureComponent {
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label={`保价费[${transTypeMap[form.getFieldValue('trans_type')]}]`}>
-              {form.getFieldDecorator('insurance_fee', {})(<Input placeholder="" tabIndex={-1} maxLength={10} />)}
+              {form.getFieldDecorator('insurance_fee', {})(<Input readOnly placeholder="" tabIndex={-1} maxLength={10} />)}
             </FormItem>
           </Col>
         </Row>
