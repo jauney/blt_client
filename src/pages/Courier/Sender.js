@@ -682,10 +682,39 @@ class TableList extends PureComponent {
 
   // 更改送货人
   onUpdateSenderModal = () => {
+    if (!this.canEditSender()) {
+      return
+    }
     this.setState({
       addFormModalVisible: true,
     });
   };
+
+  canEditSender = () => {
+    const { selectedRows = [] } = this.state;
+    const orderIds = [];
+    const customerIds = [];
+    let endDate = moment(Number(new Date().getTime()));
+    let cannotEditFlag = false
+    selectedRows.forEach(item => {
+      orderIds.push(item.order_id);
+      customerIds.push(item.getcustomer_id);
+      if (item.arrive_date) {
+        let startDate = moment(Number(item.arrive_date));
+        let diffHours = endDate.diff(startDate, 'hours');
+
+        if (diffHours >= 48) {
+          cannotEditFlag = true
+        }
+      }
+    });
+    if (cannotEditFlag) {
+      message.error('到车确认超过48小时记录不可更改送货人');
+      return false;
+    }
+
+    return true
+  }
 
   // 添加送货人
   addFormDataHandle = async data => {
@@ -695,20 +724,6 @@ class TableList extends PureComponent {
     const customerIds = [];
     let endDate = moment(Number(new Date().getTime()));
     let cannotEditFlag = false
-    selectedRows.forEach(item => {
-      orderIds.push(item.order_id);
-      customerIds.push(item.getcustomer_id);
-
-      let startDate = moment(Number(item.pay_date));
-      let diffHours = endDate.diff(startDate, 'hours');
-      if (diffHours >= 48) {
-        cannotEditFlag = true
-      }
-    });
-    // if (cannotEditFlag) {
-    //   message.error('下账超过48小时记录不可编辑');
-    //   return;
-    // }
 
     const result = await dispatch({
       type: 'courier/updateCustomerCourierAction',
@@ -738,6 +753,9 @@ class TableList extends PureComponent {
 
   // 删除送货人
   onDelSender = async () => {
+    if (!this.canEditSender()) {
+      return
+    }
     Modal.confirm({
       title: '确认',
       content: '确定要取消勾选订单、收货客户关联的送货人吗？',

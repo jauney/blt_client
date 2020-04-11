@@ -10,6 +10,10 @@ export function printSiteOrder ({ selectedRows = [], type = '', lastCar = {} }) 
   let totalOrderNum = 0
   let totalGoodsFund = 0
   let orderIndex = 1
+  selectedRows = selectedRows.sort(function compareFunction (item1, item2) {
+    return item1.company_name.localeCompare(item2.company_name);
+  });
+  console.log(selectedRows)
   selectedRows.forEach(item => {
     let transType = '提付'
     if (item.trans_type == 1) {
@@ -57,17 +61,17 @@ export function printSiteOrder ({ selectedRows = [], type = '', lastCar = {} }) 
     ${carHtml}
     <table>
       <tr>
-        <th style="width:50px;">分公司</th>
-        <th style="width:50px;">货单号</th>
-        <th style="width:60px;">收货客户</th>
-        <th style="width:50px;">运费</th>
-        <th style="width:400px;">货物名称</th>
+        <th style="width:60px;">分公司</th>
+        <th style="width:60px;">货单号</th>
+        <th style="width:80px;">收货客户</th>
+        <th style="width:60px;">运费</th>
+        <th style="width:340px;">货物名称</th>
       </tr>
       ${bodyHTML}
-      <tr><td colspan="2">合计票数</td><td colspan="2">${orderIndex - 1}</td></tr>
-      <tr><td colspan="2">合计件数</td><td colspan="2">${totalOrderNum}</td></tr>
-      <tr><td colspan="2">合计运费</td><td colspan="2">${totalTransFund}</td></tr>
-      <tr><td colspan="2">${new Date().toLocaleDateString()}</td><td colspan="2">接货人签字：</td></tr>
+      <tr><td colspan="2">合计票数</td><td colspan="3">${orderIndex - 1}</td></tr>
+      <tr><td colspan="2">合计件数</td><td colspan="3">${totalOrderNum}</td></tr>
+      <tr><td colspan="2">合计运费</td><td colspan="3">${totalTransFund}</td></tr>
+      <tr><td colspan="2">${new Date().toLocaleDateString()}</td><td colspan="3">接货人签字：</td></tr>
     </table>
     </div></div>
     `

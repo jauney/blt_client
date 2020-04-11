@@ -32,7 +32,7 @@ export default {
   effects: {
     *getOrderListAction ({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
-      payload.filter.order_status = [4, 7];
+      payload.filter.order_status = [3, 7];
 
       const response = yield call(getOrderList, payload);
       yield put({
@@ -41,7 +41,7 @@ export default {
       });
     },
     *getOrderStatisticAction ({ payload }, { call, put }) {
-      payload.order_status = [4, 7];
+      payload.order_status = [3, 7];
       const response = yield call(getOrderStatistic, payload);
       yield put({
         type: 'getOrderStatisticReducer',

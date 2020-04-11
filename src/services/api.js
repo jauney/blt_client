@@ -1157,6 +1157,7 @@ export async function getOrderList (params) {
               create_user_name
               trans_show_amount
               pay_abnormal
+              arrive_date
             }
           }
         }

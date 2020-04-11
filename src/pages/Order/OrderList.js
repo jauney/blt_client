@@ -201,7 +201,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
 
     const branchCompanyList = await dispatch({
@@ -457,7 +457,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
@@ -544,6 +544,23 @@ class TableList extends PureComponent {
         <FormItem label="托运日期">
           {getFieldDecorator('entrunk_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
         </FormItem>
+        <FormItem label="有无货款">
+          {getFieldDecorator('order_amount', { initialValue: -1 })(
+            <Select placeholder="全部" style={{ width: '100px' }} allowClear>
+              <Option value={0}>无</Option>
+              <Option value={-1}>有</Option>
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="运费类别">
+          {getFieldDecorator('trans_type', {})(
+            <Select placeholder="全部" style={{ width: '150px' }} allowClear>
+              <Option value={0}>提付</Option>
+              <Option value={1}>现付</Option>
+              <Option value={2}>回付</Option>
+            </Select>
+          )}
+        </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">
             查询
@@ -553,11 +570,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       orderlist: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,
