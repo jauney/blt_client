@@ -709,7 +709,7 @@ class TableList extends PureComponent {
       }
     });
     if (cannotEditFlag) {
-      message.error('到车确认超过48小时记录不可更改送货人');
+      message.error('已经超出更改时间，不可更改送货人');
       return false;
     }
 
