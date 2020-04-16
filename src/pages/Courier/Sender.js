@@ -722,8 +722,10 @@ class TableList extends PureComponent {
     const { selectedRows = [] } = this.state;
     const orderIds = [];
     const customerIds = [];
-    let endDate = moment(Number(new Date().getTime()));
-    let cannotEditFlag = false
+    selectedRows.forEach(item => {
+      orderIds.push(item.order_id);
+      customerIds.push(item.getcustomer_id);
+    });
 
     const result = await dispatch({
       type: 'courier/updateCustomerCourierAction',
