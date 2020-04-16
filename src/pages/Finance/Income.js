@@ -60,7 +60,15 @@ class AddFormDialog extends PureComponent {
     });
   };
 
+  ButtonClicked = false
+
   onAddHandler = () => {
+    if (this.ButtonClicked) {
+      return
+    }
+    this.ButtonClicked = true
+    setTimeout(() => { this.ButtonClicked = false }, 2000)
+
     const { addFormDataHandle, form, incomeTypes = [], record = {} } = this.props;
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
@@ -106,7 +114,7 @@ class AddFormDialog extends PureComponent {
     );
   };
 
-  render() {
+  render () {
     const { modalVisible, onCancelHandler, record = {}, form, incomeTypes = [] } = this.props;
     return (
       <Modal
@@ -264,7 +272,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
 
     this.fetchCompanySiteList(CacheCompany.company_id);
@@ -506,7 +514,7 @@ class TableList extends PureComponent {
   };
 
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], normalSiteList = [] },
@@ -564,11 +572,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       income: { incomeList, total, incomeTypes, totalIncome },
       loading,

@@ -60,7 +60,15 @@ class AddFormDialog extends PureComponent {
     });
   };
 
+  ButtonClicked = false
+
   onAddHandler = () => {
+    if (this.ButtonClicked) {
+      return
+    }
+    this.ButtonClicked = true
+    setTimeout(() => { this.ButtonClicked = false }, 2000)
+
     const { addFormDataHandle, form, expenseTypes = [], record } = this.props;
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;

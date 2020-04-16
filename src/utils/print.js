@@ -61,17 +61,19 @@ export function printSiteOrder ({ selectedRows = [], type = '', lastCar = {} }) 
     ${carHtml}
     <table>
       <tr>
-        <th style="width:60px;">分公司</th>
-        <th style="width:60px;">货单号</th>
-        <th style="width:80px;">收货客户</th>
-        <th style="width:60px;">运费</th>
-        <th style="width:340px;">货物名称</th>
+        <th style="width:15%;">分公司</th>
+        <th style="width:15%;">货单号</th>
+        <th style="width:20%;">收货客户</th>
+        <th style="width:15%;">运费</th>
+        <th style="width:35%;">货物名称</th>
       </tr>
       ${bodyHTML}
-      <tr><td colspan="2">合计票数</td><td colspan="3">${orderIndex - 1}</td></tr>
-      <tr><td colspan="2">合计件数</td><td colspan="3">${totalOrderNum}</td></tr>
-      <tr><td colspan="2">合计运费</td><td colspan="3">${totalTransFund}</td></tr>
-      <tr><td colspan="2">${new Date().toLocaleDateString()}</td><td colspan="3">接货人签字：</td></tr>
+    </table>
+    <table>
+      <tr><td>合计票数</td><td>${orderIndex - 1}</td></tr>
+      <tr><td>合计件数</td><td>${totalOrderNum}</td></tr>
+      <tr><td>合计运费</td><td>${totalTransFund}</td></tr>
+      <tr><td>${new Date().toLocaleDateString()}</td><td>接货人签字：</td></tr>
     </table>
     </div></div>
     `
