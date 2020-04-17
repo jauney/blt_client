@@ -427,13 +427,13 @@ class TableList extends PureComponent {
   };
 
   fetchSenderList = async companyId => {
-    const { dispatch, branchCompanyList } = this.props;
+    const { dispatch, branchCompanyList, courier: { senderList = [] } } = this.props;
     let { currentCompany } = this.state;
     if (!currentCompany || !currentCompany.company_id) {
       currentCompany = branchCompanyList && branchCompanyList[0];
     }
 
-    dispatch({
+    await dispatch({
       type: 'courier/getCourierListAction',
       payload: {
         pageNo: 1,
@@ -881,6 +881,18 @@ class TableList extends PureComponent {
     // 默认勾选第一个公司
     if (CacheCompany.company_type != 1) {
       companyOption.initialValue = CacheCompany.company_id || '';
+    }
+
+
+    // senderList增加未送货
+    let hasUnSender = false
+    senderList.forEach(item => {
+      if (item.courier_id === -1) {
+        hasUnSender = true
+      }
+    })
+    if (!hasUnSender) {
+      senderList.unshift({ courier_id: -1, courier_name: '未送货' })
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
