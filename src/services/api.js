@@ -1,5 +1,5 @@
 import { stringify } from 'qs';
-import { message } from 'antd';
+import { message, Modal } from 'antd';
 import request from '@/utils/request';
 import router from 'umi/router';
 import { HttpLink } from 'apollo-link-http';
@@ -64,6 +64,15 @@ function gotoLogin (data) {
   return true;
 }
 
+function showErrorMessage (error = {}) {
+  let msg = error.message || JSON.stringify(error)
+  Modal.error({
+    content: `系统繁忙，请稍后再试-${msg}`,
+    okText: '我知道了'
+  });
+  //message.error(`系统繁忙，请稍后再试-${msg}`);
+}
+
 export async function fakeAccountLogin (params) {
   return client
     .query({
@@ -120,7 +129,7 @@ export async function fakeAccountLogin (params) {
       return data.data.login;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -164,7 +173,7 @@ export async function queryCompanyList (params) {
       return data.data.getCompanys;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -186,7 +195,7 @@ export async function addCompany (params) {
       return data.data.addCompany;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -208,7 +217,7 @@ export async function createCourier ({ courier, type }) {
       return data.data.createCourier;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -231,7 +240,7 @@ export async function updateCourier ({ courier, ids, type }) {
       return data.data.updateCourier;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -264,7 +273,7 @@ export async function updateCustomerCourier ({ courier, order_id, customer_id, t
       return data.data.updateCustomerCourier;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -294,7 +303,7 @@ export async function getCourierList (params) {
       return data.data.getCourierList;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -324,7 +333,7 @@ export async function getOperatorList (params) {
       return data.data.getUserList;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -352,7 +361,7 @@ export async function getRoleList (params) {
       return data.data.getRoleList;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -389,7 +398,7 @@ export async function getUserInfos (params) {
       return data.data.getUserInfos;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -411,7 +420,7 @@ export async function addUser (params) {
       return data.data.addUser;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -433,7 +442,7 @@ export async function createCustomer ({ customer, type }) {
       return data.data.createCustomer;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -459,7 +468,7 @@ export async function updateCustomer ({ customer, customer_id, type }) {
       return data.data.updateCustomer;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -497,7 +506,7 @@ export async function queryCustomerList (params) {
       return data.data.getCustomers;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -528,7 +537,7 @@ export async function querySiteList (params) {
       return data.data.getSites;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -551,7 +560,7 @@ export async function addSite (params) {
       return data.data.addSite;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -575,7 +584,7 @@ export async function getOrderCode (params) {
       return data.data.getOrderCode;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -688,7 +697,7 @@ export async function createOrder (params) {
       return data.data.createOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -720,7 +729,7 @@ export async function updateOrder ({ order, order_id }) {
       return data.data.updateOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -742,7 +751,7 @@ export async function settleOrder (params) {
       return data.data.settleOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -764,7 +773,7 @@ export async function cancelSettleOrder (params) {
       return data.data.cancelSettleOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -786,7 +795,7 @@ export async function downAccount (params) {
       return data.data.downAccountOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -808,7 +817,7 @@ export async function cancelTodayDownAccountOrder (params) {
       return data.data.cancelTodayDownAccountOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -830,7 +839,7 @@ export async function cancelDownAccountOrder (params) {
       return data.data.cancelDownAccountOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -853,7 +862,7 @@ export async function updateTransSign (params) {
       return data.data.updateTransSign;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -877,7 +886,7 @@ export async function updateOrderSign (params) {
       return data.data.updateOrderSign;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -934,7 +943,7 @@ export async function getCustomerList (params) {
       return data.data.getCustomerList;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1018,7 +1027,7 @@ export async function getCustomer (params) {
       return data.data.getCustomer;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1050,7 +1059,7 @@ export async function getCustomerTypes (params) {
       return data.data.getCustomerTypes;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1169,7 +1178,7 @@ export async function getOrderList (params) {
       return data.data.getOrders;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1213,7 +1222,7 @@ export async function getTodayPayList (params) {
       return data.data.getTodayPays;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1236,7 +1245,7 @@ export async function deleteOrder (params) {
       return data.data.deleteOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1296,7 +1305,7 @@ export async function getOrderStatistic (params) {
       return data.data.getOrderStatistic;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1322,7 +1331,7 @@ export async function getTodayPayStatistic (params) {
       return data.data.getTodayPayStatistic;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1357,7 +1366,7 @@ export async function shipOrder (params) {
       return data.data.shipOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1380,7 +1389,7 @@ export async function cancelShipOrder (params) {
       return data.data.cancelShipOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1403,7 +1412,7 @@ export async function entrunkOrder (params) {
       return data.data.entrunkOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1425,7 +1434,7 @@ export async function departOrder (params) {
       return data.data.departOrder;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1451,7 +1460,7 @@ export async function cancelEntrunk (params = {}) {
       return data.data.cancelEntrunk;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1477,7 +1486,7 @@ export async function changeOrderReceiver (params) {
       return data.data.changeOrderReceiver;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1500,7 +1509,7 @@ export async function updateCarFee ({ car = {} }) {
       return data.data.updateCarFee;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1534,7 +1543,7 @@ export async function updateCarStatus (params) {
       return data.data.updateCarStatus;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 // 接货人
@@ -1560,7 +1569,7 @@ export async function queryReceiverList (params) {
       return data.data.getCourierList;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1596,7 +1605,7 @@ export async function queryCarList (params) {
       return data.data.getCars;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1618,7 +1627,7 @@ export async function getCarCode (params) {
       return data.data.getCarCode;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1651,7 +1660,7 @@ export async function getLastCarCode (params) {
       return data.data.getLastCarCode;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1682,7 +1691,7 @@ export async function getCarInfo (params) {
       return data.data.getCarInfo;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1711,7 +1720,7 @@ export async function queryDriverList (params) {
       return data.data.getDrivers;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1766,7 +1775,7 @@ export async function updateAbnormal (params) {
       return data.data.updateAbnormal;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1794,7 +1803,7 @@ export async function updatePayStatus (params) {
       return data.data.updatePayStatus;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1822,7 +1831,7 @@ export async function cancelAbnormal (params) {
       return data.data.cancelAbnormal;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1849,7 +1858,7 @@ export async function getAbnormalTypes (params) {
       return data.data.getAbnormalTypes;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1889,7 +1898,7 @@ export async function getIncomes (params) {
       return data.data.getIncomes;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1924,7 +1933,7 @@ export async function getIncomeTypes (params) {
       return data.data.getIncomeTypes;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1959,7 +1968,7 @@ export async function getDebtTypes (params) {
       return data.data.getDebtTypes;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -1986,7 +1995,7 @@ export async function addIncome (params) {
       return data.data.addIncome;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2025,7 +2034,7 @@ export async function getExpenses (params) {
       return data.data.getExpenses;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2060,7 +2069,7 @@ export async function getExpenseTypes (params) {
       return data.data.getExpenseTypes;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2086,7 +2095,7 @@ export async function addExpense (params) {
       return data.data.addExpense;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2116,7 +2125,7 @@ export async function getDebtUsers (params) {
       return data.data.getDebtUsers;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2154,7 +2163,7 @@ export async function getDebts (params) {
       return data.data.getDebts;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2177,7 +2186,7 @@ export async function getDebtsStatistic (params) {
       return data.data.getDebtsStatistic;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2200,7 +2209,7 @@ export async function settleDebt (params) {
       return data.data.settleDebt;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2226,7 +2235,7 @@ export async function addDebt (params) {
       return data.data.addDebt;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2266,7 +2275,7 @@ export async function getTransfers (params) {
       return data.data.getTransfers;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2294,7 +2303,7 @@ export async function getTransferStatistic (params) {
       return data.data.getTransferStatistic;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2320,7 +2329,7 @@ export async function addTransfer (params) {
       return data.data.addTransfer;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2342,7 +2351,7 @@ export async function updateTransfer (params) {
       return data.data.updateTransfer;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2365,7 +2374,7 @@ export async function updateTransferType (params) {
       return data.data.updateTransferType;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2387,7 +2396,7 @@ export async function delTransfer (params) {
       return data.data.delTransfer;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2427,7 +2436,7 @@ export async function getTodayAccountList (params) {
       return data.data.getTodayAccountList;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2451,7 +2460,7 @@ export async function getTodayAccountStatistic (params) {
       return data.data.getTodayAccountStatistic;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2473,7 +2482,7 @@ export async function cancelConfirmTrans (params) {
       return data.data.cancelConfirmTrans;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
 
@@ -2495,6 +2504,6 @@ export async function confirmTrans (params) {
       return data.data.confirmTrans;
     })
     .catch(error => {
-      message.error('系统繁忙，请稍后再试');
+      showErrorMessage(error)
     });
 }
