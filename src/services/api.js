@@ -65,7 +65,8 @@ function gotoLogin (data) {
 }
 
 function showErrorMessage (error = {}) {
-  let msg = error.message || JSON.stringify(error)
+  console.log(error)
+  let msg = JSON.stringify(error)
   Modal.error({
     content: `系统繁忙，请稍后再试-${msg}`,
     okText: '我知道了'
