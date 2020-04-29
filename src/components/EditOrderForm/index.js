@@ -180,6 +180,10 @@ class OrderEditForm extends PureComponent {
         fieldsValue['transfer_type'] = Number(fieldsValue['transfer_type']);
       }
 
+      if (!fieldsValue['trans_discount']) {
+        fieldsValue['trans_discount'] = fieldsValue['trans_amount']
+      }
+
       const result = await dispatch({
         type: 'order/updateOrderAction',
         payload: {
@@ -199,7 +203,7 @@ class OrderEditForm extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const { record, modalVisible, onCancelModal, form, isEdit = 0 } = this.props;
     const buttons = [
       <Button key="btn-cancel" onClick={() => onCancelModal()}>

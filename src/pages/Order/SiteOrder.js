@@ -191,6 +191,10 @@ class CreateForm extends PureComponent {
         }
       });
 
+      if (!fieldsValue['trans_discount']) {
+        fieldsValue['trans_discount'] = fieldsValue['trans_amount']
+      }
+
       fieldsValue.order_num = Number(fieldsValue.order_num || 0)
       fieldsValue.order_label_num = Number(fieldsValue.order_label_num || 0)
       if (fieldsValue.transfer_type) {
