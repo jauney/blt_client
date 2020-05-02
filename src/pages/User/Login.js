@@ -20,7 +20,7 @@ class LoginPage extends Component {
   };
 
 
-  async componentDidMount() {
+  async componentDidMount () {
     this.getPrinterList()
   }
 
@@ -30,7 +30,9 @@ class LoginPage extends Component {
     ipcRenderer.once('getPrinterList', (event, data) => {
       // 过滤可用打印机
       console.log('print list...', data)
-      let printList = data.filter(element => element.name.includes('244'))
+      let printList = data.filter(element => {
+        return element.name.includes('244') || element.name.includes('HPRT')
+      })
       console.log(printList)
 
       // 1.判断是否有打印服务
@@ -106,7 +108,7 @@ class LoginPage extends Component {
     <Alert style={{ marginBottom: 24 }} message={content} type="error" showIcon />
   );
 
-  render() {
+  render () {
     const { login, submitting } = this.props;
     const { type, autoLogin } = this.state;
     return (

@@ -16,40 +16,19 @@ console.log(APIURL)
 // 测试
 // const httpLink = new HttpLink({ uri: 'http://47.105.84.59:8002/graphql' });
 // 本地调试
-const httpLink = new HttpLink({ uri: APIURL });
-
-const authMiddleware = new ApolloLink((operation, forward) => {
-  // add the authorization to the headers
-  operation.setContext({
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      Accept: 'application/json',
-      authorization: localStorage.getItem('token') || null,
-    },
-  });
-
-  return forward(operation);
+const httpLink = new HttpLink({
+  uri: APIURL,
+  headers: {
+    'Access-Control-Allow-Origin': '*',
+    Accept: 'application/json',
+    authorization: localStorage.getItem('token') || '',
+  }
 });
-// 加上这个配置，可以发送多次相同请求，否则，前端会将相同请求缓存，不发送
-const defaultOptions = {
-  watchQuery: {
-    fetchPolicy: 'network-only',
-    errorPolicy: 'ignore',
-  },
-  query: {
-    fetchPolicy: 'network-only',
-    errorPolicy: 'all',
-  },
-  fetchOptions: {
-    mode: 'no-cors',
-    withCredentials: true,
-    crossdomain: true,
-  },
-};
+
+const cache = new InMemoryCache();
 const client = new ApolloClient({
-  link: concat(authMiddleware, httpLink),
-  cache: new InMemoryCache(),
-  defaultOptions,
+  link: httpLink,
+  cache
 });
 
 /**
