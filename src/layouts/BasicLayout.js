@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Layout } from 'antd';
+import { Layout, Spin } from 'antd';
 import DocumentTitle from 'react-document-title';
 import isEqual from 'lodash/isEqual';
 import memoizeOne from 'memoize-one';
@@ -58,7 +58,7 @@ class BasicLayout extends React.PureComponent {
     this.matchParamsPath = memoizeOne(this.matchParamsPath, isEqual);
   }
 
-  componentDidMount() {
+  componentDidMount () {
     const {
       dispatch,
       route: { routes, authority },
@@ -76,7 +76,7 @@ class BasicLayout extends React.PureComponent {
     });
   }
 
-  componentDidUpdate(preProps) {
+  componentDidUpdate (preProps) {
     // After changing to phone mode,
     // if collapsed is true, you need to click twice to display
     const { collapsed, isMobile } = this.props;
@@ -85,7 +85,7 @@ class BasicLayout extends React.PureComponent {
     }
   }
 
-  getContext() {
+  getContext () {
     const { location, breadcrumbNameMap } = this.props;
     return {
       location,
@@ -157,7 +157,7 @@ class BasicLayout extends React.PureComponent {
     return <SettingDrawer />;
   };
 
-  render() {
+  render () {
     const {
       navTheme,
       layout: PropsLayout,
@@ -168,46 +168,51 @@ class BasicLayout extends React.PureComponent {
       breadcrumbNameMap,
       route: { routes },
       fixedHeader,
+      isShowLoading
     } = this.props;
 
     const isTop = PropsLayout === 'topmenu';
     const routerConfig = this.getRouterAuthority(pathname, routes);
     const contentStyle = !fixedHeader ? { paddingTop: 0 } : {};
+    let spinStatus = false
+
     const layout = (
-      <Layout>
-        {isTop && !isMobile ? null : (
-          <SiderMenu
-            logo={logo}
-            theme={navTheme}
-            onCollapse={this.handleMenuCollapse}
-            menuData={menuData}
-            isMobile={isMobile}
-            {...this.props}
-          />
-        )}
-        <Layout
-          style={{
-            ...this.getLayoutStyle(),
-            minHeight: '100vh',
-          }}
-        >
-          <Header
-            menuData={menuData}
-            handleMenuCollapse={this.handleMenuCollapse}
-            logo={logo}
-            isMobile={isMobile}
-            CacheSite={CacheSite}
-            CacheUser={CacheUser}
-            {...this.props}
-          />
-          <Content className={styles.content} style={contentStyle}>
-            <Authorized authority={routerConfig} noMatch={<Login />}>
-              {children}
-            </Authorized>
-          </Content>
-          <Footer />
+      <Spin tip="加载中..." spinning={isShowLoading}>
+        <Layout>
+          {isTop && !isMobile ? null : (
+            <SiderMenu
+              logo={logo}
+              theme={navTheme}
+              onCollapse={this.handleMenuCollapse}
+              menuData={menuData}
+              isMobile={isMobile}
+              {...this.props}
+            />
+          )}
+          <Layout
+            style={{
+              ...this.getLayoutStyle(),
+              minHeight: '100vh',
+            }}
+          >
+            <Header
+              menuData={menuData}
+              handleMenuCollapse={this.handleMenuCollapse}
+              logo={logo}
+              isMobile={isMobile}
+              CacheSite={CacheSite}
+              CacheUser={CacheUser}
+              {...this.props}
+            />
+            <Content className={styles.content} style={contentStyle}>
+              <Authorized authority={routerConfig} noMatch={<Login />}>
+                {children}
+              </Authorized>
+            </Content>
+            <Footer />
+          </Layout>
         </Layout>
-      </Layout>
+      </Spin>
     );
     return (
       <React.Fragment>
@@ -226,13 +231,14 @@ class BasicLayout extends React.PureComponent {
   }
 }
 
-export default connect(({ global, setting, company, menu: menuModel }) => ({
+export default connect(({ global, setting, company, menu: menuModel, ajaxLoading }) => ({
   collapsed: global.collapsed,
   layout: setting.layout,
   menuData: menuModel.menuData,
   breadcrumbNameMap: menuModel.breadcrumbNameMap,
   ...setting,
   branchCompanyList: company.branchCompanyList,
+  isShowLoading: ajaxLoading.isShowLoading
 }))(props => (
   <Media query="(max-width: 599px)">
     {isMobile => <BasicLayout {...props} isMobile={isMobile} />}

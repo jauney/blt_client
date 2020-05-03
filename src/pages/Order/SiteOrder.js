@@ -30,7 +30,7 @@ import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { setCustomerFieldValue } from '@/utils/customer'
-import { locale } from '@/utils'
+import { locale, showLoading, hideLoading } from '@/utils'
 import { async } from 'q';
 import { printOrder, printPayOrder, printDownLoad, printLabel, getPrintOrderConent, printSiteOrder } from '@/utils/print'
 const { ipcRenderer } = window.require('electron')
@@ -1454,7 +1454,7 @@ class CreateShipForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ customer, company, order, site, car, driver, receiver, loading }) => {
+@connect(({ customer, company, order, site, car, driver, receiver, ajaxLoading }) => {
   return {
     customer,
     company,
@@ -1463,7 +1463,7 @@ class CreateShipForm extends PureComponent {
     receiver,
     car,
     driver,
-    loading: loading.models.rule,
+    ajaxLoading
   };
 })
 @Form.create()
@@ -1727,6 +1727,7 @@ class TableList extends PureComponent {
     if (e) {
       e.preventDefault();
     }
+
     this.setState({ current: 1 })
     this.getOrderList({ sorter: "order_status|ascend,create_date|desc" });
   };
@@ -1738,8 +1739,9 @@ class TableList extends PureComponent {
     const { dispatch, form, receiver: { receiverList } } = this.props;
     const { current, pageSize } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields(async (err, fieldsValue) => {
       if (err) return;
+      showLoading(dispatch)
 
       fieldsValue.order_status = [0, 1]
 
@@ -1760,12 +1762,12 @@ class TableList extends PureComponent {
       }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
 
-      dispatch({
+      await dispatch({
         type: 'order/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      dispatch({
+      await dispatch({
         type: 'order/getOrderStatisticAction',
         payload: { ...searchParams },
       });
@@ -1773,6 +1775,8 @@ class TableList extends PureComponent {
       this.getLastCarInfo()
 
       this.standardTable.cleanSelectedKeys()
+
+      hideLoading(dispatch)
     });
   };
 
