@@ -739,7 +739,7 @@ class TableList extends PureComponent {
 
   render () {
     const {
-      debt: { debtList, total, debtTypes, debtUserList },
+      debt: { debtList, debtTotal, debtTypes, debtUserList },
       loading,
     } = this.props;
 
@@ -774,7 +774,7 @@ class TableList extends PureComponent {
               data={{
                 list: debtList,
                 pagination: {
-                  total,
+                  total: debtTotal,
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {

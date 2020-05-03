@@ -550,11 +550,14 @@ class TableList extends PureComponent {
     let startDate = moment(Number(record.expense_date));
     let endDate = moment(Number(new Date().getTime()));
     let diffHours = endDate.diff(startDate, 'hours');
-
+    if (!['site_pay', 'company_account'].includes(CacheRole.role_value)) {
+      return
+    }
     if (diffHours >= 24) {
       message.error('超过24小时记录不可编辑');
       return;
     }
+
     this.setState({
       record,
     });
