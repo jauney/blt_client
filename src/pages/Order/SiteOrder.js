@@ -1105,9 +1105,16 @@ class CreateEntrunkForm extends PureComponent {
       </Form>
     );
   };
-
+  // 防爆击
+  btnClicked = false
   onOkHandler = e => {
     e.preventDefault();
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const {
       dispatch,
       form,
@@ -1151,12 +1158,12 @@ class CreateEntrunkForm extends PureComponent {
       formValues.shipsite_name = shipSiteName;
       formValues.car_code = formValues.car_code + '';
       formValues.company_id = currentCompany.company_id;
-
+      showLoading(dispatch)
       const result = await dispatch({
         type: 'untrunkorder/entrunkOrderAction',
         payload: { order_id: orderIds, car: formValues },
       });
-
+      hideLoading(dispatch)
       if (result.code == 0) {
         message.success('装车成功');
         onSearch();
@@ -1382,9 +1389,17 @@ class CreateShipForm extends PureComponent {
       </Form>
     );
   };
+  // 防爆击
+  btnClicked = false
 
   onEntruck = e => {
     e.preventDefault();
+    if (this.btnClicked) {
+      return
+    }
+    this.btnClicked = true
+    setTimeout(() => { this.btnClicked = false }, 2000)
+
     const {
       dispatch,
       form,
@@ -1810,6 +1825,7 @@ class TableList extends PureComponent {
     let orderCode = selectedOrder.order_code
     // 打印是增加时间
     let createDate = new Date().getTime()
+    showLoading(dispatch)
     if (selectedOrder.order_id) {
       const result = await dispatch({
         type: 'order/updateOrderAction',
@@ -1818,7 +1834,7 @@ class TableList extends PureComponent {
           order_id: selectedOrder.order_id,
         },
       });
-
+      hideLoading(dispatch)
       if (result && result.code == 0) {
         message.success('编辑成功');
       } else {
@@ -1831,6 +1847,7 @@ class TableList extends PureComponent {
         type: 'order/createOrderAction',
         payload: fields,
       });
+      hideLoading(dispatch)
       orderCode = result && result.data && result.data.order_code || ''
       // TODO: 拿到order_code用于打印
       console.log(result.data);
