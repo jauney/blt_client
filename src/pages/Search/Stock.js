@@ -100,12 +100,12 @@ class TableList extends PureComponent {
       title: '日期',
       dataIndex: 'account_date',
       render: val => (
-        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
     this.fetchCompanySiteList();
     this.fetchOperatorList();
@@ -245,7 +245,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       site: { siteList = [], normalSiteList = [] },
@@ -285,11 +285,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       search: { accounts, accountTotal },
       loading,

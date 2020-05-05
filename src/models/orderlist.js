@@ -1,4 +1,4 @@
-import { getOrderList, getOrderStatistic } from '@/services/api';
+import { getOrderListAxios, getOrderStatisticAxios } from '@/services/api';
 
 export default {
   namespace: 'orderlist',
@@ -24,15 +24,15 @@ export default {
   },
 
   effects: {
-    *getOrderListAction({ payload }, { call, put }) {
-      const response = yield call(getOrderList, payload);
+    *getOrderListAction ({ payload }, { call, put }) {
+      const response = yield call(getOrderListAxios, payload);
       yield put({
         type: 'getOrderListReducer',
         payload: response || [],
       });
     },
-    *getOrderStatisticAction({ payload }, { call, put }) {
-      const response = yield call(getOrderStatistic, payload);
+    *getOrderStatisticAction ({ payload }, { call, put }) {
+      const response = yield call(getOrderStatisticAxios, payload);
       yield put({
         type: 'getOrderStatisticReducer',
         payload: response,
@@ -41,14 +41,14 @@ export default {
   },
 
   reducers: {
-    getOrderListReducer(state, action) {
+    getOrderListReducer (state, action) {
       return {
         ...state,
         orderList: action.payload.orders,
         total: action.payload.total,
       };
     },
-    getOrderStatisticReducer(state, action) {
+    getOrderStatisticReducer (state, action) {
       return {
         ...state,
         ...action.payload,

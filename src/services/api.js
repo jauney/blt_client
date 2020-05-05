@@ -1,6 +1,7 @@
 import { stringify } from 'qs';
 import { message, Modal } from 'antd';
 import request from '@/utils/request';
+import axios from 'axios';
 import router from 'umi/router';
 import { HttpLink } from 'apollo-link-http';
 import { ApolloClient } from 'apollo-client';
@@ -9,6 +10,7 @@ import gql from 'graphql-tag';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { async } from 'q';
 
+const APIHOST = `http://${location.hostname}:8002`
 const APIURL = `http://${location.hostname}:8002/graphql`
 console.log(APIURL)
 // 线上
@@ -41,6 +43,28 @@ const client = new ApolloClient({
   defaultOptions: defaultOptions
 });
 
+async function ajaxFetch (api, data = {}) {
+  const result = await axios({
+    method: 'post',
+    url: api,
+    data,
+    headers: {
+      authorization: localStorage.getItem('token') || ''
+    }
+  }).catch(e => {
+    console.log(e)
+    showErrorMessage(e)
+    return {
+      status: 200,
+      data: { code: 9999, msg: '系统繁忙，请稍后再试' }
+    }
+  });
+
+  if (result.status === 200) {
+    return result.data
+  }
+  showErrorMessage(result)
+}
 /**
  * 登录校验跳转。后端接口没登录，则跳转到登录
  * @param {*} data
@@ -578,6 +602,12 @@ export async function getOrderCode (params) {
     });
 }
 
+export async function createOrderAxios (params) {
+  return await ajaxFetch(`${APIHOST}/openapi/createorder`, {
+    order: params
+  })
+}
+
 export async function createOrder (params) {
   params.getcustomer_id = Number(params.getcustomer_id);
   params.sendcustomer_id = Number(params.sendcustomer_id);
@@ -1053,6 +1083,35 @@ export async function getCustomerTypes (params) {
     });
 }
 
+
+export async function getOrderListAxios (params) {
+  if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
+    params.filter.order_status = [params.filter.order_status];
+  }
+  if (params.filter && params.filter.abnormal_status) {
+    params.filter.abnormal_status = Number(params.filter.abnormal_status);
+  }
+
+  if (!params.filter.getcustomer_id) {
+    delete params.filter.getcustomer_id;
+  }
+  if (!params.filter.sendcustomer_id) {
+    delete params.filter.sendcustomer_id;
+  }
+  if (!params.filter.getcustomer_mobile) {
+    delete params.filter.getcustomer_mobile;
+  }
+  if (!params.filter.sendcustomer_mobile) {
+    delete params.filter.sendcustomer_mobile;
+  }
+  if (!params.filter.settle_date) {
+    delete params.filter.settle_date
+  }
+
+  return await ajaxFetch(`${APIHOST}/openapi/getorders`, {
+    ...params
+  })
+}
 export async function getOrderList (params) {
   if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
     params.filter.order_status = [params.filter.order_status];
@@ -1239,6 +1298,36 @@ export async function deleteOrder (params) {
     });
 }
 
+
+export async function getOrderStatisticAxios (params) {
+  if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
+    params.filter.order_status = [params.filter.order_status];
+  }
+  if (params.filter && params.filter.abnormal_status) {
+    params.filter.abnormal_status = Number(params.filter.abnormal_status);
+  }
+
+  if (!params.filter.getcustomer_id) {
+    delete params.filter.getcustomer_id;
+  }
+  if (!params.filter.sendcustomer_id) {
+    delete params.filter.sendcustomer_id;
+  }
+  if (!params.filter.getcustomer_mobile) {
+    delete params.filter.getcustomer_mobile;
+  }
+  if (!params.filter.sendcustomer_mobile) {
+    delete params.filter.sendcustomer_mobile;
+  }
+  if (!params.filter.settle_date) {
+    delete params.filter.settle_date
+  }
+
+  return await ajaxFetch(`${APIHOST}/openapi/getorderstatistic`, {
+    ...params
+  })
+}
+
 export async function getOrderStatistic (params) {
   if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
     params.filter.order_status = [params.filter.order_status];
@@ -1323,6 +1412,12 @@ export async function getTodayPayStatistic (params) {
     .catch(error => {
       showErrorMessage(error)
     });
+}
+
+export async function shipOrderAxios (params) {
+  return await ajaxFetch(`${APIHOST}/openapi/shiporder`, {
+    ...params
+  })
 }
 
 export async function shipOrder (params) {

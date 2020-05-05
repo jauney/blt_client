@@ -1,6 +1,6 @@
 import {
-  getOrderList,
-  getOrderStatistic,
+  getOrderListAxios,
+  getOrderStatisticAxios,
   cancelShipOrder,
   entrunkOrder,
   changeOrderReceiver,
@@ -22,42 +22,42 @@ export default {
   },
 
   effects: {
-    *getOrderListAction({ payload }, { call, put }) {
+    *getOrderListAction ({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
       payload.filter.order_status = 1;
-      const response = yield call(getOrderList, payload);
+      const response = yield call(getOrderListAxios, payload);
       yield put({
         type: 'getOrderListReducer',
         payload: response,
       });
     },
-    *getOrderStatisticAction({ payload }, { call, put }) {
-      const response = yield call(getOrderStatistic, payload);
+    *getOrderStatisticAction ({ payload }, { call, put }) {
+      const response = yield call(getOrderStatisticAxios, payload);
       yield put({
         type: 'getOrderStatisticReducer',
         payload: response,
       });
     },
-    *cancelShipAction({ payload }, { call, put }) {
+    *cancelShipAction ({ payload }, { call, put }) {
       return yield call(cancelShipOrder, payload); // post
     },
-    *entrunkOrderAction({ payload }, { call, put }) {
+    *entrunkOrderAction ({ payload }, { call, put }) {
       return yield call(entrunkOrder, payload); // post
     },
-    *changeOrderReceiverAction({ payload }, { call, put }) {
+    *changeOrderReceiverAction ({ payload }, { call, put }) {
       return yield call(changeOrderReceiver, payload); // post
     },
   },
 
   reducers: {
-    getOrderListReducer(state, action) {
+    getOrderListReducer (state, action) {
       return {
         ...state,
         orderList: action.payload.orders,
         total: action.payload.total,
       };
     },
-    getOrderStatisticReducer(state, action) {
+    getOrderStatisticReducer (state, action) {
       return {
         ...state,
         ...action.payload,

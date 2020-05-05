@@ -95,7 +95,7 @@ class DownAccountForm extends PureComponent {
     );
   };
 
-  render() {
+  render () {
     const { modalVisible, downCancel, selectedRows, form, abnormalTypes } = this.props;
     const accountData = getSelectedDownAccount(selectedRows);
     const record = selectedRows.length > 0 ? selectedRows[0] : {};
@@ -270,7 +270,7 @@ class TableList extends PureComponent {
       title: '录票时间',
       dataIndex: 'create_date',
       width: '170px',
-      render: val => <span>{val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => <span>{val && moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '站点',
@@ -298,7 +298,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
 
     await dispatch({
@@ -624,7 +624,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList, siteList },
@@ -682,11 +682,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       abnormal: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,

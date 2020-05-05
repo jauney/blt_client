@@ -231,7 +231,7 @@ class TableList extends PureComponent {
       width: '190px',
       dataIndex: 'create_date',
       render: val => (
-        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
     },
     {
@@ -239,7 +239,7 @@ class TableList extends PureComponent {
       width: '190px',
       dataIndex: 'settle_date',
       render: val => (
-        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
     },
     {

@@ -112,7 +112,7 @@ class CreateReceiverForm extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const { modalVisible, onReceiverModalCancel } = this.props;
     return (
       <Modal
@@ -147,7 +147,7 @@ class CreateEntrunkForm extends PureComponent {
   /**
    * 编辑的时候初始化赋值表单
    */
-  componentDidMount() { }
+  componentDidMount () { }
 
   onCarChange = value => {
     const { driverList, form } = this.props;
@@ -356,7 +356,7 @@ class CreateEntrunkForm extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const { modalVisible, onEntrunkModalCancel } = this.props;
     return (
       <Modal
@@ -412,7 +412,7 @@ class TableList extends PureComponent {
       title: '录票时间',
       width: '170px',
       dataIndex: 'create_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '货单号',
@@ -528,7 +528,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
 
     const branchCompanyList = await dispatch({
@@ -898,7 +898,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
@@ -997,11 +997,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       untrunkorder: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },

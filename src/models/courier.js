@@ -6,8 +6,8 @@ import {
   createCourier,
   updateCourier,
   updateCustomerCourier,
-  getOrderStatistic,
-  getOrderList,
+  getOrderStatisticAxios,
+  getOrderListAxios,
 } from '@/services/api';
 import { replace } from 'react-router-redux';
 
@@ -42,13 +42,13 @@ export default {
   },
 
   effects: {
-    *initOrderListAction({ payload }, { call, put }) {
+    *initOrderListAction ({ payload }, { call, put }) {
       yield put({
         type: 'initOrderListReducer',
         payload: { orders: [], total: 0 },
       });
     },
-    *getCourierListAction({ payload }, { call, put, select }) {
+    *getCourierListAction ({ payload }, { call, put, select }) {
       const response = yield call(getCourierList, payload);
 
       yield put({
@@ -56,7 +56,7 @@ export default {
         payload: { ...payload, response },
       });
     },
-    *getOperatorListAction({ payload }, { call, put, select }) {
+    *getOperatorListAction ({ payload }, { call, put, select }) {
       const response = yield call(getOperatorList, payload);
 
       yield put({
@@ -64,48 +64,48 @@ export default {
         payload: response,
       });
     },
-    *getOrderListAction({ payload }, { call, put }) {
+    *getOrderListAction ({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
       payload.filter.order_status = [2, 8];
-      const response = yield call(getOrderList, payload);
+      const response = yield call(getOrderListAxios, payload);
       yield put({
         type: 'getOrderListReducer',
         payload: response,
         params: payload,
       });
     },
-    *getOrderStatisticAction({ payload }, { call, put }) {
+    *getOrderStatisticAction ({ payload }, { call, put }) {
       payload.order_status = [2, 8];
-      const response = yield call(getOrderStatistic, payload);
+      const response = yield call(getOrderStatisticAxios, payload);
       yield put({
         type: 'getSiteOrderStatisticReducer',
         payload: response,
       });
     },
-    *queryCustomerTypesAction({ payload }, { call, put, select }) {
+    *queryCustomerTypesAction ({ payload }, { call, put, select }) {
       const response = yield call(getCustomerTypes, payload);
       yield put({
         type: 'queryGetCustomerTypesReducer',
         payload: response,
       });
     },
-    *createCourierAction({ payload }, { call, put }) {
+    *createCourierAction ({ payload }, { call, put }) {
       const response = yield call(createCourier, payload);
       return response;
     },
     // 更新客户关联送货人/接货人
-    *updateCustomerCourierAction({ payload }, { call, put }) {
+    *updateCustomerCourierAction ({ payload }, { call, put }) {
       const response = yield call(updateCustomerCourier, payload);
       return response;
     },
-    *updateCourierAction({ payload }, { call, put }) {
+    *updateCourierAction ({ payload }, { call, put }) {
       const response = yield call(updateCourier, payload);
       return response;
     },
   },
 
   reducers: {
-    initOrderListReducer(state, action) {
+    initOrderListReducer (state, action) {
       return {
         ...state,
         senderList: [],
@@ -122,7 +122,7 @@ export default {
         totalInsurancefee: 0,
       };
     },
-    getCourierReducer(state, action) {
+    getCourierReducer (state, action) {
       const { type, response } = action.payload;
       let courier = {};
 
@@ -136,14 +136,14 @@ export default {
         ...courier,
       };
     },
-    getOperatorReducer(state, action) {
+    getOperatorReducer (state, action) {
       return {
         ...state,
         operatorList: action.payload.users || [],
         operatorTotal: action.payload.total,
       };
     },
-    getOrderListReducer(state, action) {
+    getOrderListReducer (state, action) {
       const orders = action.payload.orders;
 
       return {
@@ -152,7 +152,7 @@ export default {
         total: action.payload.total,
       };
     },
-    getSiteOrderStatisticReducer(state, action) {
+    getSiteOrderStatisticReducer (state, action) {
       return {
         ...state,
         ...action.payload,

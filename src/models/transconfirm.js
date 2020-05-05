@@ -1,6 +1,6 @@
 import {
-  getOrderList,
-  getOrderStatistic,
+  getOrderListAxios,
+  getOrderStatisticAxios,
   confirmTrans,
   cancelConfirmTrans,
   updateTransSign,
@@ -34,7 +34,7 @@ export default {
       payload.filter = payload.filter || {};
       payload.filter.order_status = [3, 7];
 
-      const response = yield call(getOrderList, payload);
+      const response = yield call(getOrderListAxios, payload);
       yield put({
         type: 'getOrderListReducer',
         payload: response,
@@ -42,7 +42,7 @@ export default {
     },
     *getOrderStatisticAction ({ payload }, { call, put }) {
       payload.order_status = [3, 7];
-      const response = yield call(getOrderStatistic, payload);
+      const response = yield call(getOrderStatisticAxios, payload);
       yield put({
         type: 'getOrderStatisticReducer',
         payload: response,

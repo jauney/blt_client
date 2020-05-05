@@ -69,7 +69,7 @@ class TableList extends PureComponent {
       width: '170px',
       dataIndex: 'create_date',
       sorter: true,
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '货单号',
@@ -184,7 +184,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
 
     const branchCompanyList = await dispatch({
@@ -360,7 +360,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
@@ -441,11 +441,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       order: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },

@@ -1518,7 +1518,7 @@ class TableList extends PureComponent {
       width: '170px',
       sorter: true,
       dataIndex: 'create_date',
-      render: val => <span>{moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '货单号',

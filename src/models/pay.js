@@ -1,6 +1,6 @@
 import {
-  getOrderList,
-  getOrderStatistic,
+  getOrderListAxios,
+  getOrderStatisticAxios,
   getTodayPayList,
   getTodayPayStatistic,
   cancelSettleOrder,
@@ -30,33 +30,33 @@ export default {
   },
 
   effects: {
-    *getOrderListAction({ payload }, { call, put }) {
+    *getOrderListAction ({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
       payload.filter.order_status = payload.filter.order_status || 6;
 
-      const response = yield call(getOrderList, payload);
+      const response = yield call(getOrderListAxios, payload);
       yield put({
         type: 'getOrderListReducer',
         payload: response,
       });
     },
-    *getOrderStatisticAction({ payload }, { call, put }) {
+    *getOrderStatisticAction ({ payload }, { call, put }) {
       payload.order_status = [6, 7];
 
-      const response = yield call(getOrderStatistic, payload);
+      const response = yield call(getOrderStatisticAxios, payload);
       yield put({
         type: 'getOrderStatisticReducer',
         payload: response,
       });
     },
-    *getTodayPayListAction({ payload }, { call, put }) {
+    *getTodayPayListAction ({ payload }, { call, put }) {
       const response = yield call(getTodayPayList, payload);
       yield put({
         type: 'getTodayPayListReducer',
         payload: response,
       });
     },
-    *getTodayPayStatisticAction({ payload }, { call, put }) {
+    *getTodayPayStatisticAction ({ payload }, { call, put }) {
       payload.order_status = [6, 7];
 
       const response = yield call(getTodayPayStatistic, payload);
@@ -65,42 +65,42 @@ export default {
         payload: response,
       });
     },
-    *updatePayAbnormalAction({ payload }, { call, put }) {
+    *updatePayAbnormalAction ({ payload }, { call, put }) {
       return yield call(updatePayStatus, payload); // post
     },
-    *downAccountAction({ payload }, { call, put }) {
+    *downAccountAction ({ payload }, { call, put }) {
       return yield call(downAccount, payload); // post
     },
-    *cancelDownAccountAction({ payload }, { call, put }) {
+    *cancelDownAccountAction ({ payload }, { call, put }) {
       return yield call(cancelDownAccountOrder, payload); // post
     },
-    *cancelTodayDownAccountOrderAction({ payload }, { call, put }) {
+    *cancelTodayDownAccountOrderAction ({ payload }, { call, put }) {
       return yield call(cancelTodayDownAccountOrder, payload); // post
     },
   },
 
   reducers: {
-    getOrderListReducer(state, action) {
+    getOrderListReducer (state, action) {
       return {
         ...state,
         orderList: action.payload.orders,
         total: action.payload.total,
       };
     },
-    getTodayPayListReducer(state, action) {
+    getTodayPayListReducer (state, action) {
       return {
         ...state,
         todayPayList: action.payload.todaypays,
         todayPayTotal: action.payload.total,
       };
     },
-    getOrderStatisticReducer(state, action) {
+    getOrderStatisticReducer (state, action) {
       return {
         ...state,
         ...action.payload,
       };
     },
-    getTodayPayStatisticReducer(state, action) {
+    getTodayPayStatisticReducer (state, action) {
       return {
         ...state,
         todayPayStatistic: action.payload,

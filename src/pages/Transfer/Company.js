@@ -186,7 +186,7 @@ class TableList extends PureComponent {
       dataIndex: 'transfer_date',
       width: '170px',
       render: val => (
-        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
     },
     {
@@ -209,7 +209,7 @@ class TableList extends PureComponent {
       dataIndex: 'confirm_date',
       width: '170px',
       render: val => (
-        <span>{(val && moment(Number(val || 0)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
     },
     {
