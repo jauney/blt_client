@@ -426,9 +426,11 @@ export function printPayOrder ({ selectedRows = [], type = '' }) {
   let totalPay = 0
   selectedRows.forEach(item => {
     let orderNum = ''
+    let orderCodes = ''
     if (item.order_code) {
       orderNum = item.order_code.split(',').length
     }
+    orderCodes = item.order_code.replace(/,/ig, ', ')
 
     totalTransFund += Number(item.trans_discount || 0)
     totalPay += Number(item.pay_amount || 0)
@@ -437,7 +439,7 @@ export function printPayOrder ({ selectedRows = [], type = '' }) {
         <td>${item.bank_account || ''}</td>
         <td>${item.sendcustomer_name || ''}</td>
         <td>${item.pay_amount || ''}</td>
-        <td>${item.order_code || ''}</td>
+        <td>${orderCodes || ''}${orderCodes || ''}</td>
         </tr>`
     orderIndex++
   })
@@ -445,20 +447,21 @@ export function printPayOrder ({ selectedRows = [], type = '' }) {
     <style>
     table {width: 100%; border-collapse: collapse; border-spacing: 0;}
     table th { font-weight: bold; }
-    table th, table td {border: 1px solid #ccc; font-size: 10px; padding: 4px; text-align: left; line-height: 150%;}
+    table th, table td {border: 1px solid #ccc; font-size: 14px; padding: 4px; text-align: left; line-height: 150%;}
+    .header {text-align: center;}
     </style>`
   let html = `
     <table>
       <thead>
         <tr>
-          <td colspan="5">陕西远诚宝路通物流</td>
+          <td colspan="5" class="header">陕西远诚宝路通物流</td>
         </tr>
         <tr>
-          <th style="width:50px;">序号</th>
-          <th style="width:100px;">账号</th>
-          <th style="width:80px;">发货客户</th>
-          <th style="width:80px;">付款金额</th>
-          <th style="width:200px;">票号</th>
+          <th style="width:30px;">序号</th>
+          <th style="width:90px;">账号</th>
+          <th style="width:60px;">发货客户</th>
+          <th style="width:60px;">付款金额</th>
+          <th style="width:280px;">票号</th>
         </tr>
       </thead>
       <tbody>
