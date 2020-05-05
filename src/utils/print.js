@@ -439,7 +439,7 @@ export function printPayOrder ({ selectedRows = [], type = '' }) {
         <td>${item.bank_account || ''}</td>
         <td>${item.sendcustomer_name || ''}</td>
         <td>${item.pay_amount || ''}</td>
-        <td>${orderCodes || ''}${orderCodes || ''}</td>
+        <td>${orderCodes || ''}</td>
         </tr>`
     orderIndex++
   })
