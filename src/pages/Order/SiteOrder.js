@@ -1883,7 +1883,7 @@ class TableList extends PureComponent {
     });
     let printHtml = getPrintOrderConent({ getCustomer, sendCustomer, data, branchCompanyList, siteList, footer: true })
     printOrder(printHtml)
-    printLabel(data, data.order_label_num, localStorage.getItem('LabelPrinterName'))
+    printLabel(data, data.order_label_num, localStorage.getItem('LabelPrinterName'), CacheCompany, getCustomer)
   }
 
   onDelete = async () => {

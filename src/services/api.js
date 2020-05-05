@@ -995,6 +995,7 @@ export async function getCustomer (params) {
               bank_account
               company_id
               sender_id
+              sender_name
               receiver_id
               password
               username

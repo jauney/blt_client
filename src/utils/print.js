@@ -492,34 +492,41 @@ export function printPayOrder ({ selectedRows = [], type = '' }) {
  * 打印标签
  * @param {*} data
  */
-export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE') {
+export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE', company, getCustomer) {
   // 打印机纸张80mm*50mm，但高度不能设置为50mm，否则会多打一个白页
   let styles = `
     <style>
     .label-box { height: 45mm; padding: 0px; margin: 0px; }
     .content {width: 100%; padding-left: 0px;}
-    .content, .header {text-align: center; font-size: 14px}
+    .content, .header {text-align: center; font-size: 14px; position: relative;}
     .label {padding: 0 8px; text-align: left;  font-size: 16px }
     .header, .footer {text-align: center;}
-    .header {font-size: 16px; font-weight: 700;}
+    .header {font-size: 14px; font-weight: 700;}
     .label-time {font-size: 14px;}
-    .label-left {font-size: 20px; font-weight: 700;}
-    .label-right {font-size: 40px; font-weight: 700;}
-    .label-name {font-size: 24px; font-weight: 700;}
-    .label-goods {font-size: 16px}
+    .label-left {font-size: 16px; font-weight: 700;}
+    .label-right {font-size: 44px; font-weight: 700;}
+    .label-sender {position: absolute; right: 10px; top: 10px; font-size: 46px}
+    .label-name {padding-top: 10px; font-size: 20px; font-weight: 700;}
+    .label-goods {font-size: 14px}
     </style>`
+  console.log('print label', getCustomer)
+  let senderHtml = ''
+  if (company.remember_sender) {
+    senderHtml = `<div class="label-sender">${getCustomer.sender_name}</div>`
+  }
   let printHtml = ''
   let labelHtml = `
       <div class="label-box">
       <div class="header">远诚宝路通物流  <span class="label-time">${moment(new Date).format('YYYY-MM-DD')}</span></div>
       <div class="content">
       <div class="label">
-      <span class="label-left">${data.site_name}</span> ——> <span class="label-right">${data.company_name}</span>
+      <span class="label-left">${data.site_name}</span> &rarr; <span class="label-right">${data.company_name}</span>
       </div>
       <div class="label label-name">
       <span class="username">${data.getcustomer_name}</span> <span class="">${data.order_code} - ${data.order_num}</span>
       </div>
-      <div class="label label-goods">货物名称：${data.order_name}</div>
+      ${senderHtml}
+      <div class="label label-goods">货物名称：${data.order_name || ''}</div>
       </div>
       </div>
       `
