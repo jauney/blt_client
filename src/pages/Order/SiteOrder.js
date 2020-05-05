@@ -34,6 +34,7 @@ import { locale, showLoading, hideLoading } from '@/utils'
 import { async } from 'q';
 import { printOrder, printPayOrder, printDownLoad, printLabel, getPrintOrderConent, printSiteOrder } from '@/utils/print'
 const { ipcRenderer } = window.require('electron')
+import ModalDrag from '@/components/ModalDrag.js';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -621,10 +622,13 @@ class CreateForm extends PureComponent {
         </Button>
       ]
     }
+
+    const title = <ModalDrag title="新建托运单" />
+
     return (
       <Modal
         destroyOnClose
-        title="新建托运单"
+        title={title}
         okText="确认"
         cancelText="取消"
         visible={modalVisible}

@@ -25,6 +25,8 @@ import {
 import styles from './index.less';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { isTemplateElement } from '@babel/types';
+import ModalDrag from '../ModalDrag.js';
+
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -226,10 +228,12 @@ class OrderEditForm extends PureComponent {
     else if (record.trans_type == 2) {
       transType = '回付'
     }
+    const title = <ModalDrag title="编辑托运单" />
+
     return (
       <Modal
         destroyOnClose
-        title="编辑托运单"
+        title={title}
         okText="确认"
         cancelText="取消"
         visible={modalVisible}
