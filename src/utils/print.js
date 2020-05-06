@@ -506,10 +506,10 @@ export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE', company
     .header, .footer {text-align: center;}
     .header {font-size: 14px; font-weight: 700;}
     .label-time {font-size: 14px;}
-    .label-left {font-size: 16px; font-weight: 700;}
-    .label-right {font-size: 44px; font-weight: 700;}
+    .label-left {font-size: 14px;}
+    .label-right {font-size: 48px; font-weight: 700;}
     .label-sender {position: absolute; right: 10px; top: 10px; font-size: 46px}
-    .label-name {padding-top: 10px; font-size: 20px; font-weight: 700;}
+    .label-name {padding-top: 5px; font-size: 20px; font-weight: 700;}
     .label-goods {font-size: 14px}
     </style>`
   console.log('print label', getCustomer)
