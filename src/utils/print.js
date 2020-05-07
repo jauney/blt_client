@@ -196,8 +196,8 @@ export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data
     }
   })
   let accountStatistic = getSelectedAccount([data], 'init');
-  console.log('total account:', data)
-  let orderDate = moment(Number(data.create_date || 0)).format('YYYY-MM-DD')
+
+  let orderDate = moment(data.create_date).format('YYYY-MM-DD')
   let html = `
     <div class="header">陕西远诚宝路通物流</div>
     <div class="content">
@@ -514,8 +514,12 @@ export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE', company
     </style>`
 
   let senderHtml = ''
+  let senderName = ''
+  if (getCustomer.sender_name.length == 1) {
+    senderName = getCustomer.sender_name
+  }
   if (company.remember_sender) {
-    senderHtml = `<div class="label-sender">${getCustomer.sender_name || ''}</div>`
+    senderHtml = `<div class="label-sender">${senderName}</div>`
   }
   let printHtml = ''
   let labelHtml = `
