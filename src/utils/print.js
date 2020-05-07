@@ -495,7 +495,7 @@ export function printPayOrder ({ selectedRows = [], type = '' }) {
  * 打印标签
  * @param {*} data
  */
-export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE', company, getCustomer) {
+export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE', company, getCustomer = {}) {
   // 打印机纸张80mm*50mm，但高度不能设置为50mm，否则会多打一个白页
   let styles = `
     <style>
@@ -512,10 +512,10 @@ export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE', company
     .label-name {padding-top: 5px; font-size: 20px; font-weight: 700;}
     .label-goods {font-size: 14px}
     </style>`
-  console.log('print label', getCustomer)
+
   let senderHtml = ''
   if (company.remember_sender) {
-    senderHtml = `<div class="label-sender">${getCustomer.sender_name}</div>`
+    senderHtml = `<div class="label-sender">${getCustomer.sender_name || ''}</div>`
   }
   let printHtml = ''
   let labelHtml = `
