@@ -515,7 +515,7 @@ export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE', company
 
   let senderHtml = ''
   let senderName = ''
-  if (getCustomer.sender_name.length == 1) {
+  if (getCustomer.sender_name && getCustomer.sender_name.length == 1) {
     senderName = getCustomer.sender_name
   }
   if (company.remember_sender) {
