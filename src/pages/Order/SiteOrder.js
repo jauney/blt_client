@@ -1865,9 +1865,6 @@ class TableList extends PureComponent {
     if (option.type == 'print') {
       this.printOrder(Object.assign({ order_code: orderCode }, Object.assign(fields, { create_date: createDate }), option))
     }
-    setTimeout(() => {
-      this.getOrderList();
-    }, 1000);
   };
 
   // 打印订单
