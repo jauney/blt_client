@@ -1781,12 +1781,12 @@ class TableList extends PureComponent {
       }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
 
-      await dispatch({
+      dispatch({
         type: 'order/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      await dispatch({
+      dispatch({
         type: 'order/getOrderStatisticAction',
         payload: { ...searchParams },
       });
