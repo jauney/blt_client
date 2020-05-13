@@ -541,6 +541,9 @@ export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE', company
     printHtml += labelHtml
   }
 
+  if (!data.order_code) {
+    return
+  }
   //告诉渲染进程，开始渲染打印内容
   const printLableWebview = document.querySelector(`#printLabelWebview1`)
   printLableWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName })

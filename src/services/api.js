@@ -10,8 +10,8 @@ import gql from 'graphql-tag';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { async } from 'q';
 
-const APIHOST = `http://${location.hostname}:8002`
-const APIURL = `http://${location.hostname}:8002/graphql`
+const APIHOST = ``
+const APIURL = `/graphql`
 console.log(APIURL)
 // 线上
 // const httpLink = new HttpLink({ uri: 'http://118.190.100.113:8002/graphql' });
