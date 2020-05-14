@@ -1324,7 +1324,7 @@ export async function getOrderStatisticAxios (params) {
     delete params.filter.settle_date
   }
 
-  return await ajaxFetch(`${APIHOST}/openapi/getorderstatistic`, {
+  return await ajaxFetch(`${APIHOST}/openapi/getstatistic`, {
     ...params
   })
 }
