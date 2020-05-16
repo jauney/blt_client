@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang><head><link rel="manifest" href="/manifest.json"><link rel="stylesheet" href="/umi.css"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0;"><title>远诚宝路通物流</title><link rel="icon" href="/favicon.png" type="image/x-icon"><style>.print-view {
     height: 0px;
-  }</style><script>window.routerBase = "/";</script><script async src="/pwacompat.min.js"></script></head><body><noscript>Sorry, we need js to run correctly!</noscript><div id="root"></div><div class="print-view"><div id="pdf-print"></div><webview id="printOrderWebview" src="/print_order.html" nodeintegration style="visibility: hidden;"></webview><webview id="printWebview" src="/print.html" nodeintegration style="visibility: hidden;"></webview><webview id="printLabelWebview1" src="/print_label1.html" nodeintegration style="visibility: hidden;"></webview><webview id="printLabelWebview2" src="/print_label2.html" nodeintegration style="visibility: hidden;"></webview><webview id="printLabelWebview3" src="/print_label3.html" nodeintegration style="visibility: hidden;"></webview><webview id="printLabelWebview4" src="/print_label4.html" nodeintegration style="visibility: hidden;"></webview><webview id="printLabelWebview5" src="/print_label5.html" nodeintegration style="visibility: hidden;"></webview></div><script>const fs = window.require('fs');
+  }</style><script>window.routerBase = "/";</script><script async src="/pwacompat.min.js"></script></head><body><noscript>Sorry, we need js to run correctly!</noscript><div id="root"></div><div class="print-view"><webview id="printOrderWebview" src="/print_order.html" nodeintegration style="visibility: hidden;"></webview><webview id="printWebview" src="/print.html" nodeintegration style="visibility: hidden;"></webview><webview id="printLabelWebview1" src="/print_label1.html" nodeintegration style="visibility: hidden;"></webview><iframe id="printExcelFrame" src="/print_label2.html"></iframe></div><script>const fs = window.require('fs');
       const { remote } = window.require("electron");
 
       const printOrderWebview = document.querySelector('#printOrderWebview')
@@ -19,64 +19,12 @@
       const printLabelWebview1 = document.querySelector('#printLabelWebview1')
       printLabelWebview1.addEventListener('ipc-message', (event) => {
         let deviceName = event.args[0]
+        console.log('label print deviceName:', deviceName)
         if (event.channel === 'webview-print-do') {
-          return
           printLabelWebview1.print({
-            silent: true,
+            silent: false,
             printBackground: true,
-            deviceName: 'TSC TTP-244CE'
-          })
-        }
-      })
-
-      const printLabelWebview2 = document.querySelector('#printLabelWebview1')
-      printLabelWebview2.addEventListener('ipc-message', (event) => {
-        let deviceName = event.args[0]
-        if (event.channel === 'webview-print-do') {
-          return
-          printLabelWebview2.print({
-            silent: true,
-            printBackground: true,
-            deviceName: 'TSC TTP-244CE'
-          })
-        }
-      })
-
-      const printLabelWebview3 = document.querySelector('#printLabelWebview1')
-      printLabelWebview3.addEventListener('ipc-message', (event) => {
-        let deviceName = event.args[0]
-        if (event.channel === 'webview-print-do') {
-          return
-          printLabelWebview3.print({
-            silent: true,
-            printBackground: true,
-            deviceName: 'TSC TTP-244CE'
-          })
-        }
-      })
-
-      const printLabelWebview4 = document.querySelector('#printLabelWebview1')
-      printLabelWebview4.addEventListener('ipc-message', (event) => {
-        let deviceName = event.args[0]
-        if (event.channel === 'webview-print-do') {
-          return
-          printLabelWebview4.print({
-            silent: true,
-            printBackground: true,
-            deviceName: 'TSC TTP-244CE'
-          })
-        }
-      })
-
-      const printLabelWebview5 = document.querySelector('#printLabelWebview1')
-      printLabelWebview5.addEventListener('ipc-message', (event) => {
-        let deviceName = event.args[0]
-        if (event.channel === 'webview-print-do') {
-          return
-          printLabelWebview5.print({
-            silent: true,
-            printBackground: true,
-            deviceName: 'TSC TTP-244CE'
+            deviceName: deviceName || 'TSC_TTP_244CE'
           })
         }
       })
@@ -84,7 +32,7 @@
       const printWebview = document.querySelector('#printWebview')
       printWebview.addEventListener('ipc-message', (event) => {
         if (event.channel === 'webview-print-do') {
-          printWebview.print({ silent: false, printBackground: true })
+          printWebview.print({ silent: false, printBackground: true, pageSize: 'A4' })
         }
         else if (event.channel === 'webview-print-pdf') {
           console.log('print pdf....')

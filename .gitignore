@@ -38,4 +38,4 @@ functions/mock
 screenshot
 .firebase
 
-dist
+/dist/*

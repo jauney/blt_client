@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover'>
+
   <style>
     @page {
       margin: 0px;
@@ -12,33 +13,8 @@
 </head>
 
 <body id='bd'>
-
 </body>
 <script>
-  const { ipcRenderer } = window.require('electron')
-  const XLSX = require('xlsx');
-  const electron =  window.require('electron').remote;
-
-  ipcRenderer.on('webview-print-render', (event, options) => {
-    document.getElementById('bd').innerHTML = options.html;
-    //ipcRenderer.sendToHost('webview-print-do', options.deviceName)
-
-    var HTMLOUT = document.getElementById('bd');
-	var XTENSION = "xls|xlsx|xlsm|xlsb|xml|csv|txt|dif|sylk|slk|prn|ods|fods|htm|html".split("|")
-
-		var wb = XLSX.utils.table_to_book(HTMLOUT);
-		var o = electron.dialog.showSaveDialog({
-			title: 'Save file as',
-			filters: [{
-				name: "Spreadsheets",
-				extensions: XTENSION
-			}]
-		});
-		console.log(o);
-		XLSX.writeFile(wb, o);
-		electron.dialog.showMessageBox({ message: "Exported data to " + o, buttons: ["OK"] });
-
-  })
 </script>
 
 </html>

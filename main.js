@@ -5,7 +5,7 @@ const url = require('url');
 
 // 保持window对象的全局引用,避免JavaScript对象被垃圾回收时,窗口被自动关闭.
 let mainWindow;
-function createWindow() {
+function createWindow () {
   Menu.setApplicationMenu(null);
   // 创建浏览器窗口,宽高自定义具体大小你开心就好
   mainWindow = new BrowserWindow({
@@ -31,7 +31,7 @@ function createWindow() {
 
   // dev 加载应用----适用于 react 项目
   // mainWindow.loadURL('http://118.190.100.113:8001');
-  mainWindow.loadURL('http://127.0.0.1:8000');
+  mainWindow.loadURL('http://127.0.0.1:8001');
 
   // 打开开发者工具，默认不打开
   // mainWindow.webContents.openDevTools();

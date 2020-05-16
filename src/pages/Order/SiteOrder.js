@@ -1882,9 +1882,15 @@ class TableList extends PureComponent {
         sendcustomer_id: data.sendcustomer_id
       },
     });
-    let printHtml = getPrintOrderConent({ getCustomer, sendCustomer, data, branchCompanyList, siteList, footer: true })
+    let printCompany = {}
+    branchCompanyList.forEach(item => {
+      if (item.company_id == data.company_id) {
+        printCompany = item
+      }
+    })
+    let printHtml = getPrintOrderConent({ getCustomer, sendCustomer, data, printCompany, siteList, footer: true })
     printOrder(printHtml)
-    printLabel(data, data.order_label_num, localStorage.getItem('LabelPrinterName'), CacheCompany, getCustomer)
+    printLabel(data, data.order_label_num, localStorage.getItem('LabelPrinterName'), printCompany, getCustomer)
   }
 
   onDelete = async () => {

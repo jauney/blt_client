@@ -174,7 +174,7 @@ export function printDownLoad ({ selectedRows = [], type = '', lastCar = {}, sil
  * 获取打印托运单HTML
  * @param {*} param0
  */
-export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data = {}, branchCompanyList = [], siteList = [], footer = false }) {
+export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data = {}, printCompany = {}, siteList = [], footer = false }) {
   let getCustomerType = ''
   if (getCustomer.customer_type == 1) { getCustomerType = 'V' } else if (getCustomer.customer_type == 9) { getCustomerType = 'H' }
   let sendCustomerType = ''
@@ -184,12 +184,7 @@ export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data
   let transferType = ''
   if (data.transfer_type == 1) { transferType = '转出' } else if (data.transfer_type == 2) { transferType = '转入' }
   let printSite = {}
-  let printCompany = {}
-  branchCompanyList.forEach(item => {
-    if (item.company_name == data.company_name) {
-      printCompany = item
-    }
-  })
+
   siteList.forEach(item => {
     if (item.site_name == data.site_name) {
       printSite = item
