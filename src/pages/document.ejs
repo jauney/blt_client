@@ -47,7 +47,7 @@
         console.log('label print deviceName:', deviceName)
         if (event.channel === 'webview-print-do') {
           printLabelWebview1.print({
-            silent: false,
+            silent: true,
             printBackground: true,
             deviceName: deviceName || 'TSC_TTP_244CE'
           })
