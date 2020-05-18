@@ -6,7 +6,7 @@ import moment from 'moment';
  * @param {*} sltDatas
  * @param {*} type  'init': 初始录入订单，没有实付金额，所以使用order_amount当做order_real
  */
-export function getSelectedAccount(sltDatas, type) {
+export function getSelectedAccount (sltDatas, type) {
   let accountData = {};
 
   accountData.recordNum = sltDatas.length;
@@ -68,7 +68,7 @@ export function getSelectedAccount(sltDatas, type) {
 }
 
 //获取当前列表中勾选下账信息 包含记录总数，货款、运费总额等
-export function getSelectedDownAccount(sltDatas = []) {
+export function getSelectedDownAccount (sltDatas = []) {
   const accountData = {};
 
 
@@ -138,7 +138,7 @@ export function getSelectedDownAccount(sltDatas = []) {
  * @param {*} item
  * @param {*} company
  */
-export function calLateFee(items = [], company = {}) {
+export function calLateFee (items = [], company = {}) {
   let lateFee = 0
   for (let i = 0; i < items.length; i++) {
     let item = items[i]
@@ -149,7 +149,7 @@ export function calLateFee(items = [], company = {}) {
       Number(item.order_status) >= 3 &&
       orderAmount > 0
     ) {
-      let departDate = moment(Number(item.depart_date))
+      let departDate = moment(isNaN(Number(item.depart_date)) ? item.depart_date : Number(item.depart_date))
       let curDate = moment(new Date().getTime())
       let subDays = curDate.diff(departDate, 'days') // 1
       // 如设置的滞纳金从第10天开始收，今天是第11天，则滞纳金收11-10=1天
@@ -168,7 +168,7 @@ export function calLateFee(items = [], company = {}) {
  * @param {*} item
  * @param {*} company
  */
-export function calBonusFee(items = [], company = {}) {
+export function calBonusFee (items = [], company = {}) {
   let rewardFee = 0
 
   for (let i = 0; i < items.length; i++) {
@@ -180,8 +180,9 @@ export function calBonusFee(items = [], company = {}) {
       orderAmount > 0 &&
       item.depart_date
     ) {
-      let departDate = moment(Number(item.depart_date))
-      let settleDate = moment(Number(item.settle_date || (new Date()).getTime()))
+      let departDate = moment(isNaN(Number(item.depart_date)) ? item.depart_date : Number(item.depart_date))
+      let itemSettleDate = item.settle_date || (new Date()).getTime()
+      let settleDate = moment(isNaN(Number(itemSettleDate)) ? itemSettleDate : Number(itemSettleDate))
       let subHours = settleDate.diff(departDate, 'hours')
       if (subHours <= 24) {
         rewardFee += Number((orderAmount * company.rewards_24h || 1) / 1000)

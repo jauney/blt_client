@@ -686,7 +686,8 @@ class TableList extends PureComponent {
     let orderIds = [];
     let totalAmount = 0;
     selectedRows.forEach(item => {
-      let payDate = moment(moment(Number(item.pay_date) || 0))
+      let payDate = moment(isNaN(Number(item.pay_date)) ? item.pay_date : Number(item.pay_date))
+
       let curDate = moment(new Date().getTime())
       let subDays = curDate.diff(payDate, 'hours')
       if (subDays >= 24) {

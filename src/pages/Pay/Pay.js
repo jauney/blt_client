@@ -586,7 +586,7 @@ class TableList extends PureComponent {
     let totalAmount = 0;
     selectedRows.forEach(item => {
       let curDate = moment(new Date().getTime());
-      let diffHours = curDate.subtract(moment(Number(item.pay_date) || 0)).hours();
+      let diffHours = curDate.subtract(moment(isNaN(Number(item.pay_date)) ? item.pay_date : Number(item.pay_date))).hours();
       if (diffHours >= 24) {
         canCancelFlag = false;
       }

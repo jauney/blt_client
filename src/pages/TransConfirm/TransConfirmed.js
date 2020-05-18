@@ -359,7 +359,7 @@ class TableList extends PureComponent {
     });
     let canEdit = true
     selectedRows.forEach(item => {
-      let departDate = moment(Number(item.trans_confirmdate))
+      let departDate = moment(isNaN(Number(item.trans_confirmdate)) ? item.trans_confirmdate : Number(item.trans_confirmdate))
       let curDate = moment(new Date().getTime())
       let subDays = curDate.diff(departDate, 'days') // 1
       if (subDays > 1) {
