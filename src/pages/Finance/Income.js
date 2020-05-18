@@ -485,10 +485,11 @@ class TableList extends PureComponent {
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
-    let startDate = moment(Number(record.income_date));
+    let startDate = moment(isNaN(Number(record.income_date)) ? record.income_date : Number(record.income_date));
     let endDate = moment(Number(new Date().getTime()));
     let diffHours = endDate.diff(startDate, 'hours');
-    if (!['site_pay', 'company_account'].includes(CacheRole.role_value)) {
+    console.log(CacheRole.role_value)
+    if (!['site_pay', 'company_account', 'company_admin'].includes(CacheRole.role_value)) {
       return
     }
     if (diffHours >= 24) {

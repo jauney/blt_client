@@ -705,10 +705,18 @@ class TableList extends PureComponent {
       orderIds.push(item.order_id);
       customerIds.push(item.getcustomer_id);
       if (item.arrive_date) {
-        let startDate = moment(Number(item.arrive_date));
+        let startDate = moment(isNaN(Number(item.arrive_date)) ? item.arrive_date : Number(item.arrive_date));
+        let diffHours = endDate.diff(startDate, 'hours');
+        console.log(startDate)
+        if (diffHours >= 48) {
+          cannotEditFlag = true
+        }
+      }
+      if (!cannotEditFlag && item.create_date) {
+        let startDate = moment(isNaN(Number(item.create_date)) ? item.create_date : Number(item.create_date));
         let diffHours = endDate.diff(startDate, 'hours');
 
-        if (diffHours >= 48) {
+        if (diffHours >= 120) {
           cannotEditFlag = true
         }
       }
