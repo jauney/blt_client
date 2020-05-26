@@ -365,9 +365,9 @@ export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data
     </table>
     <table>
       <tr>
-        <td class="col3-1">收货人签字:</td>
-        <td class="col3-2">付款方式:</td>
-        <td class="col3-3">送货人签字:</td>
+        <td class="col3">收货人签字:</td>
+        <td class="col3">付款方式:</td>
+        <td class="col3">送货人签字:</td>
       </tr>
     </table>
   `
