@@ -11,9 +11,10 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { async } from 'q';
 
 const APIHOST = ``
-const APIURL = `/graphql`
-console.log(APIURL)
+let APIURL = `/graphql`
+
 // 线上
+// APIURL = 'http://118.190.100.113:8002/graphql'
 // const httpLink = new HttpLink({ uri: 'http://118.190.100.113:8002/graphql' });
 // 测试
 // const httpLink = new HttpLink({ uri: 'http://47.105.84.59:8002/graphql' });
@@ -60,7 +61,7 @@ async function ajaxFetch (api, data = {}) {
     }
   });
 
-  if (result.status === 200) {
+  if (/20[0-9]/.test(result.status)) {
     return result.data
   }
   showErrorMessage(result)
@@ -603,7 +604,7 @@ export async function getOrderCode (params) {
 }
 
 export async function createOrderAxios (params) {
-  return await ajaxFetch(`${APIHOST}/openapi/createorder`, {
+  return await ajaxFetch(`${APIHOST}/api/CreateOrder`, {
     order: params
   })
 }
@@ -1109,7 +1110,9 @@ export async function getOrderListAxios (params) {
     delete params.filter.settle_date
   }
 
-  return await ajaxFetch(`${APIHOST}/openapi/getorders`, {
+  params.order = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetOrders`, {
     ...params
   })
 }
@@ -1324,7 +1327,9 @@ export async function getOrderStatisticAxios (params) {
     delete params.filter.settle_date
   }
 
-  return await ajaxFetch(`${APIHOST}/openapi/getstatistic`, {
+  params.order = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetOrderStatistic`, {
     ...params
   })
 }
