@@ -148,48 +148,15 @@ export async function fakeAccountLogin (params) {
     });
 }
 
+
+
 // company
 export async function queryCompanyList (params) {
-  return client
-    .query({
-      query: gql`
-        query getCompanys($pageNo: Int, $pageSize: Int, $filter: CompanyInput) {
-          getCompanys(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
-            total
-            companys {
-              company_id
-              company_name
-              company_address
-              company_type
-              company_mobile
-              trans_regional_ratio
-              remember_sender
-              late_fee_days
-              late_fee_beginamount
-              late_fee_rate
-              rewards_24h
-              rewards_48h
-              rewards_72h
-              alarm_days
-              agency_fee
-              bonus_type
-              sendfee_ratio
-              unsendfee_ratio
-              insurance_ratio
-              transfee_ratio
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getCompanys;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  params.company = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetCompanys`, {
+    ...params
+  })
 }
 
 export async function addCompany (params) {
@@ -527,33 +494,11 @@ export async function queryCustomerList (params) {
 
 // site
 export async function querySiteList (params) {
-  return client
-    .query({
-      query: gql`
-        query getSites($pageNo: Int, $pageSize: Int, $filter: SiteInput) {
-          getSites(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
-            total
-            sites {
-              site_id
-              site_name
-              site_mobile
-              site_type
-              company_id
-              site_orderprefix
-              trans_ratio
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getSites;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  params.site = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetSites`, {
+    ...params
+  })
 }
 
 // site
@@ -1639,29 +1584,11 @@ export async function updateCarStatus (params) {
 }
 // 接货人
 export async function queryReceiverList (params) {
-  return client
-    .query({
-      query: gql`
-        query getCourierList($pageNo: Int, $pageSize: Int, $filter: CourierInput, $type: String) {
-          getCourierList(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, type: $type) {
-            total
-            couriers {
-              courier_id
-              courier_name
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.getCourierList;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  params.courier = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetCouriers`, {
+    ...params
+  })
 }
 
 // car
@@ -1723,36 +1650,9 @@ export async function getCarCode (params) {
 }
 
 export async function getLastCarCode (params) {
-  return client
-    .query({
-      query: gql`
-        query getLastCarCode($company_id: Int, $shipsite_id: Int, $car_code: String) {
-          getLastCarCode(company_id: $company_id, shipsite_id: $shipsite_id, car_code: $car_code) {
-            car_id
-            car_fee
-            car_code
-            car_date
-            driver_id
-            driver_name
-            driver_mobile
-            driver_plate
-            confirm
-            company_id
-            shipsite_id
-            shipsite_name
-            car_status
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getLastCarCode;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/GetLastCarCode`, {
+    ...params
+  })
 }
 
 export async function getCarInfo (params) {
@@ -1788,31 +1688,9 @@ export async function getCarInfo (params) {
 
 // driver
 export async function queryDriverList (params) {
-  return client
-    .query({
-      query: gql`
-        query getDrivers($pageNo: Int, $pageSize: Int, $company_id: Int) {
-          getDrivers(pageNo: $pageNo, pageSize: $pageSize, company_id: $company_id) {
-            total
-            drivers {
-              driver_id
-              driver_name
-              driver_mobile
-              driver_plate
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.getDrivers;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/GetDrivers`, {
+    ...params
+  })
 }
 
 export async function updateAbnormal (params) {
