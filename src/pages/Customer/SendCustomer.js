@@ -146,7 +146,7 @@ class AddFormDialog extends PureComponent {
     });
   };
 
-  render() {
+  render () {
     const {
       modalVisible,
       onCancelModal,
@@ -341,7 +341,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount() {
+  async componentDidMount () {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     this.setState({
@@ -525,8 +525,13 @@ class TableList extends PureComponent {
   };
 
   // 编辑订单信息
-  onRowDoubleClick = (record, index, event) => {
-    console.log(record, '888888')
+  onRowDoubleClick = async (record, index, event) => {
+    const { dispatch } = this.props;
+    let customerMobiles = await dispatch({
+      type: 'customer/getCustomerMobileAction',
+      payload: { customer_id: record.customer_id, type: 1 },
+    })
+    record.customerMobiles = customerMobiles
     this.setState({
       record,
     });
@@ -536,7 +541,7 @@ class TableList extends PureComponent {
   // 已结算账目核对中，计算付款日期
   onRowClick = (record, index, event) => { };
 
-  renderSimpleForm() {
+  renderSimpleForm () {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], siteList = [] },
@@ -615,11 +620,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
+  renderForm () {
     return this.renderSimpleForm();
   }
 
-  render() {
+  render () {
     const {
       customer: { customers, total, customerTypes },
       loading,

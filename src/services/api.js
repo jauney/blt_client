@@ -455,41 +455,18 @@ export async function updateCustomer ({ customer, customer_id, type }) {
 }
 
 export async function queryCustomerList (params) {
-  return client
-    .query({
-      query: gql`
-        query getCustomers($pageNo: Int, $pageSize: Int, $type: Int, $filter: CustomerInput) {
-          getCustomers(pageNo: $pageNo, pageSize: $pageSize, type: $type, filter: $filter) {
-            total
-            customers {
-              customer_id
-              customer_name
-              customer_mobile
-              bank_account
-              company_id
-              customer_mobile
-              trans_vip_ratio
-              customer_type
-              customertype_name
-              customerMobiles {
-                mobile
-                mobile_id
-                mobile_type
-                customer_id
-              }
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getCustomers;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  params.customer = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetCustomers`, {
+    ...params
+  })
+}
+
+
+export async function getCustomerMobiles (params) {
+  return await ajaxFetch(`${APIHOST}/api/GetCustomerMobiles`, {
+    ...params
+  })
 }
 
 // site
@@ -857,6 +834,12 @@ export async function updateOrderSign (params) {
 }
 
 export async function getCustomerList (params) {
+  params.customer = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetCustomers`, {
+    ...params
+  })
+
   return client
     .query({
       query: gql`

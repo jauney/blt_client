@@ -562,7 +562,15 @@ class TableList extends PureComponent {
   };
 
   // 编辑订单信息
-  onRowDoubleClick = (record, index, event) => {
+  onRowDoubleClick = async (record, index, event) => {
+    const { dispatch } = this.props;
+    let customerMobiles = await dispatch({
+      type: 'customer/getCustomerMobileAction',
+      payload: { customer_id: record.customer_id, type: 0 },
+    })
+
+    record.customerMobiles = customerMobiles
+    // 获取当前客户的电话
     this.setState({
       record,
     });
