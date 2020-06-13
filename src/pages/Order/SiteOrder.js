@@ -2547,6 +2547,7 @@ class TableList extends PureComponent {
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
               rowClassNameHandler={(record, index) => {
+                console.log(record)
                 if (record.order_status === 1) {
                   return styles.shipColor;
                 } else {

@@ -400,7 +400,7 @@ class CreateEntrunkForm extends PureComponent {
           </Col>
           <Col md={12} sm={24}>
             <FormItem label="拉货日期">
-              {moment(Number(lastCar.car_date || 0)).format('YYYY-MM-DD HH:mm:ss')}
+              {lastCar.car_date}
             </FormItem>
           </Col>
           <Col md={12} sm={24}>

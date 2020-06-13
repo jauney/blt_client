@@ -655,113 +655,33 @@ export async function updateOrder ({ order, order_id }) {
     order.trans_discount = Number(order.trans_discount || 0);
   }
 
-  return client
-    .mutate({
-      mutation: gql`
-        mutation updateOrder($order_id: Int, $order: OrderInput) {
-          updateOrder(order_id: $order_id, order: $order) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: { order_id, order },
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.updateOrder;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/UpdateOrder`, {
+    order_id, order
+  })
 }
 
 export async function settleOrder (params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation settleOrder($order_id: [Int]) {
-          settleOrder(order_id: $order_id) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.settleOrder;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/SettleOrder`, {
+    ...params
+  })
 }
 
 export async function cancelSettleOrder (params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation cancelSettleOrder($order_id: [Int]) {
-          cancelSettleOrder(order_id: $order_id) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.cancelSettleOrder;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/CancelSettleOrder`, {
+    ...params
+  })
 }
 
 export async function downAccount (params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation downAccountOrder($order_id: [Int], $rate: Float, $bank_account: String) {
-          downAccountOrder(order_id: $order_id, rate: $rate, bank_account: $bank_account) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.downAccountOrder;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/DownAccountOrder`, {
+    ...params
+  })
 }
 
 export async function cancelTodayDownAccountOrder (params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation cancelTodayDownAccountOrder($pay_id: [Int]) {
-          cancelTodayDownAccountOrder(pay_id: $pay_id) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.cancelTodayDownAccountOrder;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/CancelTodayPay`, {
+    ...params
+  })
 }
 
 export async function cancelDownAccountOrder (params) {
@@ -839,146 +759,12 @@ export async function getCustomerList (params) {
   return await ajaxFetch(`${APIHOST}/api/GetCustomers`, {
     ...params
   })
-
-  return client
-    .query({
-      query: gql`
-        query getCustomerList(
-          $pageNo: Int
-          $pageSize: Int
-          $filter: CustomerInput
-          $type: Int
-          $sorter: String
-        ) {
-          getCustomerList(
-            pageNo: $pageNo
-            pageSize: $pageSize
-            filter: $filter
-            type: $type
-            sorter: $sorter
-          ) {
-            total
-            customers {
-              customer_id
-              customer_name
-              customer_address
-              customer_type
-              customertype_name
-              customer_mobile
-              bank_account
-              company_id
-              sender_id
-              receiver_id
-              password
-              username
-              site_ids
-              site_names
-              total_trans
-              total_order
-              customerMobiles {
-                mobile_id
-                mobile
-                mobile_type
-                customer_id
-              }
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getCustomerList;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
 }
 
 export async function getCustomer (params) {
-  return client
-    .query({
-      query: gql`
-        query getCustomer(
-          $type: Int
-          $getcustomer_id: Int
-          $sendcustomer_id: Int
-          $customer_mobile: String
-          $company_id: Int
-        ) {
-          getCustomer(
-            type: $type
-            getcustomer_id: $getcustomer_id
-            sendcustomer_id: $sendcustomer_id
-            customer_mobile: $customer_mobile
-            company_id: $company_id
-          ) {
-            getCustomer {
-              customer_id
-              customer_name
-              customer_address
-              customer_type
-              customertype_name
-              customer_mobile
-              bank_account
-              company_id
-              sender_id
-              sender_name
-              receiver_id
-              password
-              username
-              site_ids
-              site_names
-              total_trans
-              total_order
-              trans_vip_ratio
-              customertype_name
-              customerMobiles {
-                mobile_id
-                mobile
-                mobile_type
-                customer_id
-              }
-            }
-            sendCustomer {
-              customer_id
-              customer_name
-              customer_address
-              customer_type
-              customertype_name
-              customer_mobile
-              bank_account
-              company_id
-              sender_id
-              receiver_id
-              password
-              username
-              site_ids
-              site_names
-              total_trans
-              total_order
-              trans_vip_ratio
-              customertype_name
-              customerMobiles {
-                mobile_id
-                mobile
-                mobile_type
-                customer_id
-              }
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getCustomer;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/GetCustomer`, {
+    ...params
+  })
 }
 
 export async function getCustomerTypes (params) {
@@ -1349,7 +1135,7 @@ export async function getTodayPayStatistic (params) {
 }
 
 export async function shipOrderAxios (params) {
-  return await ajaxFetch(`${APIHOST}/openapi/shiporder`, {
+  return await ajaxFetch(`${APIHOST}/api/ShipOrder`, {
     ...params
   })
 }
@@ -1413,74 +1199,24 @@ export async function cancelShipOrder (params) {
 }
 
 export async function entrunkOrder (params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation entrunkOrder($order_id: [Int], $car: CarInput) {
-          entrunkOrder(order_id: $order_id, car: $car) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.entrunkOrder;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/EntrunkOrder`, {
+    ...params
+  })
 }
 
 export async function departOrder (params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation departOrder($car_id: Int, $car: CarInput) {
-          departOrder(car_id: $car_id, car: $car) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.departOrder;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/DepartOrder`, {
+    ...params
+  })
 }
 
 export async function cancelEntrunk (params = {}) {
   if (params.car && params.car['__typename']) {
     delete params.car['__typename'];
   }
-  return client
-    .mutate({
-      mutation: gql`
-        mutation cancelEntrunk($order_id: [Int], $car: CarInput) {
-          cancelEntrunk(order_id: $order_id, car: $car) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.cancelEntrunk;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/CancelEntrunk`, {
+    ...params
+  })
 }
 
 export async function changeOrderReceiver (params) {
@@ -1511,59 +1247,15 @@ export async function changeOrderReceiver (params) {
 
 export async function updateCarFee ({ car = {} }) {
   delete car['__typename'];
-  return client
-    .mutate({
-      mutation: gql`
-        mutation updateCarFee($car: CarInput) {
-          updateCarFee(car: $car) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: { car },
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.updateCarFee;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/UpdateCarFee`, {
+    car
+  })
 }
 
-export async function updateCarStatus (params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation updateCarStatus(
-          $car_id: Int
-          $car_status: Int
-          $car_code: String
-          $company_id: Int
-          $shipsite_id: Int
-        ) {
-          updateCarStatus(
-            car_id: $car_id
-            car_status: $car_status
-            car_code: $car_code
-            company_id: $company_id
-            shipsite_id: $shipsite_id
-          ) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.updateCarStatus;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+export async function updateCarStatus (car) {
+  return await ajaxFetch(`${APIHOST}/api/UpdateCarStatus`, {
+    car
+  })
 }
 // 接货人
 export async function queryReceiverList (params) {

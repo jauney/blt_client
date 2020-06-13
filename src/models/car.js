@@ -11,14 +11,14 @@ export default {
   },
 
   effects: {
-    *getCarCodeAction({ payload }, { call, put }) {
+    *getCarCodeAction ({ payload }, { call, put }) {
       const response = yield call(getCarCode, payload);
       yield put({
         type: 'getCarCodeReducer',
         payload: response,
       });
     },
-    *getCarInfoAction({ payload }, { call, put }) {
+    *getCarInfoAction ({ payload }, { call, put }) {
       const response = yield call(getCarInfo, payload);
       yield put({
         type: 'getCarInfoReducer',
@@ -26,7 +26,7 @@ export default {
       });
       return response;
     },
-    *getLastCarCodeAction({ payload }, { call, put }) {
+    *getLastCarCodeAction ({ payload }, { call, put }) {
       console.log(payload, '********')
       const response = yield call(getLastCarCode, payload);
       yield put({
@@ -35,7 +35,7 @@ export default {
       });
       return response;
     },
-    *getCarListAction({ payload }, { call, put }) {
+    *getCarListAction ({ payload }, { call, put }) {
       const response = yield call(queryCarList, payload);
       const list = response.cars;
       yield put({
@@ -46,25 +46,26 @@ export default {
   },
 
   reducers: {
-    getCarListReducer(state, action) {
+    getCarListReducer (state, action) {
       return {
         ...state,
         carList: action.payload,
       };
     },
-    getCarCodeReducer(state, action) {
+    getCarCodeReducer (state, action) {
       return {
         ...state,
         carCode: action.payload,
       };
     },
-    getLastCarCodeReducer(state, action) {
+    getLastCarCodeReducer (state, action) {
+      console.log('get lastcarcode:', action.payload)
       return {
         ...state,
-        lastCar: action.payload,
+        lastCar: action.payload.car,
       };
     },
-    getCarInfoReducer(state, action) {
+    getCarInfoReducer (state, action) {
       return {
         ...state,
         carInfo: action.payload,
