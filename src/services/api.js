@@ -260,33 +260,9 @@ export async function updateCustomerCourier ({ courier, order_id, customer_id, t
 }
 
 export async function getCourierList (params) {
-  return client
-    .query({
-      query: gql`
-        query getCourierList($pageNo: Int, $pageSize: Int, $type: String, $filter: CourierInput) {
-          getCourierList(pageNo: $pageNo, pageSize: $pageSize, type: $type, filter: $filter) {
-            total
-            couriers {
-              courier_id
-              courier_name
-              courier_mobile
-              site_id
-              company_id
-              company_name
-              site_name
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getCourierList;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/GetCourierList`, {
+    ...params
+  })
 }
 
 export async function getOperatorList (params) {
@@ -1480,140 +1456,31 @@ export async function cancelAbnormal (params) {
 }
 
 export async function getAbnormalTypes (params) {
-  return client
-    .query({
-      query: gql`
-        query getAbnormalTypes($pageNo: Int, $pageSize: Int, $company_id: Int) {
-          getAbnormalTypes(pageNo: $pageNo, pageSize: $pageSize, company_id: $company_id) {
-            total
-            abnormal_types {
-              abnormal_type_id
-              abnormal_type
-              company_id
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.getAbnormalTypes;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/GetAbnormalTypes`, {
+    ...params
+  })
 }
 
 // incomes
 export async function getIncomes (params) {
-  return client
-    .query({
-      query: gql`
-        query getIncomes($pageNo: Int, $pageSize: Int, $filter: IncomeInput, $sorter: String) {
-          getIncomes(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
-            total
-            incomes {
-              income_id
-              company_id
-              company_name
-              incometype_id
-              incometype
-              site_id
-              site_name
-              incomedetail_id
-              incomedetail
-              income_date
-              income_money
-              income_reason
-              remark
-              operator_name
-            }
-            totalIncome
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.getIncomes;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  params.income = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetIncomes`, {
+    ...params
+  })
 }
 
 // income types
 export async function getIncomeTypes (params) {
-  return client
-    .query({
-      query: gql`
-        query getIncomeTypes($pageNo: Int, $pageSize: Int, $company_id: Int, $site_id: Int) {
-          getIncomeTypes(
-            pageNo: $pageNo
-            pageSize: $pageSize
-            company_id: $company_id
-            site_id: $site_id
-          ) {
-            total
-            incomeTypes {
-              incometype_id
-              company_id
-              incometype
-              site_id
-              site_name
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.getIncomeTypes;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/GetIncomeTypes`, {
+    ...params
+  })
 }
 
 export async function getDebtTypes (params) {
-  return client
-    .query({
-      query: gql`
-        query getDebtTypes($pageNo: Int, $pageSize: Int, $company_id: Int, $site_id: Int) {
-          getDebtTypes(
-            pageNo: $pageNo
-            pageSize: $pageSize
-            company_id: $company_id
-            site_id: $site_id
-          ) {
-            total
-            debtTypes {
-              debttype_id
-              company_id
-              debttype
-              debttype_type
-              site_id
-              site_name
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.getDebtTypes;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/GetDebtTypes`, {
+    ...params
+  })
 }
 
 export async function addIncome (params) {
@@ -1645,76 +1512,18 @@ export async function addIncome (params) {
 
 // expenses
 export async function getExpenses (params) {
-  return client
-    .query({
-      query: gql`
-        query getExpenses($pageNo: Int, $pageSize: Int, $filter: ExpenseInput, $sorter: String) {
-          getExpenses(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
-            total
-            expenses {
-              expense_id
-              company_id
-              company_name
-              expensetype_id
-              expensetype
-              site_id
-              site_name
-              expensedetail_id
-              expensedetail
-              expense_date
-              expense_money
-              expense_reason
-              remark
-            }
-            totalExpense
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.getExpenses;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  params.expense = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetExpenses`, {
+    ...params
+  })
 }
 
 // expense types
 export async function getExpenseTypes (params) {
-  return client
-    .query({
-      query: gql`
-        query getExpenseTypes($pageNo: Int, $pageSize: Int, $company_id: Int, $site_id: Int) {
-          getExpenseTypes(
-            pageNo: $pageNo
-            pageSize: $pageSize
-            company_id: $company_id
-            site_id: $site_id
-          ) {
-            total
-            expenseTypes {
-              expensetype_id
-              company_id
-              expensetype
-              site_id
-              site_name
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.getExpenseTypes;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/GetExpenseTypes`, {
+    ...params
+  })
 }
 
 export async function addExpense (params) {
@@ -1775,63 +1584,18 @@ export async function getDebtUsers (params) {
 
 // debts
 export async function getDebts (params) {
-  return client
-    .query({
-      query: gql`
-        query getDebts($pageNo: Int, $pageSize: Int, $filter: DebtInput, $sorter: String) {
-          getDebts(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
-            total
-            debts {
-              debt_id
-              company_id
-              debttype
-              debttype_type
-              debttype_id
-              site_id
-              debt_money
-              debt_date
-              debtuser_id
-              debtuser_name
-              remark
-              settle_date
-              debt_status
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.getDebts;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  params.debt = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetDebts`, {
+    ...params
+  })
 }
 
 export async function getDebtsStatistic (params) {
-  return client
-    .query({
-      query: gql`
-        query getDebtsStatistic($filter: DebtInput) {
-          getDebtsStatistic(filter: $filter) {
-            totalDebtMoney
-            totalIncome
-            totalExpense
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getDebtsStatistic;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  const debt = params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetDebtStatistic`, {
+    ...debt
+  })
 }
 
 export async function settleDebt (params) {

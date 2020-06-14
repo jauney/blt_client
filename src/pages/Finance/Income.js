@@ -228,7 +228,7 @@ class TableList extends PureComponent {
       dataIndex: 'income_date',
       width: '170px',
       sorter: true,
-      render: val => <span>{val && moment(Number(val)).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => <span>{val && moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '收入金额',
@@ -264,11 +264,12 @@ class TableList extends PureComponent {
       title: '操作用户',
       dataIndex: 'operator_name',
       sorter: true,
+      width: '80px',
     },
     {
       title: '备注',
-      width: '150px',
       dataIndex: 'remark',
+      width: '150px',
     },
   ];
 
