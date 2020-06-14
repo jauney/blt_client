@@ -1488,26 +1488,9 @@ export async function addIncome (params) {
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.incometype_id = isNaN(Number(params.incometype_id)) ? 0 : Number(params.incometype_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
-
-  return client
-    .mutate({
-      mutation: gql`
-        mutation addIncome($income: IncomeInput) {
-          addIncome(income: $income) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: { income: params },
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.addIncome;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/AddIncome`, {
+    income: params
+  })
 }
 
 // expenses
@@ -1530,56 +1513,16 @@ export async function addExpense (params) {
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.expensetype_id = isNaN(Number(params.expensetype_id)) ? 0 : Number(params.expensetype_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
-
-  return client
-    .mutate({
-      mutation: gql`
-        mutation addExpense($expense: ExpenseInput) {
-          addExpense(expense: $expense) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: { expense: params },
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.addExpense;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/AddExpense`, {
+    expense: params
+  })
 }
 
 // debts
 export async function getDebtUsers (params) {
-  return client
-    .query({
-      query: gql`
-        query getDebtUsers($pageNo: Int, $pageSize: Int, $filter: DebtUserInput) {
-          getDebtUsers(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
-            total
-            debtUsers {
-              debtuser_id
-              debtuser_name
-              company_id
-              company_name
-              site_id
-              site_name
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getDebtUsers;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/GetDebtUsers`, {
+    ...params
+  })
 }
 
 // debts
@@ -1599,120 +1542,44 @@ export async function getDebtsStatistic (params) {
 }
 
 export async function settleDebt (params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation settleDebt($debt_id: [Int]) {
-          settleDebt(debt_id: $debt_id) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-
-      gotoLogin(data);
-      return data.data.settleDebt;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  params.debt = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/SettleDebt`, {
+    ...params
+  })
 }
 
 export async function addDebt (params) {
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
   params.debt_money = isNaN(Number(params.debt_money)) ? 0 : Number(params.debt_money);
-
-  return client
-    .mutate({
-      mutation: gql`
-        mutation addDebt($debt: DebtInput) {
-          addDebt(debt: $debt) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: { debt: params },
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.addDebt;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  return await ajaxFetch(`${APIHOST}/api/AddDebt`, {
+    debt: params
+  })
 }
 
 // getTransfers
 export async function getTransfers (params) {
-  if (params.filter && params.filter.transfer_status) {
-    params.filter.transfer_status = Number(params.filter.transfer_status);
-  }
-  return client
-    .query({
-      query: gql`
-        query getTransfers($pageNo: Int, $pageSize: Int, $filter: TransferInput) {
-          getTransfers(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
-            total
-            transfers {
-              transfer_id
-              company_id
-              company_name
-              transfer_money
-              transfer_date
-              transfer_status
-              transfer_type
-              transfer_user
-              confirm_operator_name
-              confirm_date
-              site_id
-              site_name
-              remark
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getTransfers;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  // if (params.filter && params.filter.transfer_status) {
+  //   params.filter.transfer_status = Number(params.filter.transfer_status);
+  // }
+  params.transfer = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetTransfers`, {
+    ...params
+  })
 }
 
 // getTransferStatistic
 export async function getTransferStatistic (params) {
-  if (params.filter && params.filter.transfer_status) {
-    delete params.filter.transfer_status
-  }
-  return client
-    .query({
-      query: gql`
-        query getTransferStatistic($filter: TransferInput) {
-          getTransferStatistic(filter: $filter) {
-            totalTransferAmount
-            totalTransferConfirmAmount
-            totalTransferUnConfirmAmount
-            totalShouldTransfer
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getTransferStatistic;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+  // if (params.filter && params.filter.transfer_status) {
+  //   delete params.filter.transfer_status
+  // }
+  params.transfer = params.filter
+  delete params.filter
+  return await ajaxFetch(`${APIHOST}/api/GetTransferStatistic`, {
+    ...params
+  })
 }
 
 export async function addTransfer (params) {

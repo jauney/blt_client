@@ -750,6 +750,12 @@ class TableList extends PureComponent {
     if (['site_searchuser', 'site_admin'].indexOf(CacheRole.role_value) >= 0) {
       showOperateButton = false
     }
+    let canSettleDebt = true
+    selectedRows.forEach(item => {
+      if (item.debt_status == 1) {
+        canSettleDebt = false
+      }
+    })
     return (
       <div>
         <Card bordered={false}>
@@ -759,7 +765,7 @@ class TableList extends PureComponent {
               {showOperateButton && <Button icon="plus" type="primary" onClick={() => this.onAddDebtClick(true)}>
                 添加
               </Button>}
-              {selectedRows.length > 0 && showOperateButton && (
+              {selectedRows.length > 0 && showOperateButton && canSettleDebt && (
                 <span>
                   <Button onClick={this.onSettleModal}>归零</Button>
                 </span>

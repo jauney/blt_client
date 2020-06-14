@@ -186,7 +186,7 @@ class TableList extends PureComponent {
       dataIndex: 'transfer_date',
       width: '170px',
       render: val => (
-        <span>{(val && moment(Number(val)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
     },
     {
@@ -209,7 +209,7 @@ class TableList extends PureComponent {
       dataIndex: 'confirm_date',
       width: '170px',
       render: val => (
-        <span>{(val && moment(Number(val)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
+        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
       ),
     },
     {
@@ -291,7 +291,7 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
+      console.log('company get transfer:', fieldsValue)
       if (fieldsValue.transfer_date && fieldsValue.transfer_date.length > 0) {
         fieldsValue.transfer_date = fieldsValue.transfer_date.map(item => {
           return `${item.valueOf()}`;
@@ -300,6 +300,7 @@ class TableList extends PureComponent {
 
       fieldsValue.transfer_type = 0
       const searchParams = Object.assign({ filter: fieldsValue }, data);
+
       dispatch({
         type: 'transfer/getTransferAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
@@ -757,10 +758,10 @@ class TableList extends PureComponent {
         </FormItem>
 
         <FormItem label="确认打款">
-          {getFieldDecorator('transfer_status', { initialValue: '0' })(
+          {getFieldDecorator('transfer_status', {})(
             <Select placeholder="全部" style={{ width: '100px' }} allowClear>
-              <Option value="1">已确认打款</Option>
-              <Option value="0">未确认打款</Option>
+              <Option key="1" value="1">已确认打款</Option>
+              <Option key="0" value="0">未确认打款</Option>
             </Select>
           )}
         </FormItem>
