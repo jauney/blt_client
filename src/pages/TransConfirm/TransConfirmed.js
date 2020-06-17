@@ -298,7 +298,7 @@ class TableList extends PureComponent {
         fieldsValue.trans_type = 9;
       }
       if (fieldsValue.trans_confirmdate) {
-        fieldsValue.trans_confirmdate = fieldsValue.trans_confirmdate.valueOf()
+        fieldsValue.trans_confirmdate = `${fieldsValue.trans_confirmdate.valueOf()}`
       }
       else {
         delete fieldsValue.trans_confirmdate
