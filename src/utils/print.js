@@ -1,39 +1,37 @@
-
 import moment from 'moment';
 import XLSX from 'xlsx';
 const electron = window.require('electron').remote;
 import { getSelectedAccount } from '@/utils/account';
 
-export function printSiteOrder ({ selectedRows = [], type = '', lastCar = {} }) {
-  let bodyHTML = ''
-  let totalTransFund = 0
-  let totalOrderNum = 0
-  let totalGoodsFund = 0
-  let orderIndex = 1
-  selectedRows = selectedRows.sort(function compareFunction (item1, item2) {
+export function printSiteOrder({ selectedRows = [], type = '', lastCar = {} }) {
+  let bodyHTML = '';
+  let totalTransFund = 0;
+  let totalOrderNum = 0;
+  let totalGoodsFund = 0;
+  let orderIndex = 1;
+  selectedRows = selectedRows.sort(function compareFunction(item1, item2) {
     return item1.company_name.localeCompare(item2.company_name);
   });
-  console.log(selectedRows)
+  console.log(selectedRows);
   selectedRows.forEach(item => {
-    let transType = '提付'
+    let transType = '提付';
     if (item.trans_type == 1) {
-      transType = '现付'
+      transType = '现付';
+    } else if (item.trans_type == 2) {
+      transType = '回付';
     }
-    else if (item.trans_type == 2) {
-      transType = '回付'
-    }
-    totalTransFund += Number(item.trans_discount || 0)
-    totalGoodsFund += Number(item.order_amount || 0)
-    totalOrderNum += Number(item.order_num || 0)
+    totalTransFund += Number(item.trans_discount || 0);
+    totalGoodsFund += Number(item.order_amount || 0);
+    totalOrderNum += Number(item.order_num || 0);
     bodyHTML += `<tr>
         <td>${item.company_name || ''}</td>
         <td>${item.order_code || ''}</td>
         <td>${item.getcustomer_name || ''}</td>
         <td>${item.trans_discount || ''}</td>
         <td>${item.order_name || ''}</td>
-        </tr>`
-    orderIndex++
-  })
+        </tr>`;
+    orderIndex++;
+  });
   let styles = `
     <style>
     .order-box {text-align: center;}
@@ -42,8 +40,8 @@ export function printSiteOrder ({ selectedRows = [], type = '', lastCar = {} }) 
     table th { font-weight: bold; }
     table th, table td {border: 1px solid #ccc; font-size: 12px; padding: 4px; text-align: left; line-height: 150%;}
     .carinfo th {border: 0;}
-    </style>`
-  let carHtml = ``
+    </style>`;
+  let carHtml = ``;
   if (lastCar.car_code) {
     carHtml = `<table class="carinfo">
     <tr>
@@ -53,7 +51,7 @@ export function printSiteOrder ({ selectedRows = [], type = '', lastCar = {} }) 
     <th style="width:50px;">货车运费：${lastCar.car_fee}</th>
     <th style="width:50px;">货车编号：${lastCar.car_code}</th>
     </tr>
-  </table>`
+  </table>`;
   }
   let printHtml = `<div class="order-box">
     <div class="header">陕西远诚宝路通物流</div>
@@ -76,31 +74,30 @@ export function printSiteOrder ({ selectedRows = [], type = '', lastCar = {} }) 
       <tr><td>${new Date().toLocaleDateString()}</td><td>接货人签字：</td></tr>
     </table>
     </div></div>
-    `
+    `;
   //告诉渲染进程，开始渲染打印内容
   //告诉渲染进程，开始渲染打印内容
-  const printOrderWebview = document.querySelector('#printOrderWebview')
-  printOrderWebview.send('webview-print-render', { html: `${styles}${printHtml}` })
+  const printOrderWebview = document.querySelector('#printOrderWebview');
+  printOrderWebview.send('webview-print-render', { html: `${styles}${printHtml}` });
 }
 /**
  *
  * @param { type } type:'pdf' 下载
  */
-export function printDownLoad ({ selectedRows = [], type = '', lastCar = {}, silent = true }) {
-  let bodyHTML = ''
-  let totalTransFund = 0
-  let totalGoodsFund = 0
-  let orderIndex = 1
+export function printDownLoad({ selectedRows = [], type = '', lastCar = {}, silent = true }) {
+  let bodyHTML = '';
+  let totalTransFund = 0;
+  let totalGoodsFund = 0;
+  let orderIndex = 1;
   selectedRows.forEach(item => {
-    let transType = '提付'
+    let transType = '提付';
     if (item.trans_type == 1) {
-      transType = '现付'
+      transType = '现付';
+    } else if (item.trans_type == 2) {
+      transType = '回付';
     }
-    else if (item.trans_type == 2) {
-      transType = '回付'
-    }
-    totalTransFund += Number(item.trans_discount || 0)
-    totalGoodsFund += Number(item.order_amount || 0)
+    totalTransFund += Number(item.trans_discount || 0);
+    totalGoodsFund += Number(item.order_amount || 0);
     bodyHTML += `<tr>
         <td>${orderIndex}</td>
         <td>${item.order_code || ''}</td>
@@ -114,9 +111,9 @@ export function printDownLoad ({ selectedRows = [], type = '', lastCar = {}, sil
         <td>${item.insurance_fee || ''}</td>
         <td>${item.order_name || ''}</td>
         <td>${item.remark || ''}</td>
-        </tr>`
-    orderIndex++
-  })
+        </tr>`;
+    orderIndex++;
+  });
   let styles = `
     <style>
     .order-box {text-align: center;}
@@ -125,8 +122,8 @@ export function printDownLoad ({ selectedRows = [], type = '', lastCar = {}, sil
     table th { font-weight: bold; }
     table th, table td {border: 1px solid #ccc; font-size: 12px; padding: 4px; text-align: left; line-height: 150%;}
     .carinfo th {border: 0;}
-    </style>`
-  let carHtml = ``
+    </style>`;
+  let carHtml = ``;
   if (lastCar.car_code) {
     carHtml = `<table class="carinfo">
     <tr>
@@ -136,7 +133,7 @@ export function printDownLoad ({ selectedRows = [], type = '', lastCar = {}, sil
     <th style="width:50px;">货车运费：${lastCar.car_fee}</th>
     <th style="width:50px;">货车编号：${lastCar.car_code}</th>
     </tr>
-  </table>`
+  </table>`;
   }
   let html = `<div class="order-box">
     <div class="header">陕西远诚宝路通物流</div>
@@ -163,36 +160,59 @@ export function printDownLoad ({ selectedRows = [], type = '', lastCar = {}, sil
       <tr><td colspan="11">日期</td><td>${new Date().toLocaleDateString()}</td></tr>
     </table>
     </div></div>
-    `
+    `;
   //告诉渲染进程，开始渲染打印内容
-  const printOrderWebview = document.querySelector('#printWebview')
-  console.log('type: ', type)
-  printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type, silent })
+  const printOrderWebview = document.querySelector('#printWebview');
+  console.log('type: ', type);
+  printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}`, type, silent });
 }
 
 /**
  * 获取打印托运单HTML
  * @param {*} param0
  */
-export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data = {}, printCompany = {}, siteList = [], footer = false }) {
-  let getCustomerType = ''
-  if (getCustomer.customer_type == 1) { getCustomerType = 'V' } else if (getCustomer.customer_type == 9) { getCustomerType = 'H' }
-  let sendCustomerType = ''
-  if (sendCustomer.customer_type == 1) { sendCustomerType = 'V' } else if (sendCustomer.customer_type == 9) { sendCustomerType = 'H' }
-  let transType = '提'
-  if (data.trans_type == 1) { transType = '现' } else if (data.trans_type == 2) { transType = '回' }
-  let transferType = ''
-  if (data.transfer_type == 1) { transferType = '转出' } else if (data.transfer_type == 2) { transferType = '转入' }
-  let printSite = {}
+export function getPrintOrderConent({
+  getCustomer = {},
+  sendCustomer = {},
+  data = {},
+  printCompany = {},
+  siteList = [],
+  footer = false,
+}) {
+  let getCustomerType = '';
+  if (getCustomer.customer_type == 1) {
+    getCustomerType = 'V';
+  } else if (getCustomer.customer_type == 9) {
+    getCustomerType = 'H';
+  }
+  let sendCustomerType = '';
+  if (sendCustomer.customer_type == 1) {
+    sendCustomerType = 'V';
+  } else if (sendCustomer.customer_type == 9) {
+    sendCustomerType = 'H';
+  }
+  let transType = '提';
+  if (data.trans_type == 1) {
+    transType = '现';
+  } else if (data.trans_type == 2) {
+    transType = '回';
+  }
+  let transferType = '';
+  if (data.transfer_type == 1) {
+    transferType = '转出';
+  } else if (data.transfer_type == 2) {
+    transferType = '转入';
+  }
+  let printSite = {};
 
   siteList.forEach(item => {
     if (item.site_name == data.site_name) {
-      printSite = item
+      printSite = item;
     }
-  })
+  });
   let accountStatistic = getSelectedAccount([data], 'init');
 
-  let orderDate = moment(data.create_date).format('YYYY-MM-DD HH:mm:ss')
+  let orderDate = moment(data.create_date).format('YYYY-MM-DD HH:mm:ss');
   let html = `
     <div class="header">陕西远诚宝路通物流</div>
     <div class="content">
@@ -207,37 +227,14 @@ export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data
     </table>
     <table>
       <tr>
-        <td class="col3-1">${getCustomerType}</td>
-        <td class="col3-2 txt-bold">收货人:${data.getcustomer_name || ''}</td>
-        <td class="col3-2 txt-bold">电话:${data.getcustomer_mobile || ''}</td>
+        <td style="width:10%">${getCustomerType}</td>
+        <td style="width:90%">收货:${data.getcustomer_name ||
+          ''}&nbsp;&nbsp;${data.getcustomer_mobile || ''}</td>
       </tr>
       <tr>
-        <td class="col3-1">${sendCustomerType}</td>
-        <td class="col3-2">发货人:${data.sendcustomer_name || ''}</td>
-        <td class="col3-2">电话:${data.sendcustomer_mobile || ''}</td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <th class="split"></th>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td class="col4">货款:${data.order_amount || ''}</td>
-        <td class="col4">运费[${transType}]:${data.trans_amount || ''}</td>
-        <td class="col4">折后:${data.trans_discount || ''}</td>
-      </tr>
-      <tr>
-        <td class="col4">保额:${data.insurance_amount || ''}</td>
-        <td class="col4">保费[${transType}]:${data.insurance_fee || ''}</td>
-        <td class="col4">垫付:${data.order_advancepay_amount || ''}</td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td class="col2-1 txt-bold">合计:${accountStatistic.totalAccount}</td>
-        <td class="col2-2">账号:${data.bank_account || ''}</td>
+        <td style="width:10%">${sendCustomerType}</td>
+        <td style="width:90%">发货:${data.sendcustomer_name ||
+          ''}&nbsp;&nbsp;${data.sendcustomer_mobile || ''}</td>
       </tr>
     </table>
     <table>
@@ -247,8 +244,33 @@ export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data
     </table>
     <table>
       <tr>
-        <td class="col2-2">货物名称:${data.order_name || ''}</td>
-        <td class="col2-1">送货费:${data.deliver_amount || ''}</td>
+        <td style="width:30%">货款:${data.order_amount || ''}</td>
+        <td style="width:45%">运费[${transType}]:${data.trans_amount || ''}</td>
+        <td style="width:25%; font-size:12px">折后:${data.trans_discount || ''}</td>
+      </tr>
+      <tr>
+        <td style="width:30%">保额:${data.insurance_amount || ''}</td>
+        <td style="width:40%">保费[${transType}]:${data.insurance_fee || ''}</td>
+        <td style="width:30%; font-size:12px">垫付:${data.order_advancepay_amount || ''}</td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td style="width:50%;">送货费:${data.deliver_amount || ''}</td>
+        <td style="width:50%;font-weight:bold">合计:${accountStatistic.totalAccount}</td>
+      </tr>
+      <tr>
+        <td colspan="2">账号:${data.bank_account || ''}</td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <th class="split"></th>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>货名:${data.order_name || ''}</td>
       </tr>
     </table>
     <table>
@@ -283,17 +305,16 @@ export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data
     </table>
     <table>
       <tr>
-        <td class="col2-1">到货站:${printCompany.company_name || ''}</td>
-        <td class="col2-2">电话:${printCompany.company_mobile || ''}</td>
+        <td>到货站:${printCompany.company_name || ''}&nbsp;&nbsp;${printCompany.company_mobile ||
+    ''}</td>
       </tr>
       <tr>
-        <td class="col2-1">发货站:${data.site_name || ''}</td>
-        <td class="col2-2">电话:${printSite.site_mobile || ''}</td>
+        <td>发货站:${data.site_name || ''}&nbsp;&nbsp;${printSite.site_mobile || ''}</td>
       </tr>
     </table>
     <table>
       <tr>
-        <td colspan="2">扫码查看托运协议、公司信息、货款查询</td>
+        <td colspan="2" style="font-size:12px">扫码查看托运协议、公司信息、货款查询</td>
       </tr>
       <tr class="txt-desc">
         <td class="col2-1">
@@ -310,7 +331,7 @@ export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data
       </tr>
     </table>
     </div>
-    `
+    `;
 
   const footerHtml = `<div class="header" style="margin-top: 20px;">陕西远诚宝路通物流(回执单)</div>
   <table>
@@ -324,14 +345,14 @@ export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data
     </table>
     <table>
       <tr>
-        <td class="col3-1">${getCustomerType}</td>
-        <td class="col3-2 txt-bold">收货人:${data.getcustomer_name || ''}</td>
-        <td class="col3-2 txt-bold">电话:${data.getcustomer_mobile || ''}</td>
+        <td style="width:10%">${getCustomerType}</td>
+        <td style="width:90%">收货:${data.getcustomer_name ||
+          ''}&nbsp;&nbsp;${data.getcustomer_mobile || ''}</td>
       </tr>
       <tr>
-        <td class="col3-1">${sendCustomerType}</td>
-        <td class="col3-2">发货人:${data.sendcustomer_name || ''}</td>
-        <td class="col3-2">电话:${data.sendcustomer_mobile || ''}</td>
+        <td style="width:10%">${sendCustomerType}</td>
+        <td style="width:90%">发货:${data.sendcustomer_name ||
+          ''}&nbsp;&nbsp;${data.sendcustomer_mobile || ''}</td>
       </tr>
     </table>
     <table>
@@ -341,26 +362,28 @@ export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data
     </table>
     <table>
       <tr>
-        <td class="col4">货款:${data.order_amount || ''}</td>
-        <td class="col4">运费[${transType}]:${data.trans_amount || ''}</td>
-        <td class="col4">折后:${data.trans_discount || ''}</td>
+        <td style="width:30%">货款:${data.order_amount || ''}</td>
+        <td style="width:45%">运费[${transType}]:${data.trans_amount || ''}</td>
+        <td style="width:25%; font-size:12px">折后:${data.trans_discount || ''}</td>
       </tr>
       <tr>
-        <td class="col4">保额:${data.insurance_amount || ''}</td>
-        <td class="col4">保费[${transType}]:${data.insurance_fee || ''}</td>
-        <td class="col4">垫付:${data.order_advancepay_amount || ''}</td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td class="col2-1 txt-bold">合计:${accountStatistic.totalAccount}</td>
-        <td class="col2-2">账号:${data.bank_account || ''}</td>
+        <td style="width:30%">保额:${data.insurance_amount || ''}</td>
+        <td style="width:40%">保费[${transType}]:${data.insurance_fee || ''}</td>
+        <td style="width:30%; font-size:12px">垫付:${data.order_advancepay_amount || ''}</td>
       </tr>
     </table>
     <table>
       <tr>
-        <td class="col2-2">货物名称:${data.order_name || ''}</td>
-        <td class="col2-1">送货费:${data.deliver_amount || ''}</td>
+        <td style="width:50%;">送货费:${data.deliver_amount || ''}</td>
+        <td style="width:50%;font-weight:bold">合计:${accountStatistic.totalAccount}</td>
+      </tr>
+      <tr>
+        <td colspan="2">账号:${data.bank_account || ''}</td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>货名:${data.order_name || ''}</td>
       </tr>
     </table>
     <table>
@@ -370,21 +393,21 @@ export function getPrintOrderConent ({ getCustomer = {}, sendCustomer = {}, data
         <td class="col3">送货人签字:</td>
       </tr>
     </table>
-  `
-  let printHtml = html
+  `;
+  let printHtml = html;
   if (footer) {
-    printHtml = `${html}${footerHtml}`
+    printHtml = `${html}${footerHtml}`;
   }
 
-  printHtml = `<div class="order-box">${printHtml}</div>`
-  return printHtml
+  printHtml = `<div class="order-box">${printHtml}</div>`;
+  return printHtml;
 }
 /**
  *
  * 打印托运单
  * @param {footer} 是否打印回执单
  */
-export function printOrder (printHtml = '') {
+export function printOrder(printHtml = '') {
   let styles = `
   <style>
   .order-box{height: 292mm;}
@@ -398,50 +421,49 @@ export function printOrder (printHtml = '') {
   .txt-bold {}
   .split {width: 100%; height: 5px;}
   .col4 {width: 25%;}
-  .col2-1 {width: 35%;}
-  .col2-2 {width: 65%;}
+  .col2-1 {width: 50%;}
+  .col2-2 {width: 50%;}
   .desc {font-size: 8px;}
-  </style>`
+  </style>`;
   //告诉渲染进程，开始渲染打印内容
-  const printOrderWebview = document.querySelector('#printOrderWebview')
-  printOrderWebview.send('webview-print-render', { html: `${styles}${printHtml}` })
+  const printOrderWebview = document.querySelector('#printOrderWebview');
+  printOrderWebview.send('webview-print-render', { html: `${styles}${printHtml}` });
 }
 
-
-export function printPayOrder ({ selectedRows = [], type = '' }) {
-  let bodyHTML = ''
-  let totalTransFund = 0
-  let orderIndex = 1
-  selectedRows = selectedRows.sort(function compareFunction (item1, item2) {
+export function printPayOrder({ selectedRows = [], type = '' }) {
+  let bodyHTML = '';
+  let totalTransFund = 0;
+  let orderIndex = 1;
+  selectedRows = selectedRows.sort(function compareFunction(item1, item2) {
     return item1.sendcustomer_name.localeCompare(item2.sendcustomer_name);
   });
-  let totalPay = 0
+  let totalPay = 0;
   selectedRows.forEach(item => {
-    let orderNum = ''
-    let orderCodes = ''
+    let orderNum = '';
+    let orderCodes = '';
     if (item.order_code) {
-      orderNum = item.order_code.split(',').length
+      orderNum = item.order_code.split(',').length;
     }
-    orderCodes = item.order_code.replace(/,/ig, ', ')
+    orderCodes = item.order_code.replace(/,/gi, ', ');
 
-    totalTransFund += Number(item.trans_discount || 0)
-    totalPay += Number(item.pay_amount || 0)
+    totalTransFund += Number(item.trans_discount || 0);
+    totalPay += Number(item.pay_amount || 0);
     bodyHTML += `<tr>
         <td>${orderIndex}</td>
         <td>${item.bank_account || ''}</td>
         <td>${item.sendcustomer_name || ''}</td>
         <td>${item.pay_amount || ''}</td>
         <td>${orderCodes || ''}</td>
-        </tr>`
-    orderIndex++
-  })
+        </tr>`;
+    orderIndex++;
+  });
   let styles = `
     <style>
     table {width: 100%; border-collapse: collapse; border-spacing: 0;}
     table th { font-weight: bold; }
     table th, table td {border: 1px solid #ccc; font-size: 14px; padding: 4px; text-align: left; line-height: 150%;}
     .header {text-align: center;}
-    </style>`
+    </style>`;
   let html = `
     <table>
       <thead>
@@ -464,22 +486,22 @@ export function printPayOrder ({ selectedRows = [], type = '' }) {
         </tr>
       </tbody>
     </table>
-    `
+    `;
   if (type != 'print') {
     var iframeDocument = document.getElementById('printExcelFrame').contentWindow.document;
-    var printDOM = iframeDocument.getElementById("bd");
-    printDOM.innerHTML = `${styles}${html}`
-    let curDate = new Date()
-    let defaultFileName = `${curDate.getFullYear()}${curDate.getMonth() + 1}${curDate.getDate()}${curDate.getTime()}.xlsx`
+    var printDOM = iframeDocument.getElementById('bd');
+    printDOM.innerHTML = `${styles}${html}`;
+    let curDate = new Date();
+    let defaultFileName = `${curDate.getFullYear()}${curDate.getMonth() +
+      1}${curDate.getDate()}${curDate.getTime()}.xlsx`;
     // const fileNameDialog = electron.dialog.showSaveDialogSync(electron.getCurrentWindow(), { defaultPath: defaultFileName });
     const fileNameDialog = electron.dialog.showSaveDialogSync({ defaultPath: defaultFileName });
     var wb = XLSX.utils.table_to_book(printDOM, { raw: true });
     XLSX.writeFile(wb, fileNameDialog);
-  }
-  else {
-    const printOrderWebview = document.querySelector('#printWebview')
-    console.log('type: ', type)
-    printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}` })
+  } else {
+    const printOrderWebview = document.querySelector('#printWebview');
+    console.log('type: ', type);
+    printOrderWebview.send('webview-print-render', { printHtml: `${styles}${html}` });
   }
 }
 
@@ -487,7 +509,7 @@ export function printPayOrder ({ selectedRows = [], type = '' }) {
  * 打印标签
  * @param {*} data
  */
-export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE', company, getCustomer = {}) {
+export function printLabel(data, indexNo, deviceName = 'TSC TTP-244CE', company, getCustomer = {}) {
   // 打印机纸张80mm*50mm，但高度不能设置为50mm，否则会多打一个白页
   let styles = `
     <style>
@@ -503,41 +525,46 @@ export function printLabel (data, indexNo, deviceName = 'TSC TTP-244CE', company
     .label-sender {position: absolute; right: 10px; top: 10px; font-size: 46px}
     .label-name {padding-top: 5px; font-size: 20px; font-weight: 700;}
     .label-goods {font-size: 14px}
-    </style>`
+    </style>`;
 
-  let senderHtml = ''
-  let senderName = ''
+  let senderHtml = '';
+  let senderName = '';
   if (getCustomer.sender_name && getCustomer.sender_name.length == 1) {
-    senderName = getCustomer.sender_name
+    senderName = getCustomer.sender_name;
   }
   if (company.remember_sender) {
-    senderHtml = `<div class="label-sender">${senderName}</div>`
+    senderHtml = `<div class="label-sender">${senderName}</div>`;
   }
-  let printHtml = ''
+  let printHtml = '';
   let labelHtml = `
       <div class="label-box">
-      <div class="header">远诚宝路通物流  <span class="label-time">${moment(new Date).format('YYYY-MM-DD')}</span></div>
+      <div class="header">远诚宝路通物流  <span class="label-time">${moment(new Date()).format(
+        'YYYY-MM-DD'
+      )}</span></div>
       <div class="content">
       <div class="label">
-      <span class="label-left">${data.site_name}</span> &rarr; <span class="label-right">${data.company_name}</span>
+      <span class="label-left">${data.site_name}</span> &rarr; <span class="label-right">${
+    data.company_name
+  }</span>
       </div>
       <div class="label label-name">
-      <span class="username">${data.getcustomer_name}</span> <span class="">${data.order_code} - ${data.order_num}</span>
+      <span class="username">${data.getcustomer_name}</span> <span class="">${data.order_code} - ${
+    data.order_num
+  }</span>
       </div>
       ${senderHtml}
       <div class="label label-goods">货物名称：${data.order_name || ''}</div>
       </div>
       </div>
-      `
+      `;
   for (var i = 0; i < Number(indexNo || 1); i++) {
-    printHtml += labelHtml
+    printHtml += labelHtml;
   }
 
   if (!data.order_code) {
-    return
+    return;
   }
   //告诉渲染进程，开始渲染打印内容
-  const printLableWebview = document.querySelector(`#printLabelWebview1`)
-  printLableWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName })
+  const printLableWebview = document.querySelector(`#printLabelWebview1`);
+  printLableWebview.send('webview-print-render', { html: `${styles}${printHtml}`, deviceName });
 }
-
