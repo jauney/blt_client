@@ -10,8 +10,10 @@ import gql from 'graphql-tag';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { async } from 'q';
 
-const APIHOST = ``
-let APIURL = `/graphql`
+let APIHOST = ``;
+// TODO: fortest
+// APIHOST = 'http://127.0.0.1:8005';
+let APIURL = `/graphql`;
 
 // 线上
 // APIURL = 'http://118.190.100.113:8002/graphql'
@@ -25,7 +27,7 @@ const httpLink = new HttpLink({
     'Access-Control-Allow-Origin': '*',
     Accept: 'application/json',
     authorization: localStorage.getItem('token') || '',
-  }
+  },
 });
 const defaultOptions = {
   watchQuery: {
@@ -36,41 +38,41 @@ const defaultOptions = {
     fetchPolicy: 'no-cache',
     errorPolicy: 'all',
   },
-}
+};
 const cache = new InMemoryCache();
 const client = new ApolloClient({
   link: httpLink,
   cache,
-  defaultOptions: defaultOptions
+  defaultOptions: defaultOptions,
 });
 
-async function ajaxFetch (api, data = {}) {
+async function ajaxFetch(api, data = {}) {
   const result = await axios({
     method: 'post',
     url: api,
     data,
     headers: {
-      authorization: localStorage.getItem('token') || ''
-    }
+      authorization: localStorage.getItem('token') || '',
+    },
   }).catch(e => {
-    console.log(e)
-    showErrorMessage(e)
+    console.log(e);
+    showErrorMessage(e);
     return {
       status: 200,
-      data: { code: 9999, msg: '系统繁忙，请稍后再试' }
-    }
+      data: { code: 9999, msg: '系统繁忙，请稍后再试' },
+    };
   });
 
   if (/20[0-9]/.test(result.status)) {
-    return result.data
+    return result.data;
   }
-  showErrorMessage(result)
+  showErrorMessage(result);
 }
 /**
  * 登录校验跳转。后端接口没登录，则跳转到登录
  * @param {*} data
  */
-function gotoLogin (data) {
+function gotoLogin(data) {
   if (data.errors && data.errors.length > 0 && data.errors[0].message == 'login') {
     router.push('/User/Login');
     return false;
@@ -78,88 +80,32 @@ function gotoLogin (data) {
   return true;
 }
 
-function showErrorMessage (error = {}) {
-  console.log(error)
-  let msg = JSON.stringify(error)
+function showErrorMessage(error = {}) {
+  console.log(error);
+  let msg = JSON.stringify(error);
   Modal.error({
     content: `系统繁忙，请稍后再试-${msg}`,
-    okText: '我知道了'
+    okText: '我知道了',
   });
   //message.error(`系统繁忙，请稍后再试-${msg}`);
 }
 
-export async function fakeAccountLogin (params) {
-  return client
-    .query({
-      query: gql`
-        query login($userName: String, $password: String, $mac_id: String) {
-          login(user_name: $userName, user_pass: $password, mac_id: $mac_id) {
-            token
-            user {
-              user_id
-              user_name
-            }
-            site {
-              site_id
-              site_name
-              site_type
-            }
-            company {
-              company_id
-              company_name
-              company_address
-              company_type
-              company_mobile
-              trans_regional_ratio
-              remember_sender
-              late_fee_days
-              late_fee_beginamount
-              late_fee_rate
-              rewards_24h
-              rewards_48h
-              rewards_72h
-              alarm_days
-              agency_fee
-              bonus_type
-              sendfee_ratio
-              unsendfee_ratio
-              insurance_ratio
-              transfee_ratio
-            }
-            roles {
-              role_id
-              role_name
-              role_value
-              role_desc
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      if (data.errors && data.errors.length > 0 && data.errors[0].extensions && data.errors[0].extensions.exception) {
-        return data.errors[0].extensions.exception.data
-      }
-      return data.data.login;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+export async function fakeAccountLogin(params) {
+  return await ajaxFetch(`${APIHOST}/api/Login`, {
+    ...params,
+  });
 }
-
-
 
 // company
-export async function queryCompanyList (params) {
-  params.company = params.filter
-  delete params.filter
+export async function queryCompanyList(params) {
+  params.company = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetCompanys`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function addCompany (params) {
+export async function addCompany(params) {
   return client
     .mutate({
       mutation: gql`
@@ -177,11 +123,11 @@ export async function addCompany (params) {
       return data.data.addCompany;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function createCourier ({ courier, type }) {
+export async function createCourier({ courier, type }) {
   return client
     .mutate({
       mutation: gql`
@@ -199,11 +145,11 @@ export async function createCourier ({ courier, type }) {
       return data.data.createCourier;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function updateCourier ({ courier, ids, type }) {
+export async function updateCourier({ courier, ids, type }) {
   return client
     .mutate({
       mutation: gql`
@@ -217,16 +163,15 @@ export async function updateCourier ({ courier, ids, type }) {
       variables: { ids, courier, type },
     })
     .then(data => {
-
       gotoLogin(data);
       return data.data.updateCourier;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function updateCustomerCourier ({ courier, order_id, customer_id, type }) {
+export async function updateCustomerCourier({ courier, order_id, customer_id, type }) {
   return client
     .mutate({
       mutation: gql`
@@ -250,22 +195,21 @@ export async function updateCustomerCourier ({ courier, order_id, customer_id, t
       variables: { courier, order_id, customer_id, type },
     })
     .then(data => {
-
       gotoLogin(data);
       return data.data.updateCustomerCourier;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function getCourierList (params) {
+export async function getCourierList(params) {
   return await ajaxFetch(`${APIHOST}/api/GetCourierList`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function getOperatorList (params) {
+export async function getOperatorList(params) {
   return client
     .query({
       query: gql`
@@ -291,11 +235,11 @@ export async function getOperatorList (params) {
       return data.data.getUserList;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function getRoleList (params) {
+export async function getRoleList(params) {
   return client
     .query({
       query: gql`
@@ -319,11 +263,11 @@ export async function getRoleList (params) {
       return data.data.getRoleList;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function getUserInfos (params) {
+export async function getUserInfos(params) {
   return client
     .query({
       query: gql`
@@ -356,11 +300,11 @@ export async function getUserInfos (params) {
       return data.data.getUserInfos;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function addUser (params) {
+export async function addUser(params) {
   return client
     .mutate({
       mutation: gql`
@@ -378,11 +322,11 @@ export async function addUser (params) {
       return data.data.addUser;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function createCustomer ({ customer, type }) {
+export async function createCustomer({ customer, type }) {
   return client
     .mutate({
       mutation: gql`
@@ -400,11 +344,11 @@ export async function createCustomer ({ customer, type }) {
       return data.data.createCustomer;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function updateCustomer ({ customer, customer_id, type }) {
+export async function updateCustomer({ customer, customer_id, type }) {
   if (!customer_id) {
     customer_id = [customer.customer_id];
   }
@@ -421,41 +365,39 @@ export async function updateCustomer ({ customer, customer_id, type }) {
       variables: { customer_id, customer, type },
     })
     .then(data => {
-
       gotoLogin(data);
       return data.data.updateCustomer;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function queryCustomerList (params) {
-  params.customer = params.filter
-  delete params.filter
+export async function queryCustomerList(params) {
+  params.customer = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetCustomers`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-
-export async function getCustomerMobiles (params) {
+export async function getCustomerMobiles(params) {
   return await ajaxFetch(`${APIHOST}/api/GetCustomerMobiles`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
 // site
-export async function querySiteList (params) {
-  params.site = params.filter
-  delete params.filter
+export async function querySiteList(params) {
+  params.site = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetSites`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
 // site
-export async function addSite (params) {
+export async function addSite(params) {
   return client
     .mutate({
       mutation: gql`
@@ -473,12 +415,12 @@ export async function addSite (params) {
       return data.data.addSite;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
 // order
-export async function getOrderCode (params) {
+export async function getOrderCode(params) {
   return client
     .query({
       query: gql`
@@ -497,17 +439,17 @@ export async function getOrderCode (params) {
       return data.data.getOrderCode;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function createOrderAxios (params) {
+export async function createOrderAxios(params) {
   return await ajaxFetch(`${APIHOST}/api/CreateOrder`, {
-    order: params
-  })
+    order: params,
+  });
 }
 
-export async function createOrder (params) {
+export async function createOrder(params) {
   params.getcustomer_id = Number(params.getcustomer_id);
   params.sendcustomer_id = Number(params.sendcustomer_id);
   params.trans_originalamount = Number(params.trans_originalamount || 0);
@@ -616,11 +558,11 @@ export async function createOrder (params) {
       return data.data.createOrder;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function updateOrder ({ order, order_id }) {
+export async function updateOrder({ order, order_id }) {
   if (order.trans_real) {
     order.trans_real = Number(order.trans_real || 0);
   }
@@ -632,35 +574,36 @@ export async function updateOrder ({ order, order_id }) {
   }
 
   return await ajaxFetch(`${APIHOST}/api/UpdateOrder`, {
-    order_id, order
-  })
+    order_id,
+    order,
+  });
 }
 
-export async function settleOrder (params) {
+export async function settleOrder(params) {
   return await ajaxFetch(`${APIHOST}/api/SettleOrder`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function cancelSettleOrder (params) {
+export async function cancelSettleOrder(params) {
   return await ajaxFetch(`${APIHOST}/api/CancelSettleOrder`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function downAccount (params) {
+export async function downAccount(params) {
   return await ajaxFetch(`${APIHOST}/api/DownAccountOrder`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function cancelTodayDownAccountOrder (params) {
+export async function cancelTodayDownAccountOrder(params) {
   return await ajaxFetch(`${APIHOST}/api/CancelTodayPay`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function cancelDownAccountOrder (params) {
+export async function cancelDownAccountOrder(params) {
   return client
     .mutate({
       mutation: gql`
@@ -678,12 +621,12 @@ export async function cancelDownAccountOrder (params) {
       return data.data.cancelDownAccountOrder;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
 // 签字、取消签字
-export async function updateTransSign (params) {
+export async function updateTransSign(params) {
   return client
     .mutate({
       mutation: gql`
@@ -701,12 +644,12 @@ export async function updateTransSign (params) {
       return data.data.updateTransSign;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
 // 签字、取消签字
-export async function updateOrderSign (params) {
+export async function updateOrderSign(params) {
   return client
     .mutate({
       mutation: gql`
@@ -720,63 +663,35 @@ export async function updateOrderSign (params) {
       variables: params,
     })
     .then(data => {
-
       gotoLogin(data);
       return data.data.updateOrderSign;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function getCustomerList (params) {
-  params.customer = params.filter
-  delete params.filter
+export async function getCustomerList(params) {
+  params.customer = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetCustomers`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function getCustomer (params) {
+export async function getCustomer(params) {
   return await ajaxFetch(`${APIHOST}/api/GetCustomer`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function getCustomerTypes (params) {
-  return client
-    .query({
-      query: gql`
-        query getCustomerTypes(
-          $pageNo: Int
-          $pageSize: Int
-          $filter: CustomerTypeInput
-          $sorter: String
-        ) {
-          getCustomerTypes(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
-            customerTypesTotal
-            customerTypes {
-              customertype_id
-              customertype
-              customertype_name
-              trans_vip_ratio
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getCustomerTypes;
-    })
-    .catch(error => {
-      showErrorMessage(error)
-    });
+export async function getCustomerTypes(params) {
+  return await ajaxFetch(`${APIHOST}/api/GetCustomerTypes`, {
+    ...params,
+  });
 }
 
-
-export async function getOrderListAxios (params) {
+export async function getOrderListAxios(params) {
   if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
     params.filter.order_status = [params.filter.order_status];
   }
@@ -797,16 +712,16 @@ export async function getOrderListAxios (params) {
     delete params.filter.sendcustomer_mobile;
   }
   if (!params.filter.settle_date) {
-    delete params.filter.settle_date
+    delete params.filter.settle_date;
   }
 
-  params.order = params.filter
-  delete params.filter
+  params.order = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetOrders`, {
-    ...params
-  })
+    ...params,
+  });
 }
-export async function getOrderList (params) {
+export async function getOrderList(params) {
   if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
     params.filter.order_status = [params.filter.order_status];
   }
@@ -827,7 +742,7 @@ export async function getOrderList (params) {
     delete params.filter.sendcustomer_mobile;
   }
   if (!params.filter.settle_date) {
-    delete params.filter.settle_date
+    delete params.filter.settle_date;
   }
   return client
     .query({
@@ -921,11 +836,11 @@ export async function getOrderList (params) {
       return data.data.getOrders;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function getTodayPayList (params) {
+export async function getTodayPayList(params) {
   return client
     .query({
       query: gql`
@@ -965,11 +880,11 @@ export async function getTodayPayList (params) {
       return data.data.getTodayPays;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function deleteOrder (params) {
+export async function deleteOrder(params) {
   return client
     .mutate({
       mutation: gql`
@@ -983,17 +898,15 @@ export async function deleteOrder (params) {
       variables: params,
     })
     .then(data => {
-
       gotoLogin(data);
       return data.data.deleteOrder;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-
-export async function getOrderStatisticAxios (params) {
+export async function getOrderStatisticAxios(params) {
   if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
     params.filter.order_status = [params.filter.order_status];
   }
@@ -1014,17 +927,17 @@ export async function getOrderStatisticAxios (params) {
     delete params.filter.sendcustomer_mobile;
   }
   if (!params.filter.settle_date) {
-    delete params.filter.settle_date
+    delete params.filter.settle_date;
   }
 
-  params.order = params.filter
-  delete params.filter
+  params.order = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetOrderStatistic`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function getOrderStatistic (params) {
+export async function getOrderStatistic(params) {
   if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
     params.filter.order_status = [params.filter.order_status];
   }
@@ -1045,7 +958,7 @@ export async function getOrderStatistic (params) {
     delete params.filter.sendcustomer_mobile;
   }
   if (!params.filter.settle_date) {
-    delete params.filter.settle_date
+    delete params.filter.settle_date;
   }
 
   return client
@@ -1075,16 +988,15 @@ export async function getOrderStatistic (params) {
       variables: params,
     })
     .then(data => {
-
       gotoLogin(data);
       return data.data.getOrderStatistic;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function getTodayPayStatistic (params) {
+export async function getTodayPayStatistic(params) {
   return client
     .query({
       query: gql`
@@ -1101,22 +1013,21 @@ export async function getTodayPayStatistic (params) {
       variables: params,
     })
     .then(data => {
-
       gotoLogin(data);
       return data.data.getTodayPayStatistic;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function shipOrderAxios (params) {
+export async function shipOrderAxios(params) {
   return await ajaxFetch(`${APIHOST}/api/ShipOrder`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function shipOrder (params) {
+export async function shipOrder(params) {
   return client
     .mutate({
       mutation: gql`
@@ -1142,16 +1053,15 @@ export async function shipOrder (params) {
       variables: params,
     })
     .then(data => {
-
       gotoLogin(data);
       return data.data.shipOrder;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function cancelShipOrder (params) {
+export async function cancelShipOrder(params) {
   return client
     .mutate({
       mutation: gql`
@@ -1165,37 +1075,36 @@ export async function cancelShipOrder (params) {
       variables: params,
     })
     .then(data => {
-
       gotoLogin(data);
       return data.data.cancelShipOrder;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function entrunkOrder (params) {
+export async function entrunkOrder(params) {
   return await ajaxFetch(`${APIHOST}/api/EntrunkOrder`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function departOrder (params) {
+export async function departOrder(params) {
   return await ajaxFetch(`${APIHOST}/api/DepartOrder`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function cancelEntrunk (params = {}) {
+export async function cancelEntrunk(params = {}) {
   if (params.car && params.car['__typename']) {
     delete params.car['__typename'];
   }
   return await ajaxFetch(`${APIHOST}/api/CancelEntrunk`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function changeOrderReceiver (params) {
+export async function changeOrderReceiver(params) {
   return client
     .mutate({
       mutation: gql`
@@ -1217,33 +1126,33 @@ export async function changeOrderReceiver (params) {
       return data.data.changeOrderReceiver;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function updateCarFee ({ car = {} }) {
+export async function updateCarFee({ car = {} }) {
   delete car['__typename'];
   return await ajaxFetch(`${APIHOST}/api/UpdateCarFee`, {
-    car
-  })
+    car,
+  });
 }
 
-export async function updateCarStatus (car) {
+export async function updateCarStatus(car) {
   return await ajaxFetch(`${APIHOST}/api/UpdateCarStatus`, {
-    car
-  })
+    car,
+  });
 }
 // 接货人
-export async function queryReceiverList (params) {
-  params.courier = params.filter
-  delete params.filter
+export async function queryReceiverList(params) {
+  params.courier = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetCouriers`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
 // car
-export async function queryCarList (params) {
+export async function queryCarList(params) {
   return client
     .query({
       query: gql`
@@ -1269,16 +1178,15 @@ export async function queryCarList (params) {
       variables: params,
     })
     .then(data => {
-
       gotoLogin(data);
       return data.data.getCars;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function getCarCode (params) {
+export async function getCarCode(params) {
   return client
     .query({
       query: gql`
@@ -1296,17 +1204,17 @@ export async function getCarCode (params) {
       return data.data.getCarCode;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function getLastCarCode (params) {
+export async function getLastCarCode(params) {
   return await ajaxFetch(`${APIHOST}/api/GetLastCarCode`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function getCarInfo (params) {
+export async function getCarInfo(params) {
   return client
     .query({
       query: gql`
@@ -1333,18 +1241,18 @@ export async function getCarInfo (params) {
       return data.data.getCarInfo;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
 // driver
-export async function queryDriverList (params) {
+export async function queryDriverList(params) {
   return await ajaxFetch(`${APIHOST}/api/GetDrivers`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function updateAbnormal (params) {
+export async function updateAbnormal(params) {
   if (typeof params.abnormal_type_id == 'undefined') {
     params.abnormal_type_id = 0;
   }
@@ -1395,22 +1303,16 @@ export async function updateAbnormal (params) {
       return data.data.updateAbnormal;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function updatePayStatus (params) {
+export async function updatePayStatus(params) {
   return client
     .mutate({
       mutation: gql`
-        mutation updatePayStatus(
-          $order_id: [Int]
-          $order: OrderInput
-        ) {
-          updatePayStatus(
-            order_id: $order_id
-            order: $order
-          ) {
+        mutation updatePayStatus($order_id: [Int], $order: OrderInput) {
+          updatePayStatus(order_id: $order_id, order: $order) {
             code
             msg
           }
@@ -1423,22 +1325,16 @@ export async function updatePayStatus (params) {
       return data.data.updatePayStatus;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function cancelAbnormal (params) {
+export async function cancelAbnormal(params) {
   return client
     .mutate({
       mutation: gql`
-        mutation cancelAbnormal(
-          $order_id: [Int]
-          $abnormal_status: Int
-        ) {
-          cancelAbnormal(
-            order_id: $order_id
-            abnormal_status: $abnormal_status
-          ) {
+        mutation cancelAbnormal($order_id: [Int], $abnormal_status: Int) {
+          cancelAbnormal(order_id: $order_id, abnormal_status: $abnormal_status) {
             code
             msg
           }
@@ -1451,138 +1347,138 @@ export async function cancelAbnormal (params) {
       return data.data.cancelAbnormal;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function getAbnormalTypes (params) {
+export async function getAbnormalTypes(params) {
   return await ajaxFetch(`${APIHOST}/api/GetAbnormalTypes`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
 // incomes
-export async function getIncomes (params) {
-  params.income = params.filter
-  delete params.filter
+export async function getIncomes(params) {
+  params.income = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetIncomes`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
 // income types
-export async function getIncomeTypes (params) {
+export async function getIncomeTypes(params) {
   return await ajaxFetch(`${APIHOST}/api/GetIncomeTypes`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function getDebtTypes (params) {
+export async function getDebtTypes(params) {
   return await ajaxFetch(`${APIHOST}/api/GetDebtTypes`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function addIncome (params) {
+export async function addIncome(params) {
   console.log('api.... ', params);
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.incometype_id = isNaN(Number(params.incometype_id)) ? 0 : Number(params.incometype_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
   return await ajaxFetch(`${APIHOST}/api/AddIncome`, {
-    income: params
-  })
+    income: params,
+  });
 }
 
 // expenses
-export async function getExpenses (params) {
-  params.expense = params.filter
-  delete params.filter
+export async function getExpenses(params) {
+  params.expense = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetExpenses`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
 // expense types
-export async function getExpenseTypes (params) {
+export async function getExpenseTypes(params) {
   return await ajaxFetch(`${APIHOST}/api/GetExpenseTypes`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function addExpense (params) {
+export async function addExpense(params) {
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.expensetype_id = isNaN(Number(params.expensetype_id)) ? 0 : Number(params.expensetype_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
   return await ajaxFetch(`${APIHOST}/api/AddExpense`, {
-    expense: params
-  })
+    expense: params,
+  });
 }
 
 // debts
-export async function getDebtUsers (params) {
+export async function getDebtUsers(params) {
   return await ajaxFetch(`${APIHOST}/api/GetDebtUsers`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
 // debts
-export async function getDebts (params) {
-  params.debt = params.filter
-  delete params.filter
+export async function getDebts(params) {
+  params.debt = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetDebts`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function getDebtsStatistic (params) {
-  const debt = params.filter
+export async function getDebtsStatistic(params) {
+  const debt = params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetDebtStatistic`, {
-    ...debt
-  })
+    ...debt,
+  });
 }
 
-export async function settleDebt (params) {
-  params.debt = params.filter
-  delete params.filter
+export async function settleDebt(params) {
+  params.debt = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/SettleDebt`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function addDebt (params) {
+export async function addDebt(params) {
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
   params.debt_money = isNaN(Number(params.debt_money)) ? 0 : Number(params.debt_money);
   return await ajaxFetch(`${APIHOST}/api/AddDebt`, {
-    debt: params
-  })
+    debt: params,
+  });
 }
 
 // getTransfers
-export async function getTransfers (params) {
+export async function getTransfers(params) {
   // if (params.filter && params.filter.transfer_status) {
   //   params.filter.transfer_status = Number(params.filter.transfer_status);
   // }
-  params.transfer = params.filter
-  delete params.filter
+  params.transfer = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetTransfers`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
 // getTransferStatistic
-export async function getTransferStatistic (params) {
+export async function getTransferStatistic(params) {
   // if (params.filter && params.filter.transfer_status) {
   //   delete params.filter.transfer_status
   // }
-  params.transfer = params.filter
-  delete params.filter
+  params.transfer = params.filter;
+  delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetTransferStatistic`, {
-    ...params
-  })
+    ...params,
+  });
 }
 
-export async function addTransfer (params) {
+export async function addTransfer(params) {
   params.company_id = isNaN(Number(params.company_id)) ? 0 : Number(params.company_id);
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
   params.transfer_money = isNaN(Number(params.transfer_money)) ? 0 : Number(params.transfer_money);
@@ -1604,11 +1500,11 @@ export async function addTransfer (params) {
       return data.data.addTransfer;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function updateTransfer (params) {
+export async function updateTransfer(params) {
   return client
     .mutate({
       mutation: gql`
@@ -1626,12 +1522,11 @@ export async function updateTransfer (params) {
       return data.data.updateTransfer;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-
-export async function updateTransferType (params) {
+export async function updateTransferType(params) {
   return client
     .mutate({
       mutation: gql`
@@ -1649,11 +1544,11 @@ export async function updateTransferType (params) {
       return data.data.updateTransferType;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function delTransfer (params) {
+export async function delTransfer(params) {
   return client
     .mutate({
       mutation: gql`
@@ -1671,17 +1566,27 @@ export async function delTransfer (params) {
       return data.data.delTransfer;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
 // todayaccount
-export async function getTodayAccountList (params) {
+export async function getTodayAccountList(params) {
   return client
     .query({
       query: gql`
-        query getTodayAccountList($pageNo: Int, $pageSize: Int, $filter: AccountInput, $sorter: String) {
-          getTodayAccountList(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
+        query getTodayAccountList(
+          $pageNo: Int
+          $pageSize: Int
+          $filter: AccountInput
+          $sorter: String
+        ) {
+          getTodayAccountList(
+            pageNo: $pageNo
+            pageSize: $pageSize
+            filter: $filter
+            sorter: $sorter
+          ) {
             total
             accounts {
               account_id
@@ -1711,17 +1616,27 @@ export async function getTodayAccountList (params) {
       return data.data.getTodayAccountList;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
 // todayaccount
-export async function getTodayAccountStatistic (params) {
+export async function getTodayAccountStatistic(params) {
   return client
     .query({
       query: gql`
-        query getTodayAccountStatistic($pageNo: Int, $pageSize: Int, $filter: AccountInput, $sorter: String) {
-          getTodayAccountStatistic(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
+        query getTodayAccountStatistic(
+          $pageNo: Int
+          $pageSize: Int
+          $filter: AccountInput
+          $sorter: String
+        ) {
+          getTodayAccountStatistic(
+            pageNo: $pageNo
+            pageSize: $pageSize
+            filter: $filter
+            sorter: $sorter
+          ) {
             totalAccount
             totalIncomeAccount
             totalExpenseAccount
@@ -1735,11 +1650,11 @@ export async function getTodayAccountStatistic (params) {
       return data.data.getTodayAccountStatistic;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function cancelConfirmTrans (params) {
+export async function cancelConfirmTrans(params) {
   return client
     .mutate({
       mutation: gql`
@@ -1757,11 +1672,11 @@ export async function cancelConfirmTrans (params) {
       return data.data.cancelConfirmTrans;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }
 
-export async function confirmTrans (params) {
+export async function confirmTrans(params) {
   return client
     .mutate({
       mutation: gql`
@@ -1779,6 +1694,6 @@ export async function confirmTrans (params) {
       return data.data.confirmTrans;
     })
     .catch(error => {
-      showErrorMessage(error)
+      showErrorMessage(error);
     });
 }

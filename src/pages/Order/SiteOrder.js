@@ -29,11 +29,18 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
-import { setCustomerFieldValue } from '@/utils/customer'
-import { locale, showLoading, hideLoading } from '@/utils'
+import { setCustomerFieldValue } from '@/utils/customer';
+import { locale, showLoading, hideLoading } from '@/utils';
 import { async } from 'q';
-import { printOrder, printPayOrder, printDownLoad, printLabel, getPrintOrderConent, printSiteOrder } from '@/utils/print'
-const { ipcRenderer } = window.require('electron')
+import {
+  printOrder,
+  printPayOrder,
+  printDownLoad,
+  printLabel,
+  getPrintOrderConent,
+  printSiteOrder,
+} from '@/utils/print';
+const { ipcRenderer } = window.require('electron');
 import ModalDrag from '@/components/ModalDrag.js';
 
 const FormItem = Form.Item;
@@ -60,7 +67,7 @@ class CreateForm extends PureComponent {
       getCustomerNameChangeTimer: 0,
       sendCustomerNameChangeTimer: 0,
       initSendCustomerValue: '',
-      initGetCustomerValue: ''
+      initGetCustomerValue: '',
     };
     this.formItemLayout = {
       labelCol: {
@@ -122,21 +129,28 @@ class CreateForm extends PureComponent {
   /**
    * 编辑的时候初始化赋值表单
    */
-  async componentDidMount () {
-    const { form, selectedOrder = {}, dispatch, currentCompany = {}, branchCompanyList, customer: { getCustomerList } } = this.props;
+  async componentDidMount() {
+    const {
+      form,
+      selectedOrder = {},
+      dispatch,
+      currentCompany = {},
+      branchCompanyList,
+      customer: { getCustomerList },
+    } = this.props;
     const formFileds = form.getFieldsValue();
     const formKeys = Object.keys(formFileds);
     // 列表页传过来的当前公司，用于获取地狱系数
-    let curCompany = currentCompany
+    let curCompany = currentCompany;
     if (!currentCompany.company_id) {
-      curCompany = branchCompanyList[0]
+      curCompany = branchCompanyList[0];
     }
     this.setState({
-      currentCompany: curCompany
-    })
+      currentCompany: curCompany,
+    });
 
-    this.fetchGetCustomerList({ company_id: curCompany.company_id })
-    this.fetchSendCustomerList()
+    this.fetchGetCustomerList({ company_id: curCompany.company_id });
+    this.fetchSendCustomerList();
 
     if (formKeys.length > 0) {
       Object.keys(formFileds).forEach(item => {
@@ -144,19 +158,19 @@ class CreateForm extends PureComponent {
           const fieldValue = {};
           fieldValue[item] = selectedOrder[item];
           if (item == 'transfer_type') {
-            fieldValue[item] = `${fieldValue[item]}`
+            fieldValue[item] = `${fieldValue[item]}`;
           }
           form.setFieldsValue(fieldValue);
         }
         if (item == 'getcustomer_id') {
           this.setState({
-            initGetCustomerValue: selectedOrder[item]
-          })
+            initGetCustomerValue: selectedOrder[item],
+          });
         }
         if (item == 'sendcustomer_id') {
           this.setState({
-            initSendCustomerValue: selectedOrder[item]
-          })
+            initSendCustomerValue: selectedOrder[item],
+          });
         }
       });
     }
@@ -170,7 +184,7 @@ class CreateForm extends PureComponent {
       branchCompanyList,
       customer: { getCustomerList, sendCustomerList },
     } = this.props;
-    const { currentSendCustomer, currentGetCustomer } = this.state
+    const { currentSendCustomer, currentGetCustomer } = this.state;
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
 
@@ -193,19 +207,19 @@ class CreateForm extends PureComponent {
       });
 
       if (!fieldsValue['trans_discount']) {
-        fieldsValue['trans_discount'] = fieldsValue['trans_amount']
+        fieldsValue['trans_discount'] = fieldsValue['trans_amount'];
       }
 
-      fieldsValue.order_num = Number(fieldsValue.order_num || 0)
-      fieldsValue.order_label_num = Number(fieldsValue.order_label_num || 0)
+      fieldsValue.order_num = Number(fieldsValue.order_num || 0);
+      fieldsValue.order_label_num = Number(fieldsValue.order_label_num || 0);
       if (fieldsValue.transfer_type) {
-        fieldsValue.transfer_type = Number(fieldsValue.transfer_type)
+        fieldsValue.transfer_type = Number(fieldsValue.transfer_type);
       }
-      fieldsValue = await setCustomerFieldValue(this, fieldsValue, 'edit')
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue, 'edit');
       // 编辑的时候防止客户姓名变为数字customer_id
       if (Number(fieldsValue.getcustomer_name) >= 0 || Number(fieldsValue.sendcustomer_name)) {
-        message.error('客户姓名不能为数字，请重新选择/输入')
-        return
+        message.error('客户姓名不能为数字，请重新选择/输入');
+        return;
       }
       fieldsValue.site_name = CacheSite.site_name;
 
@@ -216,8 +230,8 @@ class CreateForm extends PureComponent {
         currentSendCustomer: {},
         currentGetCustomer: {},
         initGetCustomerValue: '',
-        initSendCustomerValue: ''
-      })
+        initSendCustomerValue: '',
+      });
     });
   };
 
@@ -290,12 +304,12 @@ class CreateForm extends PureComponent {
         });
       }
       this.setState({
-        initSendCustomerValue: customer.customer_id
-      })
+        initSendCustomerValue: customer.customer_id,
+      });
     } else {
       await this.setState({
         currentGetCustomer: customer,
-        initGetCustomerValue: customer.customer_id
+        initGetCustomerValue: customer.customer_id,
       });
       this.computeTransDiscount();
     }
@@ -303,14 +317,16 @@ class CreateForm extends PureComponent {
 
   onSendCustomerMobileBlur = async event => {
     const { dispatch } = this.props;
-    const { currentCompany } = this.state
+    const { currentCompany } = this.state;
     let flag = false;
-    let mobile = event && event.target && event.target.value
+    let mobile = event && event.target && event.target.value;
 
     let sendCustomer = await dispatch({
       type: 'customer/queryCustomerAction',
       payload: {
-        type: 1, customer_mobile: mobile, company_id: currentCompany.company_id
+        type: 1,
+        customer_mobile: mobile,
+        company_id: currentCompany.company_id,
       },
     });
     if (sendCustomer.sendCustomer && sendCustomer.sendCustomer.customer_id) {
@@ -323,15 +339,16 @@ class CreateForm extends PureComponent {
 
   onGetCustomerMobileBlur = async event => {
     const { dispatch } = this.props;
-    const { currentCompany } = this.state
+    const { currentCompany } = this.state;
     let flag = false;
-    let mobile = event && event.target && event.target.value
-
+    let mobile = event && event.target && event.target.value;
 
     let customer = await dispatch({
       type: 'customer/queryCustomerAction',
       payload: {
-        type: 0, customer_mobile: mobile, company_id: currentCompany.company_id
+        type: 0,
+        customer_mobile: mobile,
+        company_id: currentCompany.company_id,
       },
     });
     if (customer.getCustomer && customer.getCustomer.customer_id) {
@@ -343,7 +360,10 @@ class CreateForm extends PureComponent {
   };
 
   onSendCustomerSelect = async (value, option) => {
-    const { customer: { getCustomerList, sendCustomerList }, form } = this.props;
+    const {
+      customer: { getCustomerList, sendCustomerList },
+      form,
+    } = this.props;
     const orderAmount = form.getFieldValue('order_amount');
     let currentCustomer;
     for (let i = 0; i < sendCustomerList.length; i++) {
@@ -372,7 +392,10 @@ class CreateForm extends PureComponent {
   };
 
   onGetCustomerSelect = async (value, option) => {
-    const { customer: { getCustomerList, sendCustomerList }, form } = this.props;
+    const {
+      customer: { getCustomerList, sendCustomerList },
+      form,
+    } = this.props;
     let currentCustomer;
     for (let i = 0; i < getCustomerList.length; i++) {
       const customer = getCustomerList[i];
@@ -398,26 +421,26 @@ class CreateForm extends PureComponent {
 
   onSendCustomerChange = async value => {
     this.setState({
-      sendCustomerNameChangeTimer: (new Date()).getTime()
-    })
+      sendCustomerNameChangeTimer: new Date().getTime(),
+    });
     setTimeout(() => {
-      const { sendCustomerNameChangeTimer } = this.state
+      const { sendCustomerNameChangeTimer } = this.state;
       if (new Date().getTime() - sendCustomerNameChangeTimer > 300) {
-        this.fetchSendCustomerList({ customer_name: value })
+        this.fetchSendCustomerList({ customer_name: value });
       }
-    }, 350)
+    }, 350);
   };
 
   onGetCustomerChange = async value => {
     this.setState({
-      getCustomerNameChangeTimer: (new Date()).getTime()
-    })
+      getCustomerNameChangeTimer: new Date().getTime(),
+    });
     setTimeout(() => {
-      const { getCustomerNameChangeTimer, currentCompany } = this.state
+      const { getCustomerNameChangeTimer, currentCompany } = this.state;
       if (new Date().getTime() - getCustomerNameChangeTimer > 300) {
-        this.fetchGetCustomerList({ customer_name: value, company_id: currentCompany.company_id })
+        this.fetchGetCustomerList({ customer_name: value, company_id: currentCompany.company_id });
       }
-    }, 350)
+    }, 350);
   };
 
   /**
@@ -436,7 +459,7 @@ class CreateForm extends PureComponent {
    * 计算运费折扣
    */
   computeTransDiscount = (options = {}) => {
-    const { changeType = '' } = options
+    const { changeType = '' } = options;
     const { branchCompanyList } = this.props;
     let { currentCompany, currentGetCustomer, currentSendCustomer } = this.state;
     const { form } = this.props;
@@ -448,23 +471,17 @@ class CreateForm extends PureComponent {
     let sendCustomerTransVipRatio = currentSendCustomer.trans_vip_ratio || 1;
     let transRegionalRatio = currentCompany.trans_regional_ratio || 1;
     if (changeType != 'transAmount') {
-      transAmount = Math.ceil(
-        Number(originalTransAmount) *
-        Number(transRegionalRatio)
-      );
+      transAmount = Math.ceil(Number(originalTransAmount) * Number(transRegionalRatio));
     }
 
     let transDiscount = transAmount;
-    let transVipRatio = 1
+    let transVipRatio = 1;
     if (transType == 0) {
       transVipRatio = getCustomerTransVipRatio;
     } else {
       transVipRatio = sendCustomerTransVipRatio;
     }
-    transDiscount = Math.ceil(
-      Number(transAmount) *
-      Number(transVipRatio)
-    );
+    transDiscount = Math.ceil(Number(transAmount) * Number(transVipRatio));
     form.setFieldsValue({
       trans_discount: transDiscount || '',
       trans_amount: transAmount || '',
@@ -508,7 +525,7 @@ class CreateForm extends PureComponent {
     form.setFieldsValue({
       order_label_num: orderNum,
     });
-  }
+  };
 
   // 打印订单
   onOrderPrint = () => {
@@ -541,13 +558,17 @@ class CreateForm extends PureComponent {
   renderCustomerOption = item => {
     const AutoOption = AutoComplete.Option;
     return (
-      <AutoOption value={`${item.customer_id}`} customerid={`${item.customer_id}`} text={item.customer_name}>
+      <AutoOption
+        value={`${item.customer_id}`}
+        customerid={`${item.customer_id}`}
+        text={item.customer_name}
+      >
         {item.customer_name}
       </AutoOption>
     );
   };
 
-  render () {
+  render() {
     const {
       form,
       modalVisible,
@@ -567,7 +588,7 @@ class CreateForm extends PureComponent {
       currentSendCustomer,
       currentCompany,
       initSendCustomerValue = '',
-      initGetCustomerValue = ''
+      initGetCustomerValue = '',
     } = this.state;
 
     const companyOption = {
@@ -575,35 +596,37 @@ class CreateForm extends PureComponent {
     };
     // 默认勾选第一个公司
     companyOption.initialValue = currentCompany.company_id || '';
-    let siteOptionList = [CacheSite]
-    if (CacheSite.site_type == 3 || (selectedOrder && selectedOrder.getcustomer_id)) {
-      siteOptionList = siteList
+    let siteOptionList = [CacheSite];
+    if (CacheSite.site_type == 3 || (selectedOrder && selectedOrder.getcustomer_name)) {
+      siteOptionList = siteList;
     }
-    if (selectedOrder && selectedOrder.getcustomer_id) {
-      let isFetchGetCustomer = false
+    if (selectedOrder && selectedOrder.getcustomer_name) {
+      let isFetchGetCustomer = false;
       getCustomerList.forEach(item => {
         if (item.customer_id == selectedGetCustomer.customer_id) {
-          isFetchGetCustomer = true
+          isFetchGetCustomer = true;
         }
-      })
-      if (!isFetchGetCustomer && selectedGetCustomer.customer_id) {
-        getCustomerList.unshift(selectedGetCustomer)
+      });
+      if (!isFetchGetCustomer && selectedGetCustomer.customer_name) {
+        getCustomerList.unshift(selectedGetCustomer);
       }
-      let isFetchSendCustomer = false
+      let isFetchSendCustomer = false;
       sendCustomerList.forEach(item => {
         if (item.customer_id == selectedSendCustomer.customer_id) {
-          isFetchSendCustomer = true
+          isFetchSendCustomer = true;
         }
-      })
+      });
 
-      if (!isFetchSendCustomer && selectedSendCustomer.customer_id) {
-        sendCustomerList.unshift(selectedSendCustomer)
+      if (!isFetchSendCustomer && selectedSendCustomer.customer_name) {
+        sendCustomerList.unshift(selectedSendCustomer);
       }
     }
 
     const transTypeMap = {
-      0: '提', 1: '现', 2: '回'
-    }
+      0: '提',
+      1: '现',
+      2: '回',
+    };
     let footer = [
       <Button key="btn-cancel" onClick={() => handleModalVisible()} tabIndex={-1}>
         取 消
@@ -611,19 +634,26 @@ class CreateForm extends PureComponent {
       <Button key="btn-print" onClick={this.onOrderPrint}>
         打 印
       </Button>,
-      <Button key="btn-save" type="primary" onClick={() => { this.okHandle() }} tabIndex={-1}>
+      <Button
+        key="btn-save"
+        type="primary"
+        onClick={() => {
+          this.okHandle();
+        }}
+        tabIndex={-1}
+      >
         保 存
       </Button>,
-    ]
+    ];
     if (CacheCompany.company_type == 2) {
       footer = [
         <Button key="btn-cancel" onClick={() => handleModalVisible()} tabIndex={-1}>
           取 消
-        </Button>
-      ]
+        </Button>,
+      ];
     }
 
-    const title = <ModalDrag title="新建托运单" />
+    const title = <ModalDrag title="新建托运单" />;
 
     return (
       <Modal
@@ -660,7 +690,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="站点">
               {form.getFieldDecorator('site_id', { initialValue: CacheSite.site_id })(
-                <Select placeholder="全部" style={{ width: '100%' }} tabIndex={-1} >
+                <Select placeholder="全部" style={{ width: '100%' }} tabIndex={-1}>
                   {siteOptionList.map(ele => {
                     return (
                       <Option key={ele.site_id} value={ele.site_id}>
@@ -679,14 +709,16 @@ class CreateForm extends PureComponent {
               {form.getFieldDecorator('getcustomer_mobile', {
                 initialValue: selectedGetCustomerMobile,
                 rules: [{ required: true, message: '请填写收货人电话' }],
-              })(<Input onBlur={this.onGetCustomerMobileBlur} placeholder="请输入" maxLength={15} />)}
+              })(
+                <Input onBlur={this.onGetCustomerMobileBlur} placeholder="请输入" maxLength={15} />
+              )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="收货人姓名">
               {form.getFieldDecorator('getcustomer_id', {
                 rules: [{ required: true, message: '请填写收货人姓名' }],
-                initialValue: `${initGetCustomerValue}`
+                initialValue: `${initGetCustomerValue}`,
               })(
                 <AutoComplete
                   size="large"
@@ -713,14 +745,16 @@ class CreateForm extends PureComponent {
               {form.getFieldDecorator('sendcustomer_mobile', {
                 initialValue: selectedSendCustomerMobile,
                 rules: [{ required: true, message: '请填写发货人电话' }],
-              })(<Input onBlur={this.onSendCustomerMobileBlur} placeholder="请输入" maxLength={15} />)}
+              })(
+                <Input onBlur={this.onSendCustomerMobileBlur} placeholder="请输入" maxLength={15} />
+              )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="发货人姓名">
               {form.getFieldDecorator('sendcustomer_id', {
                 rules: [{ required: true, message: '请填写发货人姓名' }],
-                initialValue: `${initSendCustomerValue}`
+                initialValue: `${initSendCustomerValue}`,
               })(
                 <AutoComplete
                   size="large"
@@ -796,7 +830,12 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="货款">
               {form.getFieldDecorator('order_amount', {})(
-                <Input placeholder="请输入货款" onBlur={this.onOrderAmountBlur} tabIndex={-1} maxLength={10} />
+                <Input
+                  placeholder="请输入货款"
+                  onBlur={this.onOrderAmountBlur}
+                  tabIndex={-1}
+                  maxLength={10}
+                />
               )}
             </FormItem>
           </Col>
@@ -812,20 +851,32 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="保价金额">
               {form.getFieldDecorator('insurance_amount', {})(
-                <Input placeholder="" tabIndex={-1} onBlur={this.computeInsuranceFee} maxLength={10} />
+                <Input
+                  placeholder=""
+                  tabIndex={-1}
+                  onBlur={this.computeInsuranceFee}
+                  maxLength={10}
+                />
               )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
-            <FormItem {...this.formItemLayout} label={`保价费[${transTypeMap[form.getFieldValue('trans_type')]}]`}>
-              {form.getFieldDecorator('insurance_fee', {})(<Input readOnly placeholder="" tabIndex={-1} maxLength={10} />)}
+            <FormItem
+              {...this.formItemLayout}
+              label={`保价费[${transTypeMap[form.getFieldValue('trans_type')]}]`}
+            >
+              {form.getFieldDecorator('insurance_fee', {})(
+                <Input readOnly placeholder="" tabIndex={-1} maxLength={10} />
+              )}
             </FormItem>
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.col2Layout}>
             <FormItem {...this.formItemLayout} label="送货费">
-              {form.getFieldDecorator('deliver_amount', {})(<Input placeholder="" tabIndex={-1} maxLength={10} />)}
+              {form.getFieldDecorator('deliver_amount', {})(
+                <Input placeholder="" tabIndex={-1} maxLength={10} />
+              )}
             </FormItem>
           </Col>
           <Col {...this.col2Layout}>
@@ -837,21 +888,25 @@ class CreateForm extends PureComponent {
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col span="13">
+          <Col span={13}>
             <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 12 }} label="货物名称">
               {form.getFieldDecorator('order_name', {})(
                 <Input placeholder="请输入" style={{ width: '340px' }} maxLength={100} />
               )}
             </FormItem>
           </Col>
-          <Col span="4">
+          <Col span={4}>
             <FormItem labelCol={{ span: 12 }} wrapperCol={{ span: 12 }} label="件数">
               {form.getFieldDecorator('order_num', { initialValue: 1 })(
-                <InputNumber placeholder="件数" onBlur={this.onOrderNumBlur} style={{ width: '60px' }} />
+                <InputNumber
+                  placeholder="件数"
+                  onBlur={this.onOrderNumBlur}
+                  style={{ width: '60px' }}
+                />
               )}
             </FormItem>
           </Col>
-          <Col span="4">
+          <Col span={4}>
             <FormItem labelCol={{ span: 12 }} wrapperCol={{ span: 12 }} label="标签数">
               {form.getFieldDecorator('order_label_num', { initialValue: 1 })(
                 <InputNumber placeholder="" style={{ width: '60px' }} />
@@ -864,12 +919,8 @@ class CreateForm extends PureComponent {
             <FormItem {...this.formItemLayout} label="转进/转出">
               {form.getFieldDecorator('transfer_type')(
                 <Select placeholder="全部" style={{ width: '100%' }} tabIndex={-1}>
-                  <Option value="1">
-                    转出
-                  </Option>
-                  <Option value="2">
-                    转进
-                  </Option>
+                  <Option value="1">转出</Option>
+                  <Option value="2">转进</Option>
                 </Select>
               )}
             </FormItem>
@@ -932,7 +983,9 @@ class CreateForm extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col {...this.colLargeLayout}>
             <FormItem {...this.formItemMiniLayout} label="备注">
-              {form.getFieldDecorator('remark', {})(<Input placeholder="请输入" tabIndex={-1} maxLength={100} />)}
+              {form.getFieldDecorator('remark', {})(
+                <Input placeholder="请输入" tabIndex={-1} maxLength={100} />
+              )}
             </FormItem>
           </Col>
         </Row>
@@ -956,7 +1009,7 @@ class CreateEntrunkForm extends PureComponent {
   /**
    * 编辑的时候初始化赋值表单
    */
-  componentDidMount () { }
+  componentDidMount() {}
 
   onCarChange = value => {
     const { driverList, form } = this.props;
@@ -1094,7 +1147,14 @@ class CreateEntrunkForm extends PureComponent {
               {getFieldDecorator('car_date', {
                 rules: [{ required: true, message: '请填写拉货日期' }],
                 initialValue: moment(new Date().getTime()),
-              })(<DatePicker placeholder="全部" locale={locale} format="YYYY-MM-DD" style={{ width: '100%' }} />)}
+              })(
+                <DatePicker
+                  placeholder="全部"
+                  locale={locale}
+                  format="YYYY-MM-DD"
+                  style={{ width: '100%' }}
+                />
+              )}
             </FormItem>
           </Col>
           <Col md={12} sm={24}>
@@ -1110,14 +1170,16 @@ class CreateEntrunkForm extends PureComponent {
     );
   };
   // 防爆击
-  btnClicked = false
+  btnClicked = false;
   onOkHandler = e => {
     e.preventDefault();
     if (this.btnClicked) {
-      return
+      return;
     }
-    this.btnClicked = true
-    setTimeout(() => { this.btnClicked = false }, 2000)
+    this.btnClicked = true;
+    setTimeout(() => {
+      this.btnClicked = false;
+    }, 2000);
 
     const {
       dispatch,
@@ -1134,10 +1196,10 @@ class CreateEntrunkForm extends PureComponent {
 
       const formValues = fieldsValue;
       let shipSiteId = 0;
-      let shipSiteName = ''
+      let shipSiteName = '';
       const orderIds = selectedRows.map(item => {
-        shipSiteId = item.shipsite_id
-        shipSiteName = item.shipsite_name
+        shipSiteId = item.shipsite_id;
+        shipSiteName = item.shipsite_name;
         return item.order_id;
       });
       if (formValues.car_date && formValues.car_date.valueOf) {
@@ -1162,12 +1224,12 @@ class CreateEntrunkForm extends PureComponent {
       formValues.shipsite_name = shipSiteName;
       formValues.car_code = formValues.car_code + '';
       formValues.company_id = currentCompany.company_id;
-      showLoading(dispatch)
+      showLoading(dispatch);
       const result = await dispatch({
         type: 'untrunkorder/entrunkOrderAction',
         payload: { order_id: orderIds, car: formValues },
       });
-      hideLoading(dispatch)
+      hideLoading(dispatch);
       if (result.code == 0) {
         message.success('装车成功');
         onSearch();
@@ -1178,7 +1240,7 @@ class CreateEntrunkForm extends PureComponent {
     });
   };
 
-  render () {
+  render() {
     const { modalVisible, onEntrunkModalCancel } = this.props;
     return (
       <Modal
@@ -1229,7 +1291,12 @@ class CreateReceiverForm extends PureComponent {
                   dataSource={receiverList.map(item => {
                     const AutoOption = AutoComplete.Option;
                     return (
-                      <AutoOption key={`${item.courier_id}`} value={`${item.courier_id}`} customerid={`${item.courier_id}`} label={item.courier_name}>
+                      <AutoOption
+                        key={`${item.courier_id}`}
+                        value={`${item.courier_id}`}
+                        customerid={`${item.courier_id}`}
+                        label={item.courier_name}
+                      >
                         {item.courier_name}
                       </AutoOption>
                     );
@@ -1265,8 +1332,8 @@ class CreateReceiverForm extends PureComponent {
         }
       });
       if (receivers.length <= 0) {
-        message.error('请选择正确的接货人')
-        return
+        message.error('请选择正确的接货人');
+        return;
       }
       fieldsValue.order_id = orderIds;
       fieldsValue.receiver_name = receivers[0] && receivers[0].courier_name;
@@ -1283,7 +1350,7 @@ class CreateReceiverForm extends PureComponent {
     });
   };
 
-  render () {
+  render() {
     const { modalVisible, onReceiverModalCancel } = this.props;
     return (
       <Modal
@@ -1302,7 +1369,6 @@ class CreateReceiverForm extends PureComponent {
     );
   }
 }
-
 
 /* eslint react/no-multi-comp:0 */
 @connect(({ site, order }) => {
@@ -1324,7 +1390,7 @@ class CreateShipForm extends PureComponent {
       receiverList,
       entrunkSiteList = [],
       selectedRows,
-      currentShipSite = {}
+      currentShipSite = {},
     } = this.props;
 
     const getSelectRowText = () => {
@@ -1335,8 +1401,9 @@ class CreateShipForm extends PureComponent {
       return `合计 ${selectedRows.length} 票，共计 ${totalOrders} 件`;
     };
 
-    let shipSiteOption = { rules: [{ required: true, message: '请选择配载站' }] }
-    shipSiteOption.initialValue = currentShipSite.site_id || (entrunkSiteList.length > 0 && entrunkSiteList[0].site_id)
+    let shipSiteOption = { rules: [{ required: true, message: '请选择配载站' }] };
+    shipSiteOption.initialValue =
+      currentShipSite.site_id || (entrunkSiteList.length > 0 && entrunkSiteList[0].site_id);
 
     return (
       <Form layout="inline">
@@ -1367,7 +1434,12 @@ class CreateShipForm extends PureComponent {
                   dataSource={receiverList.map(item => {
                     const AutoOption = AutoComplete.Option;
                     return (
-                      <AutoOption key={`${item.courier_id}`} value={`${item.courier_id}`} customerid={`${item.courier_id}`} label={item.courier_name}>
+                      <AutoOption
+                        key={`${item.courier_id}`}
+                        value={`${item.courier_id}`}
+                        customerid={`${item.courier_id}`}
+                        label={item.courier_name}
+                      >
                         {item.courier_name}
                       </AutoOption>
                     );
@@ -1394,15 +1466,17 @@ class CreateShipForm extends PureComponent {
     );
   };
   // 防爆击
-  btnClicked = false
+  btnClicked = false;
 
   onEntruck = e => {
     e.preventDefault();
     if (this.btnClicked) {
-      return
+      return;
     }
-    this.btnClicked = true
-    setTimeout(() => { this.btnClicked = false }, 2000)
+    this.btnClicked = true;
+    setTimeout(() => {
+      this.btnClicked = false;
+    }, 2000);
 
     const {
       dispatch,
@@ -1434,8 +1508,8 @@ class CreateShipForm extends PureComponent {
       fieldsValue.receiver_id = receivers[0] && receivers[0].courier_id;
       fieldsValue.receiver_name = receivers[0] && receivers[0].courier_name;
       if (receivers.length <= 0) {
-        message.error('请选择正确的接货人')
-        return
+        message.error('请选择正确的接货人');
+        return;
       }
       const result = await dispatch({
         type: 'order/shipOrderAction',
@@ -1452,7 +1526,7 @@ class CreateShipForm extends PureComponent {
     });
   };
 
-  render () {
+  render() {
     const { modalVisible, onShipModalCancel } = this.props;
     return (
       <Modal
@@ -1482,7 +1556,7 @@ class CreateShipForm extends PureComponent {
     receiver,
     car,
     driver,
-    ajaxLoading
+    ajaxLoading,
   };
 })
 @Form.create()
@@ -1501,7 +1575,7 @@ class TableList extends PureComponent {
     currentShipSite: {},
     labelPrinterName: 'TSC_TTP_244CE',
     selectedGetCustomer: {},
-    selectedSendCustomer: {}
+    selectedSendCustomer: {},
   };
 
   columns = [
@@ -1510,11 +1584,13 @@ class TableList extends PureComponent {
       width: '60px',
       sorter: true,
       dataIndex: 'company_name',
+      key: 'order_id',
     },
     {
       title: '接货人',
       width: '80px',
       dataIndex: 'receiver_name',
+      key: 'receiver_name',
       sorter: true,
     },
     {
@@ -1522,6 +1598,7 @@ class TableList extends PureComponent {
       width: '170px',
       sorter: true,
       dataIndex: 'create_date',
+      key: 'create_date',
       render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
@@ -1529,6 +1606,7 @@ class TableList extends PureComponent {
       width: '70px',
       sorter: true,
       dataIndex: 'order_code',
+      key: 'order_code',
       align: 'right',
       render: val => `${val}`,
       // mark to display a total number
@@ -1539,35 +1617,41 @@ class TableList extends PureComponent {
       width: '80px',
       sorter: true,
       dataIndex: 'sendcustomer_name',
+      key: 'sendcustomer_name',
     },
     {
       title: '收获客户',
       width: '80px',
       sorter: true,
       dataIndex: 'getcustomer_name',
+      key: 'getcustomer_name',
     },
     {
       title: '应收货款',
       width: '80px',
       sorter: true,
       dataIndex: 'order_amount',
+      key: 'order_amount',
     },
     {
       title: '运费',
       width: '80px',
       sorter: true,
       dataIndex: 'trans_amount',
+      key: 'trans_amount',
     },
     {
       title: '折后运费',
       width: '80px',
       sorter: true,
       dataIndex: 'trans_discount',
+      key: 'trans_discount',
     },
     {
       title: '运费方式',
       width: '60px',
       dataIndex: 'trans_type',
+      key: 'trans_type',
       sorter: true,
       render: val => {
         let transType = '';
@@ -1586,41 +1670,47 @@ class TableList extends PureComponent {
       width: '80px',
       sorter: true,
       dataIndex: 'order_advancepay_amount',
+      key: 'order_advancepay_amount',
     },
     {
       title: '送货费',
       width: '80px',
       sorter: true,
       dataIndex: 'deliver_amount',
+      key: 'deliver_amount',
     },
     {
       title: '保价费',
       width: '80px',
       sorter: true,
       dataIndex: 'insurance_fee',
+      key: 'insurance_fee',
     },
     {
       title: '货物名称',
       width: '150px',
       dataIndex: 'order_name',
+      key: 'order_name',
     },
     {
       title: '经办人',
       width: '80px',
       sorter: true,
       dataIndex: 'operator_name',
+      key: 'operator_name',
     },
     {
       title: '站点',
       width: '80px',
       sorter: true,
       dataIndex: 'site_name',
+      key: 'site_name',
     },
     {
       title: '中转',
       width: '80px',
       dataIndex: 'transfer_type',
-
+      key: 'transfer_type',
       render: val => {
         let $transferType = '';
         if (val == 1) {
@@ -1635,10 +1725,11 @@ class TableList extends PureComponent {
       title: '备注',
       width: '150px',
       dataIndex: 'remark',
+      key: 'remark',
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
 
     const branchCompanyList = await dispatch({
@@ -1646,13 +1737,13 @@ class TableList extends PureComponent {
       payload: {},
     });
 
-    let currentCompany = await this.setCurrentCompany(branchCompanyList)
+    let currentCompany = await this.setCurrentCompany(branchCompanyList);
     const siteList = await dispatch({
       type: 'site/getSiteListAction',
       payload: { pageNo: 1, pageSize: 100 },
     });
 
-    this.getReceiverList()
+    this.getReceiverList();
     dispatch({
       type: 'customer/resetCustomerPageNoAction',
       payload: {},
@@ -1672,7 +1763,7 @@ class TableList extends PureComponent {
 
     // 页面初始化获取一次订单信息，否则会显示其他页面的缓存信息
     this.handleSearch();
-    this.getDriverList()
+    this.getDriverList();
   }
 
   getReceiverList = async () => {
@@ -1682,28 +1773,27 @@ class TableList extends PureComponent {
       type: 'receiver/getReceiverListAction',
       payload: { pageNo: 1, pageSize: 100, type: 'receiver', filter: {} },
     });
-  }
+  };
 
   // 设置当前公司
   setCurrentCompany = async (branchCompanyList = []) => {
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (CacheCompany.company_type == 2) {
       await this.setState({
-        currentCompany: CacheCompany
+        currentCompany: CacheCompany,
       });
 
-      return CacheCompany
-    }
-    else if (branchCompanyList && branchCompanyList.length > 0) {
+      return CacheCompany;
+    } else if (branchCompanyList && branchCompanyList.length > 0) {
       await this.setState({
-        currentCompany: branchCompanyList[0]
+        currentCompany: branchCompanyList[0],
       });
 
-      return branchCompanyList[0]
+      return branchCompanyList[0];
     }
 
-    return {}
-  }
+    return {};
+  };
 
   /**
    * 表格排序、分页响应
@@ -1747,22 +1837,26 @@ class TableList extends PureComponent {
       e.preventDefault();
     }
 
-    this.setState({ current: 1 })
-    this.getOrderList({ sorter: "order_status|ascend,create_date|desc" });
+    this.setState({ current: 1 });
+    this.getOrderList({ sorter: 'order_status|ascend,create_date|desc' });
   };
 
   /**
    * 获取订单信息
    */
   getOrderList = (data = {}, pageNo) => {
-    const { dispatch, form, receiver: { receiverList } } = this.props;
+    const {
+      dispatch,
+      form,
+      receiver: { receiverList },
+    } = this.props;
     const { current, pageSize } = this.state;
 
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
-      showLoading(dispatch)
+      showLoading(dispatch);
 
-      fieldsValue.order_status = [0, 1]
+      fieldsValue.order_status = [0, 1];
 
       if (fieldsValue.receiver_id) {
         const receivers = receiverList.filter(item => {
@@ -1771,13 +1865,12 @@ class TableList extends PureComponent {
           }
         });
         if (receivers.length <= 0) {
-          message.error('请选择正确的接货人')
-          return
+          message.error('请选择正确的接货人');
+          return;
         }
         fieldsValue.receiver_id = receivers[0] && receivers[0].courier_id;
-      }
-      else {
-        delete fieldsValue.receiver_id
+      } else {
+        delete fieldsValue.receiver_id;
       }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
 
@@ -1791,21 +1884,21 @@ class TableList extends PureComponent {
         payload: { ...searchParams },
       });
 
-      this.getLastCarInfo()
+      this.getLastCarInfo();
 
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
 
-      hideLoading(dispatch)
+      hideLoading(dispatch);
     });
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   handleModalVisible = flag => {
-    const { currentCompany, currentSite } = this.state
+    const { currentCompany, currentSite } = this.state;
     // // 选择公司、站点
     // if (!currentCompany || !currentCompany.company_id) {
     //   message.info('请选择分公司')
@@ -1817,7 +1910,7 @@ class TableList extends PureComponent {
       modalVisible: !!flag,
     });
     if (!flag) {
-      this.getOrderList()
+      this.getOrderList();
     }
   };
 
@@ -1826,10 +1919,10 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
 
     // 更新订单号
-    let orderCode = selectedOrder.order_code
+    let orderCode = selectedOrder.order_code;
     // 打印是增加时间
-    let createDate = new Date().getTime()
-    showLoading(dispatch)
+    let createDate = new Date().getTime();
+    showLoading(dispatch);
     if (selectedOrder.order_id) {
       const result = await dispatch({
         type: 'order/updateOrderAction',
@@ -1838,21 +1931,21 @@ class TableList extends PureComponent {
           order_id: selectedOrder.order_id,
         },
       });
-      hideLoading(dispatch)
+      hideLoading(dispatch);
       if (result && result.code == 0) {
         message.success('编辑成功');
       } else {
         message.error('编辑失败');
       }
-      createDate = selectedOrder.create_date
+      createDate = selectedOrder.create_date;
       this.handleModalVisible(false);
     } else {
       const result = await dispatch({
         type: 'order/createOrderAction',
         payload: fields,
       });
-      hideLoading(dispatch)
-      orderCode = result && result.data && result.data.order_code || ''
+      hideLoading(dispatch);
+      orderCode = (result && result.data && result.data.order_code) || '';
       // TODO: 拿到order_code用于打印
       console.log(result.data);
       if (result && result.code == 0) {
@@ -1863,12 +1956,18 @@ class TableList extends PureComponent {
     }
 
     if (option.type == 'print') {
-      this.printOrder(Object.assign({ order_code: orderCode }, Object.assign(fields, { create_date: createDate }), option))
+      this.printOrder(
+        Object.assign(
+          { order_code: orderCode },
+          Object.assign(fields, { create_date: createDate }),
+          option
+        )
+      );
     }
   };
 
   // 打印订单
-  printOrder = async (data) => {
+  printOrder = async data => {
     const {
       company: { branchCompanyList },
       site: { siteList },
@@ -1879,19 +1978,32 @@ class TableList extends PureComponent {
       type: 'customer/queryCustomerAction',
       payload: {
         getcustomer_id: data.getcustomer_id,
-        sendcustomer_id: data.sendcustomer_id
+        sendcustomer_id: data.sendcustomer_id,
       },
     });
-    let printCompany = {}
+    let printCompany = {};
     branchCompanyList.forEach(item => {
       if (item.company_id == data.company_id) {
-        printCompany = item
+        printCompany = item;
       }
-    })
-    let printHtml = getPrintOrderConent({ getCustomer, sendCustomer, data, printCompany, siteList, footer: true })
-    printOrder(printHtml)
-    printLabel(data, data.order_label_num, localStorage.getItem('LabelPrinterName'), printCompany, getCustomer)
-  }
+    });
+    let printHtml = getPrintOrderConent({
+      getCustomer,
+      sendCustomer,
+      data,
+      printCompany,
+      siteList,
+      footer: true,
+    });
+    printOrder(printHtml);
+    printLabel(
+      data,
+      data.order_label_num,
+      localStorage.getItem('LabelPrinterName'),
+      printCompany,
+      getCustomer
+    );
+  };
 
   onDelete = async () => {
     const { selectedRows } = this.state;
@@ -1929,27 +2041,37 @@ class TableList extends PureComponent {
    * 双击修改
    */
   onRowDoubleClick = async (record, rowIndex, event) => {
-    const { dispatch } = this.props
+    const { dispatch } = this.props;
+    console.log('#########', record);
     // 先查询客户信息
     let customers = await dispatch({
       type: 'customer/queryCustomerAction',
       payload: {
-        sendcustomer_id: record.sendcustomer_id, getcustomer_id: record.getcustomer_id
-      }
+        sendcustomer_id: record.sendcustomer_id,
+        getcustomer_id: record.getcustomer_id,
+      },
     });
-    let getCustomer = customers.getCustomer
-    let sendCustomer = customers.sendCustomer
+    let getCustomer = customers.getCustomer;
+    let sendCustomer = customers.sendCustomer;
     if (!getCustomer || !getCustomer.customer_id) {
-      getCustomer = { customer_id: record.getcustomer_id, customer_name: record.getcustomer_name, customer_mobile: record.getcustomer_mobile }
+      getCustomer = {
+        customer_id: record.getcustomer_id,
+        customer_name: record.getcustomer_name,
+        customer_mobile: record.getcustomer_mobile,
+      };
     }
     if (!sendCustomer || !sendCustomer.customer_id) {
-      sendCustomer = { customer_id: record.sendcustomer_id, customer_name: record.sendcustomer_name, customer_mobile: record.sendcustomer_mobile }
+      sendCustomer = {
+        customer_id: record.sendcustomer_id,
+        customer_name: record.sendcustomer_name,
+        customer_mobile: record.sendcustomer_mobile,
+      };
     }
     await this.setState({
       selectedGetCustomer: getCustomer,
       selectedSendCustomer: sendCustomer,
       selectedOrder: record,
-      modalVisible: true
+      modalVisible: true,
     });
   };
 
@@ -1964,8 +2086,8 @@ class TableList extends PureComponent {
       }
     });
     if (orderIds.length < selectedRows.length) {
-      message.info('只能取消已经装车的订单')
-      return false
+      message.info('只能取消已经装车的订单');
+      return false;
     }
 
     const result = await dispatch({
@@ -1974,7 +2096,9 @@ class TableList extends PureComponent {
     });
 
     if (result.code == 0) {
-      setTimeout(() => { this.getOrderList(); }, 500)
+      setTimeout(() => {
+        this.getOrderList();
+      }, 500);
 
       message.success('取消装回成功');
       this.onCancelShipCancel();
@@ -1996,8 +2120,8 @@ class TableList extends PureComponent {
       }
     });
     if (orderIds.length < selectedRows.length) {
-      message.info('当前选择的部分订单未装回配载站，请重新选择')
-      return false
+      message.info('当前选择的部分订单未装回配载站，请重新选择');
+      return false;
     }
     this.setState({
       cancelShipModalVisible: true,
@@ -2008,7 +2132,7 @@ class TableList extends PureComponent {
    * 装车弹窗
    */
   onShipModalShow = () => {
-    const { form } = this.props
+    const { form } = this.props;
     const { currentShipSite = {}, currentCompany = {}, selectedRows } = this.state;
     const orderIds = [];
     selectedRows.forEach(item => {
@@ -2017,8 +2141,8 @@ class TableList extends PureComponent {
       }
     });
     if (orderIds.length < selectedRows.length) {
-      message.info('当前选择的部分订单已经装回配载站，请重新选择')
-      return false
+      message.info('当前选择的部分订单已经装回配载站，请重新选择');
+      return false;
     }
     // if (!currentCompany.company_id || !form.getFieldValue('company_id')) {
     //   message.error('请先选择公司');
@@ -2054,15 +2178,15 @@ class TableList extends PureComponent {
 
   // 打印货物清单
   onPrintOrder = () => {
-    const { selectedRows } = this.state
-    printSiteOrder({ selectedRows })
-  }
+    const { selectedRows } = this.state;
+    printSiteOrder({ selectedRows });
+  };
 
   // 下载货物清单
   onDownloadOrder = () => {
-    const { selectedRows } = this.state
-    printDownLoad({ selectedRows, type: 'pdf' })
-  }
+    const { selectedRows } = this.state;
+    printDownLoad({ selectedRows, type: 'pdf' });
+  };
 
   resetCustomerPage = async (type = 'Get') => {
     const { dispatch } = this.props;
@@ -2070,7 +2194,7 @@ class TableList extends PureComponent {
       type: 'customer/resetCustomerPageNoAction',
       payload: { type },
     });
-  }
+  };
   onCompanySelect = async (value, option) => {
     const {
       company: { branchCompanyList = [] },
@@ -2089,14 +2213,14 @@ class TableList extends PureComponent {
     await this.setState({
       currentCompany: company,
     });
-    await this.resetCustomerPage()
+    await this.resetCustomerPage();
 
     this.getLastCarInfo();
     this.handleSearch();
   };
 
-  getLastCarInfo = async (option) => {
-    const isUseCarCode = option && option.isUseCarCode || false
+  getLastCarInfo = async option => {
+    const isUseCarCode = (option && option.isUseCarCode) || false;
     const { dispatch, form } = this.props;
     const { currentCompany = {}, currentShipSite = {} } = this.state;
     const carCode = form.getFieldValue('car_code');
@@ -2112,16 +2236,16 @@ class TableList extends PureComponent {
       payload: param,
     });
 
-    this.getDriverList()
+    this.getDriverList();
 
     return carInfo;
   };
 
   getDriverList = () => {
     const { dispatch, form } = this.props;
-    const { currentCompany } = this.state
+    const { currentCompany } = this.state;
     if (!currentCompany || !currentCompany.company_id) {
-      return
+      return;
     }
     dispatch({
       type: 'driver/getDriverListAction',
@@ -2131,7 +2255,7 @@ class TableList extends PureComponent {
         company_id: currentCompany.company_id,
       },
     });
-  }
+  };
 
   onShipSiteSelect = async value => {
     const {
@@ -2171,19 +2295,22 @@ class TableList extends PureComponent {
       currentSite: site,
     });
     this.handleSearch();
-  }
+  };
 
   /**
    * 装车弹窗
    */
   onEntrunkModalShow = () => {
-    const { form, car: { lastCar } } = this.props
+    const {
+      form,
+      car: { lastCar },
+    } = this.props;
     const { currentShipSite = {}, currentCompany = {}, selectedRows } = this.state;
     const orderIds = [];
-    let orderCompanyId = ''
-    let shipSiteId = ''
-    let isSameComapny = true
-    let isSameShipSite = true
+    let orderCompanyId = '';
+    let shipSiteId = '';
+    let isSameComapny = true;
+    let isSameShipSite = true;
 
     // 重新获取一次最新货车信息
 
@@ -2192,25 +2319,25 @@ class TableList extends PureComponent {
         orderIds.push(item.order_id);
       }
       if (!orderCompanyId) {
-        orderCompanyId = item.company_id
+        orderCompanyId = item.company_id;
       }
       if (!shipSiteId) {
-        shipSiteId = item.shipsite_id
+        shipSiteId = item.shipsite_id;
       }
       if (orderCompanyId && orderCompanyId != item.company_id) {
-        isSameComapny = false
+        isSameComapny = false;
       }
       if (shipSiteId && shipSiteId != item.shipsite_id) {
-        isSameShipSite = false
+        isSameShipSite = false;
       }
     });
     if (orderIds.length < selectedRows.length) {
       message.error('只能对装回配载站的订单进行装车');
-      return
+      return;
     }
     if (!isSameComapny) {
       message.error('只能对相同分公司订单进行装车');
-      return
+      return;
     }
     if (!currentCompany.company_id) {
       message.error('请先选择公司');
@@ -2225,13 +2352,13 @@ class TableList extends PureComponent {
         content: '选择的订单所属分公司和当前选择的分公司不一致，请重新勾选订单进行装车',
         onOk: () => {
           this.getOrderList();
-        }
-      })
+        },
+      });
       return;
     }
     if (!isSameShipSite) {
       message.error('请选择相同配载站的订单进行装车');
-      return
+      return;
     }
 
     this.setState({
@@ -2265,7 +2392,7 @@ class TableList extends PureComponent {
         totalCarFee,
         totalTifuInsurance,
         totalXianInsurence,
-      }
+      },
     } = this.props;
     return (
       <div className={styles.tableFooter}>
@@ -2287,7 +2414,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
@@ -2296,13 +2423,13 @@ class TableList extends PureComponent {
     } = this.props;
     const { currentShipSite = {}, currentCompany = {} } = this.state;
     const companyOption = { initialValue: currentCompany.company_id };
-    let allowClear = false
-    let siteOption = { initialValue: CacheSite.site_id }
-    let selectSites = [CacheSite]
+    let allowClear = false;
+    let siteOption = { initialValue: CacheSite.site_id };
+    let selectSites = [CacheSite];
     if (CacheSite.site_type == 3 || CacheSite.site_type == 2 || CacheCompany.company_type == 2) {
-      selectSites = siteList
-      allowClear = true
-      siteOption = {}
+      selectSites = siteList;
+      allowClear = true;
+      siteOption = {};
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
@@ -2327,7 +2454,12 @@ class TableList extends PureComponent {
 
         <FormItem label="站点">
           {getFieldDecorator('site_id', siteOption)(
-            <Select placeholder="全部" onSelect={this.onSiteSelect} style={{ width: '100px' }} allowClear={allowClear}>
+            <Select
+              placeholder="全部"
+              onSelect={this.onSiteSelect}
+              style={{ width: '100px' }}
+              allowClear={allowClear}
+            >
               {selectSites.map(item => {
                 return <Option value={item.site_id}>{item.site_name}</Option>;
               })}
@@ -2371,7 +2503,12 @@ class TableList extends PureComponent {
               dataSource={receiverList.map(item => {
                 const AutoOption = AutoComplete.Option;
                 return (
-                  <AutoOption key={`${item.courier_id}`} value={`${item.courier_id}`} customerid={`${item.courier_id}`} label={item.courier_name}>
+                  <AutoOption
+                    key={`${item.courier_id}`}
+                    value={`${item.courier_id}`}
+                    customerid={`${item.courier_id}`}
+                    label={item.courier_name}
+                  >
                     {item.courier_name}
                   </AutoOption>
                 );
@@ -2401,11 +2538,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       order: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },
@@ -2431,7 +2568,7 @@ class TableList extends PureComponent {
       currentCompany,
       currentSite,
       currentShipSite,
-      cancelShipModalVisible
+      cancelShipModalVisible,
     } = this.state;
 
     const parentMethods = {
@@ -2440,82 +2577,97 @@ class TableList extends PureComponent {
     };
 
     // 是否显示操作按钮
-    let showOperateButton = true
-    let showPrintButton = true
-    let showCreateOrderButton = true
-    let showShipButon = true
-    let showDelButton = true
+    let showOperateButton = true;
+    let showPrintButton = true;
+    let showCreateOrderButton = true;
+    let showShipButon = true;
+    let showDelButton = true;
     if (CacheCompany.company_type != 1) {
-      showOperateButton = false
-      showPrintButton = false
-      showCreateOrderButton = false
-      showShipButon = false
-      showDelButton = false
+      showOperateButton = false;
+      showPrintButton = false;
+      showCreateOrderButton = false;
+      showShipButon = false;
+      showDelButton = false;
     }
-    if (['site_searchuser', 'site_orderuser', 'site_pay', 'site_receipt'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = false
-      showShipButon = false
+    if (
+      ['site_searchuser', 'site_orderuser', 'site_pay', 'site_receipt'].indexOf(
+        CacheRole.role_value
+      ) >= 0
+    ) {
+      showOperateButton = false;
+      showShipButon = false;
     }
 
     if (['site_searchuser', 'site_pay', 'site_receipt'].indexOf(CacheRole.role_value) >= 0) {
-      showPrintButton = false
-      showCreateOrderButton = false
-      showShipButon = false
-      showDelButton = false
+      showPrintButton = false;
+      showCreateOrderButton = false;
+      showShipButon = false;
+      showDelButton = false;
     }
 
     if (['site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
-      showShipButon = true
+      showShipButon = true;
     }
 
     if (['site_pay', 'site_receipt'].indexOf(CacheRole.role_value) >= 0) {
-      showPrintButton = true
+      showPrintButton = true;
     }
 
     // 是否都勾选了装回配载部的订单
-    let unShipOrderIds = [], shipedOrderIds = [];
+    let unShipOrderIds = [],
+      shipedOrderIds = [];
     selectedRows.forEach(item => {
       if (item.order_status == 0) {
-        unShipOrderIds.push(item)
+        unShipOrderIds.push(item);
       }
       if (item.order_status == 1) {
-        shipedOrderIds.push(item)
+        shipedOrderIds.push(item);
       }
-    })
+    });
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {showCreateOrderButton && <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
-                录入托运单
-              </Button>}
-
-              {selectedRows.length > 0 && showDelButton && unShipOrderIds.length == selectedRows.length && (
-                <span>
-                  <Button onClick={this.onDelete}>删除托运单</Button>
-                </span>
+              {showCreateOrderButton && (
+                <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
+                  录入托运单
+                </Button>
               )}
 
-              {selectedRows.length > 0 && showShipButon && unShipOrderIds.length == selectedRows.length && (
-                <span>
-                  <Button onClick={this.onShipModalShow}>装回配载站</Button>
-                </span>
-              )}
+              {selectedRows.length > 0 &&
+                showDelButton &&
+                unShipOrderIds.length == selectedRows.length && (
+                  <span>
+                    <Button onClick={this.onDelete}>删除托运单</Button>
+                  </span>
+                )}
 
-              {selectedRows.length > 0 && showShipButon && shipedOrderIds.length == selectedRows.length && (
-                <span>
-                  <Button onClick={this.onCancelShip}>取消装回配载站</Button>
-                </span>
-              )}
+              {selectedRows.length > 0 &&
+                showShipButon &&
+                unShipOrderIds.length == selectedRows.length && (
+                  <span>
+                    <Button onClick={this.onShipModalShow}>装回配载站</Button>
+                  </span>
+                )}
 
-              {selectedRows.length > 0 && showOperateButton && shipedOrderIds.length == selectedRows.length && (
-                <span>
-                  <Button onClick={this.onReceiverModalShow}>更改接货人</Button>
-                  <Button onClick={this.onEntrunkModalShow}>装车</Button>
-                </span>
-              )}
+              {selectedRows.length > 0 &&
+                showShipButon &&
+                shipedOrderIds.length == selectedRows.length && (
+                  <span>
+                    <Button onClick={this.onCancelShip}>取消装回配载站</Button>
+                  </span>
+                )}
+
+              {selectedRows.length > 0 &&
+                showOperateButton &&
+                shipedOrderIds.length == selectedRows.length && (
+                  <span>
+                    <Button onClick={this.onReceiverModalShow}>更改接货人</Button>
+                    <Button onClick={this.onEntrunkModalShow}>装车</Button>
+                  </span>
+                )}
 
               {selectedRows.length > 0 && showPrintButton && (
                 <span>
@@ -2537,8 +2689,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}
@@ -2547,7 +2699,6 @@ class TableList extends PureComponent {
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
               rowClassNameHandler={(record, index) => {
-                console.log(record)
                 if (record.order_status === 1) {
                   return styles.shipColor;
                 } else {
