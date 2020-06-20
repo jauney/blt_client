@@ -30,7 +30,16 @@ import EditableTable from '@/components/EditableTable';
 import styles from './Customer.less';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-import { setCustomerFieldValue2Mng, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
+import {
+  setCustomerFieldValue2Mng,
+  fetchGetCustomerList,
+  fetchSendCustomerList,
+  onSendCustomerChange,
+  onGetCustomerChange,
+  onGetCustomerSelect,
+  onSendCustomerSelect,
+  customerAutoCompleteState,
+} from '@/utils/customer';
 
 const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
@@ -146,7 +155,7 @@ class AddFormDialog extends PureComponent {
     });
   };
 
-  render () {
+  render() {
     const {
       modalVisible,
       onCancelModal,
@@ -280,7 +289,7 @@ class TableList extends PureComponent {
     addModalVisible: false,
     currentCompany: {},
     currentSite: {},
-    ...customerAutoCompleteState
+    ...customerAutoCompleteState,
   };
 
   columns = [
@@ -310,11 +319,15 @@ class TableList extends PureComponent {
     },
     {
       title: '站点',
-      dataIndex: 'site_names',
+      dataIndex: 'site_name',
       width: '100px',
       sorter: true,
       render: val => {
-        return `${val}`;
+        if (val && val !== 'null') {
+          return `${val}`;
+        } else {
+          return '';
+        }
       },
     },
     {
@@ -341,7 +354,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     this.setState({
@@ -403,9 +416,9 @@ class TableList extends PureComponent {
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   /**
    * 获取订单信息
@@ -417,16 +430,16 @@ class TableList extends PureComponent {
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
       if (!fieldsValue.customer_mobile) {
-        delete fieldsValue.customer_mobile
+        delete fieldsValue.customer_mobile;
       }
-      fieldsValue = await setCustomerFieldValue2Mng(this, fieldsValue)
+      fieldsValue = await setCustomerFieldValue2Mng(this, fieldsValue);
       const searchParams = Object.assign({ filter: fieldsValue, type: 1 }, data);
       dispatch({
         type: 'customer/queryCustomerListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -516,7 +529,9 @@ class TableList extends PureComponent {
         if (result.code == 0) {
           message.success('删除客户成功！');
 
-          setTimeout(() => { this.getOrderList(); }, 500)
+          setTimeout(() => {
+            this.getOrderList();
+          }, 500);
         } else {
           message.error(result.msg);
         }
@@ -530,8 +545,8 @@ class TableList extends PureComponent {
     let customerMobiles = await dispatch({
       type: 'customer/getCustomerMobileAction',
       payload: { customer_id: record.customer_id, type: 1 },
-    })
-    record.customerMobiles = customerMobiles
+    });
+    record.customerMobiles = customerMobiles;
     this.setState({
       record,
     });
@@ -539,9 +554,9 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], siteList = [] },
@@ -552,7 +567,7 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="客户分类">
           {getFieldDecorator('customer_type', {})(
-            <Select placeholder="全部" style={{ width: '100px' }} >
+            <Select placeholder="全部" style={{ width: '100px' }}>
               {customerTypes.map(ele => {
                 return (
                   <Option key={ele.customertype} value={ele.customertype}>
@@ -589,13 +604,22 @@ class TableList extends PureComponent {
               dataSource={sendCustomerList.map(item => {
                 const AutoOption = AutoComplete.Option;
                 return (
-                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                  <AutoOption
+                    key={`${item.customer_id}`}
+                    value={`${item.customer_id}`}
+                    customerid={`${item.customer_id}`}
+                    label={item.customer_name}
+                  >
                     {item.customer_name}
                   </AutoOption>
                 );
               })}
-              onSelect={(value) => { onSendCustomerSelect(this, value) }}
-              onChange={(value) => { onSendCustomerChange(this, value) }}
+              onSelect={value => {
+                onSendCustomerSelect(this, value);
+              }}
+              onChange={value => {
+                onSendCustomerChange(this, value);
+              }}
               allowClear
               placeholder="请输入"
               filterOption={(inputValue, option) =>
@@ -620,11 +644,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       customer: { customers, total, customerTypes },
       loading,
@@ -641,9 +665,9 @@ class TableList extends PureComponent {
       currentSite,
     } = this.state;
     // 是否显示操作按钮
-    let showOperateButton = true
+    let showOperateButton = true;
     if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = false
+      showOperateButton = false;
     }
     return (
       <div>
@@ -671,8 +695,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}

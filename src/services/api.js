@@ -204,6 +204,9 @@ export async function updateCustomerCourier({ courier, order_id, customer_id, ty
 }
 
 export async function getCourierList(params) {
+  if (params.filter) {
+    params.courier = params.filter;
+  }
   return await ajaxFetch(`${APIHOST}/api/GetCourierList`, {
     ...params,
   });
@@ -841,47 +844,15 @@ export async function getOrderList(params) {
 }
 
 export async function getTodayPayList(params) {
-  return client
-    .query({
-      query: gql`
-        query getTodayPays($pageNo: Int, $pageSize: Int, $filter: TodayPayInput, $sorter: String) {
-          getTodayPays(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
-            total
-            todaypays {
-              pay_id
-              operator_id
-              operator_name
-              company_id
-              serial_id
-              pay_amount
-              pay_type
-              site_id
-              pay_date
-              company_name
-              bank_account
-              getcustomer_id
-              getcustomer_name
-              sendcustomer_id
-              sendcustomer_name
-              order_id
-              agency_fee
-              order_amount
-              trans_amount
-              order_code
-              insurance_amount
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getTodayPays;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  if (params.filter) {
+    params.todaypay = params.filter;
+    if (params.todaypay && params.todaypay.pay_date) {
+      params.todaypay.pay_date = `${params.todaypay.pay_date}`;
+    }
+  }
+  return await ajaxFetch(`${APIHOST}/api/GetTodayPays`, {
+    ...params,
+  });
 }
 
 export async function deleteOrder(params) {
@@ -997,28 +968,12 @@ export async function getOrderStatistic(params) {
 }
 
 export async function getTodayPayStatistic(params) {
-  return client
-    .query({
-      query: gql`
-        query getTodayPayStatistic($filter: TodayPayInput) {
-          getTodayPayStatistic(filter: $filter) {
-            totalOrderAmount
-            totalPayAmount
-            totalTransAmount
-            totalAgencyFee
-            totalRecord
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getTodayPayStatistic;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  if (params.filter) {
+    params.todaypay = params.filter;
+  }
+  return await ajaxFetch(`${APIHOST}/api/GetTodayPayStatistic`, {
+    ...params,
+  });
 }
 
 export async function shipOrderAxios(params) {

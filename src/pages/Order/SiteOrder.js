@@ -176,6 +176,31 @@ class CreateForm extends PureComponent {
     }
   }
 
+  resetFormFields = () => {
+    const { form } = this.props;
+    const formFileds = form.getFieldsValue();
+    const formKeys = Object.keys(formFileds);
+    console.log(formFileds);
+    if (formKeys.length > 0) {
+      Object.keys(formFileds).forEach(async item => {
+        if (!['company_id', 'site_id', 'getcustomer_id', 'sendcustomer_id'].includes(item)) {
+          const fieldValue = {};
+          fieldValue[item] = '';
+
+          form.setFieldsValue(fieldValue);
+        }
+        form.setFieldsValue({ getcustomer_id: '' });
+        form.setFieldsValue({ sendcustomer_id: '' });
+        // document.querySelector('.form-create-getcustomername input').value = '';
+        // console.log(document.querySelector('.form-create-getcustomername input'));
+        // document.querySelector(
+        //   '.form-create-getcustomername .ant-select-search__field__mirror'
+        // ).innerHTML = '';
+        // document.querySelector('.form-create-sendcustomername input').value = '';
+      });
+    }
+  };
+
   okHandle = (options = {}) => {
     const {
       form,
@@ -225,7 +250,8 @@ class CreateForm extends PureComponent {
 
       handleAdd(fieldsValue, selectedOrder, options);
 
-      form.resetFields();
+      //form.resetFields();
+      this.resetFormFields();
       this.setState({
         currentSendCustomer: {},
         currentGetCustomer: {},
@@ -722,6 +748,7 @@ class CreateForm extends PureComponent {
               })(
                 <AutoComplete
                   size="large"
+                  className="form-create-getcustomername"
                   style={{ width: '100%' }}
                   dataSource={getCustomerList.map(this.renderCustomerOption)}
                   onSelect={this.onGetCustomerSelect}
@@ -758,6 +785,7 @@ class CreateForm extends PureComponent {
               })(
                 <AutoComplete
                   size="large"
+                  className="form-create-sendcustomername"
                   style={{ width: '100%' }}
                   dataSource={sendCustomerList.map(this.renderCustomerOption)}
                   onSelect={this.onSendCustomerSelect}
@@ -863,7 +891,7 @@ class CreateForm extends PureComponent {
           <Col {...this.col2Layout}>
             <FormItem
               {...this.formItemLayout}
-              label={`保价费[${transTypeMap[form.getFieldValue('trans_type')]}]`}
+              label={`保价费[${transTypeMap[form.getFieldValue('trans_type') || 0]}]`}
             >
               {form.getFieldDecorator('insurance_fee', {})(
                 <Input readOnly placeholder="" tabIndex={-1} maxLength={10} />
