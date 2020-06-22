@@ -244,14 +244,14 @@ export function getPrintOrderConent({
     </table>
     <table>
       <tr>
-        <td style="width:30%">货款:${data.order_amount || ''}</td>
-        <td style="width:45%">运费[${transType}]:${data.trans_amount || ''}</td>
+        <td style="width:35%; font-size: 13px;">货款:${data.order_amount || ''}</td>
+        <td style="width:40%; font-size: 13px;">运费[${transType}]:${data.trans_amount || ''}</td>
         <td style="width:25%; font-size:12px">折后:${data.trans_discount || ''}</td>
       </tr>
       <tr>
-        <td style="width:30%">保额:${data.insurance_amount || ''}</td>
-        <td style="width:40%">保费[${transType}]:${data.insurance_fee || ''}</td>
-        <td style="width:30%; font-size:12px">垫付:${data.order_advancepay_amount || ''}</td>
+        <td style="width:35%; font-size: 13px;">保额:${data.insurance_amount || ''}</td>
+        <td style="width:40%; font-size: 13px;">保费[${transType}]:${data.insurance_fee || ''}</td>
+        <td style="width:25%; font-size:12px">垫付:${data.order_advancepay_amount || ''}</td>
       </tr>
     </table>
     <table>
@@ -362,14 +362,14 @@ export function getPrintOrderConent({
     </table>
     <table>
       <tr>
-        <td style="width:30%">货款:${data.order_amount || ''}</td>
-        <td style="width:45%">运费[${transType}]:${data.trans_amount || ''}</td>
+        <td style="width:35%; font-size: 13px;">货款:${data.order_amount || ''}</td>
+        <td style="width:40%; font-size: 13px;">运费[${transType}]:${data.trans_amount || ''}</td>
         <td style="width:25%; font-size:12px">折后:${data.trans_discount || ''}</td>
       </tr>
       <tr>
-        <td style="width:30%">保额:${data.insurance_amount || ''}</td>
-        <td style="width:40%">保费[${transType}]:${data.insurance_fee || ''}</td>
-        <td style="width:30%; font-size:12px">垫付:${data.order_advancepay_amount || ''}</td>
+        <td style="width:35%; font-size: 13px;">保额:${data.insurance_amount || ''}</td>
+        <td style="width:40%; font-size: 13px;">保费[${transType}]:${data.insurance_fee || ''}</td>
+        <td style="width:25%; font-size:12px">垫付:${data.order_advancepay_amount || ''}</td>
       </tr>
     </table>
     <table>
@@ -388,9 +388,9 @@ export function getPrintOrderConent({
     </table>
     <table>
       <tr>
-        <td class="col3">收货人签字:</td>
-        <td class="col3">付款方式:</td>
-        <td class="col3">送货人签字:</td>
+        <td class="col3" style="font-size:13px">收货人签字:</td>
+        <td class="col3" style="font-size:13px">付款方式:</td>
+        <td class="col3" style="font-size:13px">送货人签字:</td>
       </tr>
     </table>
   `;
@@ -413,7 +413,7 @@ export function printOrder(printHtml = '') {
   .order-box{height: 292mm;}
   .content, .header {text-align: center;}
   table {width: 100%; border-collapse: collapse; border-spacing: 0;}
-  table td {border: 1px solid #ccc; padding: 4px; text-align: left; line-height: 150%;}
+  table td {border: 1px solid #ccc; padding: 4px; text-align: left; line-height: 130%;}
   .txt-desc td {font-size: 10px; }
   .col3 {width: 33%;}
   .col3-1 {width: 10%;}

@@ -126,6 +126,8 @@ class CreateForm extends PureComponent {
     };
   }
 
+  // 防爆击
+  btnClicked = false;
   /**
    * 编辑的时候初始化赋值表单
    */
@@ -202,6 +204,11 @@ class CreateForm extends PureComponent {
   };
 
   okHandle = (options = {}) => {
+    if (this.btnClicked) {
+      return;
+    }
+    this.btnClicked = true;
+
     const {
       form,
       handleAdd,
@@ -248,8 +255,9 @@ class CreateForm extends PureComponent {
       }
       fieldsValue.site_name = CacheSite.site_name;
 
-      handleAdd(fieldsValue, selectedOrder, options);
+      await handleAdd(fieldsValue, selectedOrder, options);
 
+      this.btnClicked = false;
       //form.resetFields();
       this.resetFormFields();
       this.setState({
@@ -657,7 +665,7 @@ class CreateForm extends PureComponent {
       <Button key="btn-cancel" onClick={() => handleModalVisible()} tabIndex={-1}>
         取 消
       </Button>,
-      <Button key="btn-print" onClick={this.onOrderPrint}>
+      <Button key="btn-print" onClick={this.onOrderPrint} loading={this.btnClicked}>
         打 印
       </Button>,
       <Button
@@ -667,6 +675,7 @@ class CreateForm extends PureComponent {
           this.okHandle();
         }}
         tabIndex={-1}
+        loading={this.btnClicked}
       >
         保 存
       </Button>,
@@ -1879,7 +1888,15 @@ class TableList extends PureComponent {
       receiver: { receiverList },
     } = this.props;
     const { current, pageSize } = this.state;
-
+    if (!data.sorter) {
+      data.sorter = 'order_status|ascend,create_date|desc';
+    }
+    if (!data.sorter.includes('order_status')) {
+      data.sorter += 'order_status|ascend';
+    }
+    if (!data.sorter.includes('create_date')) {
+      data.sorter += 'create_date|desc';
+    }
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
       showLoading(dispatch);
@@ -1973,9 +1990,9 @@ class TableList extends PureComponent {
         payload: fields,
       });
       hideLoading(dispatch);
-      orderCode = (result && result.data && result.data.order_code) || '';
+      orderCode = (result && result.data) || '';
       // TODO: 拿到order_code用于打印
-      console.log(result.data);
+      console.log(result.data, orderCode);
       if (result && result.code == 0) {
         message.success('添加成功');
       } else {
