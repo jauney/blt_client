@@ -29,7 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Search.less';
 import { async } from 'q';
-import { locale } from '@/utils'
+import { locale } from '@/utils';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 
 const FormItem = Form.Item;
@@ -95,10 +95,17 @@ class TableList extends PureComponent {
       width: '80px',
       render: (val, record) => {
         if (record.account_type == 0) {
-          return <span><span className={styles.minusType}>&mdash;</span> {record.account_amount}</span>
-        }
-        else {
-          return <span><span className={styles.minusType}></span> {record.account_amount}</span>
+          return (
+            <span>
+              <span className={styles.minusType}>&mdash;</span> {record.account_amount}
+            </span>
+          );
+        } else {
+          return (
+            <span>
+              <span className={styles.minusType} /> {record.account_amount}
+            </span>
+          );
         }
       },
     },
@@ -121,13 +128,11 @@ class TableList extends PureComponent {
       title: '日期',
       dataIndex: 'account_date',
       width: '170px',
-      render: val => (
-        <span>{(val && moment(Number(val)).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
     await this.fetchCompanySiteList();
     await this.fetchOperatorList();
@@ -180,7 +185,7 @@ class TableList extends PureComponent {
     });
   };
 
-  onCompanySelect = async (value, option) => { };
+  onCompanySelect = async (value, option) => {};
 
   handleSearch = e => {
     e && e.preventDefault();
@@ -189,9 +194,9 @@ class TableList extends PureComponent {
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   /**
    * 获取订单信息
@@ -220,7 +225,7 @@ class TableList extends PureComponent {
         payload: { ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -263,7 +268,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   tableFooter = () => {
     const {
@@ -279,7 +284,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       site: { siteList = [], normalSiteList = [] },
@@ -292,11 +297,7 @@ class TableList extends PureComponent {
         {CacheCompany.company_type == 2 && (
           <FormItem label="分公司">
             {getFieldDecorator('company_id', companyOption)(
-              <Select
-                placeholder="全部"
-                onSelect={this.onCompanySelect}
-                style={{ width: '200px' }}
-              >
+              <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '200px' }}>
                 {[CacheCompany].map(ele => {
                   return (
                     <Option key={ele.company_id} value={ele.company_id}>
@@ -340,7 +341,14 @@ class TableList extends PureComponent {
           {getFieldDecorator('account_date', {
             rules: [{ required: true, message: '请填写日期' }],
             initialValue: moment(new Date().getTime()),
-          })(<DatePicker placeholder="全部" locale={locale} format="YYYY-MM-DD" style={{ width: '100%' }} />)}
+          })(
+            <DatePicker
+              placeholder="全部"
+              locale={locale}
+              format="YYYY-MM-DD"
+              style={{ width: '100%' }}
+            />
+          )}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">
@@ -351,11 +359,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       search: { accounts, accountTotal },
       loading,

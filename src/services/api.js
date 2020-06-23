@@ -213,33 +213,12 @@ export async function getCourierList(params) {
 }
 
 export async function getOperatorList(params) {
-  return client
-    .query({
-      query: gql`
-        query getUserList($pageNo: Int, $pageSize: Int, $filter: UserInput) {
-          getUserList(pageNo: $pageNo, pageSize: $pageSize, filter: $filter) {
-            total
-            users {
-              user_id
-              user_name
-              user_mobile
-              user_pass
-              user_type
-              site_id
-              company_id
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getUserList;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  if (params.filter) {
+    params.user = params.filter;
+  }
+  return await ajaxFetch(`${APIHOST}/api/GetUserList`, {
+    ...params,
+  });
 }
 
 export async function getRoleList(params) {
@@ -452,119 +431,6 @@ export async function createOrderAxios(params) {
   });
 }
 
-export async function createOrder(params) {
-  params.getcustomer_id = Number(params.getcustomer_id);
-  params.sendcustomer_id = Number(params.sendcustomer_id);
-  params.trans_originalamount = Number(params.trans_originalamount || 0);
-  params.trans_amount = Number(params.trans_amount || 0);
-  params.trans_real = Number(params.trans_real || 0);
-  params.trans_type = Number(params.trans_type || 0);
-  params.trans_discount = Number(params.trans_discount || 0);
-  params.deliver_amount = Number(params.deliver_amount || 0);
-  params.insurance_amount = Number(params.insurance_amount || 0);
-  params.insurance_fee = Number(params.insurance_fee || 0);
-  params.order_advancepay_amount = Number(params.order_advancepay_amount || 0);
-  params.order_amount = Number(params.order_amount || 0);
-  params.order_num = Number(params.order_num || 1);
-  params.order_real = Number(params.order_real || 0);
-  params.transfer_amount = Number(params.transfer_amount || 0);
-  params.transfer_type = Number(params.transfer_type || 0);
-  params.is_delete = 0;
-
-  return client
-    .mutate({
-      mutation: gql`
-        mutation createOrder($order: OrderInput) {
-          createOrder(order: $order) {
-            code
-            msg
-            data {
-              order_id
-              company_id
-              company_name
-              order_code
-              car_code
-              getcustomer_name
-              getcustomer_id
-              getcustomer_mobile
-              sendcustomer_id
-              sendcustomer_name
-              sendcustomer_mobile
-              order_amount
-              order_real
-              bank_account
-              getcustomer_address
-              sendcustomer_address
-              pay_status
-              trans_originalamount
-              trans_amount
-              trans_real
-              trans_discount
-              trans_type
-              deliver_amount
-              insurance_amount
-              insurance_fee
-              order_name
-              create_date
-              depart_date
-              pay_date
-              settle_date
-              site_id
-              site_name
-              shipsite_name
-              shipsite_id
-              operator_name
-              operator_id
-              sender_name
-              sender_id
-              receiver_name
-              receiver_id
-              settle_user_name
-              pay_user_name
-              settle_user_id
-              pay_user_id
-              late_fee
-              getcustomer_type
-              sendcustomer_type
-              order_advancepay_amount
-              order_num
-              order_label_num
-              transfer_amount
-              transfer_type
-              transfer_order_code
-              transfer_address
-              transfer_company_name
-              transfer_company_mobile
-              order_status
-              remark
-              bonus_amount
-              abnormal_type
-              abnormal_amount
-              abnormal_resolve_type
-              abnormal_remark
-              abnormal_type_id
-              abnormal_status
-              sign_status
-              trans_status
-              create_user_id
-              create_user_name
-              trans_show_amount
-              pay_abnormal
-            }
-          }
-        }
-      `,
-      variables: { order: params },
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.createOrder;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
-}
-
 export async function updateOrder({ order, order_id }) {
   if (order.trans_real) {
     order.trans_real = Number(order.trans_real || 0);
@@ -694,153 +560,131 @@ export async function getCustomerTypes(params) {
   });
 }
 
+function convertOrderFieldType(order = {}) {
+  const fieldInt = [
+    'car_id',
+    'is_delete',
+    'create_user_id',
+    'sign_status',
+    'abnormal_status',
+    'abnormal_type_id',
+    'abnormal_type',
+    'transfer_type',
+    'order_label_num',
+    'order_num',
+    'sendcustomer_type',
+    'getcustomer_type',
+    'pay_user_id',
+    'settle_user_id',
+    'receiver_id',
+    'sender_id',
+    'operator_id',
+    'shipsite_id',
+    'site_id',
+    'order_id',
+    'company_id',
+    'getcustomer_id',
+    'sendcustomer_id',
+    'pay_status',
+    'trans_type',
+    'trans_status',
+    'trans_sign',
+    'trans_operatorid',
+  ];
+  const fieldFloat = [
+    'agency_fee',
+    'pay_abnormal',
+    'trans_show_amount',
+    'abnormal_amount',
+    'bonus_amount',
+    'transfer_amount',
+    'order_advancepay_amount',
+    'late_fee',
+    'order_amount',
+    'order_real',
+    'trans_originalamount',
+    'trans_amount',
+    'trans_real',
+    'trans_discount',
+    'deliver_amount',
+    'insurance_amount',
+    'insurance_fee',
+  ];
+  const fieldStr = [
+    'update_date',
+    'arrive_date',
+    'create_user_name',
+    'abnormal_reason',
+    'abnormal_remark',
+    'abnormal_resolve_type',
+    'remark',
+    'transfer_company_mobile',
+    'transfer_company_name',
+    'transfer_address',
+    'transfer_order_code',
+    'pay_user_name',
+    'settle_user_name',
+    'receiver_name',
+    'sender_name',
+    'operator_name',
+    'shipsite_name',
+    'site_name',
+    'settle_date',
+    'depart_date',
+    'company_name',
+    'order_code',
+    'car_code',
+    'getcustomer_name',
+    'getcustomer_mobile',
+    'sendcustomer_name',
+    'sendcustomer_mobile',
+    'bank_account',
+    'getcustomer_address',
+    'sendcustomer_address',
+    'trans_confirmdate',
+    'trans_operatorname',
+    'order_name',
+    'pay_date',
+  ];
+  const fieldArrStr = ['create_date', 'entrunk_date'];
+  const fieldArrInt = ['order_status'];
+
+  Object.keys(order).forEach(key => {
+    if (!order[key] || order[key] == 'undefined' || order[key] == 'null') {
+      delete order[key];
+      return;
+    }
+    if (fieldInt.includes(key)) {
+      order[key] = parseInt(`${order[key]}`, 10) || 0;
+    } else if (fieldStr.includes(key)) {
+      order[key] = `${order[key]}`;
+    } else if (fieldFloat.includes(key)) {
+      order[key] = parseFloat(`${order[key]}`, 10) || 0;
+    } else if (fieldArrInt.includes(key)) {
+      order[key] = Array.isArray(order[key]) ? order[key] : [order[key]];
+      for (let i = 0; i < order[key].length; i++) {
+        order[key][i] = parseInt(`${order[key][i]}`, 10) || 0;
+      }
+    } else if (fieldArrStr.includes(key)) {
+      order[key] = Array.isArray(order[key]) ? order[key] : [order[key]];
+      for (let i = 0; i < order[key].length; i++) {
+        order[key][i] = `${order[key][i]}`;
+      }
+    }
+  });
+
+  return order;
+}
+
 export async function getOrderListAxios(params) {
-  if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
-    params.filter.order_status = [params.filter.order_status];
-  }
-  if (params.filter && params.filter.abnormal_status) {
-    params.filter.abnormal_status = Number(params.filter.abnormal_status);
-  }
-
-  if (!params.filter.getcustomer_id) {
-    delete params.filter.getcustomer_id;
-  }
-  if (!params.filter.sendcustomer_id) {
-    delete params.filter.sendcustomer_id;
-  }
-  if (!params.filter.getcustomer_mobile) {
-    delete params.filter.getcustomer_mobile;
-  }
-  if (!params.filter.sendcustomer_mobile) {
-    delete params.filter.sendcustomer_mobile;
-  }
-  if (!params.filter.settle_date) {
-    delete params.filter.settle_date;
-  }
-
   params.order = params.filter;
   delete params.filter;
+
+  params.order = convertOrderFieldType(params.order);
+
   return await ajaxFetch(`${APIHOST}/api/GetOrders`, {
     ...params,
   });
-}
-export async function getOrderList(params) {
-  if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
-    params.filter.order_status = [params.filter.order_status];
-  }
-  if (params.filter && params.filter.abnormal_status) {
-    params.filter.abnormal_status = Number(params.filter.abnormal_status);
-  }
-
-  if (!params.filter.getcustomer_id) {
-    delete params.filter.getcustomer_id;
-  }
-  if (!params.filter.sendcustomer_id) {
-    delete params.filter.sendcustomer_id;
-  }
-  if (!params.filter.getcustomer_mobile) {
-    delete params.filter.getcustomer_mobile;
-  }
-  if (!params.filter.sendcustomer_mobile) {
-    delete params.filter.sendcustomer_mobile;
-  }
-  if (!params.filter.settle_date) {
-    delete params.filter.settle_date;
-  }
-  return client
-    .query({
-      query: gql`
-        query getOrders($pageNo: Int, $pageSize: Int, $filter: OrderInput, $sorter: String) {
-          getOrders(pageNo: $pageNo, pageSize: $pageSize, filter: $filter, sorter: $sorter) {
-            total
-            orders {
-              order_id
-              company_id
-              company_name
-              order_code
-              car_code
-              getcustomer_name
-              getcustomer_id
-              getcustomer_mobile
-              sendcustomer_id
-              sendcustomer_name
-              sendcustomer_mobile
-              order_amount
-              order_real
-              bank_account
-              getcustomer_address
-              sendcustomer_address
-              pay_status
-              trans_originalamount
-              trans_amount
-              trans_real
-              trans_discount
-              trans_type
-              trans_sign
-              deliver_amount
-              insurance_amount
-              insurance_fee
-              order_name
-              create_date
-              depart_date
-              pay_date
-              settle_date
-              site_id
-              site_name
-              shipsite_name
-              shipsite_id
-              operator_name
-              operator_id
-              sender_name
-              sender_id
-              receiver_name
-              receiver_id
-              settle_user_name
-              pay_user_name
-              settle_user_id
-              pay_user_id
-              late_fee
-              getcustomer_type
-              sendcustomer_type
-              order_advancepay_amount
-              order_num
-              order_label_num
-              transfer_amount
-              transfer_type
-              transfer_order_code
-              transfer_address
-              transfer_company_name
-              transfer_company_mobile
-              order_status
-              remark
-              bonus_amount
-              abnormal_type
-              abnormal_amount
-              abnormal_resolve_type
-              abnormal_remark
-              abnormal_type_id
-              abnormal_status
-              abnormal_reason
-              sign_status
-              trans_status
-              create_user_id
-              create_user_name
-              trans_show_amount
-              pay_abnormal
-              arrive_date
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getOrders;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
 }
 
 export async function getTodayPayList(params) {
@@ -878,93 +722,15 @@ export async function deleteOrder(params) {
 }
 
 export async function getOrderStatisticAxios(params) {
-  if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
-    params.filter.order_status = [params.filter.order_status];
-  }
-  if (params.filter && params.filter.abnormal_status) {
-    params.filter.abnormal_status = Number(params.filter.abnormal_status);
-  }
-
-  if (!params.filter.getcustomer_id) {
-    delete params.filter.getcustomer_id;
-  }
-  if (!params.filter.sendcustomer_id) {
-    delete params.filter.sendcustomer_id;
-  }
-  if (!params.filter.getcustomer_mobile) {
-    delete params.filter.getcustomer_mobile;
-  }
-  if (!params.filter.sendcustomer_mobile) {
-    delete params.filter.sendcustomer_mobile;
-  }
-  if (!params.filter.settle_date) {
-    delete params.filter.settle_date;
-  }
-
   params.order = params.filter;
   delete params.filter;
+  console.log(params.order);
+  params.order = convertOrderFieldType(params.order);
+
+  console.log(params.order);
   return await ajaxFetch(`${APIHOST}/api/GetOrderStatistic`, {
     ...params,
   });
-}
-
-export async function getOrderStatistic(params) {
-  if (params.filter && params.filter.order_status && !Array.isArray(params.filter.order_status)) {
-    params.filter.order_status = [params.filter.order_status];
-  }
-  if (params.filter && params.filter.abnormal_status) {
-    params.filter.abnormal_status = Number(params.filter.abnormal_status);
-  }
-
-  if (!params.filter.getcustomer_id) {
-    delete params.filter.getcustomer_id;
-  }
-  if (!params.filter.sendcustomer_id) {
-    delete params.filter.sendcustomer_id;
-  }
-  if (!params.filter.getcustomer_mobile) {
-    delete params.filter.getcustomer_mobile;
-  }
-  if (!params.filter.sendcustomer_mobile) {
-    delete params.filter.sendcustomer_mobile;
-  }
-  if (!params.filter.settle_date) {
-    delete params.filter.settle_date;
-  }
-
-  return client
-    .query({
-      query: gql`
-        query getOrderStatistic($filter: OrderInput) {
-          getOrderStatistic(filter: $filter) {
-            totalOrderAmount
-            totalTransAmount
-            totalRealTransAmount
-            totalRealOrderAmount
-            totalInsurancefee
-            totalAdvancepayAmount
-            totalDeliverAmount
-            totalTifuTransAmount
-            totalXianTransAmount
-            totalLatefee
-            totalBonusfee
-            totalAbnormalAmount
-            totalCarFeeConfirm
-            totalCarFee
-            totalXianInsurence
-            totalTifuInsurance
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getOrderStatistic;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
 }
 
 export async function getTodayPayStatistic(params) {
@@ -980,40 +746,6 @@ export async function shipOrderAxios(params) {
   return await ajaxFetch(`${APIHOST}/api/ShipOrder`, {
     ...params,
   });
-}
-
-export async function shipOrder(params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation shipOrder(
-          $order_id: [Int]
-          $shipsite_id: Int
-          $shipsite_name: String
-          $receiver_id: Int
-          $receiver_name: String
-        ) {
-          shipOrder(
-            order_id: $order_id
-            shipsite_id: $shipsite_id
-            receiver_id: $receiver_id
-            shipsite_name: $shipsite_name
-            receiver_name: $receiver_name
-          ) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.shipOrder;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
 }
 
 export async function cancelShipOrder(params) {
@@ -1527,86 +1259,20 @@ export async function delTransfer(params) {
 
 // todayaccount
 export async function getTodayAccountList(params) {
-  return client
-    .query({
-      query: gql`
-        query getTodayAccountList(
-          $pageNo: Int
-          $pageSize: Int
-          $filter: AccountInput
-          $sorter: String
-        ) {
-          getTodayAccountList(
-            pageNo: $pageNo
-            pageSize: $pageSize
-            filter: $filter
-            sorter: $sorter
-          ) {
-            total
-            accounts {
-              account_id
-              operator_id
-              operator_name
-              company_id
-              company_name
-              account_name
-              account_reason
-              serial_id
-              origin_id
-              origin_table
-              account_amount
-              account_type
-              site_id
-              site_name
-              account_date
-              account_customer
-            }
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getTodayAccountList;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  params.account = params.filter;
+  delete params.filter;
+  return await ajaxFetch(`${APIHOST}/api/GetTodayAccounts`, {
+    ...params,
+  });
 }
 
 // todayaccount
 export async function getTodayAccountStatistic(params) {
-  return client
-    .query({
-      query: gql`
-        query getTodayAccountStatistic(
-          $pageNo: Int
-          $pageSize: Int
-          $filter: AccountInput
-          $sorter: String
-        ) {
-          getTodayAccountStatistic(
-            pageNo: $pageNo
-            pageSize: $pageSize
-            filter: $filter
-            sorter: $sorter
-          ) {
-            totalAccount
-            totalIncomeAccount
-            totalExpenseAccount
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.getTodayAccountStatistic;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  params.account = params.filter;
+  delete params.filter;
+  return await ajaxFetch(`${APIHOST}/api/GetTodayAccountStatistic`, {
+    ...params,
+  });
 }
 
 export async function cancelConfirmTrans(params) {
