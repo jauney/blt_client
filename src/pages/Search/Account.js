@@ -80,7 +80,7 @@ class TableList extends PureComponent {
       title: '类型项目',
       sorter: true,
       dataIndex: 'account_name',
-      width: '150px',
+      width: '100px',
     },
     {
       title: '原因',
@@ -92,7 +92,7 @@ class TableList extends PureComponent {
       title: '金额',
       sorter: true,
       dataIndex: 'account_amount',
-      width: '80px',
+      width: '130px',
       render: (val, record) => {
         if (record.account_type == 0) {
           return (
