@@ -1943,15 +1943,16 @@ class TableList extends PureComponent {
         type: 'order/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
-      this.setState({
-        btnSearchClicked: false,
-      });
-
-      dispatch({
+      await dispatch({
         type: 'order/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+
+      setTimeout(() => {
+        this.setState({
+          btnSearchClicked: false,
+        });
+      }, 1000);
 
       this.getLastCarInfo();
 

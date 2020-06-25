@@ -467,12 +467,14 @@ class TableList extends PureComponent {
         type: 'settle/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-      this.setState({
-        btnSearchClicked: false,
-      });
-      dispatch({
+
+      await dispatch({
         type: 'settle/getOrderStatisticAction',
         payload: { ...searchParams },
+      });
+
+      this.setState({
+        btnSearchClicked: false,
       });
 
       this.standardTable.cleanSelectedKeys();

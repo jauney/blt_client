@@ -414,13 +414,17 @@ class TableList extends PureComponent {
         type: 'orderlist/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-      this.setState({
-        btnSearchClicked: false,
-      });
-      dispatch({
+
+      await dispatch({
         type: 'orderlist/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+
+      setTimeout(() => {
+        this.setState({
+          btnSearchClicked: false,
+        });
+      }, 1000);
       this.standardTable.cleanSelectedKeys();
     });
     this.getLastCarInfo();

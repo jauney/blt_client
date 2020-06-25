@@ -200,6 +200,7 @@ class TableList extends PureComponent {
     printModalVisible: false,
     currentCompany: {},
     btnClicked: false,
+    btnSearchClicked: false,
   };
 
   columns = [
@@ -305,11 +306,21 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize, currentCompany } = this.state;
+    const { current, pageSize, currentCompany, btnSearchClicked } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      console.log('company get transfer:', fieldsValue);
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
       if (fieldsValue.transfer_date && fieldsValue.transfer_date.length > 0) {
         fieldsValue.transfer_date = fieldsValue.transfer_date.map(item => {
           return `${item.valueOf()}`;
@@ -319,14 +330,18 @@ class TableList extends PureComponent {
       fieldsValue.transfer_type = 0;
       const searchParams = Object.assign({ filter: fieldsValue }, data);
 
-      dispatch({
+      await dispatch({
         type: 'transfer/getTransferAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      dispatch({
+      await dispatch({
         type: 'transfer/getTransferStatisticAction',
         payload: { ...searchParams },
+      });
+
+      this.setState({
+        btnSearchClicked: false,
       });
 
       this.standardTable.cleanSelectedKeys();
@@ -751,6 +766,7 @@ class TableList extends PureComponent {
       form: { getFieldDecorator },
       company: { branchCompanyList },
     } = this.props;
+    const { btnSearchClicked } = this.state;
     // 上站需要对下站打款确认
     const companyList = CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany];
     const companyOption = {};
@@ -797,7 +813,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>

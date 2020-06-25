@@ -710,13 +710,17 @@ class TableList extends PureComponent {
         type: 'trunkedorder/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-      this.setState({
-        btnSearchClicked: false,
-      });
-      dispatch({
+
+      await dispatch({
         type: 'trunkedorder/getOrderStatisticAction',
         payload: { ...searchParams },
       });
+
+      setTimeout(() => {
+        this.setState({
+          btnSearchClicked: false,
+        });
+      }, 1000);
     });
 
     this.standardTable.cleanSelectedKeys();

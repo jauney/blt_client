@@ -359,12 +359,14 @@ class TableList extends PureComponent {
         type: 'pay/getTodayPayListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-      this.setState({
-        btnSearchClicked: false,
-      });
-      dispatch({
+
+      await dispatch({
         type: 'pay/getTodayPayStatisticAction',
         payload: { ...searchParams },
+      });
+
+      this.setState({
+        btnSearchClicked: false,
       });
 
       this.standardTable.cleanSelectedKeys();

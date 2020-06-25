@@ -193,6 +193,7 @@ class TableList extends PureComponent {
     downloadModalVisible: false,
     printModalVisible: false,
     btnClicked: false,
+    btnSearchClicked: false,
   };
 
   columns = [
@@ -308,10 +309,21 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
 
       if (fieldsValue.transfer_date && fieldsValue.transfer_date.length > 0) {
         fieldsValue.transfer_date = fieldsValue.transfer_date.map(item => {
@@ -322,16 +334,18 @@ class TableList extends PureComponent {
       fieldsValue.transfer_type = 1;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'transfer/getTransferAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      dispatch({
+      await dispatch({
         type: 'transfer/getTransferStatisticAction',
         payload: { ...searchParams },
       });
-
+      this.setState({
+        btnSearchClicked: false,
+      });
       this.standardTable.cleanSelectedKeys();
     });
   };
@@ -707,6 +721,7 @@ class TableList extends PureComponent {
       site: { siteList = [] },
       company: { branchCompanyList = [] },
     } = this.props;
+    const { btnSearchClicked } = this.state;
     const companyOption = {};
     // 默认勾选第一个公司
     if (branchCompanyList.length > 0) {
@@ -746,7 +761,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>
