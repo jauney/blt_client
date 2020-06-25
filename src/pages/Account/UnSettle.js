@@ -398,15 +398,12 @@ class TableList extends PureComponent {
     });
   };
   // 防爆击
-  btnClicked = false;
+  btnSettleClicked = false;
   onSettleOk = async () => {
-    if (this.btnClicked) {
+    if (this.btnSettleClicked) {
       return;
     }
-    this.btnClicked = true;
-    setTimeout(() => {
-      this.btnClicked = false;
-    }, 2000);
+    this.btnSettleClicked = true;
 
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
@@ -421,7 +418,8 @@ class TableList extends PureComponent {
       },
     });
 
-    this.setState({ loading: false });
+    this.btnSettleClicked = false;
+
     if (result.code == 0) {
       message.success('核对成功！');
 
@@ -839,7 +837,8 @@ class TableList extends PureComponent {
             cancelText="取消"
             visible={settleModalVisible}
             onOk={this.onSettleOk}
-            onCancel={this.onSettleCancel}
+            onCancel={this.btnSettleClicked}
+            confirmLoading={this.btnSettleClicked}
           >
             <p>{`结算货款条数${selectedRows.length}，结算总额 ${
               accountStatistic.totalAccount

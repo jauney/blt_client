@@ -30,7 +30,16 @@ import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Pay.less';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
+import {
+  setCustomerFieldValue,
+  fetchGetCustomerList,
+  fetchSendCustomerList,
+  onSendCustomerChange,
+  onGetCustomerChange,
+  onGetCustomerSelect,
+  onSendCustomerSelect,
+  customerAutoCompleteState,
+} from '@/utils/customer';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -41,6 +50,7 @@ class DownAccountForm extends PureComponent {
     super(props);
     this.state = {
       agencyFee: 4,
+      btnDownClicked: false,
     };
   }
 
@@ -52,20 +62,34 @@ class DownAccountForm extends PureComponent {
 
   onDownAccountHandler = () => {
     const { downAccountHandle, form } = this.props;
-    const { agencyFee } = this.state;
-    form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
-      if (err) return;
+    const { agencyFee, btnDownClicked } = this.state;
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnDownClicked: false,
+        });
+        return;
+      }
+      if (btnDownClicked) {
+        return;
+      }
+      this.setState({
+        btnDownClicked: true,
+      });
 
-      downAccountHandle({ rate: agencyFee, bank_account: fieldsValue.bank_account });
+      await downAccountHandle({ rate: agencyFee, bank_account: fieldsValue.bank_account });
+
+      this.setState({
+        btnDownClicked: false,
+      });
     });
   };
 
-  render () {
+  render() {
     const { modalVisible, downCancel, selectedRows, form } = this.props;
     const accountData = getSelectedDownAccount(selectedRows);
     const record = selectedRows.length > 0 ? selectedRows[0] : {};
-    const { agencyFee } = this.state;
+    const { agencyFee, btnDownClicked } = this.state;
     return (
       <Modal
         destroyOnClose
@@ -78,7 +102,12 @@ class DownAccountForm extends PureComponent {
           <Button key="btn-cancel" onClick={() => downCancel()}>
             取 消
           </Button>,
-          <Button key="btn-save" type="primary" onClick={this.onDownAccountHandler}>
+          <Button
+            key="btn-save"
+            loading={btnDownClicked}
+            type="primary"
+            onClick={this.onDownAccountHandler}
+          >
             保 存
           </Button>,
         ]}
@@ -114,7 +143,9 @@ class DownAccountForm extends PureComponent {
                 &nbsp;-&nbsp;回付保费 {accountData.totalPayInsurance}
                 &nbsp;=&nbsp;
                 {accountData.totalActualGoodsFund -
-                  Math.ceil((accountData.totalShouldGoodsFund * agencyFee) / 1000) - accountData.totalPayTransFunds - accountData.totalPayInsurance}
+                  Math.ceil((accountData.totalShouldGoodsFund * agencyFee) / 1000) -
+                  accountData.totalPayTransFunds -
+                  accountData.totalPayInsurance}
               </FormItem>
             </Col>
           </Row>
@@ -201,7 +232,7 @@ class TableList extends PureComponent {
     downloadModalVisible: false,
     printModalVisible: false,
     currentCompany: {},
-    ...customerAutoCompleteState
+    ...customerAutoCompleteState,
   };
 
   columns = [
@@ -289,25 +320,19 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       dataIndex: 'create_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '170px',
     },
     {
       title: '结算时间',
       dataIndex: 'settle_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '170px',
     },
     {
       title: '付款时间',
       dataIndex: 'pay_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '170px',
     },
     {
@@ -323,7 +348,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     await dispatch({
@@ -365,7 +390,7 @@ class TableList extends PureComponent {
     });
   };
 
-  onCompanySelect = async (value, option) => { };
+  onCompanySelect = async (value, option) => {};
 
   handleSearch = e => {
     e && e.preventDefault();
@@ -373,9 +398,9 @@ class TableList extends PureComponent {
     this.getOrderList();
   };
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
   /**
    * 获取订单信息
    */
@@ -388,7 +413,7 @@ class TableList extends PureComponent {
 
       fieldsValue.pay_status = 1;
 
-      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue);
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -400,7 +425,7 @@ class TableList extends PureComponent {
         type: 'pay/getOrderStatisticAction',
         payload: { ...searchParams },
       });
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -436,14 +461,7 @@ class TableList extends PureComponent {
   };
 
   // 下账
-  btnClicked = false
   downAccountHandle = async data => {
-    if (this.btnClicked) {
-      return
-    }
-    this.btnClicked = true
-    setTimeout(() => { this.btnClicked = false }, 2000)
-
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -676,7 +694,7 @@ class TableList extends PureComponent {
   onRowDoubleClick = (record, index, event) => {
     // 回单用户不可以双击编辑
     if (['site_receipt'].includes(CacheRole.role_value)) {
-      return
+      return;
     }
     this.setState({
       record,
@@ -685,7 +703,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   tableFooter = () => {
     const {
@@ -710,7 +728,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], siteList = [] },
@@ -726,7 +744,12 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '80px' }} allowClear>
+            <Select
+              placeholder="全部"
+              onSelect={this.onCompanySelect}
+              style={{ width: '80px' }}
+              allowClear
+            >
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -763,13 +786,22 @@ class TableList extends PureComponent {
               dataSource={sendCustomerList.map(item => {
                 const AutoOption = AutoComplete.Option;
                 return (
-                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                  <AutoOption
+                    key={`${item.customer_id}`}
+                    value={`${item.customer_id}`}
+                    customerid={`${item.customer_id}`}
+                    label={item.customer_name}
+                  >
                     {item.customer_name}
                   </AutoOption>
                 );
               })}
-              onSelect={(value) => { onSendCustomerSelect(this, value) }}
-              onChange={(value) => { onSendCustomerChange(this, value) }}
+              onSelect={value => {
+                onSendCustomerSelect(this, value);
+              }}
+              onChange={value => {
+                onSendCustomerChange(this, value);
+              }}
               allowClear
               placeholder="请输入"
               filterOption={(inputValue, option) =>
@@ -794,11 +826,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       pay: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,
@@ -819,9 +851,9 @@ class TableList extends PureComponent {
       record,
     } = this.state;
     // 是否显示操作按钮
-    let showOperateButton = true
+    let showOperateButton = true;
     if (['site_searchuser', 'site_admin'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = false
+      showOperateButton = false;
     }
     return (
       <div>
@@ -850,8 +882,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}
@@ -895,7 +927,7 @@ class TableList extends PureComponent {
           <p>
             {`取消结算货款条数${selectedRows.length}，取消结算总额 ${
               accountStatistic.totalAccount
-              } `}
+            } `}
           </p>
           <p>您确认结算么？</p>
         </Modal>
