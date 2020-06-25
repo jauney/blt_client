@@ -326,7 +326,7 @@ class TableList extends PureComponent {
     },
     {
       title: '站点',
-      dataIndex: 'site_name',
+      dataIndex: 'site_names',
       width: '100px',
       sorter: true,
       render: val => {

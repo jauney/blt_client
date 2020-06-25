@@ -27,7 +27,7 @@ export default {
 
   effects: {
     // 专门用于客户管理
-    *queryCustomerListAction ({ payload }, { call, put, select }) {
+    *queryCustomerListAction({ payload }, { call, put, select }) {
       const response = yield call(getCustomerList, payload);
 
       yield put({
@@ -36,7 +36,7 @@ export default {
       });
     },
     // 获取单个客户信息
-    *queryCustomerAction ({ payload }, { call, put, select }) {
+    *queryCustomerAction({ payload }, { call, put, select }) {
       const response = yield call(getCustomer, payload);
       yield put({
         type: 'queryCustomerReducer',
@@ -44,7 +44,7 @@ export default {
       });
       return response;
     },
-    *queryCustomerTypesAction ({ payload }, { call, put, select }) {
+    *queryCustomerTypesAction({ payload }, { call, put, select }) {
       const response = yield call(getCustomerTypes, payload);
 
       yield put({
@@ -52,19 +52,20 @@ export default {
         payload: response,
       });
     },
-    *createCustomerAction ({ payload }, { call, put }) {
+    *createCustomerAction({ payload }, { call, put }) {
       const response = yield call(createCustomer, payload);
       return response;
     },
-    *updateCustomerAction ({ payload }, { call, put }) {
+    *updateCustomerAction({ payload }, { call, put }) {
       const response = yield call(updateCustomer, payload);
       return response;
     },
-    *getCustomerMobileAction ({ payload }, { call, put }) {
+    *getCustomerMobileAction({ payload }, { call, put }) {
       const response = yield call(getCustomerMobiles, payload);
       return response.customer_mobiles || [];
     },
-    *getCustomerListAction ({ payload }, { call, put, select }) {
+    // 查询客户下拉列表数据
+    *getCustomerListAction({ payload }, { call, put, select }) {
       const customerState = yield select(state => state.customer);
       payload.type = 2;
       payload.pageNo = customerState.getCustomerPageNo;
@@ -79,7 +80,8 @@ export default {
         payload: Array.isArray(list) ? list : [],
       });
     },
-    *sendCustomerListAction ({ payload }, { call, put, select }) {
+    // 查询客户下拉列表数据
+    *sendCustomerListAction({ payload }, { call, put, select }) {
       const customerState = yield select(state => state.customer);
       payload.type = 1;
       payload.pageNo = customerState.sendCustomerPageNo;
@@ -93,7 +95,7 @@ export default {
         payload: Array.isArray(list) ? list : [],
       });
     },
-    *addFetch ({ payload }, { call, put }) {
+    *addFetch({ payload }, { call, put }) {
       const response = yield call(addCustomer, payload);
 
       yield put({
@@ -101,7 +103,7 @@ export default {
         payload: response ? [response] : [],
       });
     },
-    *resetCustomerPageNoAction ({ payload }, { call, put }) {
+    *resetCustomerPageNoAction({ payload }, { call, put }) {
       yield put({
         type: 'resetCustomerPageNo',
         payload,
@@ -110,7 +112,7 @@ export default {
   },
 
   reducers: {
-    queryGetCustomersReducer (state, action) {
+    queryGetCustomersReducer(state, action) {
       return {
         ...state,
         ...action.payload,
@@ -121,63 +123,67 @@ export default {
      * @param {*} state
      * @param {*} action
      */
-    queryCustomerReducer (state, action) {
-      const sendCustomerList = state.sendCustomerList
-      const getCustomerList = state.getCustomerList
-      let getCustomer = action.payload.getCustomer
-      let sendCustomer = action.payload.sendCustomer
-      let getCustomerFlag = false
+    queryCustomerReducer(state, action) {
+      const sendCustomerList = state.sendCustomerList;
+      const getCustomerList = state.getCustomerList;
+      let getCustomer = action.payload.getCustomer;
+      let sendCustomer = action.payload.sendCustomer;
+      let getCustomerFlag = false;
       for (let i = 0; i < getCustomerList.length; i++) {
-        let item = getCustomerList[i]
+        let item = getCustomerList[i];
         if (getCustomer && getCustomer.customer_id == item.customer_id) {
-          getCustomerFlag = true
-          break
+          getCustomerFlag = true;
+          break;
         }
-      };
-      if (!getCustomerFlag && getCustomer && getCustomer.customer_id) { getCustomerList.push(getCustomer) }
+      }
+      if (!getCustomerFlag && getCustomer && getCustomer.customer_id) {
+        getCustomerList.push(getCustomer);
+      }
 
-      let sendCustomerFlag = false
+      let sendCustomerFlag = false;
       for (let i = 0; i < sendCustomerList.length; i++) {
-        let item = sendCustomerList[i]
+        let item = sendCustomerList[i];
         if (sendCustomer && sendCustomer.customer_id == item.customer_id) {
-          sendCustomerFlag = true
-          break
+          sendCustomerFlag = true;
+          break;
         }
-      };
-      if (!sendCustomerFlag && sendCustomer && sendCustomer.customer_id) { sendCustomerList.push(sendCustomer) }
+      }
+      if (!sendCustomerFlag && sendCustomer && sendCustomer.customer_id) {
+        sendCustomerList.push(sendCustomer);
+      }
       return {
         ...state,
         sendCustomerList,
-        getCustomerList
-      }
+        getCustomerList,
+      };
     },
-    queryGetCustomerTypesReducer (state, action) {
+    queryGetCustomerTypesReducer(state, action) {
       return {
         ...state,
         ...action.payload,
       };
     },
-    queryGetCustomerList (state, action) {
+    queryGetCustomerList(state, action) {
       const customers = action.payload;
       return {
         ...state,
         getCustomerList: action.payload,
       };
     },
-    querySendCustomerList (state, action) {
+    querySendCustomerList(state, action) {
       return {
         ...state,
         sendCustomerList: action.payload,
       };
     },
-    appendGetCustomer (state, action) {
+    appendGetCustomer(state, action) {
       return {
         ...state,
         sendCustomerPageNo: state.sendCustomerPageNo + 1,
         getCustomerList: state.getCustomerList.concat(action.payload),
       };
     },
-    resetCustomerPageNo (state, action) {
+    resetCustomerPageNo(state, action) {
       if (action.payload.type == 'Get') {
         return {
           ...state,

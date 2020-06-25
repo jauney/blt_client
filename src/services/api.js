@@ -327,6 +327,10 @@ export async function updateCustomer({ customer, customer_id, type }) {
   });
 }
 
+/**
+ * 查询客户下拉列表数据
+ * @param {*} params
+ */
 export async function queryCustomerList(params) {
   params.customer = params.filter;
   delete params.filter;
@@ -511,11 +515,14 @@ export async function updateOrderSign(params) {
       showErrorMessage(error);
     });
 }
-
+/**
+ * 收货/发货客户管理
+ * @param {*} params
+ */
 export async function getCustomerList(params) {
   params.customer = params.filter;
   delete params.filter;
-  return await ajaxFetch(`${APIHOST}/api/GetCustomers`, {
+  return await ajaxFetch(`${APIHOST}/api/GetCustomerList`, {
     ...params,
   });
 }
