@@ -27,7 +27,7 @@ import {
 import { getSelectedAccount, getSelectedDownAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import styles from './Transfer.less';
-import { locale } from '@/utils'
+import { locale } from '@/utils';
 import { fileToObject } from 'antd/lib/upload/utils';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
@@ -94,7 +94,7 @@ class AddFormDialog extends PureComponent {
     );
   };
 
-  render () {
+  render() {
     const { modalVisible, onCancelHandler, selectedRows, form, incomeTypes = [] } = this.props;
     return (
       <Modal
@@ -178,15 +178,14 @@ class TableList extends PureComponent {
     cancelSignModalVisible: false,
     downloadModalVisible: false,
     printModalVisible: false,
+    btnClicked: false,
   };
 
   columns = [
     {
       title: '打款日期',
       dataIndex: 'transfer_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '170px',
     },
     {
@@ -207,9 +206,7 @@ class TableList extends PureComponent {
     {
       title: '确认日期',
       dataIndex: 'confirm_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '170px',
     },
     {
@@ -224,12 +221,10 @@ class TableList extends PureComponent {
     },
   ];
 
-  btnClicked = false
-
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
     this.fetchCompanySiteList(CacheCompany.company_id);
-    this.setState({ currentSite: CacheSite })
+    this.setState({ currentSite: CacheSite });
     this.handleSearch();
   }
 
@@ -290,9 +285,9 @@ class TableList extends PureComponent {
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   /**
    * 获取订单信息
@@ -310,7 +305,7 @@ class TableList extends PureComponent {
         });
       }
       fieldsValue.company_id = CacheCompany.company_id;
-      fieldsValue.transfer_type = 1
+      fieldsValue.transfer_type = 1;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -323,7 +318,7 @@ class TableList extends PureComponent {
         payload: { ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -359,12 +354,13 @@ class TableList extends PureComponent {
 
   // 添加收入
   addFormDataHandle = async data => {
-    if (this.btnClicked) {
-      return
+    const { btnClicked } = this.state;
+    if (btnClicked) {
+      return;
     }
-    this.btnClicked = true
-    setTimeout(() => { this.btnClicked = false }, 2000)
-
+    this.setState({
+      btnClicked: true,
+    });
     const { dispatch } = this.props;
     const { currentSite = {} } = this.state;
     const result = await dispatch({
@@ -377,6 +373,9 @@ class TableList extends PureComponent {
         site_id: currentSite.site_id,
         site_name: currentSite.site_name,
       },
+    });
+    this.setState({
+      btnClicked: false,
     });
     if (result.code == 0) {
       message.success('添加成功！');
@@ -411,13 +410,13 @@ class TableList extends PureComponent {
   onConfirmTransfer = async () => {
     const { selectedRows } = this.state;
     const confirmedRecords = selectedRows.filter(item => {
-      return item.transfer_status == 1
-    })
+      return item.transfer_status == 1;
+    });
     if (confirmedRecords.length > 0) {
       Modal.info({
         content: '已经确认的打款不能重复确认！',
       });
-      return
+      return;
     }
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, settleModalVisible: true });
@@ -430,11 +429,13 @@ class TableList extends PureComponent {
   };
 
   onSettleOk = async () => {
-    if (this.btnClicked) {
-      return
+    const { btnClicked } = this.state;
+    if (btnClicked) {
+      return;
     }
-    this.btnClicked = true
-    setTimeout(() => { this.btnClicked = false }, 2000)
+    this.setState({
+      btnClicked: true,
+    });
 
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
@@ -447,11 +448,14 @@ class TableList extends PureComponent {
         transfer_id: orderIds,
       },
     });
+    this.setState({
+      btnClicked: false,
+    });
     if (result.code == 0) {
       message.success('确认打款成功！');
 
       this.onSettleCancel();
-      this.handleSearch()
+      this.handleSearch();
     } else {
       message.error(result.msg);
     }
@@ -461,13 +465,13 @@ class TableList extends PureComponent {
   onCancelConfirmTransfer = async () => {
     const { selectedRows } = this.state;
     const confirmedRecords = selectedRows.filter(item => {
-      return item.transfer_status == 0
-    })
+      return item.transfer_status == 0;
+    });
     if (confirmedRecords.length > 0) {
       Modal.info({
         content: '未确认的打款不能取消确认！',
       });
-      return
+      return;
     }
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, cancelConfirmTransferModalVisible: true });
@@ -480,11 +484,13 @@ class TableList extends PureComponent {
   };
 
   onCancelConfirmTransferOk = async () => {
-    if (this.btnClicked) {
-      return
+    const { btnClicked } = this.state;
+    if (btnClicked) {
+      return;
     }
-    this.btnClicked = true
-    setTimeout(() => { this.btnClicked = false }, 2000)
+    this.setState({
+      btnClicked: true,
+    });
 
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
@@ -497,10 +503,13 @@ class TableList extends PureComponent {
         transfer_id: orderIds,
       },
     });
+    this.setState({
+      btnClicked: false,
+    });
     if (result.code == 0) {
       message.success('取消确认打款成功！');
 
-      this.handleSearch()
+      this.handleSearch();
       this.onCancelConfirmTransferCancel();
     } else {
       message.error(result.msg);
@@ -510,13 +519,13 @@ class TableList extends PureComponent {
   onDelTransfer = async () => {
     const { selectedRows } = this.state;
     const confirmedRecords = selectedRows.filter(item => {
-      return item.transfer_status == 1
-    })
+      return item.transfer_status == 1;
+    });
     if (confirmedRecords.length > 0) {
       Modal.info({
-        content: '已经确认的打款不能删除！'
+        content: '已经确认的打款不能删除！',
       });
-      return
+      return;
     }
     let accountStatistic = getSelectedAccount(selectedRows);
     this.setState({ accountStatistic, delTransferModalVisible: true });
@@ -541,7 +550,7 @@ class TableList extends PureComponent {
       },
     });
     if (result.code == 0) {
-      message.success('删除确认打款成功！');
+      message.success('删除打款成功！');
 
       this.onDelConfirmTransferCancel();
     } else {
@@ -650,12 +659,12 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
     if (record.site_id != CacheSite.site_id) {
-      return
+      return;
     }
     this.setState({
       record,
@@ -664,7 +673,13 @@ class TableList extends PureComponent {
 
   tableFooter = () => {
     const {
-      transfer: { total, totalTransferAmount, totalTransferConfirmAmount, totalTransferUnConfirmAmount, totalShouldTransfer },
+      transfer: {
+        total,
+        totalTransferAmount,
+        totalTransferConfirmAmount,
+        totalTransferUnConfirmAmount,
+        totalShouldTransfer,
+      },
     } = this.props;
     return (
       <div className={styles.tableFooter}>
@@ -675,15 +690,13 @@ class TableList extends PureComponent {
         <span className={styles.footerSplit}>
           已确认打款总额：{totalTransferConfirmAmount || 0}
         </span>
-        <span className={styles.footerSplit}>
-          应打款总额：{totalShouldTransfer || 0}
-        </span>
+        <span className={styles.footerSplit}>应打款总额：{totalShouldTransfer || 0}</span>
         <span className={styles.footerSplit}>票数：{total || '0'}</span>
       </div>
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       site: { siteList = [] },
@@ -723,7 +736,9 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="打款日期">
-          {getFieldDecorator('transfer_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
+          {getFieldDecorator('transfer_date', {})(
+            <RangePicker locale={locale} style={{ width: '250px' }} />
+          )}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit">
@@ -734,11 +749,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       transfer: { transferList, total },
       loading,
@@ -759,17 +774,18 @@ class TableList extends PureComponent {
       downloadModalVisible,
       printModalVisible,
       record,
+      btnClicked,
     } = this.state;
 
     // 是否显示操作按钮
-    let showOperateButton = false
+    let showOperateButton = false;
     if (['site_pay'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = true
+      showOperateButton = true;
     }
 
-    let showAddOperateButton = true
+    let showAddOperateButton = true;
     if (['site_searchuser', 'site_pay'].indexOf(CacheRole.role_value) >= 0) {
-      showAddOperateButton = false
+      showAddOperateButton = false;
     }
     return (
       <div>
@@ -777,15 +793,20 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {showAddOperateButton &&
+              {showAddOperateButton && (
                 <Button icon="plus" type="primary" onClick={() => this.onAddIncomeClick(true)}>
                   添加
-              </Button>}
-              {selectedRows.length > 0 && showOperateButton && <div>
-                <Button onClick={this.onConfirmTransfer}>打款确认</Button>
-                <Button onClick={this.onCancelConfirmTransfer}>取消确认</Button>
-              </div>}
-              {selectedRows.length > 0 && showAddOperateButton && <Button onClick={this.onDelTransfer}>删除打款</Button>}
+                </Button>
+              )}
+              {selectedRows.length > 0 && showOperateButton && (
+                <div>
+                  <Button onClick={this.onConfirmTransfer}>打款确认</Button>
+                  <Button onClick={this.onCancelConfirmTransfer}>取消确认</Button>
+                </div>
+              )}
+              {selectedRows.length > 0 && showAddOperateButton && (
+                <Button onClick={this.onDelTransfer}>删除打款</Button>
+              )}
             </div>
             <StandardTable
               onRef={this.onRefTable}
@@ -800,8 +821,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}
@@ -830,6 +851,7 @@ class TableList extends PureComponent {
           cancelText="取消"
           visible={settleModalVisible}
           onOk={this.onSettleOk}
+          confirmLoading={btnClicked}
           onCancel={this.onSettleCancel}
         >
           <p>{`您确定要对${selectedRows.length}条记录确认打款么？ `}</p>
@@ -840,6 +862,7 @@ class TableList extends PureComponent {
           cancelText="取消"
           visible={cancelConfirmTransferModalVisible}
           onOk={this.onCancelConfirmTransferOk}
+          confirmLoading={btnClicked}
           onCancel={this.onCancelConfirmTransferCancel}
         >
           <p>{`您确定要对${selectedRows.length}条记录取消确认打款么？ `}</p>

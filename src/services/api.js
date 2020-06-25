@@ -1149,91 +1149,27 @@ export async function addTransfer(params) {
   params.site_id = isNaN(Number(params.site_id)) ? 0 : Number(params.site_id);
   params.transfer_money = isNaN(Number(params.transfer_money)) ? 0 : Number(params.transfer_money);
 
-  return client
-    .mutate({
-      mutation: gql`
-        mutation addTransfer($transfer: TransferInput) {
-          addTransfer(transfer: $transfer) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: { transfer: params },
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.addTransfer;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  return await ajaxFetch(`${APIHOST}/api/AddTransfer`, {
+    transfer: params,
+  });
 }
 
 export async function updateTransfer(params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation updateTransfer($transfer_id: [Int], $transfer: TransferInput) {
-          updateTransfer(transfer_id: $transfer_id, transfer: $transfer) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.updateTransfer;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  return await ajaxFetch(`${APIHOST}/api/UpdateTransfer`, {
+    ...params,
+  });
 }
 
 export async function updateTransferType(params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation updateTransferType($transfer_id: [Int], $transfer: TransferInput) {
-          updateTransferType(transfer_id: $transfer_id, transfer: $transfer) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.updateTransferType;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  return await ajaxFetch(`${APIHOST}/api/UpdateTransferType`, {
+    ...params,
+  });
 }
 
 export async function delTransfer(params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation delTransfer($transfer_id: [Int]) {
-          delTransfer(transfer_id: $transfer_id) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.delTransfer;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  return await ajaxFetch(`${APIHOST}/api/DelTransfer`, {
+    ...params,
+  });
 }
 
 // todayaccount
