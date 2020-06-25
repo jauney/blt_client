@@ -293,6 +293,7 @@ class TableList extends PureComponent {
     currentCompany: {},
     currentSite: {},
     ...customerAutoCompleteState,
+    btnClicked: false,
   };
 
   columns = [
@@ -432,20 +433,35 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnClicked } = this.state;
 
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
+      if (err) {
+        this.setState({
+          btnClicked: false,
+        });
+        return;
+      }
+      if (btnClicked) {
+        return;
+      }
+      this.setState({
+        btnClicked: true,
+      });
+
       if (!fieldsValue.customer_mobile) {
         delete fieldsValue.customer_mobile;
       }
       fieldsValue = await setCustomerFieldValue2Mng(this, fieldsValue);
+
       const searchParams = Object.assign({ filter: fieldsValue, type: 1 }, data);
-      dispatch({
+      await dispatch({
         type: 'customer/queryCustomerListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
+      this.setState({
+        btnClicked: false,
+      });
       this.standardTable.cleanSelectedKeys();
     });
   };
@@ -569,7 +585,7 @@ class TableList extends PureComponent {
       site: { entrunkSiteList = [], siteList = [] },
       customer: { getCustomerList, sendCustomerList, customerTypes },
     } = this.props;
-
+    const { btnClicked } = this.state;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="客户分类">
@@ -643,7 +659,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnClicked}>
             查询
           </Button>
         </FormItem>

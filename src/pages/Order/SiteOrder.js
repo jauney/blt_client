@@ -1618,6 +1618,7 @@ class TableList extends PureComponent {
     labelPrinterName: 'TSC_TTP_244CE',
     selectedGetCustomer: {},
     selectedSendCustomer: {},
+    btnSearchClicked: false,
   };
 
   columns = [
@@ -1892,7 +1893,7 @@ class TableList extends PureComponent {
       form,
       receiver: { receiverList },
     } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
     if (!data.sorter) {
       data.sorter = 'order_status|ascend,create_date|desc';
     }
@@ -1903,8 +1904,19 @@ class TableList extends PureComponent {
       data.sorter += 'create_date|desc';
     }
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-      showLoading(dispatch);
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
 
       fieldsValue.order_status = [0, 1];
 
@@ -1915,6 +1927,9 @@ class TableList extends PureComponent {
           }
         });
         if (receivers.length <= 0) {
+          this.setState({
+            btnSearchClicked: false,
+          });
           message.error('请选择正确的接货人');
           return;
         }
@@ -1924,9 +1939,13 @@ class TableList extends PureComponent {
       }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
 
-      dispatch({
+      await dispatch({
         type: 'order/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
+      });
+
+      this.setState({
+        btnSearchClicked: false,
       });
 
       dispatch({
@@ -1937,8 +1956,6 @@ class TableList extends PureComponent {
       this.getLastCarInfo();
 
       this.standardTable.cleanSelectedKeys();
-
-      hideLoading(dispatch);
     });
   };
 
@@ -2471,7 +2488,7 @@ class TableList extends PureComponent {
       site: { entrunkSiteList, siteList },
       receiver: { receiverList },
     } = this.props;
-    const { currentShipSite = {}, currentCompany = {} } = this.state;
+    const { currentShipSite = {}, currentCompany = {}, btnSearchClicked } = this.state;
     const companyOption = { initialValue: currentCompany.company_id };
     let allowClear = false;
     let siteOption = { initialValue: CacheSite.site_id };
@@ -2580,7 +2597,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>

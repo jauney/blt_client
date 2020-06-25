@@ -43,6 +43,7 @@ class AddFormDialog extends PureComponent {
     this.state = {
       abnormal_type_id: '',
       abnormal_type: '',
+      btnClicked: false,
     };
     this.formItemLayout = {
       labelCol: {
@@ -67,16 +68,29 @@ class AddFormDialog extends PureComponent {
   };
 
   onAddHandler = () => {
+    const { btnClicked } = this.state;
     const { addFormDataHandle, form } = this.props;
-    form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
-      if (err) return;
-
-      addFormDataHandle({
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnClicked: false,
+        });
+        return;
+      }
+      if (btnClicked) {
+        return;
+      }
+      this.setState({
+        btnClicked: true,
+      });
+      await addFormDataHandle({
         transfer_money: fieldsValue.transfer_money,
         transfer_status: 0,
         transfer_user: fieldsValue.transfer_user,
         remark: fieldsValue.remark,
+      });
+      this.setState({
+        btnClicked: false,
       });
     });
   };
@@ -354,13 +368,6 @@ class TableList extends PureComponent {
 
   // 添加收入
   addFormDataHandle = async data => {
-    const { btnClicked } = this.state;
-    if (btnClicked) {
-      return;
-    }
-    this.setState({
-      btnClicked: true,
-    });
     const { dispatch } = this.props;
     const { currentSite = {} } = this.state;
     const result = await dispatch({
@@ -374,9 +381,7 @@ class TableList extends PureComponent {
         site_name: currentSite.site_name,
       },
     });
-    this.setState({
-      btnClicked: false,
-    });
+
     if (result.code == 0) {
       message.success('添加成功！');
       this.handleSearch();

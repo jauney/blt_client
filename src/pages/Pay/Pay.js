@@ -236,6 +236,7 @@ class TableList extends PureComponent {
     printModalVisible: false,
     currentCompany: {},
     sorter: 'settle_date|ascend',
+    btnSearchClicked: false,
     ...customerAutoCompleteState,
   };
 
@@ -402,13 +403,23 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize, sorter } = this.state;
+    const { current, pageSize, sorter, btnSearchClicked } = this.state;
     // 使用缓存的pageNo
     pageNo = pageNo || current;
 
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
       fieldsValue.pay_status = 0;
       fieldsValue.order_amount = -1;
 
@@ -421,11 +432,13 @@ class TableList extends PureComponent {
         sorter: searchParams.sorter,
       });
 
-      dispatch({
+      await dispatch({
         type: 'pay/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
+      this.setState({
+        btnSearchClicked: false,
+      });
       dispatch({
         type: 'pay/getOrderStatisticAction',
         payload: { ...searchParams },
@@ -765,6 +778,7 @@ class TableList extends PureComponent {
       customer: { getCustomerList, sendCustomerList },
       company: { branchCompanyList },
     } = this.props;
+    const { btnSearchClicked } = this.state;
     const companyOption = {};
     // 默认勾选第一个公司
     // if (branchCompanyList.length > 0) {
@@ -848,7 +862,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>

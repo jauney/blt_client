@@ -30,8 +30,8 @@ import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '@/utils/storage';
 import { async } from 'q';
-import { printOrder, printPayOrder, printDownLoad } from '@/utils/print'
-import { locale } from '@/utils'
+import { printOrder, printPayOrder, printDownLoad } from '@/utils/print';
+import { locale } from '@/utils';
 const FormItem = Form.Item;
 const { Option } = Select;
 
@@ -55,6 +55,7 @@ class TableList extends PureComponent {
     current: 1,
     pageSize: 20,
     entrunkModalVisible: false,
+    btnSearchClicked: false,
   };
 
   columns = [
@@ -184,7 +185,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
 
     const branchCompanyList = await dispatch({
@@ -276,23 +277,36 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
     const { form } = this.props;
 
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      fieldsValue.order_status = [0, 8]
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
+      fieldsValue.order_status = [0, 8];
       if (fieldsValue.create_date) {
         fieldsValue.create_date = [`${fieldsValue.create_date.valueOf()}`];
       }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
 
-      dispatch({
+      await dispatch({
         type: 'order/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
+      this.setState({
+        btnSearchClicked: false,
+      });
       dispatch({
         type: 'order/getOrderStatisticAction',
         payload: { ...searchParams },
@@ -309,15 +323,15 @@ class TableList extends PureComponent {
 
   // 打印货物清单
   onPrintOrder = () => {
-    const { selectedRows } = this.state
-    printDownLoad({ selectedRows })
-  }
+    const { selectedRows } = this.state;
+    printDownLoad({ selectedRows });
+  };
 
   // 下载货物清单
   onDownloadOrder = () => {
-    const { selectedRows } = this.state
-    printDownLoad({ selectedRows, type: 'pdf' })
-  }
+    const { selectedRows } = this.state;
+    printDownLoad({ selectedRows, type: 'pdf' });
+  };
 
   tableFooter = () => {
     const {
@@ -338,7 +352,7 @@ class TableList extends PureComponent {
         totalCarFee,
         totalTifuInsurance,
         totalXianInsurence,
-      }
+      },
     } = this.props;
     return (
       <div className={styles.tableFooter}>
@@ -360,29 +374,29 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
       site: { siteList },
     } = this.props;
-    const { selectedRows } = this.state
+    const { selectedRows, btnSearchClicked } = this.state;
 
     let companyOption = {};
     let companyOptions = branchCompanyList;
     let allowClearCompany = true;
-    let allowClear = false
-    let siteOption = { initialValue: CacheSite.site_id }
-    let selectSites = [CacheSite]
+    let allowClear = false;
+    let siteOption = { initialValue: CacheSite.site_id };
+    let selectSites = [CacheSite];
     if (CacheSite.site_type == 3 || CacheSite.site_type == 2 || CacheCompany.company_type == 2) {
-      selectSites = siteList
-      allowClear = true
-      siteOption = {}
+      selectSites = siteList;
+      allowClear = true;
+      siteOption = {};
     }
     if (CacheCompany.company_type == 2) {
-      companyOption = { initialValue: CacheCompany.company_id }
-      companyOptions = [CacheCompany]
-      allowClearCompany = false
+      companyOption = { initialValue: CacheCompany.company_id };
+      companyOptions = [CacheCompany];
+      allowClearCompany = false;
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
@@ -423,29 +437,32 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="录入日期">
-          {getFieldDecorator('create_date', { initialValue: moment() })(<DatePicker locale={locale} format={'YYYY-MM-DD'} allowClear={false} />)}
+          {getFieldDecorator('create_date', { initialValue: moment() })(
+            <DatePicker locale={locale} format={'YYYY-MM-DD'} allowClear={false} />
+          )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
           &nbsp;
-          {selectedRows.length > 0 && <span>
-            <Button onClick={this.onPrintOrder}>打印清单</Button>
-            &nbsp;
-            <Button onClick={this.onDownloadOrder}>下载清单</Button>
-          </span>}
-
+          {selectedRows.length > 0 && (
+            <span>
+              <Button onClick={this.onPrintOrder}>打印清单</Button>
+              &nbsp;
+              <Button onClick={this.onDownloadOrder}>下载清单</Button>
+            </span>
+          )}
         </FormItem>
-      </Form >
+      </Form>
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       order: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },
@@ -469,9 +486,9 @@ class TableList extends PureComponent {
       handleModalVisible: this.handleModalVisible,
     };
 
-    let showOperateButton = true
+    let showOperateButton = true;
     if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = false
+      showOperateButton = false;
     }
     return (
       <div>
@@ -491,8 +508,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}

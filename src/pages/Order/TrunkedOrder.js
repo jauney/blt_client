@@ -493,6 +493,7 @@ class TableList extends PureComponent {
     cancelEntrunkModalVisible: false,
     currentCompany: {},
     currentShipSite: {},
+    btnSearchClicked: false,
   };
 
   columns = [
@@ -682,11 +683,22 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
     this.getLastCarInfo({ isUseCarCode: true });
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
       Object.keys(fieldsValue).forEach(item => {
         if (!fieldsValue[item]) {
           delete fieldsValue[item];
@@ -694,11 +706,13 @@ class TableList extends PureComponent {
       });
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'trunkedorder/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
+      this.setState({
+        btnSearchClicked: false,
+      });
       dispatch({
         type: 'trunkedorder/getOrderStatisticAction',
         payload: { ...searchParams },
@@ -1224,7 +1238,7 @@ class TableList extends PureComponent {
       car: { lastCar = {} },
     } = this.props;
 
-    const { currentCompany = {}, currentShipSite = {} } = this.state;
+    const { currentCompany = {}, currentShipSite = {}, btnSearchClicked } = this.state;
 
     let allowClearSite = true;
     let siteSelectList = siteList;
@@ -1295,7 +1309,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>

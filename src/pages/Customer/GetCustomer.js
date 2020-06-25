@@ -297,6 +297,7 @@ class TableList extends PureComponent {
     record: {},
     addModalVisible: false,
     currentCompany: {},
+    btnClicked: false,
   };
 
   columns = [
@@ -467,10 +468,22 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize, currentCompany = {} } = this.state;
+    const { current, pageSize, currentCompany = {}, btnClicked } = this.state;
 
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
+      if (err) {
+        this.setState({
+          btnClicked: false,
+        });
+        return;
+      }
+      if (btnClicked) {
+        return;
+      }
+      this.setState({
+        btnClicked: true,
+      });
+
       if (CacheCompany.company_type == 2) {
         fieldsValue.company_id = CacheCompany.company_id;
       } else if (currentCompany.company_id) {
@@ -481,12 +494,15 @@ class TableList extends PureComponent {
         delete fieldsValue.customer_mobile;
       }
       fieldsValue = await setCustomerFieldValue2Mng(this, fieldsValue);
+
       const searchParams = Object.assign({ filter: fieldsValue, type: 2 }, data);
-      dispatch({
+      await dispatch({
         type: 'customer/queryCustomerListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
+      this.setState({
+        btnClicked: false,
+      });
       this.standardTable.cleanSelectedKeys();
     });
   };
@@ -601,7 +617,7 @@ class TableList extends PureComponent {
   onRowClick = (record, index, event) => {};
 
   renderSimpleForm() {
-    const { currentCompany = {} } = this.state;
+    const { currentCompany = {}, btnClicked } = this.state;
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], normalSiteList = [] },
@@ -711,7 +727,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnClicked}>
             查询
           </Button>
         </FormItem>

@@ -26,7 +26,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-import { locale } from '@/utils'
+import { locale } from '@/utils';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { async } from 'q';
@@ -201,7 +201,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
 
     const branchCompanyList = await dispatch({
@@ -214,7 +214,7 @@ class TableList extends PureComponent {
       payload: {},
     });
 
-    this.setCurrentCompany(branchCompanyList)
+    this.setCurrentCompany(branchCompanyList);
 
     if (siteList && siteList.length > 0) {
       const shipSiteList = siteList.filter(item => {
@@ -237,21 +237,20 @@ class TableList extends PureComponent {
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (CacheCompany.company_type == 2) {
       this.setState({
-        currentCompany: CacheCompany
+        currentCompany: CacheCompany,
       });
 
-      return CacheCompany
-    }
-    else if (branchCompanyList && branchCompanyList.length > 0) {
+      return CacheCompany;
+    } else if (branchCompanyList && branchCompanyList.length > 0) {
       this.setState({
-        currentCompany: branchCompanyList[0]
+        currentCompany: branchCompanyList[0],
       });
 
-      return branchCompanyList[0]
+      return branchCompanyList[0];
     }
 
-    return {}
-  }
+    return {};
+  };
 
   getLastCarInfo = async () => {
     const { dispatch } = this.props;
@@ -368,19 +367,29 @@ class TableList extends PureComponent {
     this.getOrderList();
   };
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
   /**
    * 获取订单信息
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
     let searchParams = {};
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
       const filter = fieldsValue;
       Object.keys(filter).forEach(item => {
         if (!filter[item]) {
@@ -401,16 +410,18 @@ class TableList extends PureComponent {
       filter.order_status = [3, 10];
       searchParams = filter;
       searchParams = Object.assign({ filter: searchParams }, data);
-      dispatch({
+      await dispatch({
         type: 'orderlist/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
+      this.setState({
+        btnSearchClicked: false,
+      });
       dispatch({
         type: 'orderlist/getOrderStatisticAction',
         payload: { ...searchParams },
       });
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
     });
     this.getLastCarInfo();
   };
@@ -457,26 +468,25 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
       site: { entrunkSiteList, siteList },
       car: { lastCar },
     } = this.props;
-    const { currentCompany = {}, currentShipSite = {} } = this.state;
+    const { currentCompany = {}, currentShipSite = {}, btnSearchClicked } = this.state;
     const companyOption = {};
     // 默认勾选第一个公司
-    companyOption.initialValue =
-      CacheCompany.company_type == 1 ? '' : CacheCompany.company_id;
+    companyOption.initialValue = CacheCompany.company_type == 1 ? '' : CacheCompany.company_id;
 
-    let allowClearSite = false
-    let siteOption = { initialValue: CacheSite.site_id }
-    let siteSelectList = [CacheSite]
+    let allowClearSite = false;
+    let siteOption = { initialValue: CacheSite.site_id };
+    let siteSelectList = [CacheSite];
     if (CacheSite.site_type == 3 || CacheSite.site_type == 2 || CacheCompany.company_type == 2) {
-      siteSelectList = siteList
-      allowClearSite = true
-      siteOption = {}
+      siteSelectList = siteList;
+      allowClearSite = true;
+      siteOption = {};
     }
 
     return (
@@ -538,11 +548,20 @@ class TableList extends PureComponent {
         <FormItem label="录入日期">
           {getFieldDecorator('create_date', {
             initialValue: moment(new Date().getTime()),
-          })(<DatePicker placeholder="全部" locale={locale} format="YYYY-MM-DD" style={{ width: '130px' }} />)}
+          })(
+            <DatePicker
+              placeholder="全部"
+              locale={locale}
+              format="YYYY-MM-DD"
+              style={{ width: '130px' }}
+            />
+          )}
         </FormItem>
 
         <FormItem label="托运日期">
-          {getFieldDecorator('entrunk_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
+          {getFieldDecorator('entrunk_date', {})(
+            <RangePicker locale={locale} style={{ width: '250px' }} />
+          )}
         </FormItem>
         <FormItem label="有无货款">
           {getFieldDecorator('order_amount', { initialValue: -1 })(
@@ -562,7 +581,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>
@@ -570,11 +589,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       orderlist: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,

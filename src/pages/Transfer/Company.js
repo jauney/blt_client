@@ -365,14 +365,6 @@ class TableList extends PureComponent {
 
   // 添加收入
   addFormDataHandle = async data => {
-    const { btnClicked } = this.state;
-    if (btnClicked) {
-      return;
-    }
-    this.setState({
-      btnClicked: true,
-    });
-
     const { dispatch } = this.props;
     const { record = {} } = this.state;
 
@@ -386,9 +378,7 @@ class TableList extends PureComponent {
           company_name: CacheCompany.company_name,
         },
       });
-      this.setState({
-        btnClicked: false,
-      });
+
       if (result.code == 0) {
         message.success('添加成功！');
       } else {
@@ -403,9 +393,7 @@ class TableList extends PureComponent {
           transfer_id: [record.transfer_id],
         },
       });
-      this.setState({
-        btnClicked: false,
-      });
+
       if (result.code == 0) {
         message.success('编辑成功！');
       } else {

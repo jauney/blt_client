@@ -30,7 +30,16 @@ import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Account.less';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
+import {
+  setCustomerFieldValue,
+  fetchGetCustomerList,
+  fetchSendCustomerList,
+  onSendCustomerChange,
+  onGetCustomerChange,
+  onGetCustomerSelect,
+  onSendCustomerSelect,
+  customerAutoCompleteState,
+} from '@/utils/customer';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -115,8 +124,8 @@ class DownAccountForm extends PureComponent {
                 {accountData.totalTransFunds ? (
                   <span> `- (运费) ${accountData.totalTransFunds}`</span>
                 ) : (
-                    <span />
-                  )}
+                  <span />
+                )}
                 ={' '}
                 {accountData.totalActualGoodsFund -
                   Math.ceil((accountData.totalActualGoodsFund * agencyFee) / 1000) -
@@ -205,7 +214,8 @@ class TableList extends PureComponent {
     printModalVisible: false,
     currentCompany: {},
     currentShipSite: {},
-    ...customerAutoCompleteState
+    btnSearchClicked: false,
+    ...customerAutoCompleteState,
   };
 
   columns = [
@@ -291,17 +301,13 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       dataIndex: 'create_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '170px',
     },
     {
       title: '结算时间',
       dataIndex: 'settle_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '170px',
     },
     {
@@ -348,10 +354,10 @@ class TableList extends PureComponent {
 
     if (CacheCompany.company_type == 2) {
       // 分公司进来先初始化收货人列表
-      fetchGetCustomerList(this, { company_id: CacheCompany.company_id })
+      fetchGetCustomerList(this, { company_id: CacheCompany.company_id });
       this.setState({
-        currentCompany: CacheCompany
-      })
+        currentCompany: CacheCompany,
+      });
     }
 
     const siteList = await dispatch({
@@ -359,7 +365,7 @@ class TableList extends PureComponent {
       payload: { pageNo: 1, pageSize: 100 },
     });
 
-    fetchSendCustomerList(this, {})
+    fetchSendCustomerList(this, {});
 
     if (siteList && siteList.length > 0) {
       const shipSiteList = siteList.filter(item => {
@@ -413,47 +419,63 @@ class TableList extends PureComponent {
       });
     }
     // 获取当前公司的客户列表
-    fetchGetCustomerList(this, { company_id: value })
+    fetchGetCustomerList(this, { company_id: value });
   };
-
 
   handleSearch = e => {
     e && e.preventDefault();
 
-    this.setState({ current: 1 })
-    this.getOrderList({ sorter: "create_date|desc" }, 1);
+    this.setState({ current: 1 });
+    this.getOrderList({ sorter: 'create_date|desc' }, 1);
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   /**
    * 获取订单信息
    */
   getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize, sendCustomerSearch, getCustomerSearch } = this.state;
+    const {
+      current,
+      pageSize,
+      sendCustomerSearch,
+      getCustomerSearch,
+      btnSearchClicked,
+    } = this.state;
 
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-
-      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue);
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'settle/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
+      this.setState({
+        btnSearchClicked: false,
+      });
       dispatch({
         type: 'settle/getOrderStatisticAction',
         payload: { ...searchParams },
       });
 
-
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -510,7 +532,7 @@ class TableList extends PureComponent {
       this.onDownCancel();
       setTimeout(() => {
         this.getOrderList();
-      }, 800)
+      }, 800);
     } else {
       message.error(result.msg);
     }
@@ -539,7 +561,7 @@ class TableList extends PureComponent {
         canCancelSettle = false;
       }
       if (item.trans_status == 1) {
-        isTransConfirmed = true
+        isTransConfirmed = true;
       }
     });
     if (!canCancelSettle) {
@@ -560,13 +582,15 @@ class TableList extends PureComponent {
     });
   };
   // 防爆击
-  btnClicked = false
+  btnClicked = false;
   onSettleOk = async () => {
     if (this.btnClicked) {
-      return
+      return;
     }
-    this.btnClicked = true
-    setTimeout(() => { this.btnClicked = false }, 2000)
+    this.btnClicked = true;
+    setTimeout(() => {
+      this.btnClicked = false;
+    }, 2000);
 
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
@@ -585,7 +609,7 @@ class TableList extends PureComponent {
       this.onSettleCancel();
       setTimeout(() => {
         this.handleSearch();
-      }, 300)
+      }, 300);
     } else {
       message.error(result.msg);
     }
@@ -716,7 +740,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   tableFooter = () => {
     const {
@@ -754,7 +778,7 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       site: { entrunkSiteList },
     } = this.props;
-    const { currentShipSite } = this.state;
+    const { currentShipSite, btnSearchClicked } = this.state;
     const companyOption = {};
     // 默认勾选第一个公司
     if (CacheCompany.company_type != 1) {
@@ -766,7 +790,12 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={allowClearFlag}>
+            <Select
+              placeholder="全部"
+              onSelect={this.onCompanySelect}
+              style={{ width: '100px' }}
+              allowClear={allowClearFlag}
+            >
               {(CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany]).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -799,7 +828,7 @@ class TableList extends PureComponent {
             <Input placeholder="请输入" style={{ width: '80px' }} />
           )}
         </FormItem>
-        <FormItem label="收货人姓名" >
+        <FormItem label="收货人姓名">
           {getFieldDecorator('getcustomer_id')(
             <AutoComplete
               size="large"
@@ -807,13 +836,22 @@ class TableList extends PureComponent {
               dataSource={getCustomerList.map(item => {
                 const AutoOption = AutoComplete.Option;
                 return (
-                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                  <AutoOption
+                    key={`${item.customer_id}`}
+                    value={`${item.customer_id}`}
+                    customerid={`${item.customer_id}`}
+                    label={item.customer_name}
+                  >
                     {item.customer_name}
                   </AutoOption>
                 );
               })}
-              onSelect={(value) => { onGetCustomerSelect(this, value) }}
-              onChange={(value) => { onGetCustomerChange(this, value) }}
+              onSelect={value => {
+                onGetCustomerSelect(this, value);
+              }}
+              onChange={value => {
+                onGetCustomerChange(this, value);
+              }}
               allowClear
               optionLabelProp="label"
               placeholder="请输入"
@@ -825,12 +863,12 @@ class TableList extends PureComponent {
             </AutoComplete>
           )}
         </FormItem>
-        <FormItem label="收货人电话" >
+        <FormItem label="收货人电话">
           {getFieldDecorator('getcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '130px' }} />
           )}
         </FormItem>
-        <FormItem label="发货人姓名" >
+        <FormItem label="发货人姓名">
           {getFieldDecorator('sendcustomer_id')(
             <AutoComplete
               size="large"
@@ -838,13 +876,22 @@ class TableList extends PureComponent {
               dataSource={sendCustomerList.map(item => {
                 const AutoOption = AutoComplete.Option;
                 return (
-                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                  <AutoOption
+                    key={`${item.customer_id}`}
+                    value={`${item.customer_id}`}
+                    customerid={`${item.customer_id}`}
+                    label={item.customer_name}
+                  >
                     {item.customer_name}
                   </AutoOption>
                 );
               })}
-              onSelect={(value) => { onSendCustomerSelect(this, value) }}
-              onChange={(value) => { onSendCustomerChange(this, value) }}
+              onSelect={value => {
+                onSendCustomerSelect(this, value);
+              }}
+              onChange={value => {
+                onSendCustomerChange(this, value);
+              }}
               allowClear
               placeholder="请输入"
               filterOption={(inputValue, option) =>
@@ -866,7 +913,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>
@@ -899,13 +946,17 @@ class TableList extends PureComponent {
       record,
     } = this.state;
     // 是否显示操作按钮
-    let showOperateButton = true
+    let showOperateButton = true;
     if (CacheRole.role_value == 'site_admin') {
-      showOperateButton = false
+      showOperateButton = false;
     }
-    let showCancelSettle = true
-    if (['site_orderuser', 'site_pay', 'site_receipt', 'site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
-      showCancelSettle = false
+    let showCancelSettle = true;
+    if (
+      ['site_orderuser', 'site_pay', 'site_receipt', 'site_searchuser'].indexOf(
+        CacheRole.role_value
+      ) >= 0
+    ) {
+      showCancelSettle = false;
     }
     return (
       <div>
@@ -933,8 +984,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}
@@ -977,7 +1028,7 @@ class TableList extends PureComponent {
         >
           <p>{`取消结算货款条数${selectedRows.length}，取消结算总额 ${
             accountStatistic.totalAccount
-            } `}</p>
+          } `}</p>
           <p>您确认结算么？</p>
         </Modal>
         <Modal

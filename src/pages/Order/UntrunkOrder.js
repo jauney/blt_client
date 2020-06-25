@@ -26,7 +26,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-import { locale } from '@/utils'
+import { locale } from '@/utils';
 import styles from './OrderList.less';
 import { element } from 'prop-types';
 import { async } from 'q';
@@ -112,7 +112,7 @@ class CreateReceiverForm extends PureComponent {
     });
   };
 
-  render () {
+  render() {
     const { modalVisible, onReceiverModalCancel } = this.props;
     return (
       <Modal
@@ -147,7 +147,7 @@ class CreateEntrunkForm extends PureComponent {
   /**
    * 编辑的时候初始化赋值表单
    */
-  componentDidMount () { }
+  componentDidMount() {}
 
   onCarChange = value => {
     const { driverList, form } = this.props;
@@ -283,7 +283,14 @@ class CreateEntrunkForm extends PureComponent {
               {getFieldDecorator('car_date', {
                 rules: [{ required: true, message: '请填写拉货日期' }],
                 initialValue: moment(new Date().getTime()),
-              })(<DatePicker placeholder="全部" format="YYYY-MM-DD" locale={locale} style={{ width: '100%' }} />)}
+              })(
+                <DatePicker
+                  placeholder="全部"
+                  format="YYYY-MM-DD"
+                  locale={locale}
+                  style={{ width: '100%' }}
+                />
+              )}
             </FormItem>
           </Col>
           <Col md={12} sm={24}>
@@ -356,7 +363,7 @@ class CreateEntrunkForm extends PureComponent {
     });
   };
 
-  render () {
+  render() {
     const { modalVisible, onEntrunkModalCancel } = this.props;
     return (
       <Modal
@@ -399,7 +406,8 @@ class TableList extends PureComponent {
     entrunkModalVisible: false,
     cancelShipModalVisible: false,
     currentCompany: {},
-    currentShipSite: {}
+    currentShipSite: {},
+    btnSearchClicked: false,
   };
 
   columns = [
@@ -528,7 +536,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
 
     const branchCompanyList = await dispatch({
@@ -551,7 +559,7 @@ class TableList extends PureComponent {
       payload: { pageNo: 1, pageSize: 100, type: 'receiver', filter: {} },
     });
 
-    let currentCompany = await this.setCurrentCompany(branchCompanyList)
+    let currentCompany = await this.setCurrentCompany(branchCompanyList);
     dispatch({
       type: 'customer/getCustomerListAction',
       payload: {
@@ -590,21 +598,20 @@ class TableList extends PureComponent {
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (CacheCompany.company_type == 2) {
       await this.setState({
-        currentCompany: CacheCompany
+        currentCompany: CacheCompany,
       });
 
-      return CacheCompany
-    }
-    else if (branchCompanyList && branchCompanyList.length > 0) {
+      return CacheCompany;
+    } else if (branchCompanyList && branchCompanyList.length > 0) {
       await this.setState({
-        currentCompany: branchCompanyList[0]
+        currentCompany: branchCompanyList[0],
       });
 
-      return branchCompanyList[0]
+      return branchCompanyList[0];
     }
 
-    return {}
-  }
+    return {};
+  };
 
   handleFormReset = () => {
     const { form, dispatch } = this.props;
@@ -627,19 +634,35 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
     const { form } = this.props;
 
-    this.getLastCarInfo()
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
+    this.getLastCarInfo();
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
+
       if (!fieldsValue.site_id) {
-        delete fieldsValue.site_id
+        delete fieldsValue.site_id;
       }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'untrunkorder/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
+      });
+
+      this.setState({
+        btnSearchClicked: false,
       });
 
       dispatch({
@@ -648,7 +671,7 @@ class TableList extends PureComponent {
       });
     });
 
-    this.standardTable.cleanSelectedKeys()
+    this.standardTable.cleanSelectedKeys();
   };
 
   /**
@@ -714,13 +737,13 @@ class TableList extends PureComponent {
     });
   };
 
-  onChangeReceiver = () => { };
+  onChangeReceiver = () => {};
 
   /**
    * 装车弹窗
    */
   onEntrunkModalShow = () => {
-    const { form } = this.props
+    const { form } = this.props;
     const { currentShipSite = {}, currentCompany = {} } = this.state;
     if (!currentCompany.company_id || !form.getFieldValue('company_id')) {
       message.error('请先选择公司');
@@ -780,8 +803,8 @@ class TableList extends PureComponent {
     this.handleSearch();
   };
 
-  getLastCarInfo = async (option) => {
-    const isUseCarCode = option && option.isUseCarCode || false
+  getLastCarInfo = async option => {
+    const isUseCarCode = (option && option.isUseCarCode) || false;
     const { dispatch, form } = this.props;
     const { currentCompany = {}, currentShipSite = {} } = this.state;
     const carCode = form.getFieldValue('car_code');
@@ -797,14 +820,14 @@ class TableList extends PureComponent {
       payload: param,
     });
 
-    this.getDriverList()
+    this.getDriverList();
 
     return carInfo;
   };
 
   getDriverList = () => {
     const { dispatch, form } = this.props;
-    const { currentCompany } = this.state
+    const { currentCompany } = this.state;
     dispatch({
       type: 'driver/getDriverListAction',
       payload: {
@@ -813,7 +836,7 @@ class TableList extends PureComponent {
         company_id: currentCompany.company_id,
       },
     });
-  }
+  };
 
   onShipSiteSelect = async value => {
     const {
@@ -838,7 +861,7 @@ class TableList extends PureComponent {
 
   onSiteSelect = async value => {
     this.handleSearch();
-  }
+  };
 
   // 点击勾选
   selectRow = record => {
@@ -869,9 +892,9 @@ class TableList extends PureComponent {
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   tableFooter = () => {
     const {
@@ -898,26 +921,26 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       company: { branchCompanyList },
       site: { entrunkSiteList, siteList },
       receiver: { receiverList },
     } = this.props;
-    const { currentShipSite = {} } = this.state;
+    const { currentShipSite = {}, btnSearchClicked } = this.state;
     const companyOption = {};
-    const siteOption = { initialValue: CacheSite.site_id }
+    const siteOption = { initialValue: CacheSite.site_id };
     // 默认勾选第一个公司
     if (CacheCompany.company_type != 1) {
       companyOption.initialValue = CacheCompany.company_id;
     }
 
-    let allowClearSite = true
-    let siteSelectList = siteList
+    let allowClearSite = true;
+    let siteSelectList = siteList;
     if (CacheSite.site_type == 1) {
-      allowClearSite = false
-      siteSelectList = [CacheSite]
+      allowClearSite = false;
+      siteSelectList = [CacheSite];
     }
 
     // 当前配载部只能装当前的车，不能装其他配载部的，所以用entrunkSiteList = [CacheSite]
@@ -944,7 +967,12 @@ class TableList extends PureComponent {
 
         <FormItem label="站点">
           {getFieldDecorator('site_id', siteOption)(
-            <Select placeholder="全部" style={{ width: '100px' }} onChange={this.onSiteSelect} allowClear={allowClearSite}>
+            <Select
+              placeholder="全部"
+              style={{ width: '100px' }}
+              onChange={this.onSiteSelect}
+              allowClear={allowClearSite}
+            >
               {siteSelectList.map(ele => {
                 return (
                   <Option key={ele.site_id} value={ele.site_id}>
@@ -989,7 +1017,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>
@@ -997,11 +1025,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       untrunkorder: { orderList, total, totalOrderAmount, totalTransAmount },
       company: { branchCompanyList },
@@ -1024,17 +1052,17 @@ class TableList extends PureComponent {
     } = this.state;
 
     // 是否显示操作按钮
-    let showOperateButton = true
-    let showPrintButton = true
+    let showOperateButton = true;
+    let showPrintButton = true;
     if (CacheCompany.company_type != 1) {
-      showOperateButton = false
-      showPrintButton = false
+      showOperateButton = false;
+      showPrintButton = false;
     }
     if (['site_searchuser', 'site_orderuser'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = false
+      showOperateButton = false;
     }
     if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
-      showPrintButton = false
+      showPrintButton = false;
     }
     return (
       <div>
@@ -1069,8 +1097,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}
@@ -1081,21 +1109,19 @@ class TableList extends PureComponent {
           </div>
           {this.tableFooter()}
         </Card>
-        {
-          entrunkModalVisible && (
-            <CreateEntrunkForm
-              modalVisible={entrunkModalVisible}
-              selectedRows={selectedRows}
-              branchCompanyList={branchCompanyList}
-              currentCompany={currentCompany}
-              onEntrunkModalCancel={this.onEntrunkModalCancel}
-              driverList={driverList}
-              lastCar={lastCar}
-              onSearch={this.handleSearch}
-              currentShipSite={currentShipSite}
-            />
-          )
-        }
+        {entrunkModalVisible && (
+          <CreateEntrunkForm
+            modalVisible={entrunkModalVisible}
+            selectedRows={selectedRows}
+            branchCompanyList={branchCompanyList}
+            currentCompany={currentCompany}
+            onEntrunkModalCancel={this.onEntrunkModalCancel}
+            driverList={driverList}
+            lastCar={lastCar}
+            onSearch={this.handleSearch}
+            currentShipSite={currentShipSite}
+          />
+        )}
         <CreateReceiverForm
           receiverList={receiverList}
           entrunkSiteList={entrunkSiteList}
@@ -1114,7 +1140,7 @@ class TableList extends PureComponent {
         >
           <p>您确认要取消装回么？</p>
         </Modal>
-      </div >
+      </div>
     );
   }
 }

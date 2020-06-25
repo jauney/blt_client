@@ -29,9 +29,18 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Pay.less';
 import { async } from 'q';
-import { locale } from '@/utils'
+import { locale } from '@/utils';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
+import {
+  setCustomerFieldValue,
+  fetchGetCustomerList,
+  fetchSendCustomerList,
+  onSendCustomerChange,
+  onGetCustomerChange,
+  onGetCustomerSelect,
+  onSendCustomerSelect,
+  customerAutoCompleteState,
+} from '@/utils/customer';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -114,8 +123,8 @@ class DownAccountForm extends PureComponent {
                 {accountData.totalTransFunds ? (
                   <span> `- (运费) ${accountData.totalTransFunds}`</span>
                 ) : (
-                    <span />
-                  )}
+                  <span />
+                )}
                 ={' '}
                 {accountData.totalActualGoodsFund -
                   Math.ceil((accountData.totalActualGoodsFund * agencyFee) / 1000) -
@@ -202,7 +211,7 @@ class TableList extends PureComponent {
     downloadModalVisible: false,
     printModalVisible: false,
     currentCompany: {},
-    ...customerAutoCompleteState
+    ...customerAutoCompleteState,
   };
 
   columns = [
@@ -290,25 +299,19 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       dataIndex: 'create_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '170px',
     },
     {
       title: '结算时间',
       dataIndex: 'settle_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '170px',
     },
     {
       title: '付款时间',
       dataIndex: 'pay_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '170px',
     },
     {
@@ -366,7 +369,7 @@ class TableList extends PureComponent {
     });
   };
 
-  onCompanySelect = async (value, option) => { };
+  onCompanySelect = async (value, option) => {};
 
   handleSearch = e => {
     e && e.preventDefault();
@@ -375,44 +378,55 @@ class TableList extends PureComponent {
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   /**
    * 获取订单信息
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
       // fieldsValue.pay_status = 0;
       fieldsValue.order_amount = -1;
       fieldsValue.order_status = 7;
 
-      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue);
 
       if (fieldsValue.pay_date) {
-        fieldsValue.pay_date = fieldsValue.pay_date.valueOf()
-      }
-      else {
-        delete fieldsValue.pay_date
+        fieldsValue.pay_date = fieldsValue.pay_date.valueOf();
+      } else {
+        delete fieldsValue.pay_date;
       }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'pay/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
+      this.setState({
+        btnSearchClicked: false,
+      });
       dispatch({
         type: 'pay/getOrderStatisticAction',
         payload: { ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -686,10 +700,10 @@ class TableList extends PureComponent {
     let orderIds = [];
     let totalAmount = 0;
     selectedRows.forEach(item => {
-      let payDate = moment(isNaN(Number(item.pay_date)) ? item.pay_date : Number(item.pay_date))
+      let payDate = moment(isNaN(Number(item.pay_date)) ? item.pay_date : Number(item.pay_date));
 
-      let curDate = moment(new Date().getTime())
-      let subDays = curDate.diff(payDate, 'hours')
+      let curDate = moment(new Date().getTime());
+      let subDays = curDate.diff(payDate, 'hours');
       if (subDays >= 24) {
         canCancelFlag = false;
       }
@@ -725,8 +739,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
-
+  onRowClick = (record, index, event) => {};
 
   tableFooter = () => {
     const {
@@ -758,6 +771,7 @@ class TableList extends PureComponent {
       customer: { getCustomerList, sendCustomerList },
       company: { branchCompanyList },
     } = this.props;
+    const { btnSearchClicked } = this.state;
     const companyOption = {};
     // 默认勾选第一个公司
     // if (branchCompanyList.length > 0) {
@@ -767,7 +781,12 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '80px' }} allowClear>
+            <Select
+              placeholder="全部"
+              onSelect={this.onCompanySelect}
+              style={{ width: '80px' }}
+              allowClear
+            >
               {branchCompanyList.map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -813,13 +832,22 @@ class TableList extends PureComponent {
               dataSource={sendCustomerList.map(item => {
                 const AutoOption = AutoComplete.Option;
                 return (
-                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                  <AutoOption
+                    key={`${item.customer_id}`}
+                    value={`${item.customer_id}`}
+                    customerid={`${item.customer_id}`}
+                    label={item.customer_name}
+                  >
                     {item.customer_name}
                   </AutoOption>
                 );
               })}
-              onSelect={(value) => { onSendCustomerSelect(this, value) }}
-              onChange={(value) => { onSendCustomerChange(this, value) }}
+              onSelect={value => {
+                onSendCustomerSelect(this, value);
+              }}
+              onChange={value => {
+                onSendCustomerChange(this, value);
+              }}
               allowClear
               placeholder="请输入"
               filterOption={(inputValue, option) =>
@@ -841,7 +869,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>
@@ -892,8 +920,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}
@@ -928,7 +956,7 @@ class TableList extends PureComponent {
           <p>
             {`取消结算货款条数${selectedRows.length}，取消结算总额 ${
               accountStatistic.totalAccount
-              } `}
+            } `}
           </p>
           <p>您确认结算么？</p>
         </Modal>

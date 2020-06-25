@@ -299,18 +299,38 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize, sendCustomerSearch, getCustomerSearch } = this.state;
+    const {
+      current,
+      pageSize,
+      sendCustomerSearch,
+      getCustomerSearch,
+      btnSearchClicked,
+    } = this.state;
 
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-      console.log('fieldvalue:', fieldsValue);
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
+
       fieldsValue = await setCustomerFieldValue(this, fieldsValue);
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
 
-      dispatch({
+      await dispatch({
         type: 'unsettle/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
+      });
+      this.setState({
+        btnSearchClicked: false,
       });
 
       dispatch({
@@ -591,7 +611,7 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       site: { entrunkSiteList },
     } = this.props;
-    const { currentShipSite = {}, currentCompany = {} } = this.state;
+    const { currentShipSite = {}, currentCompany = {}, btnSearchClicked } = this.state;
     const formItemLayout = {};
 
     const companyOption = { initialValue: '' };
@@ -726,7 +746,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <Form.Item {...formItemLayout}>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </Form.Item>

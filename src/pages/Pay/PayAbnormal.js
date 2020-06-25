@@ -232,6 +232,7 @@ class TableList extends PureComponent {
     downloadModalVisible: false,
     printModalVisible: false,
     currentCompany: {},
+    btnSearchClicked: false,
     ...customerAutoCompleteState,
   };
 
@@ -406,21 +407,33 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-
+      if (err) {
+        this.setState({
+          btnSearchClicked: true,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
       fieldsValue.pay_status = 1;
 
       fieldsValue = await setCustomerFieldValue(this, fieldsValue);
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'pay/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
+      this.setState({
+        btnSearchClicked: false,
+      });
       dispatch({
         type: 'pay/getOrderStatisticAction',
         payload: { ...searchParams },
@@ -735,6 +748,7 @@ class TableList extends PureComponent {
       customer: { getCustomerList, sendCustomerList },
       company: { branchCompanyList },
     } = this.props;
+    const { btnSearchClicked } = this.state;
     const companyOption = {};
     // 默认勾选第一个公司
     // if (branchCompanyList.length > 0) {
@@ -818,7 +832,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>

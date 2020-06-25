@@ -212,6 +212,7 @@ class TableList extends PureComponent {
     downloadModalVisible: false,
     printModalVisible: false,
     currentCompany: {},
+    btnSearchClicked: false,
     ...customerAutoCompleteState,
   };
 
@@ -328,11 +329,21 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
-
+      if (err) {
+        this.setState({
+          btnSearchClicked: true,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
       if (fieldsValue.pay_date) {
         fieldsValue.pay_date = fieldsValue.pay_date.valueOf();
       } else {
@@ -344,11 +355,13 @@ class TableList extends PureComponent {
         fieldsValue.sendcustomer_id = `${fieldsValue.sendcustomer_id}`;
       }
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'pay/getTodayPayListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
-
+      this.setState({
+        btnSearchClicked: false,
+      });
       dispatch({
         type: 'pay/getTodayPayStatisticAction',
         payload: { ...searchParams },
@@ -650,6 +663,7 @@ class TableList extends PureComponent {
       customer: { getCustomerList, sendCustomerList },
       company: { branchCompanyList },
     } = this.props;
+    const { btnSearchClicked } = this.state;
     const companyOption = {};
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
@@ -734,7 +748,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>
