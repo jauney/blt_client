@@ -30,7 +30,16 @@ import OrderEditForm from '@/components/EditOrderForm';
 import styles from './TransConfirm.less';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
+import {
+  setCustomerFieldValue,
+  fetchGetCustomerList,
+  fetchSendCustomerList,
+  onSendCustomerChange,
+  onGetCustomerChange,
+  onGetCustomerSelect,
+  onSendCustomerSelect,
+  customerAutoCompleteState,
+} from '@/utils/customer';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -56,10 +65,10 @@ class TableList extends PureComponent {
     pageSize: 20,
     record: {},
     updateOrderModalVisible: false,
-    ...customerAutoCompleteState
+    ...customerAutoCompleteState,
   };
 
-  ButtonClicked = false
+  ButtonClicked = false;
 
   columns = [
     {
@@ -152,25 +161,19 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       dataIndex: 'create_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '190px',
     },
     {
       title: '发车时间',
       dataIndex: 'depart_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '190px',
     },
     {
       title: '结算时间',
       dataIndex: 'settle_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '190px',
     },
     {
@@ -206,7 +209,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     const branchCompanyList = await dispatch({
@@ -219,7 +222,7 @@ class TableList extends PureComponent {
       payload: {},
     });
 
-    fetchSendCustomerList(this, {})
+    fetchSendCustomerList(this, {});
 
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (branchCompanyList && branchCompanyList.length > 0) {
@@ -294,14 +297,14 @@ class TableList extends PureComponent {
 
   handleSearch = e => {
     e && e.preventDefault();
-    this.setState({ current: 1 })
+    this.setState({ current: 1 });
     this.getOrderList();
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
   /**
    * 获取订单信息
    */
@@ -318,7 +321,7 @@ class TableList extends PureComponent {
         fieldsValue.trans_type = 9;
       }
 
-      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue);
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -331,7 +334,7 @@ class TableList extends PureComponent {
         payload: { ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -369,10 +372,11 @@ class TableList extends PureComponent {
   onConfirmTransModal = () => {
     const { selectedRows, currentSite = CacheSite } = this.state;
     // 计算需要确认的运费
-    const account = getSelectedAccount(selectedRows)
+    const account = getSelectedAccount(selectedRows);
     Modal.confirm({
       title: '确认',
-      content: `确定确认所选订单的运费吗(总计：${account.totalXianInsurance + account.totalXianSettleTransFunds})？`,
+      content: `确定确认所选订单的运费吗(总计：${account.totalXianInsurance +
+        account.totalXianSettleTransFunds})？`,
       okText: '确认',
       cancelText: '取消',
       onOk: this.onConfirmTrans,
@@ -381,10 +385,12 @@ class TableList extends PureComponent {
 
   onConfirmTrans = async () => {
     if (this.ButtonClicked) {
-      return
+      return;
     }
-    this.ButtonClicked = true
-    setTimeout(() => { this.ButtonClicked = false }, 2000)
+    this.ButtonClicked = true;
+    setTimeout(() => {
+      this.ButtonClicked = false;
+    }, 2000);
 
     const { dispatch } = this.props;
     const { selectedRows, currentSite = CacheSite } = this.state;
@@ -401,7 +407,7 @@ class TableList extends PureComponent {
       message.success('确认成功！');
       setTimeout(() => {
         this.handleSearch();
-      }, 1000)
+      }, 1000);
     } else {
       message.error(result.msg);
     }
@@ -490,7 +496,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   tableFooter = () => {
     const {
@@ -526,7 +532,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       customer: { getCustomerList, sendCustomerList },
@@ -589,13 +595,22 @@ class TableList extends PureComponent {
               dataSource={sendCustomerList.map(item => {
                 const AutoOption = AutoComplete.Option;
                 return (
-                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                  <AutoOption
+                    key={`${item.customer_id}`}
+                    value={`${item.customer_id}`}
+                    customerid={`${item.customer_id}`}
+                    label={item.customer_name}
+                  >
                     {item.customer_name}
                   </AutoOption>
                 );
               })}
-              onSelect={(value) => { onSendCustomerSelect(this, value) }}
-              onChange={(value) => { onSendCustomerChange(this, value) }}
+              onSelect={value => {
+                onSendCustomerSelect(this, value);
+              }}
+              onChange={value => {
+                onSendCustomerChange(this, value);
+              }}
               allowClear
               optionLabelProp="label"
               placeholder="请输入"
@@ -634,11 +649,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       transconfirm: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,
@@ -646,9 +661,9 @@ class TableList extends PureComponent {
 
     const { selectedRows, current, pageSize, updateOrderModalVisible, record } = this.state;
     // 是否显示操作按钮
-    let showOperateButton = true
+    let showOperateButton = true;
     if (['site_searchuser', 'site_admin'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = false
+      showOperateButton = false;
     }
     return (
       <div>

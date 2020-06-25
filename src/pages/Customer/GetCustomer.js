@@ -30,7 +30,16 @@ import EditableTable from '@/components/EditableTable';
 import styles from './Customer.less';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-import { setCustomerFieldValue2Mng, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
+import {
+  setCustomerFieldValue2Mng,
+  fetchGetCustomerList,
+  fetchSendCustomerList,
+  onSendCustomerChange,
+  onGetCustomerChange,
+  onGetCustomerSelect,
+  onSendCustomerSelect,
+  customerAutoCompleteState,
+} from '@/utils/customer';
 
 const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
@@ -60,14 +69,16 @@ class AddFormDialog extends PureComponent {
     };
   }
 
-  btnClicked = false
+  btnClicked = false;
 
   onAddHandler = () => {
     if (this.btnClicked) {
-      return
+      return;
     }
-    this.btnClicked = true
-    setTimeout(() => { this.btnClicked = false }, 2000)
+    this.btnClicked = true;
+    setTimeout(() => {
+      this.btnClicked = false;
+    }, 2000);
 
     const {
       handleSearch,
@@ -126,6 +137,7 @@ class AddFormDialog extends PureComponent {
           payload: { customer: fieldsValue, type: 2 },
         });
       } else {
+        fieldsValue.customer_id = record.customer_id;
         result = await dispatch({
           type: 'customer/updateCustomerAction',
           payload: { customer_id: [record.customer_id], customer: fieldsValue, type: 2 },
@@ -150,7 +162,7 @@ class AddFormDialog extends PureComponent {
     });
   };
 
-  render () {
+  render() {
     const {
       modalVisible,
       onCancelModal,
@@ -191,8 +203,10 @@ class AddFormDialog extends PureComponent {
             </Col>
             <Col {...this.col2Layout}>
               <FormItem {...this.formItemLayout} label="类型">
-                {form.getFieldDecorator('customer_type', { initialValue: record.customer_type })(
-                  <Select placeholder="全部" style={{ width: '150px' }} >
+                {form.getFieldDecorator('customer_type', {
+                  initialValue: record.customer_type || 0,
+                })(
+                  <Select placeholder="全部" style={{ width: '150px' }}>
                     {customerTypes.map(ele => {
                       return (
                         <Option key={ele.customertype} value={ele.customertype}>
@@ -292,22 +306,28 @@ class TableList extends PureComponent {
       sorter: true,
       width: '80px',
       render: val => {
-        const { company: { branchCompanyList } } = this.props;
-        let companyName = ''
+        const {
+          company: { branchCompanyList },
+        } = this.props;
+        let companyName = '';
         branchCompanyList.forEach(item => {
           if (item.company_id == val) {
-            companyName = item.company_name
+            companyName = item.company_name;
           }
-        })
-        return <span>{companyName}</span>
+        });
+        return <span>{companyName}</span>;
       },
     },
     {
       title: '客户类型',
-      dataIndex: 'customertype_name',
+      dataIndex: 'customer_type',
       sorter: true,
       align: 'right',
       width: '80px',
+      render: val => {
+        const customerType = { '0': '普通客户', '1': 'VIP', '9': '黑名单' };
+        return <span>{customerType[val]}</span>;
+      },
     },
     {
       title: '姓名',
@@ -349,7 +369,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     const branchCompanyList = await dispatch({
@@ -357,7 +377,7 @@ class TableList extends PureComponent {
       payload: { ...CacheCompany },
     });
 
-    this.setCurrentCompany(branchCompanyList)
+    this.setCurrentCompany(branchCompanyList);
 
     dispatch({
       type: 'site/getSiteListAction',
@@ -378,21 +398,20 @@ class TableList extends PureComponent {
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (CacheCompany.company_type == 2) {
       this.setState({
-        currentCompany: CacheCompany
+        currentCompany: CacheCompany,
       });
 
-      return CacheCompany
-    }
-    else if (branchCompanyList && branchCompanyList.length > 0) {
+      return CacheCompany;
+    } else if (branchCompanyList && branchCompanyList.length > 0) {
       this.setState({
-        currentCompany: branchCompanyList[0]
+        currentCompany: branchCompanyList[0],
       });
 
-      return branchCompanyList[0]
+      return branchCompanyList[0];
     }
 
-    return {}
-  }
+    return {};
+  };
 
   handleSelectRows = rows => {
     this.setState({
@@ -423,11 +442,11 @@ class TableList extends PureComponent {
     });
 
     if (!value) {
-      this.setState({ currentCompany: {} })
+      this.setState({ currentCompany: {} });
     }
     setTimeout(() => {
-      this.handleSearch()
-    }, 500)
+      this.handleSearch();
+    }, 500);
   };
 
   handleSearch = e => {
@@ -439,9 +458,9 @@ class TableList extends PureComponent {
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   /**
    * 获取订单信息
@@ -453,23 +472,22 @@ class TableList extends PureComponent {
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
       if (CacheCompany.company_type == 2) {
-        fieldsValue.company_id = CacheCompany.company_id
-      }
-      else if (currentCompany.company_id) {
-        fieldsValue.company_id = currentCompany.company_id
+        fieldsValue.company_id = CacheCompany.company_id;
+      } else if (currentCompany.company_id) {
+        fieldsValue.company_id = currentCompany.company_id;
       }
 
       if (!fieldsValue.customer_mobile) {
-        delete fieldsValue.customer_mobile
+        delete fieldsValue.customer_mobile;
       }
-      fieldsValue = await setCustomerFieldValue2Mng(this, fieldsValue)
+      fieldsValue = await setCustomerFieldValue2Mng(this, fieldsValue);
       const searchParams = Object.assign({ filter: fieldsValue, type: 2 }, data);
       dispatch({
         type: 'customer/queryCustomerListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -553,7 +571,9 @@ class TableList extends PureComponent {
         if (result.code == 0) {
           message.success('删除客户成功！');
 
-          setTimeout(() => { this.getOrderList(); }, 500)
+          setTimeout(() => {
+            this.getOrderList();
+          }, 500);
         } else {
           message.error(result.msg);
         }
@@ -567,9 +587,9 @@ class TableList extends PureComponent {
     let customerMobiles = await dispatch({
       type: 'customer/getCustomerMobileAction',
       payload: { customer_id: record.customer_id, type: 0 },
-    })
+    });
 
-    record.customerMobiles = customerMobiles
+    record.customerMobiles = customerMobiles;
     // 获取当前客户的电话
     this.setState({
       record,
@@ -578,10 +598,10 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
-  renderSimpleForm () {
-    const { currentCompany = {} } = this.state
+  renderSimpleForm() {
+    const { currentCompany = {} } = this.state;
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], normalSiteList = [] },
@@ -589,26 +609,30 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
     } = this.props;
     const companyOption = {};
-    let companyAllowClear = false
-    let siteAllowClear = true
-    const siteOption = {}
+    let companyAllowClear = false;
+    let siteAllowClear = true;
+    const siteOption = {};
     if (CacheCompany.company_type != 1) {
       companyOption.initialValue = CacheCompany.company_id || '';
-    }
-    else {
-      companyAllowClear = true
+    } else {
+      companyAllowClear = true;
       companyOption.initialValue = currentCompany.company_id || '';
     }
 
     if (CacheRole.role_value == 'site_orderuser') {
-      siteAllowClear = false
-      siteOption.initialValue = CacheSite.site_id
+      siteAllowClear = false;
+      siteOption.initialValue = CacheSite.site_id;
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="全部" onChange={this.onCompanySelect} style={{ width: '100px' }} allowClear={companyAllowClear}>
+            <Select
+              placeholder="全部"
+              onChange={this.onCompanySelect}
+              style={{ width: '100px' }}
+              allowClear={companyAllowClear}
+            >
               {(CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany]).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -621,7 +645,7 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="客户分类">
           {getFieldDecorator('customer_type', {})(
-            <Select placeholder="全部" style={{ width: '100px' }} >
+            <Select placeholder="全部" style={{ width: '100px' }}>
               {customerTypes.map(ele => {
                 return (
                   <Option key={ele.customertype} value={ele.customertype}>
@@ -635,13 +659,15 @@ class TableList extends PureComponent {
         <FormItem label="站点">
           {getFieldDecorator('site_id', siteOption)(
             <Select placeholder="全部" style={{ width: '100px' }} allowClear={siteAllowClear}>
-              {(CacheRole.role_value == 'site_orderuser' ? [CacheSite] : normalSiteList).map(ele => {
-                return (
-                  <Option key={ele.site_id} value={ele.site_id}>
-                    {ele.site_name}
-                  </Option>
-                );
-              })}
+              {(CacheRole.role_value == 'site_orderuser' ? [CacheSite] : normalSiteList).map(
+                ele => {
+                  return (
+                    <Option key={ele.site_id} value={ele.site_id}>
+                      {ele.site_name}
+                    </Option>
+                  );
+                }
+              )}
             </Select>
           )}
         </FormItem>
@@ -653,13 +679,22 @@ class TableList extends PureComponent {
               dataSource={getCustomerList.map(item => {
                 const AutoOption = AutoComplete.Option;
                 return (
-                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                  <AutoOption
+                    key={`${item.customer_id}`}
+                    value={`${item.customer_id}`}
+                    customerid={`${item.customer_id}`}
+                    label={item.customer_name}
+                  >
                     {item.customer_name}
                   </AutoOption>
                 );
               })}
-              onSelect={(value) => { onGetCustomerSelect(this, value) }}
-              onChange={(value) => { onGetCustomerChange(this, value) }}
+              onSelect={value => {
+                onGetCustomerSelect(this, value);
+              }}
+              onChange={value => {
+                onGetCustomerChange(this, value);
+              }}
               allowClear
               placeholder="请输入"
               filterOption={(inputValue, option) =>
@@ -684,11 +719,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       customer: { customers, total, customerTypes },
       loading,
@@ -723,8 +758,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}

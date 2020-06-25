@@ -130,6 +130,7 @@ class AddFormDialog extends PureComponent {
           payload: { customer: fieldsValue, type: 1 },
         });
       } else {
+        fieldsValue.customer_id = record.customer_id;
         result = await dispatch({
           type: 'customer/updateCustomerAction',
           payload: { customer_id: [record.customer_id], customer: fieldsValue, type: 1 },
@@ -196,7 +197,9 @@ class AddFormDialog extends PureComponent {
             </Col>
             <Col {...this.col2Layout}>
               <FormItem {...this.formItemLayout} label="类型">
-                {form.getFieldDecorator('customer_type', { initialValue: record.customer_type })(
+                {form.getFieldDecorator('customer_type', {
+                  initialValue: record.customer_type || 0,
+                })(
                   <Select placeholder="全部" style={{ width: '150px' }} allowClear>
                     {customerTypes.map(ele => {
                       return (
@@ -295,10 +298,14 @@ class TableList extends PureComponent {
   columns = [
     {
       title: '客户类型',
-      dataIndex: 'customertype_name',
+      dataIndex: 'customer_type',
       sorter: true,
       align: 'right',
       width: '80px',
+      render: val => {
+        const customerType = { '0': '普通客户', '1': 'VIP', '9': '黑名单' };
+        return <span>{customerType[val]}</span>;
+      },
     },
     {
       title: '姓名',

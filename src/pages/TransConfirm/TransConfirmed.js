@@ -29,9 +29,18 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './TransConfirm.less';
 import { async } from 'q';
-import { locale } from '@/utils'
+import { locale } from '@/utils';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState } from '@/utils/customer'
+import {
+  setCustomerFieldValue,
+  fetchGetCustomerList,
+  fetchSendCustomerList,
+  onSendCustomerChange,
+  onGetCustomerChange,
+  onGetCustomerSelect,
+  onSendCustomerSelect,
+  customerAutoCompleteState,
+} from '@/utils/customer';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -57,10 +66,10 @@ class TableList extends PureComponent {
     pageSize: 20,
     record: {},
     updateOrderModalVisible: false,
-    ...customerAutoCompleteState
+    ...customerAutoCompleteState,
   };
 
-  ButtonClicked = false
+  ButtonClicked = false;
 
   columns = [
     {
@@ -152,25 +161,19 @@ class TableList extends PureComponent {
     {
       title: '录票时间',
       dataIndex: 'create_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '190px',
     },
     {
       title: '发车时间',
       dataIndex: 'depart_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '190px',
     },
     {
       title: '结算时间',
       dataIndex: 'settle_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
       width: '190px',
     },
     {
@@ -206,7 +209,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
     // 下站只显示当前分公司
     const branchCompanyList = await dispatch({
@@ -219,7 +222,7 @@ class TableList extends PureComponent {
       payload: {},
     });
 
-    fetchSendCustomerList(this, {})
+    fetchSendCustomerList(this, {});
 
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (branchCompanyList && branchCompanyList.length > 0) {
@@ -277,13 +280,13 @@ class TableList extends PureComponent {
   handleSearch = e => {
     e && e.preventDefault();
 
-    this.setState({ current: 1 })
+    this.setState({ current: 1 });
     this.getOrderList();
   };
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
   /**
    * 获取订单信息
    */
@@ -298,13 +301,12 @@ class TableList extends PureComponent {
         fieldsValue.trans_type = 9;
       }
       if (fieldsValue.trans_confirmdate) {
-        fieldsValue.trans_confirmdate = `${fieldsValue.trans_confirmdate.valueOf()}`
-      }
-      else {
-        delete fieldsValue.trans_confirmdate
+        fieldsValue.trans_confirmdate = `${fieldsValue.trans_confirmdate.valueOf()}`;
+      } else {
+        delete fieldsValue.trans_confirmdate;
       }
 
-      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue);
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
       dispatch({
@@ -317,7 +319,7 @@ class TableList extends PureComponent {
         payload: { ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -357,22 +359,26 @@ class TableList extends PureComponent {
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
-    let canEdit = true
+    let canEdit = true;
     selectedRows.forEach(item => {
-      let departDate = moment(isNaN(Number(item.trans_confirmdate)) ? item.trans_confirmdate : Number(item.trans_confirmdate))
-      let curDate = moment(new Date().getTime())
-      let subDays = curDate.diff(departDate, 'days') // 1
+      let departDate = moment(
+        isNaN(Number(item.trans_confirmdate))
+          ? item.trans_confirmdate
+          : Number(item.trans_confirmdate)
+      );
+      let curDate = moment(new Date().getTime());
+      let subDays = curDate.diff(departDate, 'days'); // 1
       if (subDays > 1) {
-        canEdit = false
+        canEdit = false;
       }
-    })
+    });
     if (!canEdit) {
-      message.info('运费确认24小时后，不可以取消运费确认')
-      return
+      message.info('运费确认24小时后，不可以取消运费确认');
+      return;
     }
     if (orderIds.length <= 0) {
-      message.error('请选择需要取消确认运费的记录')
-      return
+      message.error('请选择需要取消确认运费的记录');
+      return;
     }
     Modal.confirm({
       title: '确认',
@@ -385,10 +391,12 @@ class TableList extends PureComponent {
 
   onConfirmTrans = async () => {
     if (this.ButtonClicked) {
-      return
+      return;
     }
-    this.ButtonClicked = true
-    setTimeout(() => { this.ButtonClicked = false }, 2000)
+    this.ButtonClicked = true;
+    setTimeout(() => {
+      this.ButtonClicked = false;
+    }, 2000);
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
     const orderIds = selectedRows.map(item => {
@@ -404,7 +412,7 @@ class TableList extends PureComponent {
       message.success('取消成功！');
       setTimeout(() => {
         this.handleSearch();
-      }, 1000)
+      }, 1000);
     } else {
       message.error(result.msg);
     }
@@ -427,12 +435,10 @@ class TableList extends PureComponent {
   };
 
   // 编辑订单信息
-  onRowDoubleClick = (record, index, event) => {
-
-  };
+  onRowDoubleClick = (record, index, event) => {};
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   tableFooter = () => {
     const {
@@ -457,7 +463,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       customer: { getCustomerList, sendCustomerList },
@@ -509,35 +515,49 @@ class TableList extends PureComponent {
         </FormItem>
         <FormItem label="发货人姓名">
           {getFieldDecorator('sendcustomer_id')(
-            <Select
-              placeholder="全部"
-              onSelect={this.onSendCustomerSelect}
-              style={{ width: '200px' }}
-              allowClear
-              showSearch
-              optionLabelProp="children"
-              onPopupScroll={this.onSendCustomerScroll}
-              filterOption={(input, option) =>
-                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-            >
-              {sendCustomerList.map(ele => {
+            <AutoComplete
+              size="large"
+              style={{ width: '100%' }}
+              dataSource={sendCustomerList.map(item => {
+                const AutoOption = AutoComplete.Option;
                 return (
-                  <Option key={ele.get} value={ele.customer_id}>
-                    {ele.customer_name}
-                  </Option>
+                  <AutoOption
+                    key={`${item.customer_id}`}
+                    value={`${item.customer_id}`}
+                    customerid={`${item.customer_id}`}
+                    label={item.customer_name}
+                  >
+                    {item.customer_name}
+                  </AutoOption>
                 );
               })}
-            </Select>
+              onSelect={value => {
+                onSendCustomerSelect(this, value);
+              }}
+              onChange={value => {
+                onSendCustomerChange(this, value);
+              }}
+              allowClear
+              optionLabelProp="label"
+              placeholder="请输入"
+              filterOption={(inputValue, option) =>
+                option.props.children.indexOf(inputValue) !== -1
+              }
+            >
+              {' '}
+            </AutoComplete>
           )}
         </FormItem>
+
         <FormItem label="发货人电话">
           {getFieldDecorator('sendcustomer_mobile', {})(
             <Input placeholder="请输入" style={{ width: '150px' }} />
           )}
         </FormItem>
         <FormItem label="日期">
-          {getFieldDecorator('trans_confirmdate', { initialValue: moment() })(<DatePicker locale={locale} format={'YYYY-MM-DD'} allowClear />)}
+          {getFieldDecorator('trans_confirmdate', { initialValue: moment() })(
+            <DatePicker locale={locale} format={'YYYY-MM-DD'} allowClear />
+          )}
         </FormItem>
         <FormItem label="运单号">
           {getFieldDecorator('order_code', {})(
@@ -561,11 +581,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       transconfirm: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,
@@ -573,9 +593,9 @@ class TableList extends PureComponent {
 
     const { selectedRows, current, pageSize, updateOrderModalVisible, record } = this.state;
     // 是否显示操作按钮
-    let showOperateButton = true
+    let showOperateButton = true;
     if (['site_searchuser', 'site_admin'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = false
+      showOperateButton = false;
     }
     return (
       <div>
@@ -603,8 +623,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}

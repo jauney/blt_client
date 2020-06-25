@@ -218,11 +218,15 @@ class CreateForm extends PureComponent {
     } = this.props;
     const { currentSendCustomer, currentGetCustomer } = this.state;
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
+      if (err) {
+        this.btnClicked = false;
+        return;
+      }
 
       // 有货款必须有银行账号
       if (fieldsValue.order_amount && !fieldsValue.bank_account) {
         message.error('请填写银行账号');
+        this.btnClicked = false;
         return;
       }
       // 完善公司信息
@@ -251,6 +255,7 @@ class CreateForm extends PureComponent {
       // 编辑的时候防止客户姓名变为数字customer_id
       if (Number(fieldsValue.getcustomer_name) >= 0 || Number(fieldsValue.sendcustomer_name)) {
         message.error('客户姓名不能为数字，请重新选择/输入');
+        this.btnClicked = false;
         return;
       }
       fieldsValue.site_name = CacheSite.site_name;
@@ -1967,7 +1972,7 @@ class TableList extends PureComponent {
     let orderCode = selectedOrder.order_code;
     // 打印是增加时间
     let createDate = new Date().getTime();
-    showLoading(dispatch);
+
     if (selectedOrder.order_id) {
       const result = await dispatch({
         type: 'order/updateOrderAction',
@@ -1976,7 +1981,7 @@ class TableList extends PureComponent {
           order_id: selectedOrder.order_id,
         },
       });
-      hideLoading(dispatch);
+
       if (result && result.code == 0) {
         message.success('编辑成功');
       } else {
@@ -1989,7 +1994,7 @@ class TableList extends PureComponent {
         type: 'order/createOrderAction',
         payload: fields,
       });
-      hideLoading(dispatch);
+
       orderCode = (result && result.data) || '';
       // TODO: 拿到order_code用于打印
       console.log(result.data, orderCode);

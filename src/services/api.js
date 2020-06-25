@@ -309,50 +309,22 @@ export async function addUser(params) {
 }
 
 export async function createCustomer({ customer, type }) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation createCustomer($customer: CustomerInput, $type: Int) {
-          createCustomer(customer: $customer, type: $type) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: { customer, type },
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.createCustomer;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  return await ajaxFetch(`${APIHOST}/api/CreateCustomer`, {
+    customer,
+    type,
+  });
 }
 
 export async function updateCustomer({ customer, customer_id, type }) {
   if (!customer_id) {
     customer_id = [customer.customer_id];
   }
-  return client
-    .mutate({
-      mutation: gql`
-        mutation updateCustomer($customer_id: [Int], $customer: CustomerInput, $type: Int) {
-          updateCustomer(customer_id: $customer_id, customer: $customer, type: $type) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: { customer_id, customer, type },
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.updateCustomer;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+
+  return await ajaxFetch(`${APIHOST}/api/UpdateCustomer`, {
+    customer,
+    customer_id,
+    type,
+  });
 }
 
 export async function queryCustomerList(params) {
