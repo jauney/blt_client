@@ -431,7 +431,7 @@ class TableList extends PureComponent {
     const orderIds = selectedRows.map(item => {
       return item.order_id;
     });
-    this.setState({ loading: true });
+
     const result = await dispatch({
       type: 'unsettle/settleOrderAction',
       payload: {
@@ -808,7 +808,6 @@ class TableList extends PureComponent {
             <StandardTable
               onRef={this.onRefTable}
               selectedRows={selectedRows}
-              loading={loading}
               className={styles.dataTable}
               rowKey="order_id"
               data={{
@@ -858,7 +857,7 @@ class TableList extends PureComponent {
             cancelText="取消"
             visible={settleModalVisible}
             onOk={this.onSettleOk}
-            onCancel={this.btnSettleClicked}
+            onCancel={this.onSettleCancel}
             confirmLoading={this.btnSettleClicked}
           >
             <p>{`结算货款条数${selectedRows.length}，结算总额 ${
