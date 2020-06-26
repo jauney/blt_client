@@ -803,6 +803,13 @@ export async function updateCarFee({ car = {} }) {
   });
 }
 
+export async function updateCarFeeOnly({ car = {} }) {
+  delete car['__typename'];
+  return await ajaxFetch(`${APIHOST}/api/UpdateCarFeeOnly`, {
+    car,
+  });
+}
+
 export async function updateCarStatus(car) {
   return await ajaxFetch(`${APIHOST}/api/UpdateCarStatus`, {
     car,

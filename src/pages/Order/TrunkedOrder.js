@@ -377,8 +377,13 @@ class CreateEntrunkForm extends PureComponent {
       currentCompany,
       lastCar,
       carFeeModalEditable,
+      editCarFee,
     } = this.props;
-    let isDisabled = currentCompany.company_type == 2 || !carFeeModalEditable ? true : false;
+    let isDisabled = true;
+
+    if (CacheCompany.company_type == 1 && (carFeeModalEditable || editCarFee)) {
+      isDisabled = false;
+    }
     return (
       <Form layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
@@ -415,19 +420,27 @@ class CreateEntrunkForm extends PureComponent {
 
   onOkHandler = e => {
     e.preventDefault();
-    const { dispatch, form, onEntrunkModalCancel, lastCar, onSearch } = this.props;
+    const { dispatch, form, onEntrunkModalCancel, lastCar, onSearch, editCarFee } = this.props;
     form.validateFields(async (err, fieldsValue) => {
       if (err) return;
 
       fieldsValue.car_fee = Number(fieldsValue.car_fee);
       fieldsValue.confirm = 1;
-      const result = await dispatch({
-        type: 'trunkedorder/updateCarFeeAction',
-        payload: { car: Object.assign(lastCar, fieldsValue) },
-      });
+      let result;
+      if (editCarFee) {
+        result = await dispatch({
+          type: 'trunkedorder/updateCarFeeOnlyAction',
+          payload: { car: Object.assign(lastCar, fieldsValue) },
+        });
+      } else {
+        result = await dispatch({
+          type: 'trunkedorder/updateCarFeeAction',
+          payload: { car: Object.assign(lastCar, fieldsValue) },
+        });
+      }
 
       if (result.code == 0) {
-        message.success('运费结算成功');
+        message.success(editCarFee ? '运费更新成功' : '运费结算成功');
         onSearch();
         onEntrunkModalCancel();
       }
@@ -435,13 +448,13 @@ class CreateEntrunkForm extends PureComponent {
   };
 
   render() {
-    const { modalVisible, onEntrunkModalCancel, carFeeModalEditable } = this.props;
+    const { modalVisible, onEntrunkModalCancel, carFeeModalEditable, editCarFee } = this.props;
     const buttons = [
       <Button key="btn-cancel" onClick={onEntrunkModalCancel}>
         取 消
       </Button>,
     ];
-    if (carFeeModalEditable) {
+    if (carFeeModalEditable || editCarFee) {
       buttons.push(
         <Button key="btn-save" type="primary" onClick={this.onOkHandler}>
           保 存
@@ -486,6 +499,7 @@ class TableList extends PureComponent {
     pageSize: 20,
     entrunkModalVisible: false,
     carFeeModalEditable: true,
+    editCarFee: false,
     departModalVisible: false,
     cancelDepartModalVisible: false,
     arriveModalVisible: false,
@@ -1079,6 +1093,15 @@ class TableList extends PureComponent {
   };
 
   /**
+   * 修改运费
+   */
+  onEditCarFeeModalShow = () => {
+    this.setState({
+      entrunkModalVisible: true,
+      editCarFee: true,
+    });
+  };
+  /**
    * 装车弹窗
    */
   onCarFeeModalShow = () => {
@@ -1206,6 +1229,8 @@ class TableList extends PureComponent {
   onEntrunkModalCancel = () => {
     this.setState({
       entrunkModalVisible: false,
+      carFeeModalEditable: false,
+      editCarFee: false,
     });
   };
 
@@ -1346,6 +1371,7 @@ class TableList extends PureComponent {
       cancelArriveModalVisible,
       cancelEntrunkModalVisible,
       carFeeModalEditable,
+      editCarFee,
     } = this.state;
     let showOperateButton = true;
     let showPrintButton = true;
@@ -1378,7 +1404,16 @@ class TableList extends PureComponent {
                       取消货车运费结算
                     </Button>
                   )}
-                  <Button onClick={this.onCarFeeOnlyShow}>查看货车信息</Button>
+                  {lastCar.confirm == 0 &&
+                    lastCar.car_status >= 3 &&
+                    CacheCompany.company_type == 1 && (
+                      <Button type="primary" onClick={this.onEditCarFeeModalShow}>
+                        修改货车费用
+                      </Button>
+                    )}
+                  {lastCar.confirm == 1 && (
+                    <Button onClick={this.onCarFeeOnlyShow}>查看货车信息</Button>
+                  )}
                   {lastCar.car_status < 3 && CacheCompany.company_type == 1 && (
                     <Button onClick={this.onDepark}>发车</Button>
                   )}
@@ -1439,6 +1474,7 @@ class TableList extends PureComponent {
         <CreateEntrunkForm
           modalVisible={entrunkModalVisible}
           carFeeModalEditable={carFeeModalEditable}
+          editCarFee={editCarFee}
           selectedRows={selectedRows}
           branchCompanyList={branchCompanyList}
           currentCompany={currentCompany}
