@@ -324,6 +324,7 @@ class TableList extends PureComponent {
       fieldsValue = await setCustomerFieldValue(this, fieldsValue);
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
+
       dispatch({
         type: 'transconfirm/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },

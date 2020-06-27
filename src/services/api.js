@@ -629,7 +629,11 @@ function convertOrderFieldType(order = {}) {
   const fieldArrInt = ['order_status'];
 
   Object.keys(order).forEach(key => {
-    if (!order[key] || order[key] == 'undefined' || order[key] == 'null') {
+    // 这些字段即使值为0也不删除，因为确实可能为0
+    if (
+      !['trans_status', 'pay_status', 'pay_abnormal', 'sign_status'].includes(key) &&
+      (!order[key] || order[key] == 'undefined' || order[key] == 'null')
+    ) {
       delete order[key];
       return;
     }
@@ -926,102 +930,27 @@ export async function queryDriverList(params) {
 }
 
 export async function updateAbnormal(params) {
-  if (typeof params.abnormal_type_id == 'undefined') {
-    params.abnormal_type_id = 0;
-  }
-  if (typeof params.abnormal_reason == 'undefined') {
-    params.abnormal_reason = '';
-  }
-  if (typeof params.abnormal_resolve_type == 'undefined') {
-    params.abnormal_resolve_type = '';
-  }
-  if (typeof params.abnormal_amount == 'undefined') {
-    params.abnormal_amount = '';
-  }
-  if (typeof params.abnormal_remark == 'undefined') {
-    params.abnormal_remark = '';
-  }
-  return client
-    .mutate({
-      mutation: gql`
-        mutation updateAbnormal(
-          $order_id: [Int]
-          $abnormal_type: String
-          $abnormal_type_id: Int
-          $abnormal_reason: String
-          $abnormal_status: Int
-          $abnormal_resolve_type: String
-          $abnormal_amount: String
-          $abnormal_remark: String
-        ) {
-          updateAbnormal(
-            order_id: $order_id
-            abnormal_type: $abnormal_type
-            abnormal_type_id: $abnormal_type_id
-            abnormal_reason: $abnormal_reason
-            abnormal_status: $abnormal_status
-            abnormal_resolve_type: $abnormal_resolve_type
-            abnormal_amount: $abnormal_amount
-            abnormal_remark: $abnormal_remark
-          ) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.updateAbnormal;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  const orderId = params.order_id;
+  delete params.order_id;
+  return await ajaxFetch(`${APIHOST}/api/UpdateAbnormal`, {
+    order_id: orderId,
+    order: params,
+  });
 }
 
 export async function updatePayStatus(params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation updatePayStatus($order_id: [Int], $order: OrderInput) {
-          updatePayStatus(order_id: $order_id, order: $order) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.updatePayStatus;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  return await ajaxFetch(`${APIHOST}/api/UpdatePayStatus`, {
+    ...params,
+  });
 }
 
 export async function cancelAbnormal(params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation cancelAbnormal($order_id: [Int], $abnormal_status: Int) {
-          cancelAbnormal(order_id: $order_id, abnormal_status: $abnormal_status) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.cancelAbnormal;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  const orderId = params.order_id;
+  delete params.order_id;
+  return await ajaxFetch(`${APIHOST}/api/CancelAbnormal`, {
+    order_id: orderId,
+    order: params,
+  });
 }
 
 export async function getAbnormalTypes(params) {
@@ -1198,45 +1127,19 @@ export async function getTodayAccountStatistic(params) {
 }
 
 export async function cancelConfirmTrans(params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation cancelConfirmTrans($order_id: [Int], $company_id: Int, $site_id: Int) {
-          cancelConfirmTrans(order_id: $order_id, company_id: $company_id, site_id: $site_id) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.cancelConfirmTrans;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  const orderId = params.order_id;
+  delete params.order_id;
+  return await ajaxFetch(`${APIHOST}/api/CancelConfirmTrans`, {
+    order_id: orderId,
+    order: params,
+  });
 }
 
 export async function confirmTrans(params) {
-  return client
-    .mutate({
-      mutation: gql`
-        mutation confirmTrans($order_id: [Int], $company_id: Int, $site_id: Int) {
-          confirmTrans(order_id: $order_id, company_id: $company_id, site_id: $site_id) {
-            code
-            msg
-          }
-        }
-      `,
-      variables: params,
-    })
-    .then(data => {
-      gotoLogin(data);
-      return data.data.confirmTrans;
-    })
-    .catch(error => {
-      showErrorMessage(error);
-    });
+  const orderId = params.order_id;
+  delete params.order_id;
+  return await ajaxFetch(`${APIHOST}/api/ConfirmTrans`, {
+    order_id: orderId,
+    order: params,
+  });
 }
