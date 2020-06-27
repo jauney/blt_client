@@ -325,19 +325,19 @@ class TableList extends PureComponent {
       dataIndex: 'bank_account',
       width: '150px',
     },
-    {
-      title: '站点',
-      dataIndex: 'site_names',
-      width: '100px',
-      sorter: true,
-      render: val => {
-        if (val && val !== 'null') {
-          return `${val}`;
-        } else {
-          return '';
-        }
-      },
-    },
+    // {
+    //   title: '站点',
+    //   dataIndex: 'site_names',
+    //   width: '100px',
+    //   sorter: true,
+    //   render: val => {
+    //     if (val && val !== 'null') {
+    //       return `${val}`;
+    //     } else {
+    //       return '';
+    //     }
+    //   },
+    // },
     {
       title: '运费总额',
       dataIndex: 'total_trans',
