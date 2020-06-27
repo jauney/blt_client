@@ -29,7 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Courier.less';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-import { locale } from '@/utils'
+import { locale } from '@/utils';
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -81,7 +81,7 @@ class AddFormDialog extends PureComponent {
     );
   };
 
-  render () {
+  render() {
     const { modalVisible, onCancelHandler, senderList, form } = this.props;
     return (
       <Modal
@@ -154,6 +154,7 @@ class TableList extends PureComponent {
     downloadModalVisible: false,
     addFormModalVisible: false,
     currentSite: {},
+    btnSearchClicked: false,
   };
 
   columns = [
@@ -240,25 +241,19 @@ class TableList extends PureComponent {
       title: '录票时间',
       width: '170px',
       dataIndex: 'create_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
     },
     {
       title: '结算时间',
       width: '170px',
       dataIndex: 'settle_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
     },
     {
       title: '付款日期',
       width: '170px',
       dataIndex: 'pay_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
     },
     {
       title: '分公司',
@@ -302,7 +297,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
 
     dispatch({
@@ -350,7 +345,7 @@ class TableList extends PureComponent {
     });
   };
 
-  onCompanySelect = async (value, option) => { };
+  onCompanySelect = async (value, option) => {};
 
   onSiteSelect = async (value, option) => {
     const {
@@ -377,20 +372,31 @@ class TableList extends PureComponent {
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   /**
    * 获取订单信息
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      // create_date
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
+
       Object.keys(fieldsValue).forEach(key => {
         const item = fieldsValue[key];
         if (!item) {
@@ -399,17 +405,21 @@ class TableList extends PureComponent {
       });
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'courier/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      dispatch({
+      await dispatch({
         type: 'courier/getOrderStatisticAction',
         payload: { ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.setState({
+        btnSearchClicked: false,
+      });
+
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -615,7 +625,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   tableFooter = () => {
     const {
@@ -658,7 +668,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       customer: { getCustomerList, sendCustomerList },
@@ -666,6 +676,8 @@ class TableList extends PureComponent {
       courier: { operatorList },
       site: { siteList, entrunkSiteList },
     } = this.props;
+    const { btnSearchClicked } = this.state;
+
     const formItemLayout = {};
     let companyOption = { initialValue: CacheCompany.company_id };
     const siteOption = {};
@@ -673,9 +685,9 @@ class TableList extends PureComponent {
     if (siteList.length > 0) {
       siteOption.initialValue = siteList[0].company_id || '';
     }
-    let allowClear = false
+    let allowClear = false;
     if (CacheCompany.company_type == 1) {
-      allowClear = true
+      allowClear = true;
       companyOption = {
         initialValue: branchCompanyList.length > 0 ? branchCompanyList[0].company_id : '',
       };
@@ -685,7 +697,12 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司" {...formItemLayout}>
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={allowClear}>
+            <Select
+              placeholder="全部"
+              onSelect={this.onCompanySelect}
+              style={{ width: '100px' }}
+              allowClear={allowClear}
+            >
               {(CacheCompany.company_type == 2 ? [CacheCompany] : branchCompanyList).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -718,7 +735,9 @@ class TableList extends PureComponent {
           </FormItem>
         )}
         <FormItem label="运单日期">
-          {getFieldDecorator('create_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
+          {getFieldDecorator('create_date', {})(
+            <RangePicker locale={locale} style={{ width: '250px' }} />
+          )}
         </FormItem>
         <FormItem label="运单号" {...formItemLayout}>
           {getFieldDecorator('order_code', {})(
@@ -760,7 +779,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <Form.Item {...formItemLayout}>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </Form.Item>
@@ -768,11 +787,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       courier: { orderList, total, totalOrderAmount, totalTransAmount },
       courier: { senderList },

@@ -26,7 +26,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import styles from './Finance.less';
-import { locale } from '@/utils'
+import { locale } from '@/utils';
 const { RangePicker } = DatePicker;
 
 const FormItem = Form.Item;
@@ -60,14 +60,16 @@ class AddFormDialog extends PureComponent {
     });
   };
 
-  ButtonClicked = false
+  ButtonClicked = false;
 
   onAddHandler = () => {
     if (this.ButtonClicked) {
-      return
+      return;
     }
-    this.ButtonClicked = true
-    setTimeout(() => { this.ButtonClicked = false }, 2000)
+    this.ButtonClicked = true;
+    setTimeout(() => {
+      this.ButtonClicked = false;
+    }, 2000);
 
     const { addFormDataHandle, form, incomeTypes = [], record = {} } = this.props;
     form.validateFields(async (err, fieldsValue) => {
@@ -94,8 +96,8 @@ class AddFormDialog extends PureComponent {
         form.setFieldsValue({
           income_money: '',
           income_reason: '',
-          remark: ''
-        })
+          remark: '',
+        });
       }
     });
   };
@@ -114,7 +116,7 @@ class AddFormDialog extends PureComponent {
     );
   };
 
-  render () {
+  render() {
     const { modalVisible, onCancelHandler, record = {}, form, incomeTypes = [] } = this.props;
     return (
       <Modal
@@ -220,6 +222,7 @@ class TableList extends PureComponent {
     cancelSignModalVisible: false,
     downloadModalVisible: false,
     printModalVisible: false,
+    btnSearchClicked: false,
   };
 
   columns = [
@@ -273,7 +276,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
 
     this.fetchCompanySiteList(CacheCompany.company_id);
@@ -357,18 +360,29 @@ class TableList extends PureComponent {
     this.getOrderList();
   };
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
   /**
    * 获取订单信息
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
 
       if (fieldsValue.income_date && fieldsValue.income_date.length > 0) {
         fieldsValue.income_date = fieldsValue.income_date.map(item => {
@@ -379,12 +393,16 @@ class TableList extends PureComponent {
       fieldsValue.company_id = CacheCompany.company_id;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'income/getIncomesAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.setState({
+        btnSearchClicked: false,
+      });
+
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -436,9 +454,9 @@ class TableList extends PureComponent {
     });
     if (result && result.code == 0) {
       message.success(income.income_id ? '编辑成功' : '添加成功！');
-      income.income_id && this.onIncomeModalCancel()
-      this.handleSearch()
-      this.fetchIncomeTypeList()
+      income.income_id && this.onIncomeModalCancel();
+      this.handleSearch();
+      this.fetchIncomeTypeList();
     } else {
       message.error((result && result.msg) || '添加失败');
     }
@@ -482,16 +500,18 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
-    let startDate = moment(isNaN(Number(record.income_date)) ? record.income_date : Number(record.income_date));
+    let startDate = moment(
+      isNaN(Number(record.income_date)) ? record.income_date : Number(record.income_date)
+    );
     let endDate = moment(Number(new Date().getTime()));
     let diffHours = endDate.diff(startDate, 'hours');
-    console.log(CacheRole.role_value)
+    console.log(CacheRole.role_value);
     if (!['site_pay', 'company_account', 'company_admin'].includes(CacheRole.role_value)) {
-      return
+      return;
     }
     if (diffHours >= 24) {
       message.error('超过24小时记录不可编辑');
@@ -505,7 +525,7 @@ class TableList extends PureComponent {
 
   tableFooter = () => {
     const {
-      income: { total, totalIncome }
+      income: { total, totalIncome },
     } = this.props;
     return (
       <div className={styles.tableFooter}>
@@ -515,14 +535,14 @@ class TableList extends PureComponent {
     );
   };
 
-
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], normalSiteList = [] },
       company: { branchCompanyList = [] },
       income: { incomeTypes = [] },
     } = this.props;
+    const { btnSearchClicked } = this.state;
     const companyOption = {};
     // 默认勾选第一个公司
     if (branchCompanyList.length > 0) {
@@ -549,7 +569,9 @@ class TableList extends PureComponent {
         )}
 
         <FormItem label="收入日期">
-          {getFieldDecorator('income_date', { initialValue: [moment(new Date(), 'YYYY-MM-DD'), moment(new Date(), 'YYYY-MM-DD')] })(<RangePicker locale={locale} style={{ width: '250px' }} />)}
+          {getFieldDecorator('income_date', {
+            initialValue: [moment(new Date(), 'YYYY-MM-DD'), moment(new Date(), 'YYYY-MM-DD')],
+          })(<RangePicker locale={locale} style={{ width: '250px' }} />)}
         </FormItem>
 
         <FormItem label="收入分类">
@@ -566,7 +588,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>
@@ -574,11 +596,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       income: { incomeList, total, incomeTypes, totalIncome },
       loading,
@@ -595,9 +617,9 @@ class TableList extends PureComponent {
     } = this.state;
 
     // 是否显示操作按钮
-    let showOperateButton = true
+    let showOperateButton = true;
     if (['site_searchuser', 'site_admin'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = false
+      showOperateButton = false;
     }
     return (
       <div>
@@ -605,9 +627,11 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {showOperateButton && < Button icon="plus" type="primary" onClick={() => this.onAddIncomeClick(true)}>
-                添加
-              </Button>}
+              {showOperateButton && (
+                <Button icon="plus" type="primary" onClick={() => this.onAddIncomeClick(true)}>
+                  添加
+                </Button>
+              )}
             </div>
             <StandardTable
               onRef={this.onRefTable}
@@ -622,8 +646,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}
@@ -663,7 +687,7 @@ class TableList extends PureComponent {
         >
           <p>您确认要下载么？</p>
         </Modal>
-      </div >
+      </div>
     );
   }
 }

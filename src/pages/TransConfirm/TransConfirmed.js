@@ -66,6 +66,7 @@ class TableList extends PureComponent {
     pageSize: 20,
     record: {},
     updateOrderModalVisible: false,
+    btnSearchClicked: false,
     ...customerAutoCompleteState,
   };
 
@@ -292,10 +293,22 @@ class TableList extends PureComponent {
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
+
       fieldsValue.trans_status = 1;
       if (!fieldsValue.trans_type) {
         fieldsValue.trans_type = 9;
@@ -309,16 +322,19 @@ class TableList extends PureComponent {
       fieldsValue = await setCustomerFieldValue(this, fieldsValue);
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'transconfirm/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      dispatch({
+      await dispatch({
         type: 'transconfirm/getOrderStatisticAction',
         payload: { ...searchParams },
       });
 
+      this.setState({
+        btnSearchClicked: false,
+      });
       this.standardTable.cleanSelectedKeys();
     });
   };
@@ -470,6 +486,7 @@ class TableList extends PureComponent {
       company: { branchCompanyList },
       site: { siteList },
     } = this.props;
+    const { btnSearchClicked } = this.state;
     const companyOption = {};
 
     return (
@@ -573,7 +590,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>

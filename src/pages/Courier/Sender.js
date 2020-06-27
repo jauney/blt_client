@@ -28,10 +28,22 @@ import { getSelectedAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Courier.less';
-import { locale } from '@/utils'
-import { printOrder, getPrintOrderConent } from '@/utils/print'
+import { locale } from '@/utils';
+import { printOrder, getPrintOrderConent } from '@/utils/print';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
-import { setCustomerFieldValue, fetchGetCustomerList, fetchSendCustomerList, onSendCustomerChange, onGetCustomerChange, onGetCustomerSelect, onSendCustomerSelect, customerAutoCompleteState, setCourierFieldValue2Mng, onCourierChange, onCourierSelect } from '@/utils/customer'
+import {
+  setCustomerFieldValue,
+  fetchGetCustomerList,
+  fetchSendCustomerList,
+  onSendCustomerChange,
+  onGetCustomerChange,
+  onGetCustomerSelect,
+  onSendCustomerSelect,
+  customerAutoCompleteState,
+  setCourierFieldValue2Mng,
+  onCourierChange,
+  onCourierSelect,
+} from '@/utils/customer';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -84,7 +96,7 @@ class AddFormDialog extends PureComponent {
     );
   };
 
-  render () {
+  render() {
     const { modalVisible, onCancelHandler, senderList, form } = this.props;
     return (
       <Modal
@@ -158,7 +170,8 @@ class TableList extends PureComponent {
     addFormModalVisible: false,
     addCourierModalVisible: false,
     currentCompany: {},
-    ...customerAutoCompleteState
+    btnSearchClicked: false,
+    ...customerAutoCompleteState,
   };
 
   columns = [
@@ -245,25 +258,19 @@ class TableList extends PureComponent {
       title: '录票时间',
       width: '170px',
       dataIndex: 'create_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
     },
     {
       title: '结算时间',
       width: '170px',
       dataIndex: 'settle_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
     },
     {
       title: '付款日期',
       width: '170px',
       dataIndex: 'pay_date',
-      render: val => (
-        <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>
-      ),
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
     },
     {
       title: '分公司',
@@ -306,7 +313,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
 
     dispatch({
@@ -335,7 +342,7 @@ class TableList extends PureComponent {
       }
     }
 
-    let currentCompany = this.setCurrentCompany(branchCompanyList)
+    let currentCompany = this.setCurrentCompany(branchCompanyList);
 
     dispatch({
       type: 'customer/getCustomerListAction',
@@ -349,7 +356,7 @@ class TableList extends PureComponent {
     this.fetchSenderList();
 
     // 获取最后一车信息
-    this.getLastCarInfo()
+    this.getLastCarInfo();
   }
 
   // 设置当前公司
@@ -357,24 +364,23 @@ class TableList extends PureComponent {
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (CacheCompany.company_type == 2) {
       this.setState({
-        currentCompany: CacheCompany
+        currentCompany: CacheCompany,
       });
 
-      return CacheCompany
-    }
-    else if (branchCompanyList && branchCompanyList.length > 0) {
+      return CacheCompany;
+    } else if (branchCompanyList && branchCompanyList.length > 0) {
       this.setState({
-        currentCompany: branchCompanyList[0]
+        currentCompany: branchCompanyList[0],
       });
 
-      return branchCompanyList[0]
+      return branchCompanyList[0];
     }
 
-    return {}
-  }
+    return {};
+  };
 
-  getLastCarInfo = async (option) => {
-    const isUseCarCode = option && option.isUseCarCode || false
+  getLastCarInfo = async option => {
+    const isUseCarCode = (option && option.isUseCarCode) || false;
     const { dispatch, form } = this.props;
     const { currentCompany = {}, currentShipSite = {} } = this.state;
     const carCode = form.getFieldValue('car_code');
@@ -427,7 +433,11 @@ class TableList extends PureComponent {
   };
 
   fetchSenderList = async companyId => {
-    const { dispatch, branchCompanyList, courier: { senderList = [] } } = this.props;
+    const {
+      dispatch,
+      branchCompanyList,
+      courier: { senderList = [] },
+    } = this.props;
     let { currentCompany } = this.state;
     if (!currentCompany || !currentCompany.company_id) {
       currentCompany = branchCompanyList && branchCompanyList[0];
@@ -485,27 +495,38 @@ class TableList extends PureComponent {
   handleSearch = e => {
     e && e.preventDefault();
     this.setState({
-      current: 1
-    })
+      current: 1,
+    });
     this.getOrderList();
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   /**
    * 获取订单信息
    */
   getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
     this.getLastCarInfo({ isUseCarCode: true });
 
     form.validateFields(async (err, fieldsValue) => {
-      if (err) return;
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
       // create_date
       Object.keys(fieldsValue).forEach(key => {
         const item = fieldsValue[key];
@@ -513,20 +534,23 @@ class TableList extends PureComponent {
           delete fieldsValue[key];
         }
       });
-      fieldsValue = await setCourierFieldValue2Mng(this, fieldsValue)
-      fieldsValue = await setCustomerFieldValue(this, fieldsValue)
+      fieldsValue = await setCourierFieldValue2Mng(this, fieldsValue);
+      fieldsValue = await setCustomerFieldValue(this, fieldsValue);
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'courier/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      dispatch({
+      await dispatch({
         type: 'courier/getOrderStatisticAction',
         payload: { ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.setState({
+        btnSearchClicked: false,
+      });
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -586,38 +610,45 @@ class TableList extends PureComponent {
     const {
       company: { branchCompanyList },
       site: { siteList },
-      dispatch
+      dispatch,
     } = this.props;
     const { selectedRows } = this.state;
     if (selectedRows.length <= 0) {
-      message.info('请选择需要打印的记录')
-      return
+      message.info('请选择需要打印的记录');
+      return;
     }
-    let printHtml = ''
+    let printHtml = '';
     for (var i = 0; i < selectedRows.length; i++) {
-      const data = selectedRows[i]
+      const data = selectedRows[i];
       // 获取收货人信息
       const { getCustomer = {}, sendCustomer = {} } = await dispatch({
         type: 'customer/queryCustomerAction',
         payload: {
           getcustomer_id: data.getcustomer_id,
-          sendcustomer_id: data.sendcustomer_id
+          sendcustomer_id: data.sendcustomer_id,
         },
       });
-      let printCompany = {}
+      let printCompany = {};
       branchCompanyList.forEach(item => {
         if (item.company_id == data.company_id) {
-          printCompany = item
+          printCompany = item;
         }
-      })
-      printHtml += getPrintOrderConent({ getCustomer, sendCustomer, data, printCompany, siteList, footer: true })
+      });
+      printHtml += getPrintOrderConent({
+        getCustomer,
+        sendCustomer,
+        data,
+        printCompany,
+        siteList,
+        footer: true,
+      });
     }
 
-    printOrder(printHtml)
-  }
+    printOrder(printHtml);
+  };
 
   // 到货通知
-  onArriveNotify = () => { }
+  onArriveNotify = () => {};
 
   // 打印
   onPrint = async () => {
@@ -688,7 +719,7 @@ class TableList extends PureComponent {
   // 更改送货人
   onUpdateSenderModal = () => {
     if (!this.canEditSender()) {
-      return
+      return;
     }
     this.setState({
       addFormModalVisible: true,
@@ -700,24 +731,28 @@ class TableList extends PureComponent {
     const orderIds = [];
     const customerIds = [];
     let endDate = moment(Number(new Date().getTime()));
-    let cannotEditFlag = false
+    let cannotEditFlag = false;
     selectedRows.forEach(item => {
       orderIds.push(item.order_id);
       customerIds.push(item.getcustomer_id);
       if (item.arrive_date) {
-        let startDate = moment(isNaN(Number(item.arrive_date)) ? item.arrive_date : Number(item.arrive_date));
+        let startDate = moment(
+          isNaN(Number(item.arrive_date)) ? item.arrive_date : Number(item.arrive_date)
+        );
         let diffHours = endDate.diff(startDate, 'hours');
-        console.log(startDate)
+        console.log(startDate);
         if (diffHours >= 48) {
-          cannotEditFlag = true
+          cannotEditFlag = true;
         }
       }
       if (!cannotEditFlag && item.create_date) {
-        let startDate = moment(isNaN(Number(item.create_date)) ? item.create_date : Number(item.create_date));
+        let startDate = moment(
+          isNaN(Number(item.create_date)) ? item.create_date : Number(item.create_date)
+        );
         let diffHours = endDate.diff(startDate, 'hours');
 
         if (diffHours >= 120) {
-          cannotEditFlag = true
+          cannotEditFlag = true;
         }
       }
     });
@@ -726,8 +761,8 @@ class TableList extends PureComponent {
       return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   // 添加送货人
   addFormDataHandle = async data => {
@@ -752,8 +787,8 @@ class TableList extends PureComponent {
     if (result && result.code == 0) {
       message.success('更新成功！');
       setTimeout(() => {
-        this.getOrderList()
-      }, 800)
+        this.getOrderList();
+      }, 800);
       this.onCancelAddFormClick();
     } else {
       message.error((result && result.msg) || '更新失败');
@@ -769,7 +804,7 @@ class TableList extends PureComponent {
   // 删除送货人
   onDelSender = async () => {
     if (!this.canEditSender()) {
-      return
+      return;
     }
     Modal.confirm({
       title: '确认',
@@ -802,8 +837,8 @@ class TableList extends PureComponent {
     if (result && result.code == 0) {
       message.success('取消成功！');
       setTimeout(() => {
-        this.getOrderList()
-      }, 800)
+        this.getOrderList();
+      }, 800);
     } else {
       message.error((result && result.msg) || '取消失败');
     }
@@ -834,7 +869,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   tableFooter = () => {
     const {
@@ -877,7 +912,7 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       customer: { getCustomerList, sendCustomerList },
@@ -886,7 +921,7 @@ class TableList extends PureComponent {
       site: { entrunkSiteList = [] },
       car: { lastCar },
     } = this.props;
-    const { currentCompany } = this.state
+    const { currentCompany, btnSearchClicked } = this.state;
     const formItemLayout = {};
     const companyOption = {};
     // 默认勾选第一个公司
@@ -896,22 +931,26 @@ class TableList extends PureComponent {
       companyOption.initialValue = CacheCompany.company_id || '';
     }
 
-
     // senderList增加未送货
-    let hasUnSender = false
+    let hasUnSender = false;
     senderList.forEach(item => {
       if (item.courier_id === -1) {
-        hasUnSender = true
+        hasUnSender = true;
       }
-    })
+    });
     if (!hasUnSender) {
-      senderList.unshift({ courier_id: -1, courier_name: '未送货' })
+      senderList.unshift({ courier_id: -1, courier_name: '未送货' });
     }
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司" {...formItemLayout}>
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={CacheCompany.company_type == 1 ? true : false}>
+            <Select
+              placeholder="全部"
+              onSelect={this.onCompanySelect}
+              style={{ width: '100px' }}
+              allowClear={CacheCompany.company_type == 1 ? true : false}
+            >
               {(CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany]).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -923,7 +962,9 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="运单日期">
-          {getFieldDecorator('create_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
+          {getFieldDecorator('create_date', {})(
+            <RangePicker locale={locale} style={{ width: '250px' }} />
+          )}
         </FormItem>
         <FormItem label="运单号" {...formItemLayout}>
           {getFieldDecorator('order_code', {})(
@@ -931,7 +972,10 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="货车编号" {...formItemLayout}>
-          {getFieldDecorator('shipsite_id', entrunkSiteList.length > 0 ? { initialValue: entrunkSiteList[0].site_id } : {})(
+          {getFieldDecorator(
+            'shipsite_id',
+            entrunkSiteList.length > 0 ? { initialValue: entrunkSiteList[0].site_id } : {}
+          )(
             <Select
               placeholder="全部"
               onSelect={this.onShipSiteSelect}
@@ -959,13 +1003,22 @@ class TableList extends PureComponent {
               dataSource={senderList.map(item => {
                 const AutoOption = AutoComplete.Option;
                 return (
-                  <AutoOption key={`${item.courier_id}`} value={`${item.courier_id}`} courierid={`${item.courier_id}`} label={item.courier_name}>
+                  <AutoOption
+                    key={`${item.courier_id}`}
+                    value={`${item.courier_id}`}
+                    courierid={`${item.courier_id}`}
+                    label={item.courier_name}
+                  >
                     {item.courier_name}
                   </AutoOption>
                 );
               })}
-              onSelect={(value) => { onCourierSelect(this, value, 'sender') }}
-              onChange={(value) => { onCourierChange(this, value, 'sender') }}
+              onSelect={value => {
+                onCourierSelect(this, value, 'sender');
+              }}
+              onChange={value => {
+                onCourierChange(this, value, 'sender');
+              }}
               allowClear
               placeholder="请输入"
               filterOption={(inputValue, option) =>
@@ -984,13 +1037,22 @@ class TableList extends PureComponent {
               dataSource={getCustomerList.map(item => {
                 const AutoOption = AutoComplete.Option;
                 return (
-                  <AutoOption key={`${item.customer_id}`} value={`${item.customer_id}`} customerid={`${item.customer_id}`} label={item.customer_name}>
+                  <AutoOption
+                    key={`${item.customer_id}`}
+                    value={`${item.customer_id}`}
+                    customerid={`${item.customer_id}`}
+                    label={item.customer_name}
+                  >
                     {item.customer_name}
                   </AutoOption>
                 );
               })}
-              onSelect={(value) => { onGetCustomerSelect(this, value) }}
-              onChange={(value) => { onGetCustomerChange(this, value) }}
+              onSelect={value => {
+                onGetCustomerSelect(this, value);
+              }}
+              onChange={value => {
+                onGetCustomerChange(this, value);
+              }}
               allowClear
               placeholder="请输入"
               filterOption={(inputValue, option) =>
@@ -1002,7 +1064,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <Form.Item {...formItemLayout}>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </Form.Item>
@@ -1010,11 +1072,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       courier: { orderList, total, totalOrderAmount, totalTransAmount },
       courier: { senderList },

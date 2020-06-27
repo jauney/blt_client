@@ -27,7 +27,7 @@ import {
 import { getSelectedAccount, getSelectedDownAccount } from '@/utils/account';
 import StandardTable from '@/components/StandardTable';
 import styles from './Finance.less';
-import { locale } from '@/utils'
+import { locale } from '@/utils';
 import { fileToObject } from 'antd/lib/upload/utils';
 import { async } from 'q';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
@@ -55,14 +55,16 @@ class AddFormDialog extends PureComponent {
     };
   }
 
-  ButtonClicked = false
+  ButtonClicked = false;
 
   onAddHandler = () => {
     if (this.ButtonClicked) {
-      return
+      return;
     }
-    this.ButtonClicked = true
-    setTimeout(() => { this.ButtonClicked = false }, 2000)
+    this.ButtonClicked = true;
+    setTimeout(() => {
+      this.ButtonClicked = false;
+    }, 2000);
 
     const { addFormDataHandle, form, debtTypes, debtUserList } = this.props;
     form.validateFields((err, fieldsValue) => {
@@ -152,7 +154,7 @@ class AddFormDialog extends PureComponent {
     }
   };
 
-  render () {
+  render() {
     const {
       modalVisible,
       onCancelHandler,
@@ -188,10 +190,7 @@ class AddFormDialog extends PureComponent {
                 {form.getFieldDecorator('debttype_id', {
                   rules: [{ required: true, message: '请填写类型' }],
                 })(
-                  <Select
-                    placeholder="全部"
-                    style={{ width: '150px' }}
-                  >
+                  <Select placeholder="全部" style={{ width: '150px' }}>
                     {debtTypes.map(ele => {
                       return (
                         <Option key={ele.debttype_id} value={ele.debttype_id}>
@@ -203,8 +202,8 @@ class AddFormDialog extends PureComponent {
                 )}
               </FormItem>
             </Col>
-          </Row>、
-
+          </Row>
+          、
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem {...this.formItemLayout} label="姓名">
@@ -247,7 +246,6 @@ class AddFormDialog extends PureComponent {
               </FormItem>
             </Col>
           </Row>
-
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
             <Col>
               <FormItem labelCol={{ span: 3, offset: 2 }} label="备注">
@@ -284,6 +282,7 @@ class TableList extends PureComponent {
     currentDebtUserName: '',
     currentSite: {},
     addDebtModalVisible: false,
+    btnSearchClicked: false,
   };
 
   columns = [
@@ -317,7 +316,7 @@ class TableList extends PureComponent {
       dataIndex: 'settle_date',
       width: '170px',
       sorter: true,
-      render: val => <span>{val && moment(val).format('YYYY-MM-DD HH:mm:ss') || ''}</span>,
+      render: val => <span>{(val && moment(val).format('YYYY-MM-DD HH:mm:ss')) || ''}</span>,
     },
     {
       title: '备注',
@@ -326,7 +325,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     await this.fetchCompanySiteList(CacheCompany.company_id);
     await this.fetchDebtUserList();
     await this.fetchDebtTypeList({});
@@ -413,9 +412,9 @@ class TableList extends PureComponent {
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   /**
    * 获取订单信息
@@ -426,10 +425,21 @@ class TableList extends PureComponent {
       form,
       debt: { debtUserList = [] },
     } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
 
       if (fieldsValue.debt_date && fieldsValue.debt_date.length > 0) {
         fieldsValue.debt_date = fieldsValue.debt_date.map(item => {
@@ -452,17 +462,21 @@ class TableList extends PureComponent {
       fieldsValue.company_id = CacheCompany.company_id;
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'debt/getDebtsAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      dispatch({
+      await dispatch({
         type: 'debt/getDebtsStatisticAction',
         payload: { ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.setState({
+        btnSearchClicked: false,
+      });
+
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -543,7 +557,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   // 编辑订单信息
   onRowDoubleClick = (record, index, event) => {
@@ -593,7 +607,7 @@ class TableList extends PureComponent {
     }
   };
 
-  onDebtUserSelect = () => { };
+  onDebtUserSelect = () => {};
 
   // 归零
   onSettleModal = () => {
@@ -638,13 +652,13 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList = [], normalSiteList = [] },
       debt: { debtTypes, debtUserList },
     } = this.props;
-    const { currentSite, currentDebtUserName } = this.state;
+    const { currentSite, currentDebtUserName, btnSearchClicked } = this.state;
     const companyList = [CacheCompany];
     const companyOption = {};
     // 默认勾选第一个公司
@@ -700,7 +714,9 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="日期">
-          {getFieldDecorator('debt_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
+          {getFieldDecorator('debt_date', {})(
+            <RangePicker locale={locale} style={{ width: '250px' }} />
+          )}
         </FormItem>
 
         <FormItem label="分类">
@@ -725,7 +741,7 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>
@@ -733,11 +749,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       debt: { debtList, debtTotal, debtTypes, debtUserList },
       loading,
@@ -746,25 +762,27 @@ class TableList extends PureComponent {
     const { selectedRows, current, pageSize, addDebtModalVisible, record } = this.state;
 
     // 是否显示操作按钮
-    let showOperateButton = true
+    let showOperateButton = true;
     if (['site_searchuser', 'site_admin'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = false
+      showOperateButton = false;
     }
-    let canSettleDebt = true
+    let canSettleDebt = true;
     selectedRows.forEach(item => {
       if (item.debt_status == 1) {
-        canSettleDebt = false
+        canSettleDebt = false;
       }
-    })
+    });
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {showOperateButton && <Button icon="plus" type="primary" onClick={() => this.onAddDebtClick(true)}>
-                添加
-              </Button>}
+              {showOperateButton && (
+                <Button icon="plus" type="primary" onClick={() => this.onAddDebtClick(true)}>
+                  添加
+                </Button>
+              )}
               {selectedRows.length > 0 && showOperateButton && canSettleDebt && (
                 <span>
                   <Button onClick={this.onSettleModal}>归零</Button>
@@ -784,8 +802,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}

@@ -29,7 +29,7 @@ import StandardTable from '@/components/StandardTable';
 import OrderEditForm from '@/components/EditOrderForm';
 import styles from './Abnormal.less';
 import { async } from 'q';
-import { locale } from '@/utils'
+import { locale } from '@/utils';
 import { fileToObject } from 'antd/lib/upload/utils';
 import { CacheSite, CacheUser, CacheCompany, CacheRole } from '../../utils/storage';
 const { RangePicker } = DatePicker;
@@ -103,7 +103,7 @@ class AbnormalForm extends PureComponent {
     );
   };
 
-  render () {
+  render() {
     const {
       modalVisible,
       onResolveAbnormalModalCancel,
@@ -226,6 +226,7 @@ class TableList extends PureComponent {
     cancelSignModalVisible: false,
     downloadModalVisible: false,
     printModalVisible: false,
+    btnSearchClicked: false,
   };
 
   columns = [
@@ -329,7 +330,7 @@ class TableList extends PureComponent {
     },
   ];
 
-  async componentDidMount () {
+  async componentDidMount() {
     const { dispatch } = this.props;
 
     await dispatch({
@@ -347,7 +348,7 @@ class TableList extends PureComponent {
       payload: { pageNo: 1, pageSize: 100 },
     });
 
-    let currentCompany = this.setCurrentCompany(branchCompanyList)
+    let currentCompany = this.setCurrentCompany(branchCompanyList);
     await dispatch({
       type: 'abnormal/getAbnormalTypeListAction',
       payload: {
@@ -356,7 +357,6 @@ class TableList extends PureComponent {
         company_id: currentCompany.company_id,
       },
     });
-
   }
 
   // 设置当前公司
@@ -364,22 +364,20 @@ class TableList extends PureComponent {
     // 初始渲染的是否，先加载第一个分公司的收货人信息
     if (CacheCompany.company_type == 2) {
       this.setState({
-        currentCompany: CacheCompany
+        currentCompany: CacheCompany,
       });
 
-      return CacheCompany
-    }
-    else if (branchCompanyList && branchCompanyList.length > 0) {
+      return CacheCompany;
+    } else if (branchCompanyList && branchCompanyList.length > 0) {
       this.setState({
-        currentCompany: branchCompanyList[0]
+        currentCompany: branchCompanyList[0],
       });
 
-      return branchCompanyList[0]
+      return branchCompanyList[0];
     }
 
-    return {}
-  }
-
+    return {};
+  };
 
   handleFormReset = () => {
     const { form, dispatch } = this.props;
@@ -434,19 +432,30 @@ class TableList extends PureComponent {
   };
 
   // 调用table子组件
-  onRefTable = (ref) => {
-    this.standardTable = ref
-  }
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
 
   /**
    * 获取订单信息
    */
   getOrderList = (data = {}, pageNo = 1) => {
     const { dispatch, form } = this.props;
-    const { current, pageSize } = this.state;
+    const { current, pageSize, btnSearchClicked } = this.state;
 
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
+    form.validateFields(async (err, fieldsValue) => {
+      if (err) {
+        this.setState({
+          btnSearchClicked: false,
+        });
+        return;
+      }
+      if (btnSearchClicked) {
+        return;
+      }
+      this.setState({
+        btnSearchClicked: true,
+      });
       fieldsValue.abnormal_status = 1;
 
       Object.keys(fieldsValue).forEach(item => {
@@ -463,17 +472,21 @@ class TableList extends PureComponent {
       }
 
       const searchParams = Object.assign({ filter: fieldsValue }, data);
-      dispatch({
+      await dispatch({
         type: 'abnormal/getOrderListAction',
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      dispatch({
+      await dispatch({
         type: 'abnormal/getOrderStatisticAction',
         payload: { ...searchParams },
       });
 
-      this.standardTable.cleanSelectedKeys()
+      this.setState({
+        btnSearchClicked: false,
+      });
+
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -605,7 +618,7 @@ class TableList extends PureComponent {
   };
 
   // 已结算账目核对中，计算付款日期
-  onRowClick = (record, index, event) => { };
+  onRowClick = (record, index, event) => {};
 
   tableFooter = () => {
     const {
@@ -630,13 +643,15 @@ class TableList extends PureComponent {
     );
   };
 
-  renderSimpleForm () {
+  renderSimpleForm() {
     const {
       form: { getFieldDecorator },
       site: { entrunkSiteList, normalSiteList },
       company: { branchCompanyList },
       abnormal: { abnormalTypes },
     } = this.props;
+    const { btnSearchClicked } = this.state;
+
     const companyOption = {};
     // 默认勾选第一个公司
     if (branchCompanyList.length > 0 && CacheCompany.company_type != 1) {
@@ -651,7 +666,12 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <FormItem label="分公司">
           {getFieldDecorator('company_id', companyOption)(
-            <Select placeholder="全部" onSelect={this.onCompanySelect} style={{ width: '100px' }} allowClear={allowClearFlag}>
+            <Select
+              placeholder="全部"
+              onSelect={this.onCompanySelect}
+              style={{ width: '100px' }}
+              allowClear={allowClearFlag}
+            >
               {(CacheCompany.company_type == 1 ? branchCompanyList : [CacheCompany]).map(ele => {
                 return (
                   <Option key={ele.company_id} value={ele.company_id}>
@@ -694,10 +714,12 @@ class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem label="托运日期">
-          {getFieldDecorator('entrunk_date', {})(<RangePicker locale={locale} style={{ width: '250px' }} />)}
+          {getFieldDecorator('entrunk_date', {})(
+            <RangePicker locale={locale} style={{ width: '250px' }} />
+          )}
         </FormItem>
         <FormItem>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={btnSearchClicked}>
             查询
           </Button>
         </FormItem>
@@ -705,11 +727,11 @@ class TableList extends PureComponent {
     );
   }
 
-  renderForm () {
+  renderForm() {
     return this.renderSimpleForm();
   }
 
-  render () {
+  render() {
     const {
       abnormal: { orderList, total, totalOrderAmount, totalTransAmount },
       loading,
@@ -731,9 +753,9 @@ class TableList extends PureComponent {
       record,
     } = this.state;
     // 是否显示操作按钮
-    let showOperateButton = true
+    let showOperateButton = true;
     if (['site_searchuser'].indexOf(CacheRole.role_value) >= 0) {
-      showOperateButton = false
+      showOperateButton = false;
     }
     return (
       <div>
@@ -761,8 +783,8 @@ class TableList extends PureComponent {
                   pageSize,
                   current,
                   onShowSizeChange: (currentPage, pageSize) => {
-                    this.setState({ pageSize })
-                  }
+                    this.setState({ pageSize });
+                  },
                 },
               }}
               columns={this.columns}
@@ -770,7 +792,7 @@ class TableList extends PureComponent {
               onChange={this.handleStandardTableChange}
               onClickHander={this.onRowClick}
               onDoubleClickHander={this.onRowDoubleClick}
-              rowClassNameHandler={(record, index) => { }}
+              rowClassNameHandler={(record, index) => {}}
             />
           </div>
           {this.tableFooter()}
@@ -798,7 +820,7 @@ class TableList extends PureComponent {
         >
           <p>{`取消结算货款条数${selectedRows.length}，取消结算总额 ${
             accountStatistic.totalAccount
-            } `}</p>
+          } `}</p>
           <p>您确认结账么？</p>
         </Modal>
         <Modal
