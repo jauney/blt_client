@@ -231,7 +231,6 @@ class TableList extends PureComponent {
     settleModalVisible: false,
     downModalVisible: false,
     signModalVisible: false,
-    cancelDownAccountModalVisible: false,
     downloadModalVisible: false,
     printModalVisible: false,
     currentCompany: {},
@@ -602,59 +601,6 @@ class TableList extends PureComponent {
     });
   };
 
-  // 取消下账
-  onCancelPay = async () => {
-    this.setState({
-      cancelDownAccountModalVisible: true,
-    });
-  };
-
-  onCancelDownAccountCancel = async () => {
-    this.setState({
-      cancelDownAccountModalVisible: false,
-    });
-  };
-
-  onCancelDownAccountOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    let canCancelFlag = true;
-    let orderIds = [];
-    let totalAmount = 0;
-    selectedRows.forEach(item => {
-      let curDate = moment(new Date().getTime());
-      let diffHours = curDate
-        .subtract(moment(isNaN(Number(item.pay_date)) ? item.pay_date : Number(item.pay_date)))
-        .hours();
-      if (diffHours >= 24) {
-        canCancelFlag = false;
-      }
-      orderIds.push(item.order_id);
-      totalAmount += Number(item.order_real || 0);
-    });
-
-    if (!canCancelFlag) {
-      message.error('下账超过24小时不可以取消');
-      return;
-    }
-
-    let result = await dispatch({
-      type: 'pay/cancelDownAccountAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result && result.code == 0) {
-      message.success('取消下账成功！');
-      setTimeout(() => {
-        this.getOrderList();
-      }, 500);
-      this.onCancelDownAccountCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
   // 打印
   onPrint = async () => {
     this.setState({
@@ -892,7 +838,6 @@ class TableList extends PureComponent {
       settleModalVisible,
       downModalVisible,
       signModalVisible,
-      cancelDownAccountModalVisible,
       downloadModalVisible,
       printModalVisible,
       record,
@@ -987,16 +932,6 @@ class TableList extends PureComponent {
           onCancel={this.onSignCancel}
         >
           <p>您确认签字么？</p>
-        </Modal>
-        <Modal
-          title="确认"
-          okText="确认"
-          cancelText="取消"
-          visible={cancelDownAccountModalVisible}
-          onOk={this.onCancelDownAccountOk}
-          onCancel={this.onCancelDownAccountCancel}
-        >
-          <p>您确认取消下账么？</p>
         </Modal>
         <Modal
           title="确认"

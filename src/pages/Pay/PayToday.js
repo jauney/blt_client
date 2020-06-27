@@ -515,33 +515,6 @@ class TableList extends PureComponent {
     });
   };
 
-  onCancelDownAccountCancel = async () => {
-    this.setState({
-      cancelDownAccountModalVisible: false,
-    });
-  };
-
-  onCancelDownAccountOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'pay/cancelDownAccountAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result && result.code == 0) {
-      message.success('取消下账成功！');
-      this.handleSearch();
-      this.onCancelDownAccountCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
   // 下载
   onDownload = async () => {
     const { selectedRows } = this.state;

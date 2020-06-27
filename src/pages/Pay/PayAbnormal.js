@@ -589,40 +589,6 @@ class TableList extends PureComponent {
     });
   };
 
-  // 取消签字
-  onCancelSign = async () => {
-    this.setState({
-      cancelDownAccountModalVisible: true,
-    });
-  };
-
-  onCancelDownAccountCancel = async () => {
-    this.setState({
-      cancelDownAccountModalVisible: false,
-    });
-  };
-
-  onCancelDownAccountOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'pay/cancelDownAccountAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result && result.code == 0) {
-      message.success('取消下账成功！');
-      this.handleSearch();
-      this.onCancelDownAccountCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
   // 打印
   onPrint = async () => {
     this.setState({
@@ -957,16 +923,7 @@ class TableList extends PureComponent {
         >
           <p>您确认签字么？</p>
         </Modal>
-        <Modal
-          title="确认"
-          okText="确认"
-          cancelText="取消"
-          visible={cancelDownAccountModalVisible}
-          onOk={this.onCancelDownAccountOk}
-          onCancel={this.onCancelDownAccountCancel}
-        >
-          <p>您确认取消下账么？</p>
-        </Modal>
+
         <Modal
           title="确认"
           okText="确认"

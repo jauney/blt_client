@@ -3,7 +3,6 @@ import {
   getOrderStatisticAxios,
   cancelSettleOrder,
   downAccount,
-  cancelDownAccountOrder,
 } from '@/services/api';
 
 export default {
@@ -23,7 +22,7 @@ export default {
   },
 
   effects: {
-    *getOrderListAction ({ payload }, { call, put }) {
+    *getOrderListAction({ payload }, { call, put }) {
       payload.filter = payload.filter || {};
       payload.filter.order_status = [6, 7];
 
@@ -33,7 +32,7 @@ export default {
         payload: response,
       });
     },
-    *getOrderStatisticAction ({ payload }, { call, put }) {
+    *getOrderStatisticAction({ payload }, { call, put }) {
       payload.order_status = [6, 7];
       const response = yield call(getOrderStatisticAxios, payload);
       yield put({
@@ -41,27 +40,24 @@ export default {
         payload: response,
       });
     },
-    *cancelSettleOrderAction ({ payload }, { call, put }) {
+    *cancelSettleOrderAction({ payload }, { call, put }) {
       console.log(payload);
       return yield call(cancelSettleOrder, payload); // post
     },
-    *downAccountAction ({ payload }, { call, put }) {
+    *downAccountAction({ payload }, { call, put }) {
       return yield call(downAccount, payload); // post
-    },
-    *cancelDownAccountAction ({ payload }, { call, put }) {
-      return yield call(cancelDownAccountOrder, payload); // post
     },
   },
 
   reducers: {
-    getOrderListReducer (state, action) {
+    getOrderListReducer(state, action) {
       return {
         ...state,
         orderList: action.payload.orders,
         total: action.payload.total,
       };
     },
-    getOrderStatisticReducer (state, action) {
+    getOrderStatisticReducer(state, action) {
       return {
         ...state,
         ...action.payload,

@@ -565,40 +565,6 @@ class TableList extends PureComponent {
     });
   };
 
-  // 取消签字
-  onCancelSign = async () => {
-    this.setState({
-      cancelDownAccountModalVisible: true,
-    });
-  };
-
-  onCancelDownAccountCancel = async () => {
-    this.setState({
-      cancelDownAccountModalVisible: false,
-    });
-  };
-
-  onCancelDownAccountOk = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    const orderIds = selectedRows.map(item => {
-      return item.order_id;
-    });
-    let result = await dispatch({
-      type: 'pay/cancelDownAccountAction',
-      payload: {
-        order_id: orderIds,
-      },
-    });
-    if (result && result.code == 0) {
-      message.success('取消下账成功！');
-      this.handleSearch();
-      this.onCancelDownAccountCancel();
-    } else {
-      message.error(result.msg);
-    }
-  };
-
   // 打印
   onPrint = async () => {
     this.setState({
@@ -686,55 +652,6 @@ class TableList extends PureComponent {
   onRowDoubleClick = (record, index, event) => {
     this.setState({
       record,
-    });
-  };
-
-  /**
-   * 取消下账
-   */
-  onCancelPay = async () => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-    let self = this;
-    let canCancelFlag = true;
-    let orderIds = [];
-    let totalAmount = 0;
-    selectedRows.forEach(item => {
-      let payDate = moment(isNaN(Number(item.pay_date)) ? item.pay_date : Number(item.pay_date));
-
-      let curDate = moment(new Date().getTime());
-      let subDays = curDate.diff(payDate, 'hours');
-      if (subDays >= 24) {
-        canCancelFlag = false;
-      }
-      orderIds.push(item.order_id);
-      totalAmount += Number(item.order_real || 0);
-    });
-
-    if (!canCancelFlag) {
-      message.error('下账超过24小时不可以取消');
-      return;
-    }
-    Modal.confirm({
-      content: (
-        <div>
-          确定取消下账么？下账条数：{selectedRows.length}；下账总额：{totalAmount}
-        </div>
-      ),
-      onOk: async () => {
-        let result = await dispatch({
-          type: 'pay/cancelDownAccountAction',
-          payload: {
-            order_id: orderIds,
-          },
-        });
-        if (result && result.code == 0) {
-          message.success('取消下账成功！');
-          self.handleSearch();
-        } else {
-          message.error(result.msg);
-        }
-      },
     });
   };
 
@@ -970,16 +887,7 @@ class TableList extends PureComponent {
         >
           <p>您确认签字么？</p>
         </Modal>
-        <Modal
-          title="确认"
-          okText="确认"
-          cancelText="取消"
-          visible={cancelDownAccountModalVisible}
-          onOk={this.onCancelDownAccountOk}
-          onCancel={this.onCancelDownAccountCancel}
-        >
-          <p>您确认取消下账么？</p>
-        </Modal>
+
         <Modal
           title="确认"
           okText="确认"
