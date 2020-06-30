@@ -1018,6 +1018,7 @@ export async function addExpense(params) {
 
 // debts
 export async function getDebtUsers(params) {
+  params.debt_user = params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetDebtUsers`, {
     ...params,
   });
