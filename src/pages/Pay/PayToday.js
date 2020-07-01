@@ -762,13 +762,14 @@ class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              {selectedRows.length > 0 && CacheRole.role_value != 'site_admin' && (
-                <span>
-                  <Button onClick={this.onCancelPay}>取消下账</Button>
-                  <Button onClick={this.onDownload}>下 载</Button>
-                  <Button onClick={this.onPrint}>打 印</Button>
-                </span>
-              )}
+              {selectedRows.length > 0 &&
+                !['site_searchuser', 'site_admin'].includes(CacheRole.role_value) && (
+                  <span>
+                    <Button onClick={this.onCancelPay}>取消下账</Button>
+                    <Button onClick={this.onDownload}>下 载</Button>
+                    <Button onClick={this.onPrint}>打 印</Button>
+                  </span>
+                )}
             </div>
             <StandardTable
               onRef={this.onRefTable}

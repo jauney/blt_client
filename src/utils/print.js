@@ -392,6 +392,11 @@ export function getPrintOrderConent({
         <td class="col3" style="font-size:13px">付款方式:</td>
         <td class="col3" style="font-size:13px">送货人签字:</td>
       </tr>
+      <tr>
+        <td class="col3" style="font-size:13px">&nbsp;</td>
+        <td class="col3" style="font-size:13px">&nbsp;</td>
+        <td class="col3" style="font-size:13px">&nbsp;</td>
+      </tr>
     </table>
   `;
   let printHtml = html;
