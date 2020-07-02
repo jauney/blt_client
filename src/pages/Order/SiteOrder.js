@@ -337,9 +337,11 @@ class CreateForm extends PureComponent {
     if (fieldName == 'sendcustomer_id') {
       // update bankaccoount
       // 设置发货人账号
-      form.setFieldsValue({
-        bank_account: customer.bank_account || '',
-      });
+      if (+orderAmount > 0) {
+        form.setFieldsValue({
+          bank_account: customer.bank_account || '',
+        });
+      }
 
       this.setState({
         initSendCustomerValue: customer.customer_id,
