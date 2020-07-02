@@ -185,7 +185,11 @@ class CreateForm extends PureComponent {
     console.log(formFileds);
     if (formKeys.length > 0) {
       Object.keys(formFileds).forEach(async item => {
-        if (!['company_id', 'site_id', 'getcustomer_id', 'sendcustomer_id'].includes(item)) {
+        if (
+          !['company_id', 'site_id', 'getcustomer_id', 'trans_type', 'sendcustomer_id'].includes(
+            item
+          )
+        ) {
           const fieldValue = {};
           fieldValue[item] = '';
 
@@ -193,6 +197,7 @@ class CreateForm extends PureComponent {
         }
         form.setFieldsValue({ getcustomer_id: '' });
         form.setFieldsValue({ sendcustomer_id: '' });
+        form.setFieldsValue({ trans_type: 0 });
         // document.querySelector('.form-create-getcustomername input').value = '';
         // console.log(document.querySelector('.form-create-getcustomername input'));
         // document.querySelector(
