@@ -337,11 +337,10 @@ class CreateForm extends PureComponent {
     if (fieldName == 'sendcustomer_id') {
       // update bankaccoount
       // 设置发货人账号
-      if (+orderAmount > 0) {
-        form.setFieldsValue({
-          bank_account: customer.bank_account || '',
-        });
-      }
+      form.setFieldsValue({
+        bank_account: customer.bank_account || '',
+      });
+
       this.setState({
         initSendCustomerValue: customer.customer_id,
       });
@@ -352,6 +351,10 @@ class CreateForm extends PureComponent {
       });
       this.computeTransDiscount();
     }
+    const customerFieldVal = {};
+    customerFieldVal[fieldName] = `${customer.customer_id}`;
+    // 不手动设置的话，第二次无法给客户姓名赋值
+    form.setFieldsValue(customerFieldVal);
   };
 
   onSendCustomerMobileBlur = async event => {
