@@ -539,7 +539,15 @@ export async function getCustomerTypes(params) {
   });
 }
 
-function convertOrderFieldType(order = {}) {
+const deepClone = obj => {
+  try {
+    return JSON.parse(JSON.stringify(obj));
+  } catch (e) {
+    return obj;
+  }
+};
+function convertOrderFieldType(oldOrder = {}) {
+  const order = deepClone(oldOrder);
   const fieldInt = [
     'car_id',
     'is_delete',
@@ -630,8 +638,11 @@ function convertOrderFieldType(order = {}) {
 
   Object.keys(order).forEach(key => {
     // 这些字段即使值为0也不删除，因为确实可能为0
+    // order_amount=0 表示无货款
     if (
-      !['trans_status', 'pay_status', 'pay_abnormal', 'sign_status'].includes(key) &&
+      !['trans_status', 'pay_status', 'pay_abnormal', 'sign_status', 'order_amount'].includes(
+        key
+      ) &&
       (!order[key] || order[key] == 'undefined' || order[key] == 'null')
     ) {
       delete order[key];
@@ -651,7 +662,11 @@ function convertOrderFieldType(order = {}) {
     } else if (fieldArrStr.includes(key)) {
       order[key] = Array.isArray(order[key]) ? order[key] : [order[key]];
       for (let i = 0; i < order[key].length; i++) {
-        order[key][i] = `${order[key][i]}`;
+        if (key.indexOf('date') >= 0) {
+          order[key][i] = `${new Date(order[key][i]).getTime()}`;
+        } else {
+          order[key][i] = `${order[key][i]}`;
+        }
       }
     }
   });
@@ -660,10 +675,7 @@ function convertOrderFieldType(order = {}) {
 }
 
 export async function getOrderListAxios(params) {
-  params.order = params.filter;
-  delete params.filter;
-
-  params.order = convertOrderFieldType(params.order);
+  params.order = convertOrderFieldType(params.filter);
 
   return await ajaxFetch(`${APIHOST}/api/GetOrders`, {
     ...params,
@@ -705,12 +717,8 @@ export async function deleteOrder(params) {
 }
 
 export async function getOrderStatisticAxios(params) {
-  params.order = params.filter;
-  delete params.filter;
-  console.log(params.order);
-  params.order = convertOrderFieldType(params.order);
+  params.order = convertOrderFieldType(params.filter);
 
-  console.log(params.order);
   return await ajaxFetch(`${APIHOST}/api/GetOrderStatistic`, {
     ...params,
   });
