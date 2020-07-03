@@ -68,6 +68,7 @@ class CreateForm extends PureComponent {
       sendCustomerNameChangeTimer: 0,
       initSendCustomerValue: '',
       initGetCustomerValue: '',
+      okBtnClicked: false,
     };
     this.formItemLayout = {
       labelCol: {
@@ -153,7 +154,7 @@ class CreateForm extends PureComponent {
 
     this.fetchGetCustomerList({ company_id: curCompany.company_id });
     this.fetchSendCustomerList();
-
+    console.log('mounted....');
     if (formKeys.length > 0) {
       Object.keys(formFileds).forEach(item => {
         if (selectedOrder[item] && !['getcustomer_id', 'sendcustomer_id'].includes(item)) {
@@ -183,36 +184,31 @@ class CreateForm extends PureComponent {
     const formFileds = form.getFieldsValue();
     const formKeys = Object.keys(formFileds);
     console.log(formFileds);
+
     if (formKeys.length > 0) {
+      const fieldValue = { getcustomer_id: '', sendcustomer_id: '', trans_type: 0 };
       Object.keys(formFileds).forEach(async item => {
         if (
           !['company_id', 'site_id', 'getcustomer_id', 'trans_type', 'sendcustomer_id'].includes(
             item
           )
         ) {
-          const fieldValue = {};
           fieldValue[item] = '';
-
-          form.setFieldsValue(fieldValue);
         }
-        form.setFieldsValue({ getcustomer_id: '' });
-        form.setFieldsValue({ sendcustomer_id: '' });
-        form.setFieldsValue({ trans_type: 0 });
-        // document.querySelector('.form-create-getcustomername input').value = '';
-        // console.log(document.querySelector('.form-create-getcustomername input'));
-        // document.querySelector(
-        //   '.form-create-getcustomername .ant-select-search__field__mirror'
-        // ).innerHTML = '';
-        // document.querySelector('.form-create-sendcustomername input').value = '';
       });
+      // 放到对象中一次性set，否则会导致render很多次，消耗性能
+      form.setFieldsValue(fieldValue);
     }
   };
 
   okHandle = (options = {}) => {
-    if (this.btnClicked) {
+    const { okBtnClicked } = this.state;
+    if (okBtnClicked) {
       return;
     }
-    this.btnClicked = true;
+    this.setState({
+      okBtnClicked: true,
+    });
 
     const {
       form,
@@ -224,14 +220,18 @@ class CreateForm extends PureComponent {
     const { currentSendCustomer, currentGetCustomer } = this.state;
     form.validateFields(async (err, fieldsValue) => {
       if (err) {
-        this.btnClicked = false;
+        this.setState({
+          okBtnClicked: false,
+        });
         return;
       }
 
       // 有货款必须有银行账号
       if (fieldsValue.order_amount && !fieldsValue.bank_account) {
         message.error('请填写银行账号');
-        this.btnClicked = false;
+        this.setState({
+          okBtnClicked: false,
+        });
         return;
       }
       // 完善公司信息
@@ -260,22 +260,24 @@ class CreateForm extends PureComponent {
       // 编辑的时候防止客户姓名变为数字customer_id
       if (Number(fieldsValue.getcustomer_name) >= 0 || Number(fieldsValue.sendcustomer_name)) {
         message.error('客户姓名不能为数字，请重新选择/输入');
-        this.btnClicked = false;
+        this.setState({
+          okBtnClicked: false,
+        });
         return;
       }
       fieldsValue.site_name = CacheSite.site_name;
 
       await handleAdd(fieldsValue, selectedOrder, options);
 
-      this.btnClicked = false;
-      //form.resetFields();
-      this.resetFormFields();
       this.setState({
+        okBtnClicked: false,
         currentSendCustomer: {},
         currentGetCustomer: {},
         initGetCustomerValue: '',
         initSendCustomerValue: '',
       });
+
+      this.resetFormFields();
     });
   };
 
@@ -336,7 +338,7 @@ class CreateForm extends PureComponent {
     const { form } = this.props;
     const fieldObject = {};
     const orderAmount = form.getFieldValue('order_amount');
-
+    console.log('setSelectedCustomer');
     // setFieldsValue不会触发select的onSelect事件，因此需要手动再触发一次计算：
     // 1）是否VIP 2）计算折后运费 3）发货人银行账号
     if (fieldName == 'sendcustomer_id') {
@@ -638,6 +640,7 @@ class CreateForm extends PureComponent {
       currentCompany,
       initSendCustomerValue = '',
       initGetCustomerValue = '',
+      okBtnClicked,
     } = this.state;
 
     const companyOption = {
@@ -671,6 +674,7 @@ class CreateForm extends PureComponent {
       }
     }
 
+    console.log('render...');
     const transTypeMap = {
       0: '提',
       1: '现',
@@ -680,7 +684,7 @@ class CreateForm extends PureComponent {
       <Button key="btn-cancel" onClick={() => handleModalVisible()} tabIndex={-1}>
         取 消
       </Button>,
-      <Button key="btn-print" onClick={this.onOrderPrint} loading={this.btnClicked}>
+      <Button key="btn-print" onClick={this.onOrderPrint} loading={okBtnClicked}>
         打 印
       </Button>,
       <Button
@@ -690,7 +694,7 @@ class CreateForm extends PureComponent {
           this.okHandle();
         }}
         tabIndex={-1}
-        loading={this.btnClicked}
+        loading={okBtnClicked}
       >
         保 存
       </Button>,
@@ -2025,7 +2029,6 @@ class TableList extends PureComponent {
 
       orderCode = (result && result.data) || '';
       // TODO: 拿到order_code用于打印
-      console.log(result.data, orderCode);
       if (result && result.code == 0) {
         message.success('添加成功');
       } else {
