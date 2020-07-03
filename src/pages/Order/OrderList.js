@@ -570,7 +570,7 @@ class TableList extends PureComponent {
         <FormItem label="有无货款">
           {getFieldDecorator('order_amount', { initialValue: -1 })(
             <Select placeholder="全部" style={{ width: '100px' }} allowClear>
-              <Option value={0}>无</Option>
+              <Option value={-2}>无</Option>
               <Option value={-1}>有</Option>
             </Select>
           )}
