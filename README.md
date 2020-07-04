@@ -39,9 +39,6 @@ setFieldsValue的时候，driver_plate在form中没有。即设置了getFieldDec
 
 https://github.com/settings/security
 
-jauney
-
-Cp4*****5
 
 ## 服务器部署
 

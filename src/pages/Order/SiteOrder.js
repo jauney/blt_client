@@ -2482,7 +2482,7 @@ class TableList extends PureComponent {
         <span className={styles.footerSplit}>运费总额：{totalTransAmount || '0'}</span>
         <span className={styles.footerSplit}>提付运费：{totalTifuTransAmount || '0'}</span>
         <span className={styles.footerSplit}>西安运费：{totalXianTransAmount || '0'}</span>
-        <span className={styles.footerSplit}>垫付运费：{totalAdvancepayAmount || '0'}</span>
+        <span className={styles.footerSplit}>垫付款：{totalAdvancepayAmount || '0'}</span>
         <span className={styles.footerSplit}>送货费：{totalDeliverAmount || '0'}</span>
         <span className={styles.footerSplit}>西安保费：{totalXianInsurence || '0'}</span>
         <span className={styles.footerSplit}>提付保费：{totalTifuInsurance || '0'}</span>

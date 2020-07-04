@@ -639,10 +639,16 @@ function convertOrderFieldType(oldOrder = {}) {
   Object.keys(order).forEach(key => {
     // 这些字段即使值为0也不删除，因为确实可能为0
     // order_amount=0 表示无货款
+    // trans_type=0 提付
     if (
-      !['trans_status', 'pay_status', 'pay_abnormal', 'sign_status', 'order_amount'].includes(
-        key
-      ) &&
+      ![
+        'trans_status',
+        'pay_status',
+        'pay_abnormal',
+        'sign_status',
+        'order_amount',
+        'trans_type',
+      ].includes(key) &&
       (!order[key] || order[key] == 'undefined' || order[key] == 'null')
     ) {
       delete order[key];
