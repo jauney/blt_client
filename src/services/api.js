@@ -663,7 +663,7 @@ function convertOrderFieldType(oldOrder = {}) {
       order[key] = Array.isArray(order[key]) ? order[key] : [order[key]];
       for (let i = 0; i < order[key].length; i++) {
         if (key.indexOf('date') >= 0) {
-          if (/[0-9]/.test(order[key][i])) {
+          if (/^\d+$/.test(order[key][i])) {
             order[key][i] = `${new Date(Number(order[key][i])).getTime()}`;
           } else {
             order[key][i] = `${new Date(order[key][i]).getTime()}`;
