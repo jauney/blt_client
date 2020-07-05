@@ -13,6 +13,9 @@ import { async } from 'q';
 let APIHOST = ``;
 // TODO: fortest
 // APIHOST = 'http://127.0.0.1:8005';
+
+// TODO: online
+// APIHOST = 'http://118.190.100.113:8001';
 let APIURL = `/graphql`;
 
 // 线上
@@ -99,6 +102,8 @@ export async function fakeAccountLogin(params) {
 // company
 export async function queryCompanyList(params) {
   params.company = params.filter;
+  params.pageNo = 1;
+  params.pageSize = 100;
   delete params.filter;
   return await ajaxFetch(`${APIHOST}/api/GetCompanys`, {
     ...params,
