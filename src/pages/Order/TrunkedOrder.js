@@ -855,9 +855,9 @@ class TableList extends PureComponent {
     return carInfo;
   };
 
-  handleSearch = e => {
+  handleSearch = async e => {
     e && e.preventDefault();
-    this.setState({
+    await this.setState({
       current: 1,
     });
     this.getOrderList({}, 1);

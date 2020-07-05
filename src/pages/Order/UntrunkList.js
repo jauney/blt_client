@@ -256,6 +256,7 @@ class TableList extends PureComponent {
     await this.setState({
       current,
     });
+
     this.getOrderList(sort, current);
   };
 
@@ -265,17 +266,21 @@ class TableList extends PureComponent {
     });
   };
 
-  handleSearch = e => {
+  handleSearch = async e => {
     if (e) {
       e.preventDefault();
     }
+    await this.setState({ current: 1 });
     this.getOrderList();
   };
-
+  // 调用table子组件
+  onRefTable = ref => {
+    this.standardTable = ref;
+  };
   /**
    * 获取订单信息
    */
-  getOrderList = (data = {}, pageNo = 1) => {
+  getOrderList = (data = {}, pageNo) => {
     const { dispatch } = this.props;
     const { current, pageSize, btnSearchClicked } = this.state;
 
@@ -315,6 +320,8 @@ class TableList extends PureComponent {
           btnSearchClicked: false,
         });
       }, 1000);
+
+      this.standardTable.cleanSelectedKeys();
     });
   };
 
@@ -480,8 +487,8 @@ class TableList extends PureComponent {
       selectedRows,
       selectedOrder,
       modalVisible,
-      current = 1,
-      pageSize = 2,
+      current,
+      pageSize,
       entrunkModalVisible,
     } = this.state;
 
@@ -501,6 +508,7 @@ class TableList extends PureComponent {
             <div className={styles.tableListForm}>{this.renderForm()}</div>
 
             <StandardTable
+              onRef={this.onRefTable}
               selectedRows={selectedRows}
               className={styles.dataTable}
               loading={loading}

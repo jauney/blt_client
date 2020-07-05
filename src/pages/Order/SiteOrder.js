@@ -1880,6 +1880,7 @@ class TableList extends PureComponent {
     await this.setState({
       current,
     });
+
     this.getOrderList(sort, current);
   };
 
@@ -1889,12 +1890,12 @@ class TableList extends PureComponent {
     });
   };
 
-  handleSearch = e => {
+  handleSearch = async e => {
     if (e) {
       e.preventDefault();
     }
 
-    this.setState({ current: 1 });
+    await this.setState({ current: 1 });
     this.getOrderList({ sorter: 'order_status|ascend,create_date|desc' });
   };
 

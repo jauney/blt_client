@@ -294,6 +294,7 @@ class TableList extends PureComponent {
     await this.setState({
       current,
     });
+
     this.getOrderList(sort, current);
   };
 
@@ -358,12 +359,12 @@ class TableList extends PureComponent {
     this.getLastCarInfo();
   };
 
-  handleSearch = e => {
+  handleSearch = async e => {
     e && e.preventDefault();
 
     const { dispatch, form } = this.props;
     const { currentCompany } = this.state;
-
+    await this.setState({ current: 1 });
     this.getOrderList();
   };
   // 调用table子组件
@@ -373,7 +374,7 @@ class TableList extends PureComponent {
   /**
    * 获取订单信息
    */
-  getOrderList = (data = {}, pageNo = 1) => {
+  getOrderList = (data = {}, pageNo) => {
     const { dispatch, form } = this.props;
     const { current, pageSize, btnSearchClicked } = this.state;
     let searchParams = {};
@@ -425,6 +426,7 @@ class TableList extends PureComponent {
           btnSearchClicked: false,
         });
       }, 1000);
+
       this.standardTable.cleanSelectedKeys();
     });
     this.getLastCarInfo();
