@@ -436,11 +436,11 @@ class TableList extends PureComponent {
         payload: { pageNo: pageNo || current, pageSize, ...searchParams },
       });
 
-      await dispatch({
+      dispatch({
         type: 'pay/getOrderStatisticAction',
         payload: { ...searchParams },
       });
-
+      console.log('request cominging.....');
       this.setState({
         btnSearchClicked: false,
       });
